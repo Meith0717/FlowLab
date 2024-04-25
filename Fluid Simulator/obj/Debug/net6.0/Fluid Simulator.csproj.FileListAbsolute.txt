@@ -24,3 +24,7 @@ C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\obj\Debug\net6.0\
 C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\obj\Debug\net6.0\Fluid Simulator.pdb
 C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\obj\Debug\net6.0\Fluid Simulator.genruntimeconfig.cache
 C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\obj\Debug\net6.0\ref\Fluid Simulator.dll
+C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\bin\Debug\net6.0\Content\particle.xnb
+C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\bin\Debug\net6.0\MonoGame.Extended.dll
+C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\bin\Debug\net6.0\MonoGame.Extended.Graphics.dll
+C:\Users\Thierry\Documents\Git\Fluid-Simulator\Fluid Simulator\bin\Debug\net6.0\Newtonsoft.Json.dll

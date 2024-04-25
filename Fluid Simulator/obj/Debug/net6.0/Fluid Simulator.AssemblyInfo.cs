@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Fluid Simulator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7c4c00bfd65545e5ccc3aaea8d78179eef562e02")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+47e9768013ef65c4218c930df7560e72a026f75e")]
 [assembly: System.Reflection.AssemblyProductAttribute("Fluid Simulator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Fluid Simulator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
