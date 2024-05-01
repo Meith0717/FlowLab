@@ -36,12 +36,12 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement
     public struct InputState
     {
         public List<ActionType> Actions = new();
-        public Vector2 mMousePosition = Vector2.Zero;
+        public Vector2 MousePosition = Vector2.Zero;
 
         public InputState(List<ActionType> actions, Vector2 mousePosition)
         {
             Actions = actions;
-            mMousePosition = mousePosition;
+            MousePosition = mousePosition;
         }
 
         public readonly bool HasAction(ActionType action) => Actions.Remove(action);

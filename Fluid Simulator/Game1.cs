@@ -12,7 +12,6 @@ namespace Fluid_Simulator
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
         private readonly ParticleManager _particleManager;
-        private readonly ParticleRenderer _particleRenderer;
         private readonly Camera _camera;
 
         public Game1()
@@ -20,7 +19,6 @@ namespace Fluid_Simulator
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
             _particleManager = new();
-            _particleRenderer = new();
             _camera = new();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -29,8 +27,8 @@ namespace Fluid_Simulator
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _particleManager.SpawnNewParticles(1000, 1000, 5);
-            _particleRenderer.LoadContent(Content);
+            _particleManager.LoadContent(Content);
+            _particleManager.AddNewParticles(32, 32, 5);
         }
 
         protected override void Update(GameTime gameTime)
@@ -38,9 +36,10 @@ namespace Fluid_Simulator
             var inputState = _inputManager.Update(gameTime);
 
             _camera.Update(_graphics.GraphicsDevice);
-            CameraMover.ControllZoom(gameTime, inputState, _camera, .01f, 1);
+            CameraMover.ControllZoom(gameTime, inputState, _camera, .01f, 5);
             CameraMover.MoveByKeys(gameTime, inputState, _camera);
-            _particleManager.Update(inputState, gameTime.ElapsedGameTime.TotalMilliseconds);
+            _particleManager.Update(inputState, _camera, gameTime.ElapsedGameTime.TotalMilliseconds);
+            System.Diagnostics.Debug.WriteLine(_camera.ScreenToWorld(inputState.MousePosition));
 
             base.Update(gameTime);
         }
@@ -50,7 +49,8 @@ namespace Fluid_Simulator
             GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
-            _particleRenderer.Render(_particleManager.Particles, _spriteBatch);
+            _particleManager.DrawParticles(_spriteBatch);
+            // _particleManager.DrawNeighbors(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);
