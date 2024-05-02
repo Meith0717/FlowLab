@@ -28,7 +28,8 @@ namespace Fluid_Simulator
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _particleManager.LoadContent(Content);
-            _particleManager.AddNewParticles(32, 32, 5);
+            _particleManager.AddNewBox(Vector2.Zero, 500, 500);
+            _particleManager.AddNewParticle(Vector2.Zero);
         }
 
         protected override void Update(GameTime gameTime)
@@ -38,8 +39,7 @@ namespace Fluid_Simulator
             _camera.Update(_graphics.GraphicsDevice);
             CameraMover.ControllZoom(gameTime, inputState, _camera, .01f, 5);
             CameraMover.MoveByKeys(gameTime, inputState, _camera);
-            _particleManager.Update(inputState, _camera, gameTime.ElapsedGameTime.TotalMilliseconds);
-            System.Diagnostics.Debug.WriteLine(_camera.ScreenToWorld(inputState.MousePosition));
+            _particleManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -50,7 +50,6 @@ namespace Fluid_Simulator
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
             _particleManager.DrawParticles(_spriteBatch);
-            // _particleManager.DrawNeighbors(_spriteBatch);
             _spriteBatch.End();
 
             base.Draw(gameTime);

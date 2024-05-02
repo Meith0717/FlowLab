@@ -4,7 +4,6 @@
 
 using Fluid_Simulator.Core;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +62,6 @@ namespace StellarLiberation.Game.Core.GameProceses.PositionManagement
             var endY = (int)Math.Ceiling((position.Y + radius) / CellSize);
             var xRange = Enumerable.Range(startX, endX - startX + 1);
             var yRange = Enumerable.Range(startY, endY - startY + 1);
-            var lookUpCircle = new CircleF(position, radius);
 
             foreach (var x in xRange)
             {
@@ -72,31 +70,8 @@ namespace StellarLiberation.Game.Core.GameProceses.PositionManagement
                     if (!TryGetObjectsInBucket(new Vector2(x, y) * CellSize, out var objectsInBucket)) continue;
                     foreach (Particle particle in objectsInBucket)
                     {
-                        if (!CircleF.Intersects(lookUpCircle, particle.BoundBox)) continue;
+                        if (Vector2.Distance(particle.Position, position) < radius) continue;
                         particleInRadius.Add(particle);
-                    }
-                }
-            }
-        }
-
-        public void GetObjectsInRectangle(RectangleF searchRectangle, ref List<Particle> objectsInRectangle)
-        {
-            var startX = (int)Math.Floor(searchRectangle.Left / CellSize);
-            var endX = (int)Math.Ceiling(searchRectangle.Right / CellSize);
-            var startY = (int)Math.Floor(searchRectangle.Top / CellSize);
-            var endY = (int)Math.Ceiling(searchRectangle.Bottom / CellSize);
-            var xRange = Enumerable.Range(startX, endX - startX + 1);
-            var yRange = Enumerable.Range(startY, endY - startY + 1);
-
-            foreach (var x in xRange)
-            {
-                foreach (var y in yRange)
-                {
-                    if (!TryGetObjectsInBucket(new(x, y), out var objectsInBucket)) continue;
-                    foreach (Particle particle in objectsInBucket)
-                    {
-                        if (!searchRectangle.Intersects(particle.BoundBox)) continue;
-                        objectsInRectangle.Add(particle);
                     }
                 }
             }
