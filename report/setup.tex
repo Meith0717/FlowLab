@@ -1,0 +1,28 @@
+\usepackage{titlesec}
+\usepackage[ngerman]{babel}
+\usepackage[a4paper, left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{fouriernc}
+\usepackage{titlesec}
+\usepackage{keystroke}
+
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{}{0pt}{\Huge}
+
+\newcommand{\makeTitleAndTable}{
+    \begin{titlepage}
+        \centering
+        \vspace*{1.5cm}
+        {\Huge Fluid Simulation\par}
+        \vspace{1cm}
+        {\Large Bachelor Projekt\par}
+        \vspace{2cm}
+        {\Large Thierry Meiers\par}
+        \vspace{0.5cm}
+        {\large Albert-Ludwigs-Universität Freiburg\\Technische Fakultät\\Graphische Datenverarbeitung\par}
+        \vspace{2cm}
+        {\large \today \par}
+    \end{titlepage}
+    \pagenumbering{gobble}
+    \tableofcontents
+    \clearpage
+    \pagenumbering{arabic}
+}
