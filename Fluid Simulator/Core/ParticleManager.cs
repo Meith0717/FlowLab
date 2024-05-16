@@ -2,28 +2,20 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using StellarLiberation.Game.Core.GameProceses.PositionManagement;
-using System;
 using System.Collections.Generic;
 
 namespace Fluid_Simulator.Core
 {
     internal class ParticleManager
     {
-        private const int H = 5;
-        private const double density = 2;
-        private const double stiffness = 2;
-        private const double gravity = 9.81;
-
         private List<Particle> _particles = new();
 
-        #region Simulating
-        private SpatialHashing _spatialHashing = new(50);
+        private SpatialHashing _spatialHashing = new(SimulationConfig.ParticleDiameter * 2);
 
         public void AddNewBox(Vector2 positon, int width, int height)
         {
             positon -= new Vector2(width, height) / 2;
-            for (int x = 0; x <= width; x+=H)
+            for (int x = 0; x <= width; x+=SimulationConfig.ParticleDiameter)
             {
                 var particle1 = new Particle(positon + new Vector2(x, 0), Color.Gray, true);
                 _particles.Add(particle1);
@@ -34,7 +26,7 @@ namespace Fluid_Simulator.Core
                 _spatialHashing.InsertObject(particle2);
             }
 
-            for (int y = H; y < width; y += H)
+            for (int y = SimulationConfig.ParticleDiameter; y < width; y += SimulationConfig.ParticleDiameter)
             {
                 var particle1 = new Particle(positon + new Vector2(0, y), Color.Gray, true);
                 _particles.Add(particle1);
@@ -46,22 +38,29 @@ namespace Fluid_Simulator.Core
             }
         }
 
-        public void AddNewParticle(Vector2 position)
+        public void AddNewParticles(Vector2 start, Vector2 end, Color? color = null)
         {
-            var particle = new Particle(position, Color.Blue);
+            for (float x = start.X; x < end.X; x+=SimulationConfig.ParticleDiameter)
+                for (float y = start.Y; y < end.Y; y+= SimulationConfig.ParticleDiameter)
+                    AddNewParticle(new(x, y), color);
+        }
+
+        public void AddNewParticle(Vector2 position, Color? color = null)
+        {
+            var particle = new Particle(position, color);
             _particles.Add(particle);
             _spatialHashing.InsertObject(particle);
         }
 
+        #region Simulating
         private List<Particle> _neighbors = new();
 
         public void Update(GameTime gameTime)
         {
+            return;
             foreach (var particle in _particles)
             {
                 /// Get neighbors Particles
-                _neighbors.Clear();
-                _spatialHashing.InRadius(particle.Position, H * 2.1f, ref _neighbors);
 
                 /// Compute density
 
@@ -82,7 +81,7 @@ namespace Fluid_Simulator.Core
 
         #region Rendering
         private Texture2D _particleTexture;
-        private CircleF _particleShape = new();
+        private CircleF _particleShape;
 
         public void LoadContent(ContentManager content)
             => _particleTexture = content.Load<Texture2D>(@"particle");
@@ -92,7 +91,7 @@ namespace Fluid_Simulator.Core
             foreach (var particle in _particles)
             {
                 _particleShape.Position = particle.Position;
-                _particleShape.Radius = H / 2;
+                _particleShape.Radius = SimulationConfig.ParticleDiameter / 2;
                 spriteBatch.Draw(_particleTexture, _particleShape.ToRectangle(), particle.Color);
             }
         }

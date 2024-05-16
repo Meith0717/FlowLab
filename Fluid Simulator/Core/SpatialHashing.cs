@@ -1,14 +1,9 @@
-﻿// SpatialHashing.cs 
-// Copyright (c) 2023-2024 Thierry Meiers 
-// All rights reserved.
-
-using Fluid_Simulator.Core;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StellarLiberation.Game.Core.GameProceses.PositionManagement
+namespace Fluid_Simulator.Core
 {
     /// <summary>
     /// Represents a spatial hashing data structure for efficient object retrieval based on their coordinates.
@@ -50,7 +45,7 @@ namespace StellarLiberation.Game.Core.GameProceses.PositionManagement
             if (objectBucket.Count == 0) mSpatialGrids.Remove(hash);
         }
 
-        public void ClearBuckets() => mSpatialGrids.Clear();
+        public void Clear() => mSpatialGrids.Clear();
 
         public bool TryGetObjectsInBucket(Vector2 position, out HashSet<Particle> object2Ds) => mSpatialGrids.TryGetValue(Hash(position), out object2Ds);
 
@@ -70,11 +65,14 @@ namespace StellarLiberation.Game.Core.GameProceses.PositionManagement
                     if (!TryGetObjectsInBucket(new Vector2(x, y) * CellSize, out var objectsInBucket)) continue;
                     foreach (Particle particle in objectsInBucket)
                     {
-                        if (Vector2.Distance(particle.Position, position) < radius) continue;
+                        var distance = Vector2.Distance(particle.Position, position);
+                        if (distance > radius)
+                            continue;
                         particleInRadius.Add(particle);
                     }
                 }
             }
         }
     }
+
 }
