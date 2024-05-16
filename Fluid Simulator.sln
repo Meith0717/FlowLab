@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fluid Simulator", "Fluid Simulator\Fluid Simulator.csproj", "{8CAECF49-2A40-4647-85D8-4A8548E4739D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fluid Simulator", "Fluid Simulator\Fluid Simulator.csproj", "{8CAECF49-2A40-4647-85D8-4A8548E4739D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{D58BDA90-CAA1-468C-8126-020854970068}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8CAECF49-2A40-4647-85D8-4A8548E4739D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CAECF49-2A40-4647-85D8-4A8548E4739D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CAECF49-2A40-4647-85D8-4A8548E4739D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D58BDA90-CAA1-468C-8126-020854970068}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D58BDA90-CAA1-468C-8126-020854970068}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D58BDA90-CAA1-468C-8126-020854970068}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D58BDA90-CAA1-468C-8126-020854970068}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
