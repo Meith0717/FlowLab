@@ -5,15 +5,13 @@ using Microsoft.Xna.Framework;
 namespace Fluid_Simulator.Core
 {
     public static class SphFluidSolver
-    {
-        public static float GetMass(float H, float density) => GetCircleVolume(H / 2) * density;
+    {        
 
-        private static float GetCircleVolume(float radius) => 4 / 3 * MathF.PI * MathF.Pow(radius, 3);  
-        
-        public static float Kernel(Vector2 position1, Vector2 position2, float H)
+        private static float KernelAlpha(float particelDiameter) => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+
+        public static float Kernel(Vector2 position1, Vector2 position2, float particelDiameter)
         {
-            var distanceOverH = Vector2.Distance(position1, position2) / (float)H;
-            var _const = 5 / (14 * MathF.PI * MathF.Pow(H, 2));
+            var distanceOverH = Vector2.Distance(position1, position2) / particelDiameter;
             var bracketsValue = distanceOverH switch
                 {
                     < 0 => throw new SystemException(),
@@ -22,15 +20,15 @@ namespace Fluid_Simulator.Core
                     >= 2 => 0,
                     _ => throw new NotImplementedException()
                 };
-            return _const * bracketsValue;
+            var alpha = KernelAlpha(particelDiameter);
+            return alpha * bracketsValue;
         }
 
-        public static Vector2 KernelDerivative(Vector2 position1, Vector2 position2, float H)
+        public static Vector2 KernelDerivative(Vector2 position1, Vector2 position2, float particelDiameter)
         {
             var positionDifference = position1 - position2;
             var distance = Vector2.Distance(position1, position2);
-            var distanceOverH = distance / (float)H;
-            var _const = 5 / (14 * MathF.PI * MathF.Pow((float)H, 3));
+            var distanceOverH = distance / particelDiameter;
             var bracketsValue =  distanceOverH switch
             {
                 < 0 => throw new SystemException(),
@@ -39,50 +37,51 @@ namespace Fluid_Simulator.Core
                 >= 2 => 0,
                 _ => throw new NotImplementedException()
             };
-            return (positionDifference / _const * distance) * bracketsValue;
+            if (distance == 0) return Vector2.Zero;
+            return KernelAlpha(particelDiameter) * (positionDifference /  (distance * particelDiameter)) * bracketsValue;
         }
 
-        public static float GetDensity(float H, float globalDensity, Particle particle, List<Particle> neighbors)
+        public static float ComputeLocalDensity(float particelDiameter, Particle particle, List<Particle> neighbors)
         {
-            // IMPROVEMENT Parallel?
             var density = 0f;
             foreach (var neighbor in neighbors)
-            {
-                var mass = GetMass(H, globalDensity);
-                var kernel = Kernel(particle.Position, neighbor.Position, H);
-                density += mass * kernel;
-            }
-            
+                density += neighbor.Mass * Kernel(particle.Position, neighbor.Position, particelDiameter);
             return density;
         }
 
-        public static float GetPressure(float stiffness, float localDensity, float globalDensity) => stiffness * ((localDensity / globalDensity) - 1);
+        public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
+            => fluidStiffness * ((localDensity / fluidDensity) - 1);
 
-        public static Vector2 GetPressureAcceleration(float H, float globalDensity, Dictionary<Particle, float> localPressures, Dictionary<Particle, float> localDensitys, Particle particle, List<Particle> neighbors)
+        public static Vector2 GetPressureAcceleration(float particelDiameter, Dictionary<Particle, float> localPressures, Dictionary<Particle, float> localDensitys, Particle particle, List<Particle> neighbors)
         {
             var pressureAcceleration = Vector2.Zero;
             var pressureOverDensitySquared = localPressures[particle] / MathF.Pow(localDensitys[particle], 2);
             foreach (var neighbor in neighbors)
             {
-                var mass = GetMass(H, globalDensity);
                 var neighborPressureOverDensitySquared = localPressures[neighbor] / MathF.Pow(localDensitys[neighbor], 2);
-                var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, H);
-                pressureAcceleration += mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
+                var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
+                pressureAcceleration += neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
             }
-            return -pressureAcceleration;
+            return - pressureAcceleration;
         }
 
-        public static double GetViscosityAcceleration(float viscosity, Particle particle, List<Particle> neighbors)
+        public static Vector2 GetViscosityAcceleration(float particelDiameter, float fluidViscosity, Particle particle, List<Particle> neighbors, Dictionary<Particle, float> localDensitys)
         {
-            var sum = 0;
-            foreach (var neighbor in neighbors)
+            Vector2 sum = Vector2.Zero;
+            foreach (var neighbor in neighbors) 
             {
+                var velocityDifference = particle.Velocity - neighbor.Velocity;
+                var positionDifference = particle.Position - neighbor.Position;
 
+                var massDensityRatio = neighbor.Mass / localDensitys[neighbor];
+                var dotVelocityPosition = Vector2.Dot(velocityDifference, positionDifference);
+                var dotPositionPosition = Vector2.Dot(positionDifference, positionDifference);
+                var scaledParticleDiameter = 0.01f * particelDiameter;
+                var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
+
+                sum += massDensityRatio * (dotVelocityPosition / (dotPositionPosition + scaledParticleDiameter)) * kernelDerivative;
             }
-
-            return 2 * viscosity * sum;
+            return 2 * fluidViscosity * sum;
         }
-
-
     }
 }

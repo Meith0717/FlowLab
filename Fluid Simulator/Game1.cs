@@ -28,6 +28,8 @@ namespace Fluid_Simulator
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _particleManager.LoadContent(Content);
+            _particleManager.AddNewBox(Vector2.Zero, 100, 100);
+            _particleManager.AddNewParticles(- new Vector2(0), new Vector2(15));
         }
 
         protected override void Update(GameTime gameTime)

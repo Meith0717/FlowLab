@@ -13,11 +13,8 @@ namespace Fluid_Simulator.Core
         public Color Color;
         public readonly bool IsBorder;
 
-        public Particle(Vector2 position, Color? color = null, bool isBorder = false)
+        public Particle(Vector2 position, float diameter, float density,  Color? color = null, bool isBorder = false)
         {
-            var diameter = SimulationConfig.ParticleDiameter;
-            var density = SimulationConfig.FluidDensity;
-
             Position = position;
             var volume = MathF.Pow(diameter, 2);
             Mass = volume * density;
