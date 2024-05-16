@@ -52,7 +52,7 @@ namespace Tests
             var kernelSum = 0f;
             foreach (var neighbor in neighbors)
                 kernelSum += SphFluidSolver.Kernel(_middleParticle.Position, neighbor.Position, SimulationConfig.ParticleDiameter);
-            Assert.AreEqual(1 / MathF.Pow(SimulationConfig.ParticleDiameter, 2), kernelSum, 2);
+            Assert.AreEqual(1 / MathF.Pow(SimulationConfig.ParticleDiameter, 2), kernelSum, 0.005);
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Tests
             var kernelDerivativeSum = Vector2.Zero;
             foreach (var neighbor in neighbors)
                 kernelDerivativeSum += SphFluidSolver.KernelDerivative(_middleParticle.Position, neighbor.Position, SimulationConfig.ParticleDiameter);
-            Assert.AreEqual(0, kernelDerivativeSum.Length(), 2);
+            Assert.AreEqual(0, kernelDerivativeSum.Length(), 0.005);
         }
     }
 }
