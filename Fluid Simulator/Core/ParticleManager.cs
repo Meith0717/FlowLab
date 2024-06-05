@@ -14,7 +14,7 @@ namespace Fluid_Simulator.Core
         public void AddNewBox(Vector2 positon, int width, int height)
         {
             positon -= new Vector2(width, height) / 2;
-            for (float x = 0; x <= width; x+= .5f * SimulationConfig.ParticleDiameter)
+            for (float x = 0; x <= width; x+= SimulationConfig.ParticleDiameter)
             {
                 var particle1 = new Particle(positon + new Vector2(x, 0), SimulationConfig.ParticleDiameter, SimulationConfig.FluidDensity, Color.Gray, true);
                 _particles.Add(particle1);
@@ -25,12 +25,12 @@ namespace Fluid_Simulator.Core
                 _spatialHashing.InsertObject(particle2);
             }
 
-            for (float y = SimulationConfig.ParticleDiameter; y < width; y += .5f * SimulationConfig.ParticleDiameter)
+            for (float y = SimulationConfig.ParticleDiameter; y < width; y += SimulationConfig.ParticleDiameter)
             {
                 var particle1 = new Particle(positon + new Vector2(0, y), SimulationConfig.ParticleDiameter, SimulationConfig.FluidDensity, Color.Gray, true);
                 _particles.Add(particle1);
                 _spatialHashing.InsertObject(particle1);
-
+            
                 var particle2 = new Particle(positon + new Vector2(width, y), SimulationConfig.ParticleDiameter, SimulationConfig.FluidDensity, Color.Gray, true);
                 _particles.Add(particle2);
                 _spatialHashing.InsertObject(particle2);
@@ -67,6 +67,7 @@ namespace Fluid_Simulator.Core
                 // Get neighbors Particles
                 var neighbors = new List<Particle>();
                 _spatialHashing.InRadius(particle.Position, SimulationConfig.ParticleDiameter * 2, ref neighbors);
+                neighbors.Remove(particle);
                 _neighbors[particle] = neighbors;
             
                 // Compute density
@@ -112,7 +113,9 @@ namespace Fluid_Simulator.Core
             {
                 _particleShape.Position = particle.Position;
                 _particleShape.Radius = SimulationConfig.ParticleDiameter / 2;
-                spriteBatch.Draw(_particleTexture, _particleShape.ToRectangle(), particle.Color);
+                spriteBatch.DrawCircle(particle.Position, SimulationConfig.ParticleDiameter / 2, 10, particle.Color);
+                foreach (var n in _neighbors[particle])
+                    spriteBatch.DrawLine(particle.Position, n.Position, particle.Color, 1f, 1);
             }
         }
         #endregion

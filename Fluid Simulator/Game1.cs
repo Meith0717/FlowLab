@@ -28,8 +28,8 @@ namespace Fluid_Simulator
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _particleManager.LoadContent(Content);
-            _particleManager.AddNewBox(Vector2.Zero, 100, 100);
-            _particleManager.AddNewParticles(- new Vector2(0), new Vector2(15));
+            _particleManager.AddNewBox(Vector2.Zero, 1000, 1000);
+            _particleManager.AddNewParticles(- new Vector2(0), new Vector2(150), Color.LightBlue);
         }
 
         protected override void Update(GameTime gameTime)
@@ -37,7 +37,7 @@ namespace Fluid_Simulator
             var inputState = _inputManager.Update(gameTime);
 
             _camera.Update(_graphics.GraphicsDevice);
-            CameraMover.ControllZoom(gameTime, inputState, _camera, .01f, 5);
+            CameraMover.ControllZoom(gameTime, inputState, _camera, .01f, 20);
             CameraMover.MoveByKeys(gameTime, inputState, _camera);
             _particleManager.Update(gameTime);
 
