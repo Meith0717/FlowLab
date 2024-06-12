@@ -13,6 +13,8 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement
         MoveCameraRight,
         MoveCameraUp,
         MoveCameraDown,
+        SaveData,
+        DeleteParticels,
 
         // Mouse
         LeftReleased,

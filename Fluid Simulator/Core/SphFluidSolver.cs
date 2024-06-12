@@ -7,12 +7,13 @@ namespace Fluid_Simulator.Core
     public static class SphFluidSolver
     {        
 
-        private static float KernelAlpha(float particelDiameter) => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+        public static float KernelAlpha(float particelDiameter) => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+        private static float DistanceOverH(Vector2 pos1,  Vector2 pos2, float H) => Vector2.Distance(pos1, pos2) / H;
 
         public static float Kernel(Vector2 position1, Vector2 position2, float particelDiameter)
         {
             var alpha = KernelAlpha(particelDiameter);
-            var distanceOverH = Vector2.Distance(position1, position2) / particelDiameter;
+            var distanceOverH = DistanceOverH(position1, position2, particelDiameter);
             var t1 = MathF.Max(1 - distanceOverH, 0);
             var t2 = MathF.Max(2 - distanceOverH, 0);
             return alpha * (MathF.Pow(t2, 3) - 4 * MathF.Pow(t1, 3));
@@ -21,8 +22,7 @@ namespace Fluid_Simulator.Core
         public static Vector2 KernelDerivative(Vector2 position1, Vector2 position2, float particelDiameter)
         {
             var positionDifference = position1 - position2;
-            var distance = Vector2.Distance(position1, position2);
-            var distanceOverH = distance / particelDiameter;
+            var distanceOverH = DistanceOverH(position1, position2, particelDiameter);
             var bracketsValue =  distanceOverH switch
             {
                 < 0 => throw new SystemException(),
@@ -31,8 +31,8 @@ namespace Fluid_Simulator.Core
                 >= 2 => 0,
                 _ => throw new NotImplementedException()
             };
-            if (distance == 0) return Vector2.Zero;
-            return KernelAlpha(particelDiameter) * (positionDifference /  (distance * particelDiameter)) * bracketsValue;
+            if (positionDifference.Length() == 0) return Vector2.Zero;
+            return KernelAlpha(particelDiameter) * (positionDifference /  (positionDifference.Length() * particelDiameter)) * bracketsValue;
         }
 
         public static float ComputeLocalDensity(float particelDiameter, Particle particle, List<Particle> neighbors)
@@ -44,16 +44,21 @@ namespace Fluid_Simulator.Core
         }
 
         public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
-            => fluidStiffness * ((localDensity / fluidDensity) - 1);
+            => MathF.Max(fluidStiffness * ((localDensity / fluidDensity) - 1), 0);
 
-        public static Vector2 GetPressureAcceleration(float particelDiameter, Dictionary<Particle, float> localPressures, Dictionary<Particle, float> localDensitys, Particle particle, List<Particle> neighbors)
+        public static Vector2 GetPressureAcceleration(float particelDiameter, Particle particle, List<Particle> neighbors, Dictionary<Particle, float> localPressures, Dictionary<Particle, float> localDensitys)
         {
             var pressureAcceleration = Vector2.Zero;
             var pressureOverDensitySquared = localPressures[particle] / MathF.Pow(localDensitys[particle], 2);
             foreach (var neighbor in neighbors)
             {
-                var neighborPressureOverDensitySquared = localPressures[neighbor] / MathF.Pow(localDensitys[neighbor], 2);
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
+                if (neighbor.IsBoundary)
+                {
+                    pressureAcceleration -= neighbor.Mass * (2*pressureOverDensitySquared) * kernelDerivative;
+                    continue;
+                }
+                var neighborPressureOverDensitySquared = localPressures[neighbor] / MathF.Pow(localDensitys[neighbor], 2);
                 pressureAcceleration -= neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
             }
             return pressureAcceleration;

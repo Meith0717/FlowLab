@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 
-namespace StellarLiberation.Game.Core.Visuals.Rendering
+namespace Fluid_Simulator.Core
 {
     public static class CameraMover
     {

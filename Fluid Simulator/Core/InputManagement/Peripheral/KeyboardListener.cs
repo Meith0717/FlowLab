@@ -25,6 +25,8 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
 
             mActionOnPressed = new()
             {
+                { Keys.F1, ActionType.SaveData },
+                { Keys.F2, ActionType.DeleteParticels },
             };
 
             mActionOnHold = new()

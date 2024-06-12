@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
-namespace StellarLiberation.Game.Core.Visuals.Rendering
+namespace Fluid_Simulator.Core
 {
     public class Camera
     {

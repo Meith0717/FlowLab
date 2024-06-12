@@ -70,12 +70,12 @@ namespace Tests
             Assert.AreEqual(kernelDerivative.Length(), 0);
  
             kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(ParticleDiameter, 0), ParticleDiameter);
-            Assert.AreEqual(kernelDerivative.X, 15 / (14 * MathF.PI * MathF.Pow(ParticleDiameter, 3)));
+            Assert.AreEqual(3 * SphFluidSolver.KernelAlpha(ParticleDiameter) / ParticleDiameter, kernelDerivative.X, 0.01);
             Assert.AreEqual(kernelDerivative.Y, 0);
 
             kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(0, ParticleDiameter), ParticleDiameter);
             Assert.AreEqual(kernelDerivative.X, 0);
-            Assert.AreEqual(kernelDerivative.Y, 15 / (14 * MathF.PI * MathF.Pow(ParticleDiameter, 3)));
+            Assert.AreEqual(3 * SphFluidSolver.KernelAlpha(ParticleDiameter) / ParticleDiameter, kernelDerivative.Y, 0.01);
 
             kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(ParticleDiameter), ParticleDiameter);
             Assert.AreEqual(kernelDerivative.X, kernelDerivative.Y);

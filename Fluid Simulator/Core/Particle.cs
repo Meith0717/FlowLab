@@ -11,15 +11,15 @@ namespace Fluid_Simulator.Core
 
         public Vector2 Velocity;
         public Color Color;
-        public readonly bool IsBorder;
+        public readonly bool IsBoundary;
 
-        public Particle(Vector2 position, float diameter, float density,  Color? color = null, bool isBorder = false)
+        public Particle(Vector2 position, float diameter, float density,  Color? color, bool isBoundary)
         {
             Position = position;
             var volume = MathF.Pow(diameter, 2);
             Mass = volume * density;
             Color = color is null ? Color.White : (Color)color;
-            IsBorder = isBorder;
+            IsBoundary = isBoundary;
         }
     }
 }

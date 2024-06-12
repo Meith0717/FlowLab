@@ -2,10 +2,10 @@
 {
     public static class SimulationConfig
     {
-        public readonly static int ParticleDiameter = 10;    
-        public const float FluidDensity = .3f;
-        public const float FluidStiffness = 20f;
-        public const float FluidViscosity = 1.6f;
-        public const float Gravitation = 9.81f;
+        public readonly static int ParticleDiameter = 12;    
+        public const float FluidDensity = 2f;
+        public const float FluidStiffness = 10000f;
+        public const float FluidViscosity = 13f;
+        public const float Gravitation = 1.5f;
     }
 }
