@@ -22,7 +22,7 @@ namespace Tests
             for (float x = start.X; x < end.X; x += ParticleSize)
                 for (float y = start.Y; y < end.Y; y += ParticleSize)
                 {
-                    var particle = new Particle(new Vector2(x, y), ParticleSize, 1);
+                    var particle = new Particle(new Vector2(x, y), ParticleSize, 1, Color.MonoGameOrange, false);
                     particles.Add(particle);
                     _spatialHashing.InsertObject(particle);
                 }

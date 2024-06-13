@@ -1,6 +1,5 @@
 using Fluid_Simulator.Core;
 using Microsoft.Xna.Framework;
-using System.Xml.Xsl;
 
 namespace Tests
 {
@@ -24,7 +23,7 @@ namespace Tests
             for (float x = start.X; x < end.X; x += ParticleDiameter)
                 for (float y = start.Y; y < end.Y; y += ParticleDiameter)
                 {
-                    var particle = new Particle(new Vector2(x, y), ParticleDiameter, FluidDensity);
+                    var particle = new Particle(new Vector2(x, y), ParticleDiameter, FluidDensity, Color.MonoGameOrange, false);
                     _particles.Add(particle);
                 }
             _middleParticle = _particles[4];
@@ -115,7 +114,7 @@ namespace Tests
                 localDesitys.Add(particle, FluidDensity);
             }
 
-            var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, localPressure, localDesitys, _middleParticle, _particles);
+            var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles, localPressure, localDesitys);
             Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
             Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
 
@@ -127,7 +126,7 @@ namespace Tests
                 localDesitys.Add(particle, 2);
             }
 
-            pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, localPressure, localDesitys, _middleParticle, _particles);
+            pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles, localPressure, localDesitys);
             Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
             Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
         }
