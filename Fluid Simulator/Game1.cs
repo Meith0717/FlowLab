@@ -3,6 +3,7 @@ using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
+using System;
 
 namespace Fluid_Simulator
 {
@@ -26,6 +27,8 @@ namespace Fluid_Simulator
             _frameCounter = new();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            IsFixedTimeStep = true;
+             TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 30);
         }
 
         protected override void LoadContent()
