@@ -47,7 +47,8 @@ namespace Fluid_Simulator.Core
 
         public void Clear() => mSpatialGrids.Clear();
 
-        public bool TryGetObjectsInBucket(Vector2 position, out HashSet<Particle> object2Ds) => mSpatialGrids.TryGetValue(Hash(position), out object2Ds);
+        public bool TryGetObjectsInBucket(Vector2 position, out HashSet<Particle> object2Ds) 
+            => mSpatialGrids.TryGetValue(Hash(position), out object2Ds);
 
         public void InRadius(Vector2 position, float radius, ref List<Particle> particleInRadius)
         {
@@ -62,7 +63,9 @@ namespace Fluid_Simulator.Core
             {
                 foreach (var y in yRange)
                 {
-                    if (!TryGetObjectsInBucket(new Vector2(x, y) * CellSize, out var objectsInBucket)) continue;
+                    var hash = Hash(new Vector2(x, y) * CellSize);
+                    if (!mSpatialGrids.ContainsKey(hash)) continue;
+                    var objectsInBucket = mSpatialGrids[hash];
                     foreach (Particle particle in objectsInBucket)
                     {
                         var distance = Vector2.Distance(particle.Position, position);

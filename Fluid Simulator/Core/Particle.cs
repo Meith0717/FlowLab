@@ -10,6 +10,8 @@ namespace Fluid_Simulator.Core
         public readonly float Mass;
 
         public Vector2 Velocity;
+        public float Density;
+        public float Pressure;
         public Color Color;
         public readonly bool IsBoundary;
 

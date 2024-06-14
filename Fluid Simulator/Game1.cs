@@ -9,6 +9,14 @@ namespace Fluid_Simulator
 {
     public class Game1 : Game
     {
+        private const int ParticleDiameter = 15;
+        private const float FluidDensity = 0.1f;
+        private const float Gravitation = 0.1f;
+
+        private readonly float TimeSteps = 0.05f;
+        private readonly float FluidStiffness = 1000f;
+        private readonly float FluidViscosity = 0f;
+
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
@@ -21,14 +29,14 @@ namespace Fluid_Simulator
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
-            _particleManager = new(100, 50);
+            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 25, yAmount: 40);
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             IsFixedTimeStep = true;
-             TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 30);
+            TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 100);
         }
 
         protected override void LoadContent()
@@ -38,35 +46,21 @@ namespace Fluid_Simulator
             _spriteFont = Content.Load<SpriteFont>(@"fonts/text");
         }
 
+        private bool mIsPaused;
         protected override void Update(GameTime gameTime)
         {
             var inputState = _inputManager.Update(gameTime);
-
-            inputState.DoAction(ActionType.LeftWasClicked, () =>
-            {
-                var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                _particleManager.AddNewParticles(worldMousePosition, 10, 10, Color.Blue);
-            });
-
-            inputState.DoAction(ActionType.RightWasClicked, () =>
-            {
-                var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                _particleManager.AddNewParticle(worldMousePosition, Color.Blue);
-            });
-
-            inputState.DoAction(ActionType.DeleteParticels, () =>
-            {
-                _particleManager.Clear();
-            });
+            inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
 
             inputState.DoAction(ActionType.SaveData, () => 
             {
-                var data = new DataCollector("constants", new() { "ParticleDiameter", "FluidDensity", "FluidStiffness", "FluidViscosity", "Gravitation" });
-                data.AddData("ParticleDiameter", SimulationConfig.ParticleDiameter);
-                data.AddData("FluidDensity", SimulationConfig.FluidDensity);
-                data.AddData("FluidStiffness", SimulationConfig.FluidStiffness);
-                data.AddData("FluidViscosity", SimulationConfig.FluidViscosity);
-                data.AddData("Gravitation", SimulationConfig.Gravitation);
+                var data = new DataCollector("constants", new() { "ParticleDiameter", "FluidDensity", "FluidStiffness", "FluidViscosity", "Gravitation", "TimeSteps" });
+                data.AddData("ParticleDiameter", ParticleDiameter);
+                data.AddData("FluidDensity", FluidDensity);
+                data.AddData("FluidStiffness", FluidStiffness);
+                data.AddData("FluidViscosity", FluidViscosity);
+                data.AddData("Gravitation", Gravitation);
+                data.AddData("TimeSteps", TimeSteps);
                 DataSaver.SaveToCsv(_serializer, data, _particleManager.DataCollector);
             });
 
@@ -74,7 +68,28 @@ namespace Fluid_Simulator
             _camera.Update(_graphics.GraphicsDevice);
             CameraMover.ControllZoom(gameTime, inputState, _camera, .05f, 20);
             CameraMover.MoveByKeys(gameTime, inputState, _camera);
-            _particleManager.Update(gameTime);
+
+            if (!mIsPaused)
+            {
+                inputState.DoAction(ActionType.LeftWasClicked, () =>
+                {
+                    var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
+                    _particleManager.AddNewParticles(worldMousePosition, 50, 50, Color.Blue);
+                });
+
+                inputState.DoAction(ActionType.RightWasClicked, () =>
+                {
+                    var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
+                    _particleManager.AddNewParticle(worldMousePosition, Color.Blue);
+                });
+
+                inputState.DoAction(ActionType.DeleteParticels, () =>
+                {
+                    _particleManager.Clear();
+                });
+
+                _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps);
+            }
 
             base.Update(gameTime);
         }

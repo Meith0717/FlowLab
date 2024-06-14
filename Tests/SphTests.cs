@@ -7,7 +7,7 @@ namespace Tests
     public class SphTests
     {
         private const int ParticleDiameter = 5;
-        private const float FluidDensity = 1.5f;
+        private const float FluidDensity = 1.2f;
         private const float FluidStiffness = 4f;
         private const float FluidViscosity = 1.1f;
 
@@ -44,10 +44,13 @@ namespace Tests
         {
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 75
             var kernelSum = SphFluidSolver.Kernel(Vector2.Zero, Vector2.Zero, ParticleDiameter);
-            Assert.AreEqual(kernelSum, 20 / (14 * MathF.PI * MathF.Pow(ParticleDiameter, 2)), 0.01);
+            Assert.AreEqual(kernelSum, 4 * SphFluidSolver.KernelAlpha(ParticleDiameter), 0.01);
 
-            kernelSum = SphFluidSolver.Kernel(Vector2.Zero, new Vector2(5, 0), ParticleDiameter);
-            Assert.AreEqual(kernelSum, 5 / (14 * MathF.PI * MathF.Pow(ParticleDiameter, 2)), 0.01);
+            kernelSum = SphFluidSolver.Kernel(Vector2.Zero, new Vector2(ParticleDiameter, 0), ParticleDiameter);
+            Assert.AreEqual(kernelSum, SphFluidSolver.KernelAlpha(ParticleDiameter), 0.01);
+
+            kernelSum = SphFluidSolver.Kernel(Vector2.Zero, new Vector2(ParticleDiameter * 2, 0), ParticleDiameter);
+            Assert.AreEqual(kernelSum, 0);
         }
 
         [TestMethod]
@@ -66,10 +69,14 @@ namespace Tests
         {
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 79
             var kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, Vector2.Zero, ParticleDiameter);
-            Assert.AreEqual(kernelDerivative.Length(), 0);
+            Assert.AreEqual(0, kernelDerivative.Length());
  
             kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(ParticleDiameter, 0), ParticleDiameter);
             Assert.AreEqual(3 * SphFluidSolver.KernelAlpha(ParticleDiameter) / ParticleDiameter, kernelDerivative.X, 0.01);
+            Assert.AreEqual(kernelDerivative.Y, 0);
+
+            kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(-ParticleDiameter, 0), ParticleDiameter);
+            Assert.AreEqual(-(3 * SphFluidSolver.KernelAlpha(ParticleDiameter) / ParticleDiameter), kernelDerivative.X, 0.01);
             Assert.AreEqual(kernelDerivative.Y, 0);
 
             kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(0, ParticleDiameter), ParticleDiameter);
@@ -91,7 +98,7 @@ namespace Tests
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 76
 
             var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleDiameter, _middleParticle, _particles);
-            Assert.AreEqual(localDensity, FluidDensity, 0.005);
+            Assert.AreEqual(localDensity, FluidDensity, 0.001);
         }
 
         [TestMethod]
@@ -110,23 +117,11 @@ namespace Tests
             var localDesitys = new Dictionary<Particle, float>();
             foreach (var particle in _particles)
             {
-                localPressure.Add(particle, 0);
-                localDesitys.Add(particle, FluidDensity);
+                localPressure.Add(particle, 2);
+                localDesitys.Add(particle, 3);
             }
 
             var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles, localPressure, localDesitys);
-            Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
-            Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
-
-            localDesitys.Clear();
-            localPressure.Clear();
-            foreach (var particle in _particles)
-            {
-                localPressure.Add(particle, 1);
-                localDesitys.Add(particle, 2);
-            }
-
-            pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles, localPressure, localDesitys);
             Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
             Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
         }
@@ -135,6 +130,7 @@ namespace Tests
         public void Viscosity_Acceleration_Ideal_Sampling_Test()
         {
             var localDesitys = new Dictionary<Particle, float>();
+            _middleParticle.Velocity = Vector2.One;
             foreach (var particle in _particles)
                 localDesitys.Add(particle, FluidDensity);
 
