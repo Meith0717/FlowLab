@@ -4,18 +4,19 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
+using System.IO;
 
 namespace Fluid_Simulator
 {
     public class Game1 : Game
     {
-        private const int ParticleDiameter = 15;
-        private const float FluidDensity = 0.1f;
-        private const float Gravitation = 1f;
+        private const int ParticleDiameter = 11;
+        private const float FluidDensity = 0.3f;
+        private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = 0.05f;
-        private readonly float FluidStiffness = 750f;
-        private readonly float FluidViscosity = 100f;
+        private readonly float TimeSteps = 0.01f;
+        private readonly float FluidStiffness = 10000f;
+        private readonly float FluidViscosity = 0;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -32,11 +33,15 @@ namespace Fluid_Simulator
             _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 100, yAmount: 100);
             _camera = new();
             _serializer = new("Fluid_Simulator");
-            _frameCounter = new();
+            _frameCounter = new(1000);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 100);
+
+            // Disable fixed time step
+            IsFixedTimeStep = false;
+
+            // Disable vertical sync
+            _graphics.SynchronizeWithVerticalRetrace = false;
 
             // Get screen size
             int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
@@ -74,6 +79,11 @@ namespace Fluid_Simulator
                 DataSaver.SaveToCsv(_serializer, data, _particleManager.DataCollector);
             });
 
+            inputState.DoAction(ActionType.ScreenShot, () => 
+            {
+                Screenshot(gameTime);
+            });
+
             _frameCounter.Update(gameTime);
             _camera.Update(_graphics.GraphicsDevice);
             CameraMover.ControllZoom(gameTime, inputState, _camera, .05f, 20);
@@ -102,6 +112,18 @@ namespace Fluid_Simulator
             }
 
             base.Update(gameTime);
+        }
+
+        private void Screenshot(GameTime gameTime)
+        {
+            RenderTarget2D screenshotTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            GraphicsDevice.SetRenderTarget(screenshotTarget);
+            Draw(gameTime);
+            FileStream fs = new($"{_serializer.RootPath}/screen.png", FileMode.OpenOrCreate);
+            GraphicsDevice.SetRenderTarget(null);
+            screenshotTarget.SaveAsPng(fs, screenshotTarget.Width, screenshotTarget.Height);
+            fs.Flush();
+            fs.Close();
         }
 
         private SpriteFont _spriteFont;

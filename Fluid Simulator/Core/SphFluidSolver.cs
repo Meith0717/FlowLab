@@ -7,9 +7,11 @@ namespace Fluid_Simulator.Core
     public static class SphFluidSolver
     {        
 
-        public static float KernelAlpha(float particelDiameter) => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+        public static float KernelAlpha(float particelDiameter) 
+            => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
        
-        private static float DistanceOverH(Vector2 pos1,  Vector2 pos2, float H) => Vector2.Distance(pos1, pos2) / H;
+        private static float DistanceOverH(Vector2 pos1,  Vector2 pos2, float H) 
+            => Vector2.Distance(pos1, pos2) / H;
 
         public static float Kernel(Vector2 position1, Vector2 position2, float particelDiameter)
         {
