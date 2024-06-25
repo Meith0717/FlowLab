@@ -24,7 +24,7 @@ namespace Fluid_Simulator.Core
             ParticleDiameter = particleDiameter;
             FluidDensity = fluidDensity;    
 
-            DataCollector = new("phisics", new() { "localDensity", "localPressure", "pressureAcceleration", "viscosityAcceleration", "averageVelocity", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL" });
+            DataCollector = new("phisics", new() { "localDensity", "localPressure", "pressureAcceleration", "viscosityAcceleration", "averageVelocity", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL", "gravitation"});
             for (int i = -1; i < xAmount + 2; i++) 
             {
                 var x = i * particleDiameter;
@@ -92,7 +92,7 @@ namespace Fluid_Simulator.Core
             {
                 // Get neighbors Particles
                 var neighbors = new List<Particle>();
-                _spatialHashing.InRadius(particle.Position, ParticleDiameter * 2.1f, ref neighbors);
+                _spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref neighbors);
 
                 // Compute density
                 var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleDiameter, particle, neighbors);
@@ -153,6 +153,7 @@ namespace Fluid_Simulator.Core
             DataCollector.AddData("averageVelocity.Y", (float)_particleVelocitys.Values.Average(vector => vector.Y));
 
             DataCollector.AddData("CFL", timeSteps * (float)_particleVelocitys.Values.Max(vector => vector.Length()) / ParticleDiameter);
+            DataCollector.AddData("gravitation", gravitation);
         }
         #endregion
 

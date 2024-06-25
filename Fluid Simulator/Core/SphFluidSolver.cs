@@ -20,7 +20,8 @@ namespace Fluid_Simulator.Core
             var distanceOverH = DistanceOverH(position1, position2, particelDiameter);
             var t1 = MathF.Max(1 - distanceOverH, 0);
             var t2 = MathF.Max(2 - distanceOverH, 0);
-            return alpha * (MathF.Pow(t2, 3) - 4 * MathF.Pow(t1, 3));
+            var t3 = (t2 * t2 * t2) - 4 * (t1 * t1 * t1);
+            return alpha * t3;
         }
 
         public static Vector2 KernelDerivative(Vector2 position1, Vector2 position2, float particelDiameter)
@@ -30,7 +31,7 @@ namespace Fluid_Simulator.Core
             if (distanceOverH == 0) return Vector2.Zero;
             var t1 = MathF.Max(1 - distanceOverH, 0);
             var t2 = MathF.Max(2 - distanceOverH, 0);
-            var t3 = (-3 * MathF.Pow(t2, 2)) + (12 * MathF.Pow(t1, 1));
+            var t3 = (-3 * t2 * t2) + (12 * t1 * t1);
             return KernelAlpha(particelDiameter) * (positionDifference / (positionDifference.Length() * particelDiameter)) * t3;
         }
 
@@ -50,12 +51,12 @@ namespace Fluid_Simulator.Core
             foreach (var neighbor in neighbors)
             {
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
-                // if (neighbor.IsBoundary)
-                // {
-                //     pressureBoundaryAcceleration += neighbor.Mass * (2 * pressureOverDensitySquared) * kernelDerivative;
-                //     continue;
-                // }
-                var neighborPressureOverDensitySquared = neighbor.Pressure / MathF.Pow(neighbor.Density, 2);
+                if (neighbor.IsBoundary)
+                {
+                    pressureBoundaryAcceleration += neighbor.Mass * (2f * pressureOverDensitySquared) * kernelDerivative;
+                    continue;
+                }
+                var neighborPressureOverDensitySquared = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 pressureAcceleration += neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
             }
             return - pressureAcceleration - pressureBoundaryAcceleration;
@@ -72,7 +73,7 @@ namespace Fluid_Simulator.Core
                 var massDensityRatio = neighbor.Mass / neighbor.Density;
                 var dotVelocityPosition = Vector2.Dot(v_ij, x_ij);
                 var dotPositionPosition = Vector2.Dot(x_ij, x_ij);
-                var scaledParticleDiameter = 0.01f * MathF.Pow(particelDiameter, 2);
+                var scaledParticleDiameter = 0.01f * (particelDiameter * particelDiameter);
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
 
                 sumNonBoundry += massDensityRatio * (dotVelocityPosition / (dotPositionPosition + scaledParticleDiameter)) * kernelDerivative;

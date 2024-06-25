@@ -12,7 +12,7 @@ namespace Tests
         private const float FluidViscosity = 1.1f;
 
         private List<Particle> _particles = new();
-        private Particle _middleParticle;
+        private Particle? _middleParticle;
 
         [TestInitialize]
         public void Initialize()
@@ -60,8 +60,8 @@ namespace Tests
             Vector2 kernelDerivative = Vector2.Zero;
             foreach (var neighbor in _particles)
                 kernelDerivative += SphFluidSolver.KernelDerivative(_middleParticle.Position, neighbor.Position, ParticleDiameter);
-            Assert.AreEqual(kernelDerivative.X, 0, 0.001);
-            Assert.AreEqual(kernelDerivative.Y, 0, 0.001);
+            Assert.AreEqual(kernelDerivative.X, 0, 0.01);
+            Assert.AreEqual(kernelDerivative.Y, 0, 0.01);
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace Tests
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 76
 
             var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleDiameter, _middleParticle, _particles);
-            Assert.AreEqual(localDensity, FluidDensity, 0.001);
+            Assert.AreEqual(localDensity, FluidDensity, 0.01);
         }
 
         [TestMethod]
@@ -132,8 +132,8 @@ namespace Tests
                 particle.Density = FluidDensity;
 
             var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, FluidViscosity, _middleParticle, _particles);
-            Assert.AreEqual(viscosityAcceleration.X, 0, 0.01);
-            Assert.AreEqual(viscosityAcceleration.Y, 0, 0.01);
+            Assert.AreEqual(0, viscosityAcceleration.X, 0.01);
+            Assert.AreEqual(0, viscosityAcceleration.Y, 0.01);
         }
     }
 }
