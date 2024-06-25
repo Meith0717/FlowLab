@@ -92,7 +92,7 @@ namespace Fluid_Simulator.Core
             {
                 // Get neighbors Particles
                 var neighbors = new List<Particle>();
-                _spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref neighbors);
+                _spatialHashing.InRadius(particle.Position, ParticleDiameter * 2.1f, ref neighbors);
 
                 // Compute density
                 var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleDiameter, particle, neighbors);
@@ -171,7 +171,6 @@ namespace Fluid_Simulator.Core
                 _particleShape.Radius = ParticleDiameter / 2;
                 spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
 
-                continue;
                 if (particle.IsBoundary) continue;
 
                 foreach (var n in _neighbors[particle])

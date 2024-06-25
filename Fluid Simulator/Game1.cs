@@ -11,11 +11,11 @@ namespace Fluid_Simulator
     {
         private const int ParticleDiameter = 15;
         private const float FluidDensity = 0.1f;
-        private const float Gravitation = 0.1f;
+        private const float Gravitation = 1f;
 
         private readonly float TimeSteps = 0.05f;
-        private readonly float FluidStiffness = 1000f;
-        private readonly float FluidViscosity = 0f;
+        private readonly float FluidStiffness = 750f;
+        private readonly float FluidViscosity = 100f;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -29,7 +29,7 @@ namespace Fluid_Simulator
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
-            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 25, yAmount: 40);
+            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 100, yAmount: 100);
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new();
@@ -37,6 +37,16 @@ namespace Fluid_Simulator
             IsMouseVisible = true;
             IsFixedTimeStep = true;
             TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 100);
+
+            // Get screen size
+            int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+
+            // Set fullscreen mode
+            _graphics.PreferredBackBufferWidth = screenWidth;
+            _graphics.PreferredBackBufferHeight = screenHeight;
+            _graphics.IsFullScreen = true;
+            _graphics.ApplyChanges();
         }
 
         protected override void LoadContent()
@@ -74,7 +84,7 @@ namespace Fluid_Simulator
                 inputState.DoAction(ActionType.LeftWasClicked, () =>
                 {
                     var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    _particleManager.AddNewParticles(worldMousePosition, 50, 50, Color.Blue);
+                    _particleManager.AddNewParticles(worldMousePosition, 20, 20, Color.Blue);
                 });
 
                 inputState.DoAction(ActionType.RightWasClicked, () =>

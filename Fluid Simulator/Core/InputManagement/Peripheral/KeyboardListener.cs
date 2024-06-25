@@ -21,6 +21,7 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
         {
             mActionOnMultiplePressed = new()
             {
+                
             };
 
             mActionOnPressed = new()
