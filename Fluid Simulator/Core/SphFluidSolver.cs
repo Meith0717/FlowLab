@@ -7,9 +7,12 @@ namespace Fluid_Simulator.Core
     public static class SphFluidSolver
     {        
 
-        public static float KernelAlpha(float particelDiameter) => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
-       
-        private static float DistanceOverH(Vector2 pos1,  Vector2 pos2, float H) => Vector2.Distance(pos1, pos2) / H;
+        public static float KernelAlpha(float particelDiameter) 
+            => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+        private static float DistanceOverH(Vector2 pos1,  Vector2 pos2, float H) 
+            => Vector2.Distance(pos1, pos2) / H;
+        public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
+            => MathF.Max(fluidStiffness * ((localDensity / fluidDensity) - 1), 0);
 
         public static float Kernel(Vector2 position1, Vector2 position2, float particelDiameter)
         {
@@ -39,9 +42,6 @@ namespace Fluid_Simulator.Core
             return density;
         }
 
-        public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
-            => MathF.Max(fluidStiffness * ((localDensity / fluidDensity) - 1), 0);
-
         public static Vector2 GetPressureAcceleration(float particelDiameter, Particle particle, List<Particle> neighbors)
         {
             var pressureAcceleration = Vector2.Zero;
@@ -50,11 +50,11 @@ namespace Fluid_Simulator.Core
             foreach (var neighbor in neighbors)
             {
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
-                if (neighbor.IsBoundary)
-                {
-                    pressureBoundaryAcceleration += neighbor.Mass * (2 * pressureOverDensitySquared) * kernelDerivative;
-                    continue;
-                }
+                // if (neighbor.IsBoundary)
+                // {
+                //     pressureBoundaryAcceleration += neighbor.Mass * (2 * pressureOverDensitySquared) * kernelDerivative;
+                //     continue;
+                // }
                 var neighborPressureOverDensitySquared = neighbor.Pressure / MathF.Pow(neighbor.Density, 2);
                 pressureAcceleration += neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
             }
