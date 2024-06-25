@@ -3,7 +3,6 @@ using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
-using System;
 using System.IO;
 
 namespace Fluid_Simulator
@@ -14,9 +13,9 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = 0.01f;
-        private readonly float FluidStiffness = 10000f;
-        private readonly float FluidViscosity = 0;
+        private readonly float TimeSteps = 0.1f;
+        private readonly float FluidStiffness = 1000f;
+        private readonly float FluidViscosity = 100;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
