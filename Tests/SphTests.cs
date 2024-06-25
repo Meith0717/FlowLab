@@ -113,15 +113,13 @@ namespace Tests
         [TestMethod]
         public void Pressure_Acceleration_Ideal_Sampling_Test()
         {
-            var localPressure = new Dictionary<Particle, float>();
-            var localDesitys = new Dictionary<Particle, float>();
             foreach (var particle in _particles)
             {
-                localPressure.Add(particle, 2);
-                localDesitys.Add(particle, 3);
+                particle.Density = 2;
+                particle.Pressure = 2;
             }
 
-            var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles, localPressure, localDesitys);
+            var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles);
             Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
             Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
         }
@@ -129,12 +127,11 @@ namespace Tests
         [TestMethod]
         public void Viscosity_Acceleration_Ideal_Sampling_Test()
         {
-            var localDesitys = new Dictionary<Particle, float>();
             _middleParticle.Velocity = Vector2.One;
             foreach (var particle in _particles)
-                localDesitys.Add(particle, FluidDensity);
+                particle.Density = FluidDensity;
 
-            var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, FluidViscosity, _middleParticle, _particles, localDesitys);
+            var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, FluidViscosity, _middleParticle, _particles);
             Assert.AreEqual(viscosityAcceleration.X, 0, 0.01);
             Assert.AreEqual(viscosityAcceleration.Y, 0, 0.01);
         }
