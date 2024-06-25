@@ -170,10 +170,9 @@ namespace Fluid_Simulator.Core
             {
                 _particleShape.Position = particle.Position;
                 _particleShape.Radius = ParticleDiameter / 2;
-                spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
-
+                spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color * 0.5f, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
+                continue;
                 if (particle.IsBoundary) continue;
-
                 foreach (var n in _neighbors[particle])
                     spriteBatch.DrawLine(particle.Position, n.Position, particle.Color, 1f, 1);
             }
