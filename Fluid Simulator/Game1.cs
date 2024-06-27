@@ -13,9 +13,9 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .007f;
-        private readonly float FluidStiffness = 600f;
-        private readonly float FluidViscosity = 10.45f;
+        private readonly float TimeSteps = .01f;
+        private readonly float FluidStiffness = 1000f; // Seulen Experiment k größer -> Zeitschritt kleiner 
+        private readonly float FluidViscosity = 10.45f; // Testen
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -29,7 +29,8 @@ namespace Fluid_Simulator
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
-            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 100, yAmount: 50);
+            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 15, yAmount: 60);
+            _particleManager.AddBox(new(200, 0), 100, 50);
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new(1000);
@@ -93,7 +94,7 @@ namespace Fluid_Simulator
                 inputState.DoAction(ActionType.LeftWasClicked, () =>
                 {
                     var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    _particleManager.AddNewParticles(worldMousePosition, 30, 30, Color.Blue);
+                    _particleManager.AddNewParticles(worldMousePosition, 14, 20, Color.Blue);
                 });
 
                 inputState.DoAction(ActionType.RightWasClicked, () =>

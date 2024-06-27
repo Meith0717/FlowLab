@@ -25,27 +25,33 @@ namespace Fluid_Simulator.Core
             FluidDensity = fluidDensity;    
 
             DataCollector = new("phisics", new() { "localDensity", "localPressure", "pressureAcceleration", "viscosityAcceleration", "averageVelocity", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL", "gravitation"});
-            for (int i = -1; i < xAmount + 2; i++) 
-            {
-                var x = i * particleDiameter;
-                var height = yAmount * particleDiameter;
+            AddBox(Vector2.Zero, xAmount, yAmount);
+        }
 
-                List<Vector2> positions = new() 
-                    { new(x, -particleDiameter), new(x, 0), new(x, height), new(x, height + particleDiameter) };
-                foreach (var position in positions) 
-                    AddNewParticle(position, Color.Gray, true);
+        public void AddBox(Vector2 placePosition, int xAmount, int yAmount)
+        {
+            for (int i = -1; i < xAmount + 2; i++)
+            {
+                var x = i * ParticleDiameter;
+                var height = yAmount * ParticleDiameter;
+
+                List<Vector2> positions = new()
+                    { new(x, -ParticleDiameter), new(x, 0), new(x, height), new(x, height + ParticleDiameter) };
+                foreach (var position in positions)
+                    AddNewParticle(placePosition + position, Color.Gray, true);
             }
 
             for (int j = 1; j < yAmount; j++)
             {
-                var y = j * particleDiameter;
-                var width = xAmount * particleDiameter;
+                var y = j * ParticleDiameter;
+                var width = xAmount * ParticleDiameter;
 
                 List<Vector2> positions = new()
-                    { new(- particleDiameter, y), new(0, y), new( width, y), new(width + particleDiameter, y) };
+                    { new(- ParticleDiameter, y), new(0, y), new( width, y), new(width + ParticleDiameter, y) };
                 foreach (var position in positions)
-                    AddNewParticle(position, Color.Gray, true);
+                    AddNewParticle(placePosition + position, Color.Gray, true);
             }
+
         }
 
         #region Utilitys
