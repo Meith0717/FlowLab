@@ -2,8 +2,11 @@
 using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace Fluid_Simulator
 {
@@ -13,9 +16,9 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .01f;
-        private readonly float FluidStiffness = 1000f; // Seulen Experiment k größer -> Zeitschritt kleiner 
-        private readonly float FluidViscosity = 10.45f; // Testen
+        private readonly float TimeSteps = .025f;
+        private readonly float FluidStiffness = 2000f;
+        private readonly float FluidViscosity = 50f;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -29,8 +32,8 @@ namespace Fluid_Simulator
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
-            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 15, yAmount: 60);
-            _particleManager.AddBox(new(200, 0), 100, 50);
+            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 10, yAmount: 60);
+            _particleManager.AddBox(new(200, 0), 150, 70);
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new(1000);
@@ -94,7 +97,8 @@ namespace Fluid_Simulator
                 inputState.DoAction(ActionType.LeftWasClicked, () =>
                 {
                     var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    _particleManager.AddNewParticles(worldMousePosition, 14, 20, Color.Blue);
+                    _particleManager.AddNewBlock(worldMousePosition, 40, 40, Color.Blue);
+                    // _particleManager.AddNewCircle(worldMousePosition, 21, Color.Blue);
                 });
 
                 inputState.DoAction(ActionType.RightWasClicked, () =>
@@ -133,12 +137,23 @@ namespace Fluid_Simulator
             _frameCounter.UpdateFrameCouning();
             GraphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
+                        _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
             _particleManager.DrawParticles(_spriteBatch, _spriteFont);
             _spriteBatch.End();
 
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(_spriteFont, _frameCounter.CurrentFramesPerSecond.ToString(), Vector2.Zero, Color.White, 0, Vector2.Zero, .1f, SpriteEffects.None, 1);
+            _spriteBatch.FillRectangle(Vector2.Zero, new Vector2(250, 250), new(10, 10, 10, 200));
+
+            _spriteBatch.DrawString(_spriteFont, $"{Math.Round(_frameCounter.CurrentFramesPerSecond)} fps" , new(1, 1), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+
+            _spriteBatch.DrawString(_spriteFont, $"Physical Properties", new(1, 20), Color.White, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"Stiffness: {Math.Round(FluidStiffness, 3)}", new(1, 50), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"Viscosity: {Math.Round(FluidViscosity, 3)}", new(1, 70), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"Time Steps: {Math.Round(TimeSteps, 3)}", new(1, 90), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+
+            _spriteBatch.DrawString(_spriteFont, $"Simulation States", new(1, 120), Color.White, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"CFL: {_particleManager.DataCollector.Data["CFL"].LastOrDefault("")}", new(1, 150), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1); 
+            _spriteBatch.DrawString(_spriteFont, $"Density Error: {_particleManager.DataCollector.Data["localDensityError"].LastOrDefault("")}", new(1, 170), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
             _spriteBatch.End();
 
             base.Draw(gameTime);

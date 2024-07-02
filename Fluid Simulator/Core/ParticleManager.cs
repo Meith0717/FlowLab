@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,10 +25,13 @@ namespace Fluid_Simulator.Core
             ParticleDiameter = particleDiameter;
             FluidDensity = fluidDensity;    
 
-            DataCollector = new("phisics", new() { "localDensity", "localPressure", "pressureAcceleration", "viscosityAcceleration", "averageVelocity", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL", "gravitation"});
+            DataCollector = new("phisics", new() { "localDensity", "localDensityError", "localPressure", "pressureAcceleration", "viscosityAcceleration", "averageVelocity", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL", "gravitation"});
             AddBox(Vector2.Zero, xAmount, yAmount);
         }
 
+
+
+        #region Utilitys
         public void AddBox(Vector2 placePosition, int xAmount, int yAmount)
         {
             for (int i = -1; i < xAmount + 2; i++)
@@ -38,7 +42,7 @@ namespace Fluid_Simulator.Core
                 List<Vector2> positions = new()
                     { new(x, -ParticleDiameter), new(x, 0), new(x, height), new(x, height + ParticleDiameter) };
                 foreach (var position in positions)
-                    AddNewParticle(placePosition + position, Color.Gray, true);
+                    AddNewParticle(placePosition + position, Color.White, true);
             }
 
             for (int j = 1; j < yAmount; j++)
@@ -49,12 +53,11 @@ namespace Fluid_Simulator.Core
                 List<Vector2> positions = new()
                     { new(- ParticleDiameter, y), new(0, y), new( width, y), new(width + ParticleDiameter, y) };
                 foreach (var position in positions)
-                    AddNewParticle(placePosition + position, Color.Gray, true);
+                    AddNewParticle(placePosition + position, Color.White, true);
             }
 
         }
 
-        #region Utilitys
         public void Clear()
         {
             DataCollector.Clear();
@@ -65,11 +68,23 @@ namespace Fluid_Simulator.Core
             }
         }
 
-        public void AddNewParticles(Vector2 position, int xAmount, int yAmount, Color color)
+        public void AddNewBlock(Vector2 position, int xAmount, int yAmount, Color color)
         {
             for (int i = 0; i < xAmount; i++)
                 for (int j = 0; j < yAmount; j++)
                     AddNewParticle(position + new Vector2(i, j) * ParticleDiameter, color);
+        }
+
+        public void AddNewCircle(Vector2 position, int diameterAmount, Color color)
+        {
+            var circle = new CircleF(position + new Vector2(diameterAmount * ParticleDiameter / 2), diameterAmount / 2 * ParticleDiameter);
+            for (int i = 0; i < diameterAmount; i++)
+                for (int j = 0; j < diameterAmount; j++)
+                {
+                    var pos = position + (new Vector2(i, j) * ParticleDiameter);
+                    if (!circle.Contains(pos)) continue;
+                    AddNewParticle(pos, color);
+                }
         }
 
         public void AddNewParticle(Vector2 position, Color color, bool isBoundary = false)
@@ -85,6 +100,7 @@ namespace Fluid_Simulator.Core
         private readonly Dictionary<Particle, Vector2> _viscosityAcceleration = new();
         private readonly Dictionary<Particle, Vector2> _pressureAcceleration = new();
         private readonly Dictionary<Particle, Vector2> _particleVelocitys = new();
+        private readonly Dictionary<Particle, float> _cfl = new();
 
         public void Update(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
         {
@@ -92,6 +108,7 @@ namespace Fluid_Simulator.Core
             _viscosityAcceleration.Clear();
             _pressureAcceleration.Clear();
             _particleVelocitys.Clear();
+            _cfl.Clear();
 
             object lockObject = new();
             Parallel.ForEach(_particles, particle =>
@@ -101,7 +118,7 @@ namespace Fluid_Simulator.Core
                 _spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref neighbors);
 
                 // Compute density
-                var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleDiameter, particle, neighbors);
+                var localDensity = neighbors.Count <= 1 ? FluidDensity : SphFluidSolver.ComputeLocalDensity(ParticleDiameter, particle, neighbors);
 
                 // Compute pressure
                 var localPressure = SphFluidSolver.ComputeLocalPressure(fluidStiffness, FluidDensity, localDensity);
@@ -113,8 +130,10 @@ namespace Fluid_Simulator.Core
                     _neighbors[particle] = neighbors;
             });
 
-            Parallel.ForEach(_particles.Where(particle => !particle.IsBoundary), particle => 
+            Parallel.ForEach(_particles, particle => 
             {
+                if (particle.IsBoundary) return;
+
                 // Compute non-pressure accelerations
                 var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, fluidViscosity, particle, _neighbors[particle]);
 
@@ -128,7 +147,7 @@ namespace Fluid_Simulator.Core
                 {
                     // Update Velocity
                     particle.Velocity += timeSteps * acceleration;
-
+                     
                     // Update Position
                     _spatialHashing.RemoveObject(particle);
                     particle.Position += timeSteps * particle.Velocity;
@@ -137,13 +156,17 @@ namespace Fluid_Simulator.Core
                     _viscosityAcceleration[particle] = viscosityAcceleration;
                     _pressureAcceleration[particle] = pressureAcceleration;
                     _particleVelocitys[particle] = particle.Velocity;
+                    _cfl[particle] = timeSteps * (particle.Velocity.Length() / ParticleDiameter);
+
+                    particle.Color = ColorSpectrum.ValueToColor(_cfl[particle] * 10);
                 }
             });
 
             // Colect Data
             if (_particleVelocitys.Count <= 0) return;
-            DataCollector.AddData("localDensity", (float)_particles.Average(particle => particle.Density));
-            DataCollector.AddData("localPressure", (float)_particles.Average(particle => particle.Pressure));
+            DataCollector.AddData("localDensity", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density));
+            DataCollector.AddData("localDensityError", Math.Round((float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density)/FluidDensity, 4));
+            DataCollector.AddData("localPressure", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Pressure));
 
             DataCollector.AddData("pressureAcceleration", timeSteps * (float)_pressureAcceleration.Values.Average(vector => vector.Length()));
             DataCollector.AddData("viscosityAcceleration", timeSteps * (float)_viscosityAcceleration.Values.Average(vector => vector.Length()));
@@ -158,7 +181,7 @@ namespace Fluid_Simulator.Core
             DataCollector.AddData("averageVelocity.X", (float)_particleVelocitys.Values.Average(vector => vector.X));
             DataCollector.AddData("averageVelocity.Y", (float)_particleVelocitys.Values.Average(vector => vector.Y));
 
-            DataCollector.AddData("CFL", timeSteps * (float)_particleVelocitys.Values.Max(vector => vector.Length()) / ParticleDiameter);
+            DataCollector.AddData("CFL", Math.Round(_cfl.Values.Max(), 4));
             DataCollector.AddData("gravitation", gravitation);
         }
         #endregion
@@ -177,7 +200,7 @@ namespace Fluid_Simulator.Core
                 _particleShape.Position = particle.Position;
                 _particleShape.Radius = ParticleDiameter / 2;
                 spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color * 0.5f, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
-                continue;
+
                 if (particle.IsBoundary) continue;
                 foreach (var n in _neighbors[particle])
                     spriteBatch.DrawLine(particle.Position, n.Position, particle.Color, 1f, 1);

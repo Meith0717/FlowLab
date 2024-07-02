@@ -1,0 +1,12 @@
+Einführung:
+    - Warum dieses Projekt 
+    - Wieso ist dieses Projekt relevant
+    - Was ist das Ziel der Arbeit
+    - Übersicht Gliederung
+Hauptteil:
+    - Grundlagen erklären (z.b. Navier-Strokes Equation)
+    - SPH erklären
+    - Ablauf Simulationsschritt erklären
+    - Freestyle Szene einbauen plus erklären
+    - Einzelne Abschnitte des Simulationsschritt einzeln erklären
+Schlussfolgerung:

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace Fluid_Simulator.Core
@@ -65,6 +66,7 @@ namespace Fluid_Simulator.Core
         public static Vector2 GetViscosityAcceleration(float particelDiameter, float fluidViscosity, Particle particle, List<Particle> neighbors)
         {
             Vector2 sumNonBoundry = Vector2.Zero;
+
             foreach (var neighbor in neighbors) 
             {
                 var v_ij = particle.Velocity - neighbor.Velocity;

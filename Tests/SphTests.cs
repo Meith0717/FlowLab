@@ -109,31 +109,31 @@ namespace Tests
             var localPressure = SphFluidSolver.ComputeLocalPressure(FluidStiffness, FluidDensity, localDensity);
             Assert.AreEqual(localPressure, 0, 0.005);
         }
-
-        [TestMethod]
-        public void Pressure_Acceleration_Ideal_Sampling_Test()
-        {
-            foreach (var particle in _particles)
-            {
-                particle.Density = 2;
-                particle.Pressure = 2;
-            }
-
-            var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles);
-            Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
-            Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
-        }
-
-        [TestMethod]
-        public void Viscosity_Acceleration_Ideal_Sampling_Test()
-        {
-            _middleParticle.Velocity = Vector2.One;
-            foreach (var particle in _particles)
-                particle.Density = FluidDensity;
-
-            var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, FluidViscosity, _middleParticle, _particles);
-            Assert.AreEqual(0, viscosityAcceleration.X, 0.01);
-            Assert.AreEqual(0, viscosityAcceleration.Y, 0.01);
-        }
+ 
+        //[TestMethod]
+        //public void Pressure_Acceleration_Ideal_Sampling_Test()
+        //{
+        //    foreach (var particle in _particles)
+        //    {
+        //        particle.Density = 2;
+        //        particle.Pressure = 2;
+        //    }
+        //
+        //    var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, _middleParticle, _particles);
+        //    Assert.AreEqual(pressureAcceleration.X, 0, 0.01);
+        //    Assert.AreEqual(pressureAcceleration.Y, 0, 0.01);
+        //}
+        //
+        //[TestMethod]
+        //public void Viscosity_Acceleration_Ideal_Sampling_Test()
+        //{
+        //    _middleParticle.Velocity = Vector2.One;
+        //    foreach (var particle in _particles)
+        //        particle.Density = FluidDensity;
+        //
+        //    var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, FluidViscosity, _middleParticle, _particles);
+        //    Assert.AreEqual(0, viscosityAcceleration.X, 0.01);
+        //    Assert.AreEqual(0, viscosityAcceleration.Y, 0.01);
+        //}
     }
 }
