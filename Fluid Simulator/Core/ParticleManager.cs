@@ -25,11 +25,9 @@ namespace Fluid_Simulator.Core
             ParticleDiameter = particleDiameter;
             FluidDensity = fluidDensity;    
 
-            DataCollector = new("phisics", new() { "localDensity", "localDensityError", "localPressure", "pressureAcceleration", "viscosityAcceleration", "averageVelocity", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL", "gravitation"});
+            DataCollector = new("physics", new() { "relativeDensityError", "localPressure", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL"});
             AddBox(Vector2.Zero, xAmount, yAmount);
         }
-
-
 
         #region Utilitys
         public void AddBox(Vector2 placePosition, int xAmount, int yAmount)
@@ -101,6 +99,7 @@ namespace Fluid_Simulator.Core
         private readonly Dictionary<Particle, Vector2> _pressureAcceleration = new();
         private readonly Dictionary<Particle, Vector2> _particleVelocitys = new();
         private readonly Dictionary<Particle, float> _cfl = new();
+        private readonly Dictionary<Particle, Vector2> _particleSurface = new();
 
         public void Update(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
         {
@@ -109,6 +108,7 @@ namespace Fluid_Simulator.Core
             _pressureAcceleration.Clear();
             _particleVelocitys.Clear();
             _cfl.Clear();
+            _particleSurface.Clear();
 
             object lockObject = new();
             Parallel.ForEach(_particles, particle =>
@@ -140,8 +140,10 @@ namespace Fluid_Simulator.Core
                 // Compute pressure acceleration
                 var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, particle, _neighbors[particle]);
 
+                var surfaceTension = SphFluidSolver.GetSurfaceTensionAcceleration(100, ParticleDiameter, particle, _neighbors[particle]);
+
                 // Compote total acceleration & update velocity
-                var acceleration = viscosityAcceleration + new Vector2(0, gravitation) + pressureAcceleration;
+                var acceleration = viscosityAcceleration + new Vector2(0, gravitation) + pressureAcceleration + surfaceTension;
 
                 lock (lockObject)
                 {
@@ -157,6 +159,7 @@ namespace Fluid_Simulator.Core
                     _pressureAcceleration[particle] = pressureAcceleration;
                     _particleVelocitys[particle] = particle.Velocity;
                     _cfl[particle] = timeSteps * (particle.Velocity.Length() / ParticleDiameter);
+                    _particleSurface[particle] = surfaceTension;
 
                     particle.Color = ColorSpectrum.ValueToColor(_cfl[particle] * 10);
                 }
@@ -164,13 +167,8 @@ namespace Fluid_Simulator.Core
 
             // Colect Data
             if (_particleVelocitys.Count <= 0) return;
-            DataCollector.AddData("localDensity", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density));
-            DataCollector.AddData("localDensityError", Math.Round((float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density)/FluidDensity, 4));
+            DataCollector.AddData("relativeDensityError", (_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density) - FluidDensity) / FluidDensity);
             DataCollector.AddData("localPressure", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Pressure));
-
-            DataCollector.AddData("pressureAcceleration", timeSteps * (float)_pressureAcceleration.Values.Average(vector => vector.Length()));
-            DataCollector.AddData("viscosityAcceleration", timeSteps * (float)_viscosityAcceleration.Values.Average(vector => vector.Length()));
-            DataCollector.AddData("averageVelocity", (float)_particleVelocitys.Values.Average(vector => vector.Length()));
 
             DataCollector.AddData("pressureAcceleration.X", timeSteps * (float)_pressureAcceleration.Values.Average(vector => vector.X));
             DataCollector.AddData("pressureAcceleration.Y", timeSteps * (float)_pressureAcceleration.Values.Average(vector => vector.Y));
@@ -182,7 +180,6 @@ namespace Fluid_Simulator.Core
             DataCollector.AddData("averageVelocity.Y", (float)_particleVelocitys.Values.Average(vector => vector.Y));
 
             DataCollector.AddData("CFL", Math.Round(_cfl.Values.Max(), 4));
-            DataCollector.AddData("gravitation", gravitation);
         }
         #endregion
 
@@ -199,11 +196,10 @@ namespace Fluid_Simulator.Core
             {
                 _particleShape.Position = particle.Position;
                 _particleShape.Radius = ParticleDiameter / 2;
-                spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color * 0.5f, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
 
                 if (particle.IsBoundary) continue;
-                foreach (var n in _neighbors[particle])
-                    spriteBatch.DrawLine(particle.Position, n.Position, particle.Color, 1f, 1);
+                spriteBatch.DrawLine(particle.Position, particle.Position + (_particleSurface[particle] * 100), Color.Black, 2);
             }
         }
         #endregion

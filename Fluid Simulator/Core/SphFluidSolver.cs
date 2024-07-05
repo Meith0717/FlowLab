@@ -82,5 +82,17 @@ namespace Fluid_Simulator.Core
             }
             return 2 * fluidViscosity * sumNonBoundry;
         }
+
+        public static Vector2 GetSurfaceTensionAcceleration(float surfaceTension, float particleDiameter, Particle particle, List<Particle> neighbors)
+        {
+            var a = Vector2.Zero;
+            foreach (var neighbor in neighbors)
+            {
+                if (neighbor.IsBoundary) continue;
+                a += KernelDerivative(particle.Position, neighbor.Position, particleDiameter);
+            }
+            if (a.Length() < .0001f) return Vector2.Zero;
+            return surfaceTension * a;
+        }
     }
 }

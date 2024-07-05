@@ -20,12 +20,15 @@ namespace Tests
             // Generate 3x3 Particles in a Uniform Grid
             var start = Vector2.Zero;
             var end = new Vector2(ParticleDiameter * 3);
-            for (float x = start.X; x < end.X; x += ParticleDiameter)
-                for (float y = start.Y; y < end.Y; y += ParticleDiameter)
-                {
-                    var particle = new Particle(new Vector2(x, y), ParticleDiameter, FluidDensity, Color.MonoGameOrange, false);
-                    _particles.Add(particle);
-                }
+            _particles.Add(new Particle(new Vector2(0, 0) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, false));
+            _particles.Add(new Particle(new Vector2(1, 0) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, false));
+            _particles.Add(new Particle(new Vector2(2, 0) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, false));
+            _particles.Add(new Particle(new Vector2(0, 1) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, false));
+            _particles.Add(new Particle(new Vector2(1, 1) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, false));
+            _particles.Add(new Particle(new Vector2(2, 1) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, false));
+            _particles.Add(new Particle(new Vector2(0, 2) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, true));
+            _particles.Add(new Particle(new Vector2(1, 2) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, true));
+            _particles.Add(new Particle(new Vector2(2, 2) * ParticleDiameter, ParticleDiameter, FluidDensity, Color.MonoGameOrange, true));
             _middleParticle = _particles[4];
         }
 

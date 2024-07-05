@@ -16,9 +16,9 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .025f;
+        private readonly float TimeSteps = .03f;
         private readonly float FluidStiffness = 2000f;
-        private readonly float FluidViscosity = 50f;
+        private readonly float FluidViscosity = 40f;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -53,7 +53,7 @@ namespace Fluid_Simulator
             // Set fullscreen mode
             _graphics.PreferredBackBufferWidth = screenWidth;
             _graphics.PreferredBackBufferHeight = screenHeight;
-            _graphics.IsFullScreen = true;
+            //_graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
         }
 
@@ -97,7 +97,7 @@ namespace Fluid_Simulator
                 inputState.DoAction(ActionType.LeftWasClicked, () =>
                 {
                     var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    _particleManager.AddNewBlock(worldMousePosition, 40, 40, Color.Blue);
+                    _particleManager.AddNewBlock(worldMousePosition, 50, 30, Color.Blue);
                     // _particleManager.AddNewCircle(worldMousePosition, 21, Color.Blue);
                 });
 
@@ -135,7 +135,7 @@ namespace Fluid_Simulator
         protected override void Draw(GameTime gameTime)
         {
             _frameCounter.UpdateFrameCouning();
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.LightGray);
 
                         _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
             _particleManager.DrawParticles(_spriteBatch, _spriteFont);
@@ -153,7 +153,7 @@ namespace Fluid_Simulator
 
             _spriteBatch.DrawString(_spriteFont, $"Simulation States", new(1, 120), Color.White, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
             _spriteBatch.DrawString(_spriteFont, $"CFL: {_particleManager.DataCollector.Data["CFL"].LastOrDefault("")}", new(1, 150), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1); 
-            _spriteBatch.DrawString(_spriteFont, $"Density Error: {_particleManager.DataCollector.Data["localDensityError"].LastOrDefault("")}", new(1, 170), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"Density Error: {_particleManager.DataCollector.Data["relativeDensityError"].LastOrDefault("")}", new(1, 170), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
             _spriteBatch.End();
 
             base.Draw(gameTime);
