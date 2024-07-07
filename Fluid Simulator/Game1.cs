@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -32,8 +33,8 @@ namespace Fluid_Simulator
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
-            _particleManager = new(ParticleDiameter, FluidDensity, xAmount: 10, yAmount: 60);
-            _particleManager.AddBox(new(200, 0), 150, 70);
+            _particleManager = new(ParticleDiameter, FluidDensity);
+            _particleManager.AddPolygon(new(new List<Vector2>() { Vector2.Zero, new(20, 0)}));
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new(1000);
@@ -97,8 +98,8 @@ namespace Fluid_Simulator
                 inputState.DoAction(ActionType.LeftWasClicked, () =>
                 {
                     var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    _particleManager.AddNewBlock(worldMousePosition, 50, 30, Color.Blue);
-                    // _particleManager.AddNewCircle(worldMousePosition, 21, Color.Blue);
+                    // _particleManager.AddNewBlock(worldMousePosition, 50, 30, Color.Blue);
+                    _particleManager.AddNewCircle(worldMousePosition, 21, Color.Blue);
                 });
 
                 inputState.DoAction(ActionType.RightWasClicked, () =>

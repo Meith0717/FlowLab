@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Fluid_Simulator.Core
         public readonly float ParticleDiameter;
         public readonly float FluidDensity;
 
-        public ParticleManager(int particleDiameter, float fluidDensity, int xAmount, int yAmount)
+        public ParticleManager(int particleDiameter, float fluidDensity)
         {
             _particles = new();
             _spatialHashing = new(particleDiameter * 2);
@@ -26,7 +27,6 @@ namespace Fluid_Simulator.Core
             FluidDensity = fluidDensity;    
 
             DataCollector = new("physics", new() { "relativeDensityError", "localPressure", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL"});
-            AddBox(Vector2.Zero, xAmount, yAmount);
         }
 
         #region Utilitys
@@ -53,6 +53,39 @@ namespace Fluid_Simulator.Core
                 foreach (var position in positions)
                     AddNewParticle(placePosition + position, Color.White, true);
             }
+        }
+
+        public void AddPolygon(Polygon polygon)
+        {
+            AddPolygonLayer(polygon);
+        }
+
+        private void AddPolygonLayer(Polygon polygon)
+        {
+            avar vertex = polygon.Vertices.First();
+            for (int i = 1; i <= polygon.Vertices.Length; i++)
+            {
+                var nextVertex = (i == polygon.Vertices.Length) 
+                    ? polygon.Vertices.First() :  polygon.Vertices[i];
+                var direction = Vector2.Subtract(nextVertex, vertex);
+                direction.Normalize();
+                var length = Vector2.Distance(nextVertex, vertex);
+
+                for (int j1 = 0; j1 < length; j1++)
+                {
+                    var position = (vertex + (direction * j1)) * ParticleDiameter;
+                    AddNewParticle(position, Color.White, true);
+                }
+
+                for (int j2 = 0; j2 <= length + 2; j2++)
+                {
+                    var position = (vertex - new Vector2(1) + (direction * j2)) * ParticleDiameter;
+                    AddNewParticle(position, Color.Red, true);
+                }
+
+                vertex = nextVertex;
+            }
+
 
         }
 
@@ -197,7 +230,7 @@ namespace Fluid_Simulator.Core
                 _particleShape.Position = particle.Position;
                 _particleShape.Radius = ParticleDiameter / 2;
                 spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
-
+                continue;
                 if (particle.IsBoundary) continue;
                 spriteBatch.DrawLine(particle.Position, particle.Position + (_particleSurface[particle] * 100), Color.Black, 2);
             }

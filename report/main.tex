@@ -1,4 +1,4 @@
-\documentclass[a4paper, 12pt]{report}
+\documentclass[a4paper, 12pt]{article}
 \usepackage{csquotes}
 \input{setup.tex}
 \usepackage[ngerman]{babel}
@@ -11,34 +11,26 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{enumitem}
-
-\title{Stochastic Ray Tracing}
-\author{Meiers Thierry}
-\date{May 2024}
-
 \begin{document}
 
 \makeTitleAndTable
 
-\begin{align*}
-    \frac{5}{14\pi H^2} \times
-    \begin{cases}
-    (2 - \frac{||position1 - position2||}{H})^3 - 4 \times (1 - \frac{||position1 - position2||}{H})^3 & \text{if } 0 \leq \frac{||position1 - position2||}{H} < 1 \\
-    (2 - \frac{||position1 - position2||}{H})^3 & \text{if } 1 \leq \frac{||position1 - position2||}{H} < 2 \\
-    0 & \text{otherwise}
-    \end{cases}
-\end{align*}
+\section{Einführung}
+Fluidsimulationen haben sich zu einem unverzichtbaren Werkzeug in zahlreichen Bereichen unserer Gesellschaft entwickelt. Sie ermöglichen die präzise Simulation von Flüssigkeiten oder Gasen in verschiedenen Umgebungen, wodurch das Verhalten dieser Stoffe und deren Interaktionen mit der Umgebung untersucht werden können. Aufgrund ihrer Vielseitigkeit kommen Fluidsimulationen in einer großen Bandbreite von Anwendungsgebieten zum Einsatz. Diese reichen von der Optimierung von Fahrzeugen und Gebäuden über Wettervorhersagen und medizinische Forschung bis hin zur Erzeugung realistischer Effekte in Filmen und Spielen, industriellen Prozessen, Energieerzeugung und der Entwicklung von Sportgeräten. Sie tragen wesentlich dazu bei, Designs zu verbessern, die Effizienz zu steigern und komplexe Strömungen besser zu verstehen. Die Allgegenwärtigkeit und Bedeutung dieser Technologie in verschiedenen Branchen haben mein Interesse an diesem Thema geweckt. Insbesondere die Verbindung von Physik und Informatik ist eine Motivation zur Arbeit an diesem Projekt.
+Das Hauptziel dieses Projektes ist die Implementierung und Analyse der Smoothed Particle Hydrodynamics (SPH) zur Simulation von Fluiden und dabei ein tieferes Verständnis für die Komponenten und Mechanismen von SPH zu entwickeln.
 
-\begin{align*}
-    \frac{\text{position1} - \text{position2}}{\frac{5}{14\pi H^3}} \times \text{distance} \times
-    \begin{cases}
-    -3 \times (2 - \frac{\text{distance}}{H})^2 + 12 \times (1 - \frac{\text{distance}}{H})^2 & \text{if } 0 \leq \frac{\text{distance}}{H} < 1 \\
-    -3 \times (2 - \frac{\text{distance}}{H})^2 & \text{if } 1 \leq \frac{\text{distance}}{H} < 2 \\
-    0 & \text{otherwise}
-    \end{cases}
-\end{align*}
+\section{Navier-Stokes equations}
 
-\chapter{Einführung}
-\chapter{Implementierung}
-\chapter{Ergebnisse}
+\section{Smoothed Particle Hydrodynamics}
+
+\section{Implementierung}
+\subsection{Simulation}
+\subsection{Nachbarschaft Suchen}
+\subsection{Oberflächenspannung}
+
+\section{Analysen}
+
+\section{Schlussfolgerung}
+
+\section{Bibliographie}
 \end{document}
