@@ -55,38 +55,27 @@ namespace Fluid_Simulator.Core
             }
         }
 
-        public void AddPolygon(Polygon polygon)
+        public void AddPolygon(Vector2 position, Polygon polygon)
         {
-            AddPolygonLayer(polygon);
-        }
-
-        private void AddPolygonLayer(Polygon polygon)
-        {
-            avar vertex = polygon.Vertices.First();
+            var vertex = polygon.Vertices.First();
+            var offsetCircle = new CircleF(Vector2.Zero, ParticleDiameter);
             for (int i = 1; i <= polygon.Vertices.Length; i++)
             {
-                var nextVertex = (i == polygon.Vertices.Length) 
-                    ? polygon.Vertices.First() :  polygon.Vertices[i];
-                var direction = Vector2.Subtract(nextVertex, vertex);
-                direction.Normalize();
-                var length = Vector2.Distance(nextVertex, vertex);
-
-                for (int j1 = 0; j1 < length; j1++)
+                var nextVertex = (i == polygon.Vertices.Length) ? polygon.Vertices.First() :  polygon.Vertices[i];
+                var step = Vector2.Subtract(nextVertex, vertex).NormalizedCopy();
+                var angle = step.ToAngle() - MathHelper.Pi;
+                
+                for (float j1 = 1; j1 < Vector2.Distance(nextVertex, vertex) + 2; j1++)
                 {
-                    var position = (vertex + (direction * j1)) * ParticleDiameter;
-                    AddNewParticle(position, Color.White, true);
-                }
-
-                for (int j2 = 0; j2 <= length + 2; j2++)
-                {
-                    var position = (vertex - new Vector2(1) + (direction * j2)) * ParticleDiameter;
-                    AddNewParticle(position, Color.Red, true);
+                    var position1 = (vertex + (step * j1)) * ParticleDiameter;
+                    offsetCircle.Position = position1;
+                    var position2 = offsetCircle.BoundaryPointAt(angle);
+                    AddNewParticle(position1 + position, Color.Black, true);
+                    AddNewParticle(position2 + position, Color.Black, true);
                 }
 
                 vertex = nextVertex;
             }
-
-
         }
 
         public void Clear()
@@ -173,7 +162,7 @@ namespace Fluid_Simulator.Core
                 // Compute pressure acceleration
                 var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, particle, _neighbors[particle]);
 
-                var surfaceTension = SphFluidSolver.GetSurfaceTensionAcceleration(100, ParticleDiameter, particle, _neighbors[particle]);
+                var surfaceTension = SphFluidSolver.GetSurfaceTensionAcceleration(0, ParticleDiameter, particle, _neighbors[particle]);
 
                 // Compote total acceleration & update velocity
                 var acceleration = viscosityAcceleration + new Vector2(0, gravitation) + pressureAcceleration + surfaceTension;
@@ -230,9 +219,6 @@ namespace Fluid_Simulator.Core
                 _particleShape.Position = particle.Position;
                 _particleShape.Radius = ParticleDiameter / 2;
                 spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
-                continue;
-                if (particle.IsBoundary) continue;
-                spriteBatch.DrawLine(particle.Position, particle.Position + (_particleSurface[particle] * 100), Color.Black, 2);
             }
         }
         #endregion

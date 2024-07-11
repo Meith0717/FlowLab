@@ -18,8 +18,8 @@ namespace Fluid_Simulator
         private const float Gravitation = 0.3f;
 
         private readonly float TimeSteps = .03f;
-        private readonly float FluidStiffness = 2000f;
-        private readonly float FluidViscosity = 40f;
+        private readonly float FluidStiffness = 1500f;
+        private readonly float FluidViscosity = 20f;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -34,7 +34,8 @@ namespace Fluid_Simulator
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
-            _particleManager.AddPolygon(new(new List<Vector2>() { Vector2.Zero, new(20, 0)}));
+            _particleManager.AddPolygon(Vector2.Zero, new(CreateCircle(40, 20)));
+            _particleManager.AddPolygon(new(600, -500), new(new List<Vector2>() { Vector2.Zero, new(5, 0), new(5, 100), new(0, 100) }));
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new(1000);
@@ -58,6 +59,20 @@ namespace Fluid_Simulator
             _graphics.ApplyChanges();
         }
 
+        private static Vector2[] CreateCircle(double radius, int sides)
+        {
+            Vector2[] array = new Vector2[sides];
+            double num = Math.PI * 2.0 / (double)sides;
+            double num2 = 0.0;
+            for (int i = 0; i < sides; i++)
+            {
+                array[i] = new Vector2((float)(radius * Math.Cos(num2)), (float)(radius * Math.Sin(num2)));
+                num2 += num;
+            }
+
+            return array;
+        }
+
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -70,6 +85,7 @@ namespace Fluid_Simulator
         {
             var inputState = _inputManager.Update(gameTime);
             inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
+            System.Diagnostics.Debug.WriteLine(_camera.ScreenToWorld(inputState.MousePosition));
 
             inputState.DoAction(ActionType.SaveData, () => 
             {
