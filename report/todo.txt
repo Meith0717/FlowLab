@@ -1,3 +1,5 @@
+Titel:
+
 Einführung:
     - Thema Einführen
         - Warum dieses Projekt 
@@ -10,3 +12,12 @@ Hauptteil:
     - SPH Simulationsschritte
     - Analyse
 Schlussfolgerung:
+
+
+Experimenr:
+Ziel
+Wie Mach man das
+Erläutern
+
+
+Amdahl Konzept
