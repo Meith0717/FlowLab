@@ -21,14 +21,12 @@ namespace Fluid_Simulator.Core
         private readonly List<Vector2> _particles = new();
         private int _mode;
         private Point _rectangleSize;
-        private int _circleRadius;
 
         public ParticlePlacer(ParticleManager particleManager, float particleDiameter)
         {
             _particleManager = particleManager;
             _particleDiameter = particleDiameter;
-            _rectangleSize = new(10);
-            _circleRadius = 11;
+            _rectangleSize = new(11);
         }
 
         public void Update(InputState inputState, Camera camera)
@@ -40,7 +38,10 @@ namespace Fluid_Simulator.Core
                 _mode = _mode - 1;
                 if (_mode < 0) _mode = PlacerModes.Count - 1;
             });
-
+            inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);
+            inputState.DoAction(ActionType.DecreaseWidthAndRadius, () => _rectangleSize.X -= 1);
+            inputState.DoAction(ActionType.IncreaseHeight, () => _rectangleSize.Y += 1);
+            inputState.DoAction(ActionType.DecreaseHeight, () => _rectangleSize.Y -= 1);
 
             switch (_mode)
             {
@@ -48,7 +49,7 @@ namespace Fluid_Simulator.Core
                     GetBlock(worldMousePosition, _rectangleSize.X, _rectangleSize.Y);
                     break;
                 case 2:
-                    GetCircle(worldMousePosition, _circleRadius);
+                    GetCircle(worldMousePosition, _rectangleSize.X);
                     break;
                 case 3:
                     _particles.Add(worldMousePosition);
@@ -61,6 +62,7 @@ namespace Fluid_Simulator.Core
             {
                 foreach (var particle in _particles)
                     _particleManager.AddNewParticle(particle, Color.Blue, false);
+                _mode = 0;
             });
 
         }
@@ -68,11 +70,13 @@ namespace Fluid_Simulator.Core
         public void Draw(SpriteBatch spriteBatch, Texture2D particleTexture)
         {
             foreach (var particle in _particles)
-                spriteBatch.Draw(particleTexture, particle, null, Color.Gray, 0, new Vector2(particleTexture.Width * .5f), _particleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, particle, null, new(10, 10, 10, 100), 0, new Vector2(particleTexture.Width * .5f), _particleDiameter / particleTexture.Width, SpriteEffects.None, 0);
         }
 
         private void GetBlock(Vector2 position, int xAmount, int yAmount)
         {
+            position.X -= (xAmount * _particleDiameter) / 2f;
+            position.Y -= (yAmount * _particleDiameter) / 2f;
             for (int i = 0; i < xAmount; i++)
                 for (int j = 0; j < yAmount; j++)
                     _particles.Add(position + new Vector2(i, j) * _particleDiameter);
@@ -80,6 +84,8 @@ namespace Fluid_Simulator.Core
 
         private void GetCircle(Vector2 position, int diameterAmount)
         {
+            position.X -= (diameterAmount * _particleDiameter) / 2f;
+            position.Y -= (diameterAmount * _particleDiameter) / 2f;
             var circle = new CircleF(position + new Vector2(diameterAmount * _particleDiameter / 2), diameterAmount / 2 * _particleDiameter);
             for (int i = 0; i < diameterAmount; i++)
                 for (int j = 0; j < diameterAmount; j++)

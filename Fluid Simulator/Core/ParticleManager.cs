@@ -30,8 +30,13 @@ namespace Fluid_Simulator.Core
         }
 
         #region Utilitys
-        public void AddPolygon(Vector2 position, Polygon polygon)
+        public void AddPolygon(Polygon polygon)
         {
+            var width = polygon.Right * ParticleDiameter;
+            var height = polygon.Bottom * ParticleDiameter;
+            var position = new Vector2(-width / 2, -height / 2);
+
+
             var vertex = polygon.Vertices.First();
             var offsetCircle = new CircleF(Vector2.Zero, ParticleDiameter);
             for (int i = 1; i <= polygon.Vertices.Length; i++)
@@ -57,10 +62,7 @@ namespace Fluid_Simulator.Core
         {
             DataCollector.Clear();
             foreach (var particle in _particles.Where(particle => !particle.IsBoundary).ToList())
-            {
-                _particles.Remove(particle);
-                _spatialHashing.RemoveObject(particle);
-            }
+                RemoveParticle(particle);
         }
 
         public void ClearAll()
@@ -69,6 +71,13 @@ namespace Fluid_Simulator.Core
             _particles.Clear();
             _spatialHashing.Clear();
         }
+
+        public void RemoveParticle(Particle particle)
+        {
+            _particles.Remove(particle);
+            _spatialHashing.RemoveObject(particle);
+        }
+
         public void AddNewParticle(Vector2 position, Color color, bool isBoundary = false)
         {
             var particle = new Particle(position, ParticleDiameter, FluidDensity, color, isBoundary);

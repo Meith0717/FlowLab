@@ -34,6 +34,10 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
                 { Keys.Right, ActionType.NextScene },
                 { Keys.Up, ActionType.NextPlaceMode },
                 { Keys.Down, ActionType.PreviousPlaceMode },
+                { Keys.I, ActionType.IncreaseHeight },
+                { Keys.K, ActionType.DecreaseHeight },
+                { Keys.L, ActionType.IncreaseWidthAndRadius},
+                { Keys.J, ActionType.DecreaseWidthAndRadius },
             };
 
             mActionOnHold = new()

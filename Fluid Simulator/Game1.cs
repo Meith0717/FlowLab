@@ -1,14 +1,12 @@
 ﻿using Fluid_Simulator.Core;
 using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 
 namespace Fluid_Simulator
 {
@@ -18,7 +16,7 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .02f;
+        private readonly float TimeSteps = .015f;
         private readonly float FluidStiffness = 1500f;
         private readonly float FluidViscosity = 100f;
 
@@ -93,20 +91,15 @@ namespace Fluid_Simulator
             // Camera Stuff
             _camera.Update(_graphics.GraphicsDevice);
             CameraMover.ControllZoom(gameTime, inputState, _camera, .05f, 20);
-            CameraMover.MoveByKeys(gameTime, inputState, _camera);
 
             // Main Stuff
             _sceneManager.Update(inputState);
+            inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
+            _particlePlacer.Update(inputState, _camera);
             inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
-            if (!mIsPaused)
-            {
-                _particlePlacer.Update(inputState, _camera);
+            if (!mIsPaused) _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps);
 
-                inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
-
-                _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps);
-            }
-
+            // Other Stuff
             base.Update(gameTime);
         }
 

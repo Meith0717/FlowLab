@@ -22,6 +22,10 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement
         PreviousScene,
         NextPlaceMode,
         PreviousPlaceMode,
+        IncreaseWidthAndRadius,
+        DecreaseWidthAndRadius,
+        IncreaseHeight,
+        DecreaseHeight,
 
         // Mouse
         LeftReleased,
