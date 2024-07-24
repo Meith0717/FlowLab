@@ -18,6 +18,10 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement
         Pause,
         Exit,
         ScreenShot,
+        NextScene,
+        PreviousScene,
+        NextPlaceMode,
+        PreviousPlaceMode,
 
         // Mouse
         LeftReleased,

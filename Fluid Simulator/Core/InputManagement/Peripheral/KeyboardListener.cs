@@ -30,6 +30,10 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
                 { Keys.F2, ActionType.ScreenShot },
                 { Keys.Delete, ActionType.DeleteParticels },
                 { Keys.Space, ActionType.Pause },
+                { Keys.Left, ActionType.PreviousScene },
+                { Keys.Right, ActionType.NextScene },
+                { Keys.Up, ActionType.NextPlaceMode },
+                { Keys.Down, ActionType.PreviousPlaceMode },
             };
 
             mActionOnHold = new()

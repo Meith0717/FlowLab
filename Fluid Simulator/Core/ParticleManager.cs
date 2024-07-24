@@ -30,48 +30,23 @@ namespace Fluid_Simulator.Core
         }
 
         #region Utilitys
-        public void AddBox(Vector2 placePosition, int xAmount, int yAmount)
-        {
-            for (int i = -1; i < xAmount + 2; i++)
-            {
-                var x = i * ParticleDiameter;
-                var height = yAmount * ParticleDiameter;
-
-                List<Vector2> positions = new()
-                    { new(x, -ParticleDiameter), new(x, 0), new(x, height), new(x, height + ParticleDiameter) };
-                foreach (var position in positions)
-                    AddNewParticle(placePosition + position, Color.White, true);
-            }
-
-            for (int j = 1; j < yAmount; j++)
-            {
-                var y = j * ParticleDiameter;
-                var width = xAmount * ParticleDiameter;
-
-                List<Vector2> positions = new()
-                    { new(- ParticleDiameter, y), new(0, y), new( width, y), new(width + ParticleDiameter, y) };
-                foreach (var position in positions)
-                    AddNewParticle(placePosition + position, Color.White, true);
-            }
-        }
-
         public void AddPolygon(Vector2 position, Polygon polygon)
         {
             var vertex = polygon.Vertices.First();
             var offsetCircle = new CircleF(Vector2.Zero, ParticleDiameter);
             for (int i = 1; i <= polygon.Vertices.Length; i++)
             {
-                var nextVertex = (i == polygon.Vertices.Length) ? polygon.Vertices.First() :  polygon.Vertices[i];
-                var step = Vector2.Subtract(nextVertex, vertex).NormalizedCopy();
-                var angle = step.ToAngle() - MathHelper.Pi;
-                
-                for (float j1 = 1; j1 < Vector2.Distance(nextVertex, vertex) + 2; j1++)
+                var nextVertex = i == polygon.Vertices.Length ? polygon.Vertices.First(): polygon.Vertices[i];
+                var stepDirection = Vector2.Subtract(nextVertex, vertex).NormalizedCopy();
+                var stepAngle = stepDirection.ToAngle() - MathHelper.Pi;
+                var particlePosition = vertex * ParticleDiameter;
+
+                for (int _ = 0; _ < Vector2.Distance(nextVertex, vertex) + 2; _++)
                 {
-                    var position1 = (vertex + (step * j1)) * ParticleDiameter;
-                    offsetCircle.Position = position1;
-                    var position2 = offsetCircle.BoundaryPointAt(angle);
-                    AddNewParticle(position1 + position, Color.Black, true);
-                    AddNewParticle(position2 + position, Color.Black, true);
+                    offsetCircle.Position = particlePosition;
+                    AddNewParticle(particlePosition + position, Color.Black, true);
+                    AddNewParticle(offsetCircle.BoundaryPointAt(stepAngle) + position, Color.Black, true);
+                    particlePosition += stepDirection * ParticleDiameter;
                 }
 
                 vertex = nextVertex;
@@ -88,25 +63,12 @@ namespace Fluid_Simulator.Core
             }
         }
 
-        public void AddNewBlock(Vector2 position, int xAmount, int yAmount, Color color)
+        public void ClearAll()
         {
-            for (int i = 0; i < xAmount; i++)
-                for (int j = 0; j < yAmount; j++)
-                    AddNewParticle(position + new Vector2(i, j) * ParticleDiameter, color);
+            DataCollector.Clear();
+            _particles.Clear();
+            _spatialHashing.Clear();
         }
-
-        public void AddNewCircle(Vector2 position, int diameterAmount, Color color)
-        {
-            var circle = new CircleF(position + new Vector2(diameterAmount * ParticleDiameter / 2), diameterAmount / 2 * ParticleDiameter);
-            for (int i = 0; i < diameterAmount; i++)
-                for (int j = 0; j < diameterAmount; j++)
-                {
-                    var pos = position + (new Vector2(i, j) * ParticleDiameter);
-                    if (!circle.Contains(pos)) continue;
-                    AddNewParticle(pos, color);
-                }
-        }
-
         public void AddNewParticle(Vector2 position, Color color, bool isBoundary = false)
         {
             var particle = new Particle(position, ParticleDiameter, FluidDensity, color, isBoundary);
@@ -162,7 +124,7 @@ namespace Fluid_Simulator.Core
                 // Compute pressure acceleration
                 var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, particle, _neighbors[particle]);
 
-                var surfaceTension = SphFluidSolver.GetSurfaceTensionAcceleration(0, ParticleDiameter, particle, _neighbors[particle]);
+                var surfaceTension = Vector2.Zero; // SphFluidSolver.GetSurfaceTensionAcceleration(0, ParticleDiameter, particle, _neighbors[particle]);
 
                 // Compote total acceleration & update velocity
                 var acceleration = viscosityAcceleration + new Vector2(0, gravitation) + pressureAcceleration + surfaceTension;
@@ -206,19 +168,12 @@ namespace Fluid_Simulator.Core
         #endregion
 
         #region Rendering
-        private Texture2D _particleTexture;
-        private CircleF _particleShape;
 
-        public void LoadContent(ContentManager content)
-            => _particleTexture = content.Load<Texture2D>(@"particle");
-
-        public void DrawParticles(SpriteBatch spriteBatch, SpriteFont spriteFont)
+        public void DrawParticles(SpriteBatch spriteBatch, SpriteFont spriteFont, Texture2D particleTexture)
         {
             foreach (var particle in _particles)
             {
-                _particleShape.Position = particle.Position;
-                _particleShape.Radius = ParticleDiameter / 2;
-                spriteBatch.Draw(_particleTexture, particle.Position, null, particle.Color, 0, new Vector2(_particleTexture.Width * .5f) , ParticleDiameter / _particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, particle.Position, null, particle.Color, 0, new Vector2(particleTexture.Width * .5f) , ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }
         }
         #endregion

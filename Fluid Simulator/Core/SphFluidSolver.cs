@@ -66,6 +66,7 @@ namespace Fluid_Simulator.Core
         public static Vector2 GetViscosityAcceleration(float particelDiameter, float fluidViscosity, Particle particle, List<Particle> neighbors)
         {
             Vector2 sumNonBoundry = Vector2.Zero;
+            Vector2 sumBoundry = Vector2.Zero;
 
             foreach (var neighbor in neighbors) 
             {
@@ -78,9 +79,16 @@ namespace Fluid_Simulator.Core
                 var scaledParticleDiameter = 0.01f * (particelDiameter * particelDiameter);
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
 
-                sumNonBoundry += massDensityRatio * (dotVelocityPosition / (dotPositionPosition + scaledParticleDiameter)) * kernelDerivative;
+                var computaton = massDensityRatio * (dotVelocityPosition / (dotPositionPosition + scaledParticleDiameter)) * kernelDerivative;
+
+                if (neighbor.IsBoundary)
+                {
+                    sumBoundry += computaton;
+                    continue;
+                }
+                sumNonBoundry += computaton;
             }
-            return 2 * fluidViscosity * sumNonBoundry;
+            return (2 * fluidViscosity * sumNonBoundry) + (fluidViscosity * sumBoundry);
         }
 
         public static Vector2 GetSurfaceTensionAcceleration(float surfaceTension, float particleDiameter, Particle particle, List<Particle> neighbors)

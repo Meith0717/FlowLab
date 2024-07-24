@@ -1,13 +1,14 @@
 ﻿using Fluid_Simulator.Core;
 using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace Fluid_Simulator
 {
@@ -17,14 +18,16 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .03f;
+        private readonly float TimeSteps = .02f;
         private readonly float FluidStiffness = 1500f;
-        private readonly float FluidViscosity = 20f;
+        private readonly float FluidViscosity = 100f;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
         private readonly ParticleManager _particleManager;
+        private readonly SceneManager _sceneManager;
+        private readonly ParticlePlacer _particlePlacer;
         private readonly Camera _camera;
         private readonly Serializer _serializer;
         private readonly FrameCounter _frameCounter;
@@ -34,8 +37,9 @@ namespace Fluid_Simulator
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
-            _particleManager.AddPolygon(Vector2.Zero, new(CreateCircle(40, 20)));
-            _particleManager.AddPolygon(new(600, -500), new(new List<Vector2>() { Vector2.Zero, new(5, 0), new(5, 100), new(0, 100) }));
+            _sceneManager = new(_particleManager);
+
+            _particlePlacer = new(_particleManager, ParticleDiameter);
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new(1000);
@@ -55,28 +59,14 @@ namespace Fluid_Simulator
             // Set fullscreen mode
             _graphics.PreferredBackBufferWidth = screenWidth;
             _graphics.PreferredBackBufferHeight = screenHeight;
-            //_graphics.IsFullScreen = true;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
-        }
-
-        private static Vector2[] CreateCircle(double radius, int sides)
-        {
-            Vector2[] array = new Vector2[sides];
-            double num = Math.PI * 2.0 / (double)sides;
-            double num2 = 0.0;
-            for (int i = 0; i < sides; i++)
-            {
-                array[i] = new Vector2((float)(radius * Math.Cos(num2)), (float)(radius * Math.Sin(num2)));
-                num2 += num;
-            }
-
-            return array;
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            _particleManager.LoadContent(Content);
+            _particleTexture = Content.Load<Texture2D>(@"particle");
             _spriteFont = Content.Load<SpriteFont>(@"fonts/text");
         }
 
@@ -84,9 +74,8 @@ namespace Fluid_Simulator
         protected override void Update(GameTime gameTime)
         {
             var inputState = _inputManager.Update(gameTime);
-            inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
-            System.Diagnostics.Debug.WriteLine(_camera.ScreenToWorld(inputState.MousePosition));
 
+            // DebugStuff
             inputState.DoAction(ActionType.SaveData, () => 
             {
                 var data = new DataCollector("constants", new() { "ParticleDiameter", "FluidDensity", "FluidStiffness", "FluidViscosity", "Gravitation", "TimeSteps" });
@@ -98,36 +87,22 @@ namespace Fluid_Simulator
                 data.AddData("TimeSteps", TimeSteps);
                 DataSaver.SaveToCsv(_serializer, data, _particleManager.DataCollector);
             });
-
-            inputState.DoAction(ActionType.ScreenShot, () => 
-            {
-                Screenshot(gameTime);
-            });
-
             _frameCounter.Update(gameTime);
+            inputState.DoAction(ActionType.ScreenShot, () => Screenshot(gameTime));
+
+            // Camera Stuff
             _camera.Update(_graphics.GraphicsDevice);
             CameraMover.ControllZoom(gameTime, inputState, _camera, .05f, 20);
             CameraMover.MoveByKeys(gameTime, inputState, _camera);
 
+            // Main Stuff
+            _sceneManager.Update(inputState);
+            inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
             if (!mIsPaused)
             {
-                inputState.DoAction(ActionType.LeftWasClicked, () =>
-                {
-                    var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    // _particleManager.AddNewBlock(worldMousePosition, 50, 30, Color.Blue);
-                    _particleManager.AddNewCircle(worldMousePosition, 21, Color.Blue);
-                });
+                _particlePlacer.Update(inputState, _camera);
 
-                inputState.DoAction(ActionType.RightWasClicked, () =>
-                {
-                    var worldMousePosition = _camera.ScreenToWorld(inputState.MousePosition);
-                    _particleManager.AddNewParticle(worldMousePosition, Color.Blue);
-                });
-
-                inputState.DoAction(ActionType.DeleteParticels, () =>
-                {
-                    _particleManager.Clear();
-                });
+                inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
 
                 _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps);
             }
@@ -148,14 +123,16 @@ namespace Fluid_Simulator
         }
 
         private SpriteFont _spriteFont;
+        private Texture2D _particleTexture;
 
         protected override void Draw(GameTime gameTime)
         {
             _frameCounter.UpdateFrameCouning();
             GraphicsDevice.Clear(Color.LightGray);
 
-                        _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
-            _particleManager.DrawParticles(_spriteBatch, _spriteFont);
+            _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
+            _particleManager.DrawParticles(_spriteBatch, _spriteFont, _particleTexture);
+            _particlePlacer.Draw(_spriteBatch, _particleTexture);
             _spriteBatch.End();
 
             _spriteBatch.Begin();
