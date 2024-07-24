@@ -29,6 +29,8 @@ namespace Fluid_Simulator
         private readonly Camera _camera;
         private readonly Serializer _serializer;
         private readonly FrameCounter _frameCounter;
+        private readonly ColorManager _colorManager;
+        private readonly InfoDrawer _infoDrawer;
 
         public Game1()
         {
@@ -41,6 +43,8 @@ namespace Fluid_Simulator
             _camera = new();
             _serializer = new("Fluid_Simulator");
             _frameCounter = new(1000);
+            _colorManager = new();
+            _infoDrawer = new();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
@@ -66,12 +70,14 @@ namespace Fluid_Simulator
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _particleTexture = Content.Load<Texture2D>(@"particle");
             _spriteFont = Content.Load<SpriteFont>(@"fonts/text");
+            _infoDrawer.LoadContent(Content);
         }
 
         private bool mIsPaused;
         protected override void Update(GameTime gameTime)
         {
             var inputState = _inputManager.Update(gameTime);
+            inputState.DoAction(ActionType.Exit, Exit);
 
             // DebugStuff
             inputState.DoAction(ActionType.SaveData, () => 
@@ -100,6 +106,8 @@ namespace Fluid_Simulator
             if (!mIsPaused) _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps);
 
             // Other Stuff
+            _infoDrawer.Update(inputState);
+            _colorManager.Update(inputState);
             base.Update(gameTime);
         }
 
@@ -121,26 +129,15 @@ namespace Fluid_Simulator
         protected override void Draw(GameTime gameTime)
         {
             _frameCounter.UpdateFrameCouning();
-            GraphicsDevice.Clear(Color.LightGray);
+            GraphicsDevice.Clear(_colorManager.BackgroundColor);
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
-            _particleManager.DrawParticles(_spriteBatch, _spriteFont, _particleTexture);
-            _particlePlacer.Draw(_spriteBatch, _particleTexture);
+            _particleManager.DrawParticles(_spriteBatch, _spriteFont, _particleTexture, _colorManager.BoundryColor);
+            _particlePlacer.Draw(_spriteBatch, _particleTexture, _colorManager.PlacerColor);
             _spriteBatch.End();
 
             _spriteBatch.Begin();
-            _spriteBatch.FillRectangle(Vector2.Zero, new Vector2(250, 250), new(10, 10, 10, 200));
-
-            _spriteBatch.DrawString(_spriteFont, $"{Math.Round(_frameCounter.CurrentFramesPerSecond)} fps" , new(1, 1), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
-
-            _spriteBatch.DrawString(_spriteFont, $"Physical Properties", new(1, 20), Color.White, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, $"Stiffness: {Math.Round(FluidStiffness, 3)}", new(1, 50), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, $"Viscosity: {Math.Round(FluidViscosity, 3)}", new(1, 70), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, $"Time Steps: {Math.Round(TimeSteps, 3)}", new(1, 90), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
-
-            _spriteBatch.DrawString(_spriteFont, $"Simulation States", new(1, 120), Color.White, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, $"CFL: {_particleManager.DataCollector.Data["CFL"].LastOrDefault("")}", new(1, 150), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1); 
-            _spriteBatch.DrawString(_spriteFont, $"Density Error: {_particleManager.DataCollector.Data["relativeDensityError"].LastOrDefault("")}", new(1, 170), Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+            _infoDrawer.DrawKeyBinds(_spriteBatch, _spriteFont, _colorManager.TextColor, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             _spriteBatch.End();
 
             base.Draw(gameTime);

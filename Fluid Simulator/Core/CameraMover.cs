@@ -16,21 +16,5 @@ namespace Fluid_Simulator.Core
             camera2D.Zoom *= 1 + (zoom * multiplier) * (float)(0.001 * gameTime.ElapsedGameTime.TotalMilliseconds);
             camera2D.Zoom = MathHelper.Clamp(camera2D.Zoom, minZoom, maxZoom);
         }
-
-        public static bool MoveByKeys(GameTime gameTime, InputState inputState, Camera camera)
-        {
-            var x = 0f;
-            var y = 0f;
-            inputState.DoAction(ActionType.MoveCameraLeft, () => x -= (float)gameTime.ElapsedGameTime.TotalMilliseconds);
-            inputState.DoAction(ActionType.MoveCameraRight, () => x += (float)gameTime.ElapsedGameTime.TotalMilliseconds);
-            inputState.DoAction(ActionType.MoveCameraUp, () => y -= (float)gameTime.ElapsedGameTime.TotalMilliseconds);
-            inputState.DoAction(ActionType.MoveCameraDown, () => y += (float)gameTime.ElapsedGameTime.TotalMilliseconds);
-
-            if (x == 0 && y == 0) return false;
-
-            camera.Position.X += x / camera.Zoom;
-            camera.Position.Y += y / camera.Zoom;
-            return true;
-        }
     }
 }

@@ -49,8 +49,8 @@ namespace Fluid_Simulator.Core
                 for (int _ = 0; _ < Vector2.Distance(nextVertex, vertex) + 2; _++)
                 {
                     offsetCircle.Position = particlePosition;
-                    AddNewParticle(particlePosition + position, Color.Black, true);
-                    AddNewParticle(offsetCircle.BoundaryPointAt(stepAngle) + position, Color.Black, true);
+                    AddNewParticle(particlePosition + position, true);
+                    AddNewParticle(offsetCircle.BoundaryPointAt(stepAngle) + position, true);
                     particlePosition += stepDirection * ParticleDiameter;
                 }
 
@@ -78,9 +78,9 @@ namespace Fluid_Simulator.Core
             _spatialHashing.RemoveObject(particle);
         }
 
-        public void AddNewParticle(Vector2 position, Color color, bool isBoundary = false)
+        public void AddNewParticle(Vector2 position, bool isBoundary = false)
         {
-            var particle = new Particle(position, ParticleDiameter, FluidDensity, color, isBoundary);
+            var particle = new Particle(position, ParticleDiameter, FluidDensity, isBoundary);
             _particles.Add(particle);
             _spatialHashing.InsertObject(particle);
         }
@@ -153,8 +153,6 @@ namespace Fluid_Simulator.Core
                     _particleVelocitys[particle] = particle.Velocity;
                     _cfl[particle] = timeSteps * (particle.Velocity.Length() / ParticleDiameter);
                     _particleSurface[particle] = surfaceTension;
-
-                    particle.Color = ColorSpectrum.ValueToColor(_cfl[particle] * 10);
                 }
             });
 
@@ -178,11 +176,16 @@ namespace Fluid_Simulator.Core
 
         #region Rendering
 
-        public void DrawParticles(SpriteBatch spriteBatch, SpriteFont spriteFont, Texture2D particleTexture)
+        public void DrawParticles(SpriteBatch spriteBatch, SpriteFont spriteFont, Texture2D particleTexture, Color boundaryColor)
         {
             foreach (var particle in _particles)
             {
-                spriteBatch.Draw(particleTexture, particle.Position, null, particle.Color, 0, new Vector2(particleTexture.Width * .5f) , ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                Color color;
+                color = boundaryColor;
+                if (!particle.IsBoundary)
+                    color = ColorSpectrum.ValueToColor(_cfl[particle] * 10);
+
+                spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f) , ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }
         }
         #endregion

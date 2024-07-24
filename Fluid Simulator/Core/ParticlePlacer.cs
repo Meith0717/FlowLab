@@ -34,10 +34,6 @@ namespace Fluid_Simulator.Core
             _particles.Clear();
             var worldMousePosition = camera.ScreenToWorld(inputState.MousePosition);
             inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
-            inputState.DoAction(ActionType.PreviousPlaceMode, () => { 
-                _mode = _mode - 1;
-                if (_mode < 0) _mode = PlacerModes.Count - 1;
-            });
             inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);
             inputState.DoAction(ActionType.DecreaseWidthAndRadius, () => _rectangleSize.X -= 1);
             inputState.DoAction(ActionType.IncreaseHeight, () => _rectangleSize.Y += 1);
@@ -61,16 +57,16 @@ namespace Fluid_Simulator.Core
             inputState.DoAction(ActionType.LeftWasClicked, () => 
             {
                 foreach (var particle in _particles)
-                    _particleManager.AddNewParticle(particle, Color.Blue, false);
+                    _particleManager.AddNewParticle(particle, false);
                 _mode = 0;
             });
 
         }
 
-        public void Draw(SpriteBatch spriteBatch, Texture2D particleTexture)
+        public void Draw(SpriteBatch spriteBatch, Texture2D particleTexture, Color color)
         {
             foreach (var particle in _particles)
-                spriteBatch.Draw(particleTexture, particle, null, new(10, 10, 10, 100), 0, new Vector2(particleTexture.Width * .5f), _particleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, particle, null, color, 0, new Vector2(particleTexture.Width * .5f), _particleDiameter / particleTexture.Width, SpriteEffects.None, 0);
         }
 
         private void GetBlock(Vector2 position, int xAmount, int yAmount)
