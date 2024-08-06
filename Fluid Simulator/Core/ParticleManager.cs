@@ -94,7 +94,7 @@ namespace Fluid_Simulator.Core
         private readonly Dictionary<Particle, float> _cfl = new();
         private readonly Dictionary<Particle, Vector2> _particleSurface = new();
 
-        public void Update(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
+        public void Update(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
             _neighbors.Clear();
             _viscosityAcceleration.Clear();
@@ -133,31 +133,35 @@ namespace Fluid_Simulator.Core
                 // Compute pressure acceleration
                 var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, particle, _neighbors[particle]);
 
-                var surfaceTension = Vector2.Zero; // SphFluidSolver.GetSurfaceTensionAcceleration(0, ParticleDiameter, particle, _neighbors[particle]);
-
-                // Compote total acceleration & update velocity
-                var acceleration = viscosityAcceleration + new Vector2(0, gravitation) + pressureAcceleration + surfaceTension;
-
                 lock (lockObject)
                 {
-                    // Update Velocity
-                    particle.Velocity += timeSteps * acceleration;
-                     
-                    // Update Position
-                    _spatialHashing.RemoveObject(particle);
-                    particle.Position += timeSteps * particle.Velocity;
-                    _spatialHashing.InsertObject(particle);
-
                     _viscosityAcceleration[particle] = viscosityAcceleration;
                     _pressureAcceleration[particle] = pressureAcceleration;
-                    _particleVelocitys[particle] = particle.Velocity;
-                    _cfl[particle] = timeSteps * (particle.Velocity.Length() / ParticleDiameter);
-                    _particleSurface[particle] = surfaceTension;
+                    _particleSurface[particle] = Vector2.Zero;
                 }
             });
 
+            foreach (var particle in _particles)
+            {
+                if (particle.IsBoundary) continue;
+
+                // Compote total acceleration & update velocity
+                var acceleration = _viscosityAcceleration[particle] + new Vector2(0, gravitation) + _pressureAcceleration[particle];
+
+                // Update Velocity
+                particle.Velocity += timeSteps * acceleration;
+
+                // Update Position
+                _spatialHashing.RemoveObject(particle);
+                particle.Position += timeSteps * particle.Velocity;
+                _spatialHashing.InsertObject(particle);
+
+                _particleVelocitys[particle] = particle.Velocity;
+                _cfl[particle] = timeSteps * (particle.Velocity.Length() / ParticleDiameter);
+            }
+
             // Colect Data
-            if (_particleVelocitys.Count <= 0) return;
+            if (_particleVelocitys.Count <= 0 || !collectData) return;
             DataCollector.AddData("relativeDensityError", (_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density) - FluidDensity) / FluidDensity);
             DataCollector.AddData("localPressure", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Pressure));
 
@@ -183,7 +187,8 @@ namespace Fluid_Simulator.Core
                 Color color;
                 color = boundaryColor;
                 if (!particle.IsBoundary)
-                    color = ColorSpectrum.ValueToColor(_cfl[particle] * 10);
+                    if (_cfl.TryGetValue(particle, out var cfl))
+                        color = ColorSpectrum.ValueToColor(cfl * 10);
 
                 spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f) , ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }

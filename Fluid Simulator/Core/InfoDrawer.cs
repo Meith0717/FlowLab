@@ -1,11 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.BitmapFonts;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Fluid_Simulator.Core
 {
@@ -54,6 +52,15 @@ namespace Fluid_Simulator.Core
                 spriteBatch.DrawString(spriteFont, $" - {text}", position + new Vector2((texture.Width * .75f) + 10, 5), color, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
                 position.Y -= 40;
             }
+        }
+
+        public void DrawPaused(SpriteFont spriteFont, SpriteBatch spriteBatch, bool paused, Rectangle viewBound, Color color)
+        {
+            if (!paused) return;
+            var center = viewBound.Center.ToVector2();
+            var stringDimension = spriteFont.MeasureString("Paused");
+            var position = center - (stringDimension / 2f);
+            spriteBatch.DrawString(spriteFont, "Paused", position , color, 0, Vector2.Zero, 1f, SpriteEffects.None, 1);
         }
     }
 }

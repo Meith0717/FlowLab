@@ -18,9 +18,9 @@ namespace Fluid_Simulator.Core
 
         public Vector2 Hash(Vector2 vector)
         {
-            var x = MathF.Floor(vector.X / CellSize);
-            var y = MathF.Floor(vector.Y / CellSize);
-            return new(x, y);
+            vector = Vector2.Divide(vector, CellSize);
+            vector.Floor();
+            return vector;
         }
 
         public void InsertObject(Particle particle)

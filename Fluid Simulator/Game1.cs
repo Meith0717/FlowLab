@@ -42,7 +42,7 @@ namespace Fluid_Simulator
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _camera = new();
             _serializer = new("Fluid_Simulator");
-            _frameCounter = new(1000);
+            _frameCounter = new(250);
             _colorManager = new();
             _infoDrawer = new();
             Content.RootDirectory = "Content";
@@ -103,7 +103,7 @@ namespace Fluid_Simulator
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             _particlePlacer.Update(inputState, _camera);
             inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
-            if (!mIsPaused) _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps);
+            if (!mIsPaused) _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
 
             // Other Stuff
             _infoDrawer.Update(inputState);
@@ -137,7 +137,9 @@ namespace Fluid_Simulator
             _spriteBatch.End();
 
             _spriteBatch.Begin();
+            _spriteBatch.DrawString(_spriteFont, Math.Round(_frameCounter.CurrentFramesPerSecond).ToString(), new(5), _colorManager.TextColor, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
             _infoDrawer.DrawKeyBinds(_spriteBatch, _spriteFont, _colorManager.TextColor, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            _infoDrawer.DrawPaused(_spriteFont, _spriteBatch, mIsPaused, GraphicsDevice.Viewport.Bounds, _colorManager.TextColor);
             _spriteBatch.End();
 
             base.Draw(gameTime);
