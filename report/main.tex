@@ -11,6 +11,16 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{enumitem}
+\usepackage{dsfont}
+\usepackage{algorithm}
+\usepackage{float}
+\usepackage[noend]{algpseudocode}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\setcounter{tocdepth}{2}
 \begin{document}
 
 \makeTitleAndTable
@@ -23,19 +33,19 @@ Die Allgegenwärtigkeit und Bedeutung dieser Technologie in verschiedenen Branch
 In diesem Bericht werden wir zuerst in Abschnitt \ref{section_1} die Navier-Stokes-Gleichung analysieren, die die Grundlage aller Methoden zur Simulation von Fluiden und Gasen bilden. In Abschnitt \ref{section_2} folgt eine Übersicht aller Teile der SPH-Methode, die zur Implementierung der Simulation verwendet wurden. Wie SPH schlussendlich implementiert wurde, wird in Abschnitt \ref{section_3} beschrieben, zusammen mit einer Übersicht der einzelnen Komponenten. Der wichtigste Teil wird die Analyse und Interpretation der Daten der Simulation in Abschnitt \ref{section_4} sein.
 
 \section{Navier-Stokes-Gleichung} \label{section_1}
-Die Navier-Stokes-Gleichungen sind fundamentale Gleichungen in der Fluidmechanik, die das Verhalten von strömenden Flüssigkeiten und Gasen beschreiben. Sie basieren auf den Prinzipien der Erhaltung von Masse, Impuls und Energie. Sie modellieren die Bewegung des Fluids, indem sie die Einflüsse von Druck, Viskosität und externen Kräften auf das Strömungsverhalten berücksichtigen.
+Die Navier-Stokes-Gleichungen sind fundamentale Gleichungen in der Fluidmechanik, die das Verhalten von strömenden Flüssigkeiten und Gasen beschreiben und bildet ein System von nichtlinearen partiellen Differentialgleichungen zweiter Ordnung. Sie basieren auf den Prinzipien der Erhaltung von Masse, Impuls und Energie. Sie modellieren die Bewegung des Fluids, indem sie die Einflüsse von Druck, Viskosität und externen Kräften auf das Strömungsverhalten berücksichtigen.
 
-\begin{equation}
-    \rho(\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v}) = - \vec{\nabla}p + \eta \vec{\nabla}^2 \vec{v} + (\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) + \rho \vec{f}
-    \label{equ:Impulsgleichung}
-\end{equation} 
+\subsection{Impulsgleichung}
+\begin{equation} \label{equ:Impulsgleichung}
+	\rho(\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v}) = - \vec{\nabla}p + \eta \vec{\nabla}^2 \vec{v} + (\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) + \rho \vec{f}
+\end{equation}
 
-Gleichung \eqref{equ:Impulsgleichung} beschreibt die Impulserhaltung. Diese entspricht dem zweitem Newtonsches Gesetz und kann dementsprechend hergeleitet werden:
+Gleichung \eqref{equ:Impulsgleichung} beschreibt die Impulserhaltung für komprimierbare Fluide. Diese entspricht dem zweitem Newtonsches Gesetz und kann dementsprechend hergeleitet werden:
 \begin{align}
-    \vec{F}&=\Delta m \cdot a = \Delta m \cdot \nabla \vec{v} \nonumber\\
-    \vec{F}&=\rho \cdot \Delta V \cdot \nabla \vec{v} \nonumber\\
-    \vec{F}&=\rho \cdot \Delta V (\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v})
-    \label{equ:Newtonsches_Gesetz}
+	\vec{F} & =\Delta m \cdot a = \Delta m \cdot \nabla \vec{v} \nonumber                 \\
+	\vec{F} & =\rho \cdot \Delta V \cdot \nabla \vec{v} \nonumber                         \\
+	\vec{F} & =\rho \cdot \Delta V (\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v})
+	\label{equ:Newtonsches_Gesetz}
 \end{align}
 
 Die Masse eines Objektes kann durch $m = \rho * V$ bestimmt werden. Die Geschwindigkeitsänderung ergibt sich aus der Lokalen zeitlichen Beschleunigung $\nabla \vec{v}$ und der Konvektiven Beschleunigung $(\vec{v} \cdot \vec{\nabla})\vec{v}$, also die die Änderung der Geschwindigkeit aufgrund der Bewegung der Flüssigkeit selbst.
@@ -43,40 +53,209 @@ Die Masse eines Objektes kann durch $m = \rho * V$ bestimmt werden. Die Geschwin
 Wir benötigen nun die Kräfte $\vec{F}$. Diese sind aus verschiedenen Kräfte welche auf einen Fluid auswirken. Diese bestehen aus der Druck Kraft \eqref{equ:Druck}, der Reibungs Kraft \eqref{equ:Reib}, der Kompressions Kraft \eqref{equ:Kompress} und der Kräfte die von außen wirken \eqref{equ:ext}.
 
 \begin{align}
-    \vec{F}_{Druck} &= - \vec{\nabla}p \cdot \Delta V \label{equ:Druck}\\
-    \vec{F}_{Reib} &= \eta \vec{\nabla}^2 \vec{v} \cdot \Delta V \label{equ:Reib}\\
-    \vec{F}_{Kompress} &= (\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) \label{equ:Kompress}\\
-    \vec{F}_{ext} &= \rho \vec{f} \cdot \Delta V \label{equ:ext}
+	\vec{F}_{Druck}    & = - \vec{\nabla}p \cdot \Delta V \label{equ:Druck}                                             \\
+	\vec{F}_{Reib}     & = \eta \vec{\nabla}^2 \vec{v} \cdot \Delta V \label{equ:Reib}                                  \\
+	\vec{F}_{Kompress} & = (\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) \cdot \Delta V \label{equ:Kompress} \\
+	\vec{F}_{ext}      & = \rho \vec{f} \cdot \Delta V \label{equ:ext}
 \end{align}
 
 \begin{equation} \label{equ:Kraft}
-    \vec{F} = \vec{F}_{Druck} + \vec{F}_{Reib} + \vec{F}_{Kompress} + \vec{F}_{ext}
+	\vec{F} = \vec{F}_{Druck} + \vec{F}_{Reib} + vec{F}_{Kompress} + \vec{F}_{ext}
 \end{equation}
 
 Wir setzen \eqref{equ:Kraft} in die Gleichung \eqref{equ:Newtonsches_Gesetz} ein und erhalten somit:
 
-\[- \vec{\nabla}p \cdot \Delta V + \eta \vec{\nabla}^2 \vec{v} \cdot \Delta V + \rho \vec{f} \cdot \Delta V = \rho \cdot \Delta V (\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v})\]
+\[- \vec{\nabla}p \cdot \Delta V\;+\;\eta \vec{\nabla}^2 \vec{v} \cdot \Delta V\;+\;(\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) \cdot \Delta V\;+\;\rho \vec{f} \cdot \Delta V = \rho \cdot \Delta V (\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v})\]
 
 Durch das dividieren beider Seiten mit $\Delta V$ erhält man schließlich die Gleichung \eqref{equ:Impulsgleichung}.
 
-\[- \vec{\nabla}p + \eta \vec{\nabla}^2 \vec{v} + \rho \vec{f} = \rho (\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v})\]
+\[- \vec{\nabla}p + \eta \vec{\nabla}^2 \vec{v} + (\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) + \rho \vec{f} = \rho (\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v})\]
 
-Des weiterem folgt die Kontinuitätsgleichung welche die Erhaltung der Masse innerhalb eines Fluides beschreibt. 
+\subsection{Kontinuitätsgleichung}
+Des weiterem folgt die Kontinuitätsgleichung \eqref{equ:Kontinuitätsgleichung} welche die Erhaltung der Masse innerhalb eines Fluides beschreibt.
 
 \begin{equation} \label{equ:Kontinuitätsgleichung}
-    \Delta \rho + \vec{\nabla} \cdot (\rho \vec{v}) = 0
+	\Delta \rho + \vec{\nabla} \cdot (\rho \vec{v}) = 0
 \end{equation}
 
 In ihrer klassischen Form sind sowohl die Impulsgleichung \eqref{equ:Impulsgleichung} als auch die Kontinuitätsgleichung \eqref{equ:Kontinuitätsgleichung} spezifisch für Newtonsche Fluide formuliert. Newtonsche Fluide zeichnen sich durch ein lineares viskoses Fließverhalten aus, bei dem die Viskosität unabhängig von der Schergeschwindigkeit ist.
 
+\subsection{Nicht komprimierbare Fluide}
+Für nicht komprimierbare Fluide vereinfachen sich die Impulsgleichung \eqref{equ:Impulsgleichung} und die Kontinuitätsgleichung \eqref{equ:Kontinuitätsgleichung} zu
+
+\begin{equation} \label{equ:einfachImpulsgleichung}
+	\rho(\nabla \vec{v} + (\vec{v} \cdot \vec{\nabla})\vec{v}) = - \vec{\nabla}p + \eta \vec{\nabla}^2 \vec{v} + \rho \vec{f}
+\end{equation}
+
+da \((\lambda + \eta)\vec{\nabla}(\vec{\nabla} \cdot \vec{v}) = 0\) für nicht komprimierbare Fluide, und
+
+\begin{equation} \label{equ:einfachKontinuitätsgleichung}
+	\vec{\nabla} \vec{v} = 0
+\end{equation}
+
+da \(\Delta \rho = 0\) und \(\vec{\nabla}\rho = 0\)
+
 \section{Smoothed Particle Hydrodynamics} \label{section_2}
+Smoothed Particle Hydrodynamics (SPH) ist eine numerische Methode zur Approximation der Navier Stokes Gleichungen. Im verlauf des Kapitels werden die einzelnen Bestandteile von SPH erläutert und die Verbindung von SPH und den Navier Stokes Gleichungen beleuchtet.
 
-\section{Implementierung} \label{section_3}
-\subsection{Simulation}
-\subsection{Nachbarschaft Suchen}
-\subsection{Oberflächenspannung}
+\subsection{Grundlagen}
+Das Konzept von SPH lässt sich allgemein als eine Methode zur Diskretisierung von räumlichen Feldgrößen und räumlichen Differentialoperatoren verstehen. Die zentrale Idee von SPH ist es, Partikel einzusetzen, die Proben von Feldgrößen enthalten, und eine Kernel-Funktion zu nutzen, um kontinuierliche Felder zu approximieren. Ein Partikel besitzt Eigenschaften wie die Masse \( m_i \), die Position \( x_i \), die Geschwindigkeit \( v_i \) und den Druck \( \rho_i \).
 
-\section{Analysen} \label{section_4}
+Die Kernel-Funktion \(W_{ij} = W(x_i - x_j, h)\) ist eine Funktion zur Glättung der Räumlichen Diskretisierung wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel-Funktion zweifach Ableitbar sein und folgende Eigenschaften besitzen: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow\) 
+\[\int_{\mathds{R}^d} W(x_i - x_j', h) dx_j'  = 1\]
+\[\lim_{h'\rightarrow 0} W(x_i - x_j, h') = \delta(r)\]
+\[W(x_i - x_j, h) \geq 0\]
+\[W(x_i - x_j, h) = W(-(x_i - x_j), h)\]
+\[W(x_i - x_j, h) = 0\;:\; |x_i - x_j| \geq h\]
+wobei \(\delta(x)\) die Delta Verteilung ist. 
+In diesem Projekt wird die Cubic Spline Kernel Funktion verwendet, wie in [Monaghan1992] beschrieben:
+\begin{equation*}
+	W(q) = \alpha \begin{cases} 
+	(2-q)^3 - 4(1-q)^3 & 0 \leq q \leq 1\\
+	(2-q)^3 & 1 \leq q \leq 2 \\
+	0 & q \geq 2 
+	\end{cases}
+\end{equation*}
+	
+\begin{equation*}
+	q = \frac{\|x_j - x_i\|}{h}
+\end{equation*}
+
+Dabei ist \(\alpha\) ein Normalisierungsfaktor, der in verschiedenen Dimensionen wie folgt definiert ist:
+\begin{itemize}
+	\item 1D: \(\alpha = \frac{1}{6h}\)
+	\item 2D: \(\alpha = \frac{5}{14\pi h^2}\)
+	\item 3D: \(\alpha = \frac{1}{4\pi h^3}\)
+\end{itemize}
+
+\subsection{Kontinuitätsgleichung}
+Die Kontinuitätsgleichung beschreibt die Erhaltung der Masse und wird in der SPH-Methode wie folgt diskretisiert:
+\[
+\frac{d\rho_i}{dt} = \sum_j m_j (v_i - v_j) \cdot \nabla_i W_{ij}
+\]
+Dabei ist \(\rho_i\) die Dichte des Partikels \(i\), \(m_j\) die Masse des Partikels \(j\), \(v_i\) und \(v_j\) die Geschwindigkeiten der Partikel \(i\) und \(j\), und \(\nabla_i W_{ij}\) das Gradientenfeld der Kernel-Funktion bezüglich des Partikels \(i\).
+
+\subsection{Impulsgleichung}
+Die Impulsgleichung beschreibt die Erhaltung des Impulses und wird in der SPH-Methode wie folgt diskretisiert:
+\[
+\frac{d v_i}{dt} = -\sum_j m_j \left( \frac{p_i}{\rho_i^2} + \frac{p_j}{\rho_j^2} \right) \nabla_i W_{ij} + 2 \nu \sum_j \frac{m_j}{\rho_j} \frac{(v_i - v_j) \times (x_i - x_j)}{(x_i - x_j) \times (x_i - x_j) + 0.01\cdot h^2} \nabla_i W_{ij} + f_i
+\]
+
+\subsubsection{Druckbeschleunigung}
+Die Beschleunigung aufgrund des Drucks wird durch die folgende Gleichung beschrieben:
+\begin{equation} \label{equ:druckBesch}
+	a_{druck} = -\sum_j m_j \left( \frac{p_i}{\rho_i^2} + \frac{p_j}{\rho_j^2} \right) \nabla_i W_{ij}
+\end{equation}
+Dabei sind \( p_i \) und \( p_j \) die Drücke der Partikel \( i \) und \( j \), \(\rho_i \) und \(\rho_j \) die Dichten der Partikel \( i \) und \( j \), und \( \nabla_i W_{ij} \) der Gradient der Kernel-Funktion bezüglich des Partikels \( i \).
+
+\subsubsection{Viskositätsbeschleunigung}
+Die Beschleunigung aufgrund der Viskosität wird durch die folgende Gleichung beschrieben:
+\begin{equation} \label{equ:viskositätBesch}
+	a_{viskosität} = 2 \nu \sum_j \frac{m_j}{\rho_j} \frac{(v_i - v_j) \cdot (x_i - x_j)}{(x_i - x_j) \cdot (x_i - x_j) + 0.01\cdot h^2} \nabla_i W_{ij}
+\end{equation}
+Hier ist \(\nu\) die kinematische Viskosität, \( v_i \) und \( v_j \) sind die Geschwindigkeiten der Partikel \( i \) und \( j \), \( x_i \) und \( x_j \) sind die Positionen der Partikel \( i \) und \( j \), und \(\nabla_i W_{ij}\) ist der Gradient der Kernel-Funktion bezüglich des Partikels \( i \).
+
+\subsubsection{Externe Kräfte}
+Die externen Kräfte, die auf ein Partikel wirken, werden durch \( f_i \) dargestellt. Dies kann beispielsweise die Gravitation oder andere externe Einflüsse umfassen:
+\begin{equation}
+	a_{extern} = f_i
+\end{equation}
+\subsection{Berechnung der Partikeleigenschaften}
+\subsubsection{Dichteberechnung}
+Die Dichte jedes Partikels \(i\) wird durch die Summe der Massen der benachbarten Partikel \(j\) gewichtet durch die Kernel-Funktion berechnet:
+\begin{equation} \label{equ:localDichte}
+	\rho_i = \sum_j m_j W_{ij}
+\end{equation}
+
+\subsubsection{Druckberechnung}
+Der Druck \(p_i\) wird häufig durch eine Zustandsgleichung berechnet, z.B.:
+\begin{equation} \label{equ:lokalDruck}
+	p_i = k (\frac{\rho_i}{\rho_0} - 1)
+\end{equation}
+wobei \(k\) die Steifigkeit Konstante ist und \(\rho_0\) die Ruhe-Dichte.
+
+\section{Simulationsschritt} \label{section_3}
+Der Simulationsschritt ist in der SPH Simulation von Zentraler Bedeutung. Dort werden alle nötigen Beschleunigungen ermittelt, die zum simulieren eines Fluides mithilfe von Partikeln, nötigen sind. In diesem Projekt wurde die Methode in 3 Schleifen unterteilt wobei die erste als einzige alle Partikel berücksichtigt. In den Restlichen Schleifen werden nur Partikel welche das Fluid bilden beachtet und Partikel zum Simulieren der Grenze Ignoriert.
+
+Eigenschaften wie die Partikelgröße und die Ruhedichte der Flüssigkeit werden vor dem Starten der Simulation festgelegt. Aus diesen wird eine Masse für die Partikel ermittelt welche im laufe der Simulation konstant bleibt. Weitere Werte werden im Kapitel TODO erläutert. 
+
+Darauf hin werden in der ersten Schleife die restlichen locale Eigenschaften ermittelt. Dazu müssen die Nachbar Partikel ermittelt werden. Mit Hilfe dieser wird die Lokale Dichte und der Lokale Druck bestimmt. Diese werden für die Berechnungen der nächste Schleife benötigt. In dieser werden, für alle Partikel die das Fluid bilden, die Viskosität- und Druckbeschleunigungen berechnet.
+Anhand dieser Beschleunigungen werden die Positionen der Partikel in der letzten schleife Aktualisiert. 
+
+\begin{algorithm}[H]
+\caption{Simulationsschritt}
+\begin{algorithmic}[1]
+\State \textbf{For each} particle \textbf{in} particles
+\State \quad $\text{FindNeighbors()}$
+\State \quad $\text{ComputeLocalDensity()}$ \hfill \eqref{equ:localDichte}
+\State \quad $\text{ComputeLocalPressure()}$ \hfill \eqref{equ:lokalDruck}
+\vspace{1em}
+\State \textbf{For each} particle \textbf{in} noBoundaryParticles
+\State \quad $\text{GetViscosityAcceleration}()$ \hfill \eqref{equ:viskositätBesch}
+\State \quad $\text{GetPressureAcceleration}()$ \hfill \eqref{equ:druckBesch}
+\vspace{1em}
+\State \textbf{For each} particle \textbf{in} noBoundaryparticles
+\State \quad $\text{acceleration} = \text{viscosityAcceleration} + \text{pressureAcceleration} + \text{gravitation}$
+\State \quad $\text{particle.Velocity} += \text{timeSteps}\;\cdot\;\text{acceleration}$
+\State \quad $\text{particle.Position} += \text{timeSteps}\;\cdot\;\text{particle.Velocity}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Nachbarschaft Suche} \label{section_4}
+Die Nachbarschaft Suche ist das Fundament der Simulation. Diese erlaubt das ermitteln der Nachbar Partikel in einem feste Radius um eine Position zum Berechnen lokaler Werte. Ein naiver Ansatz wäre, für alle Partikel den Abstand zur Position zu ermitteln und zu prüfen ob sich diese im Radius zu befinden. Diese Methode weist jedoch eine quadratische Laufzeitkomplexität auf, da für jedes Partikel der Abstand zu allen anderen Partikeln berechnet werden muss. Dies führt zu einer Laufzeit von $O(n^2)$, wobei $n$ die Anzahl der Partikel ist. Bei großen Partikelzahlen wird dieser Ansatz daher ineffizient und rechenintensiv.
+
+Für das Projekt wurde dementsprechend das Räumliche Hashing verwendet. Dabei handelt es sich um eine Datenstruktur die den Raum in einzelne Blöcke unterteilt. Beim ermitteln von Nachbar Partikel müssen dadurch nicht mehr alle Partikel geprüft werden sondern nur diese die sich in dem selbem Block oder Nachbar Block befinden. Dies führt zu einer effizienteren und weniger rechenintensiven Methode zum bestimmen der Nachbarn.
+
+\subsection{Einfügen von Partikel}
+Um ein Partikel in die Datenstruktur einzufügen wird als erst ein Hashwert bezüglich der Position errechnet. Dazu wird der Position Vektor durch die Blockgröße geteilt und das Ergebnis abgerundet.
+\begin{algorithm}[H]
+	\caption{Hash Funktion}
+	\begin{algorithmic}[1]
+		\Require Vector $\mathbf{v} = (v_x, v_y)$, scalar $\text{CellSize}$
+		\Ensure Hashed vector $\mathbf{h} = (h_x, h_y)$
+		\State $\mathbf{h} \leftarrow \frac{\mathbf{v}}{\text{CellSize}}$
+		\State $\mathbf{h} \leftarrow \lfloor \mathbf{h} \rfloor$
+		\Return $\mathbf{h}$
+	\end{algorithmic}
+\end{algorithm}
+
+Schließlich wird der Partikel in eine Liste innerhalb der Hashtabelle Eingefügt. Das löschen eines Partikels aus der Datenstruktur funktioniert Analog.
+
+\subsection{Updaten der Partikel Positionen}
+Wurden die Positionen der Partikel im Simulationsschritt aktualisiert müssen ebenfalls die Einträge in der Hashtabelle Aktualisiert werden. Dazu werden die Partikel vor dem Aktualisieren der Position aus der Datenstruktur entfernt und nach der Aktualisierung wieder eingefügt. 
+
+\subsection{Ermitteln von Nachbarn}
+\begin{algorithm}[H]
+    \caption{Partikel im Radius}
+    \begin{algorithmic}[1]
+		\Require Position $\mathbf{p}$, Radius $r$
+        \Ensure Liste der Partikel im Radius: $\text{partikelImRadius}$
+        \State $startX \leftarrow \lfloor (\mathbf{p}_x - r) / \text{CellSize} \rfloor$
+        \State $endX \leftarrow \lceil (\mathbf{p}_x + r) / \text{CellSize} \rceil$
+        \State $startY \leftarrow \lfloor (\mathbf{p}_y - r) / \text{CellSize} \rfloor$
+        \State $endY \leftarrow \lceil (\mathbf{p}_y + r) / \text{CellSize} \rceil$
+        \For{($x \leftarrow startX$ \textbf{to} $endX$)}
+            \For{($y \leftarrow startY$ \textbf{to} $endY$)}
+                \If{($(x , y)$ existiert in $\text{Hashtabelle}$)}
+                    \ForAll{(Partikel in \text{Hashtabelle}[hash])}
+                        \If{($\text{Distance}(Partikel.\text{Position}, \mathbf{p}) \leq r$)}
+                            \State $\text{partikelImRadius}.\text{add}(q)$
+                        \EndIf
+                    \EndFor
+                \EndIf
+            \EndFor
+        \EndFor
+        \Return $\text{partikelImRadius}$
+    \end{algorithmic}
+\end{algorithm}
+
+\section{Implementierung} \label{section_5}
+
+\subsection{Tests}
+
+\subsection{TODO}
+
+\section{Analysen} \label{section_6}
 
 \section{Schlussfolgerung}
 
