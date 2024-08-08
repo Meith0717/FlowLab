@@ -19,7 +19,7 @@ namespace Fluid_Simulator.Core
         private readonly List<ColorPalet> _colorPalets = new()
         {
             new(Color.Black, Color.LightGray, Color.White, new(100, 100, 100, 100)),
-            new(Color.White, Color.Black, Color.Black, new(5, 5, 5, 100))
+            new(Color.White, new (50, 50, 50), Color.Black, new(5, 5, 5, 100))
         };
 
         private int _actualColorPaleIndex;

@@ -13,8 +13,7 @@ namespace Fluid_Simulator.Core
         
         private readonly Dictionary<Polygon, string> _scenes = new()
         {
-            { PolygonFactory.CreateRectangle(5, 70), "" },
-            { PolygonFactory.CreateRectangle(70, 70), "" },
+            { PolygonFactory.CreateRectangle(5, 130), "" },
             { PolygonFactory.CreateRectangle(170, 130), "" },
             { PolygonFactory.CreateCircle(70, 50), "" }
         };

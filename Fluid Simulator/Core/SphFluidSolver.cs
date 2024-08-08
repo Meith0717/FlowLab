@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework;
 namespace Fluid_Simulator.Core
 {
     public static class SphFluidSolver
-    {        
+    {
+        private const float kernelCorrection = 0.04f / 0.0400344729f;
 
         public static float KernelAlpha(float particelDiameter) 
             => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
@@ -22,7 +23,7 @@ namespace Fluid_Simulator.Core
             var t1 = MathF.Max(1 - distanceOverH, 0);
             var t2 = MathF.Max(2 - distanceOverH, 0);
             var t3 = (t2 * t2 * t2) - 4 * (t1 * t1 * t1);
-            return alpha * t3;
+            return alpha * t3 * kernelCorrection;
         }
 
         public static Vector2 KernelDerivative(Vector2 position1, Vector2 position2, float particelDiameter)

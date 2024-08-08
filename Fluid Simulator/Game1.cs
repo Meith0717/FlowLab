@@ -1,12 +1,12 @@
 ﻿using Fluid_Simulator.Core;
 using Fluid_Simulator.Core.Profiling;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
 using System.IO;
-using System.Linq;
+using Tests;
 
 namespace Fluid_Simulator
 {
@@ -16,9 +16,9 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .015f;
+        private readonly float TimeSteps = .2f;
         private readonly float FluidStiffness = 1500f;
-        private readonly float FluidViscosity = 100f;
+        private readonly float FluidViscosity = 75;
 
         private SpriteBatch _spriteBatch;
         private readonly GraphicsDeviceManager _graphics;
@@ -31,6 +31,8 @@ namespace Fluid_Simulator
         private readonly FrameCounter _frameCounter;
         private readonly ColorManager _colorManager;
         private readonly InfoDrawer _infoDrawer;
+        private readonly NeighborSearchTests _neighborSearchTests;
+        private readonly SphTests _sphTests;
 
         public Game1()
         {
@@ -63,6 +65,25 @@ namespace Fluid_Simulator
             _graphics.PreferredBackBufferHeight = screenHeight;
             _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
+
+            // Tests
+            try
+            {
+                _neighborSearchTests = new();
+                _neighborSearchTests.Neighbor_Search();
+
+                _sphTests = new();
+                _sphTests.KernelIdealSamplingTest();
+                _sphTests.KernelComputationTest();
+                _sphTests.KernelDerivativeIdealSamplingTest();
+                _sphTests.KernelDerivativeComputationTest();
+                _sphTests.LocalDensityIdealSamplingTest();
+                _sphTests.LocalStiffnesIdealSamplingTest();
+            }
+            catch (AssertFailedException)
+            {
+                _infoDrawer.AddMessage("Tests Failed", Color.Red);
+            }
         }
 
         protected override void LoadContent()
@@ -73,7 +94,9 @@ namespace Fluid_Simulator
             _infoDrawer.LoadContent(Content);
         }
 
-        private bool mIsPaused;
+        private bool _paused;
+        private bool _collectData;
+
         protected override void Update(GameTime gameTime)
         {
             var inputState = _inputManager.Update(gameTime);
@@ -82,6 +105,7 @@ namespace Fluid_Simulator
             // DebugStuff
             inputState.DoAction(ActionType.SaveData, () => 
             {
+                if (!_collectData) return;
                 var data = new DataCollector("constants", new() { "ParticleDiameter", "FluidDensity", "FluidStiffness", "FluidViscosity", "Gravitation", "TimeSteps" });
                 data.AddData("ParticleDiameter", ParticleDiameter);
                 data.AddData("FluidDensity", FluidDensity);
@@ -102,18 +126,23 @@ namespace Fluid_Simulator
             _sceneManager.Update(inputState);
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             _particlePlacer.Update(inputState, _camera);
-            inputState.DoAction(ActionType.Pause, () => mIsPaused = !mIsPaused);
-            if (!mIsPaused) _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
+
+            inputState.DoAction(ActionType.TogglePause, () => { _paused = !_paused; _infoDrawer.AddMessage(_paused ? "Paused" : "Resume", _colorManager.TextColor); });
+            inputState.DoAction(ActionType.ToggleData, () => { _collectData = !_collectData; _infoDrawer.AddMessage(_collectData ? "Start collect data" : "Stop collect data", _colorManager.TextColor);
+                if (!_collectData) _particleManager.DataCollector.Clear(); });
+
+            if (!_paused) 
+                _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
 
             // Other Stuff
-            _infoDrawer.Update(inputState);
+            _infoDrawer.Update(gameTime, inputState);
             _colorManager.Update(inputState);
             base.Update(gameTime);
         }
 
         private void Screenshot(GameTime gameTime)
         {
-            RenderTarget2D screenshotTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            RenderTarget2D screenshotTarget = new(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             GraphicsDevice.SetRenderTarget(screenshotTarget);
             Draw(gameTime);
             FileStream fs = new($"{_serializer.RootPath}/screen.png", FileMode.OpenOrCreate);
@@ -137,9 +166,14 @@ namespace Fluid_Simulator
             _spriteBatch.End();
 
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(_spriteFont, Math.Round(_frameCounter.CurrentFramesPerSecond).ToString(), new(5), _colorManager.TextColor, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"{Math.Round(_frameCounter.CurrentFramesPerSecond).ToString()} fps", new(5), _colorManager.TextColor, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"{_particleManager.Count} Particels", new(5, 30), _colorManager.TextColor, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, "Pause", new(5, 55), _paused ? Color.LightGreen : Color.Red, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, "Collect Data", new(5, 80), _collectData ? Color.LightGreen : Color.Red, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+
+
             _infoDrawer.DrawKeyBinds(_spriteBatch, _spriteFont, _colorManager.TextColor, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-            _infoDrawer.DrawPaused(_spriteFont, _spriteBatch, mIsPaused, GraphicsDevice.Viewport.Bounds, _colorManager.TextColor);
+            _infoDrawer.DrawMesage(_spriteFont, _spriteBatch, GraphicsDevice.Viewport.Bounds);
             _spriteBatch.End();
 
             base.Draw(gameTime);

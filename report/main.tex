@@ -225,6 +225,7 @@ Schließlich wird der Partikel in eine Liste innerhalb der Hashtabelle Eingefüg
 Wurden die Positionen der Partikel im Simulationsschritt aktualisiert müssen ebenfalls die Einträge in der Hashtabelle Aktualisiert werden. Dazu werden die Partikel vor dem Aktualisieren der Position aus der Datenstruktur entfernt und nach der Aktualisierung wieder eingefügt. 
 
 \subsection{Ermitteln von Nachbarn}
+Das ermitteln von Nachbar Partikel ist das Fundament des Simulationsschrittes. Zu erst werden die Blöcke, welche Teil des Radiuses sind und somit durchsucht werden müssen, ermittelt. Des weiterem werden die Partikel in den Blöcke überprüft ob sich diese in dem Radius um die Position befinden.
 \begin{algorithm}[H]
     \caption{Partikel im Radius}
     \begin{algorithmic}[1]
@@ -248,14 +249,18 @@ Wurden die Positionen der Partikel im Simulationsschritt aktualisiert müssen eb
         \Return $\text{partikelImRadius}$
     \end{algorithmic}
 \end{algorithm}
+Dies erlaubt es die Anzahl an Partikel welche überprüft werden müssen zu beschränken und die Laufzeit zu verringern. 
 
 \section{Implementierung} \label{section_5}
+Die Implementierung ist zentraler Bestandteil des Projektes. Implementiert wurde in C\# mit Hilfe des Frameworks Monogame. In diesem Kapitel wird die Implementierung von Tests, essenziell für die Korrektheit der Simulation, und die Implementierung Spezieller Hilfsmittel vorgestellt. 
 
 \subsection{Tests}
+
 
 \subsection{TODO}
 
 \section{Analysen} \label{section_6}
+
 
 \section{Schlussfolgerung}
 

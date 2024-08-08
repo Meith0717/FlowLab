@@ -28,10 +28,11 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
             {
                 { Keys.Escape, ActionType.Exit },
                 { Keys.F1, ActionType.SaveData },
-                { Keys.F2, ActionType.ScreenShot },
+                { Keys.F2, ActionType.ToggleData },
+                { Keys.F12, ActionType.ScreenShot },
                 { Keys.Delete, ActionType.DeleteParticels },
 
-                { Keys.Space, ActionType.Pause },
+                { Keys.Space, ActionType.TogglePause },
 
                 { Keys.Q, ActionType.NextPlaceMode },
                 { Keys.W, ActionType.IncreaseHeight },

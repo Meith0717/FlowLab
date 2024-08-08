@@ -13,13 +13,18 @@ namespace Fluid_Simulator.Core
         private bool _showHelp;
         private Texture2D _helpTexture;
 
+        private double _messageTime;
+        private string _message = "";
+        private Color _messageColor = Color.White;
+
         public void LoadContent(ContentManager content)
         {
             _helpTexture = content.Load<Texture2D>("h");
             _keyBinds.Add(content.Load<Texture2D>("scroll"), "Zoom in/out");
             _keyBinds.Add(content.Load<Texture2D>("escape"), "Exit");
             _keyBinds.Add(content.Load<Texture2D>("F1"), "Save data");
-            _keyBinds.Add(content.Load<Texture2D>("F2"), "Take screenshot");
+            _keyBinds.Add(content.Load<Texture2D>("F2"), "Collect Data");
+            _keyBinds.Add(content.Load<Texture2D>("F12"), "Take screenshot");
             _keyBinds.Add(content.Load<Texture2D>("v"), "Change scene");
             _keyBinds.Add(content.Load<Texture2D>("c"), "Change color");
             _keyBinds.Add(content.Load<Texture2D>("q"), "Change particle shape");
@@ -31,7 +36,24 @@ namespace Fluid_Simulator.Core
             _keyBinds.Add(content.Load<Texture2D>("space"), "Pause/Resume");
         }
 
-        public void Update(InputState inputState) => inputState.DoAction(ActionType.Help, () => _showHelp = !_showHelp); 
+        public void AddMessage(string message, Color color)
+        {
+            _message = message;
+            _messageColor = color;
+            _messageTime = 0;
+        }
+
+        public void Update(GameTime gameTime, InputState inputState)
+        {
+            _messageTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (_messageTime > 1500)
+            {
+                _message = "";
+                _messageColor = Color.White;
+                _messageTime = 0;
+            }
+           inputState.DoAction(ActionType.Help, () => _showHelp = !_showHelp); 
+        }
 
         public void DrawKeyBinds(SpriteBatch spriteBatch, SpriteFont spriteFont, Color color, int screenHeight)
         {
@@ -54,13 +76,12 @@ namespace Fluid_Simulator.Core
             }
         }
 
-        public void DrawPaused(SpriteFont spriteFont, SpriteBatch spriteBatch, bool paused, Rectangle viewBound, Color color)
+        public void DrawMesage(SpriteFont spriteFont, SpriteBatch spriteBatch, Rectangle viewBound)
         {
-            if (!paused) return;
             var center = viewBound.Center.ToVector2();
-            var stringDimension = spriteFont.MeasureString("Paused");
+            var stringDimension = spriteFont.MeasureString(_message);
             var position = center - (stringDimension / 2f);
-            spriteBatch.DrawString(spriteFont, "Paused", position , color, 0, Vector2.Zero, 1f, SpriteEffects.None, 1);
+            spriteBatch.DrawString(spriteFont, _message, position, _messageColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1);
         }
     }
 }

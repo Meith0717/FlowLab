@@ -1,6 +1,5 @@
 ﻿using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Shapes;
@@ -84,6 +83,8 @@ namespace Fluid_Simulator.Core
             _particles.Add(particle);
             _spatialHashing.InsertObject(particle);
         }
+
+        public int Count => _particles.Count;
         #endregion
 
         #region Simulating
@@ -188,7 +189,7 @@ namespace Fluid_Simulator.Core
                 color = boundaryColor;
                 if (!particle.IsBoundary)
                     if (_cfl.TryGetValue(particle, out var cfl))
-                        color = ColorSpectrum.ValueToColor(cfl * 10);
+                        color = ColorSpectrum.ValueToColor(cfl / 1);
 
                 spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f) , ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }
