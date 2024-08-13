@@ -9,6 +9,9 @@ namespace Fluid_Simulator.Core
 {
     internal class InfoDrawer
     {
+        public static float TextScale = .15f;
+        private const float TextureScale = .8f;
+
         private readonly Dictionary<Texture2D, string> _keyBinds = new();
         private bool _showHelp;
         private Texture2D _helpTexture;
@@ -60,8 +63,8 @@ namespace Fluid_Simulator.Core
             var position = new Vector2(5, screenHeight - 40);
             if (!_showHelp)
             {
-                spriteBatch.Draw(_helpTexture, position, null, Color.White, 0, Vector2.Zero, .8f, SpriteEffects.None, 1);
-                spriteBatch.DrawString(spriteFont, " - Help", position + new Vector2((_helpTexture.Width * .75f) + 10, 5), color, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+                spriteBatch.Draw(_helpTexture, position, null, Color.White, 0, Vector2.Zero, TextureScale, SpriteEffects.None, 1);
+                spriteBatch.DrawString(spriteFont, " - Help", position + new Vector2((_helpTexture.Width * TextureScale) + 10, 5), color, 0, Vector2.Zero, TextScale, SpriteEffects.None, 1);
                 return;
             }
 
@@ -70,8 +73,8 @@ namespace Fluid_Simulator.Core
                 var text = keyValuePair.Value;
                 var texture = keyValuePair.Key;
 
-                spriteBatch.Draw(texture, position, null, Color.White, 0, Vector2.Zero, .8f, SpriteEffects.None, 1);
-                spriteBatch.DrawString(spriteFont, $" - {text}", position + new Vector2((texture.Width * .75f) + 10, 5), color, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+                spriteBatch.Draw(texture, position, null, Color.White, 0, Vector2.Zero, TextureScale, SpriteEffects.None, 1);
+                spriteBatch.DrawString(spriteFont, $" - {text}", position + new Vector2((texture.Width * TextureScale) + 10, 5), color, 0, Vector2.Zero, TextScale, SpriteEffects.None, 1);
                 position.Y -= 40;
             }
         }
@@ -82,6 +85,25 @@ namespace Fluid_Simulator.Core
             var stringDimension = spriteFont.MeasureString(_message);
             var position = center - (stringDimension / 2f);
             spriteBatch.DrawString(spriteFont, _message, position, _messageColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1);
+        }
+
+        public void DrawProperties(SpriteBatch spriteBatch, SpriteFont spriteFont, Color color, int screenWidth, float timeStep, float fluidStiffness, float fluidViscosity) {
+            var data = new List<string>()
+            {
+                $"Time Step: {timeStep}",
+                $"Stiffness: {fluidStiffness}",
+                $"Viscosity: {fluidViscosity}"
+            };
+
+            var y = 5;
+            foreach (var text in data)
+            {
+                var textDimension = spriteFont.MeasureString(text) * TextScale;
+                var position = new Vector2(screenWidth - textDimension.X - 10, y);
+
+                spriteBatch.DrawString(spriteFont, text, position, color, 0, Vector2.Zero, TextScale, SpriteEffects.None, 1);
+                y += 25;
+            }
         }
     }
 }

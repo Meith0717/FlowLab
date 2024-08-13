@@ -34,10 +34,19 @@ namespace Fluid_Simulator.Core
             _particles.Clear();
             var worldMousePosition = camera.ScreenToWorld(inputState.MousePosition);
             inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
+
             inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);
             inputState.DoAction(ActionType.DecreaseWidthAndRadius, () => _rectangleSize.X -= 1);
             inputState.DoAction(ActionType.IncreaseHeight, () => _rectangleSize.Y += 1);
             inputState.DoAction(ActionType.DecreaseHeight, () => _rectangleSize.Y -= 1);
+
+            inputState.DoAction(ActionType.FastIncreaseWidthAndRadius, () => _rectangleSize.X += 10);
+            inputState.DoAction(ActionType.FastDecreaseWidthAndRadius, () => _rectangleSize.X -= 10);
+            inputState.DoAction(ActionType.FastIncreaseHeight, () => _rectangleSize.Y += 10);
+            inputState.DoAction(ActionType.FastDecreaseHeight, () => _rectangleSize.Y -= 10);
+
+            if (_rectangleSize.X <= 0) _rectangleSize.X = 1;
+            if (_rectangleSize.Y <= 0) _rectangleSize.Y = 1;
 
             switch (_mode)
             {

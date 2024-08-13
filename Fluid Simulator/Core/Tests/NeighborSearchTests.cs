@@ -20,12 +20,14 @@ namespace Tests
             var start = Vector2.Zero;
             var end = new Vector2(ParticleSize * 5);
             for (float x = start.X; x < end.X; x += ParticleSize)
+            {
                 for (float y = start.Y; y < end.Y; y += ParticleSize)
                 {
                     var particle = new Particle(new Vector2(x, y), ParticleSize, 1, false);
                     particles.Add(particle);
                     _spatialHashing.InsertObject(particle);
                 }
+            }
             var middleParticle = particles[12];
 
             List<Particle> neighbors = new();

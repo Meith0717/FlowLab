@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
 using System.IO;
+using System.Linq;
 using Tests;
 
 namespace Fluid_Simulator
@@ -16,7 +17,7 @@ namespace Fluid_Simulator
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
 
-        private readonly float TimeSteps = .2f;
+        private readonly float TimeSteps = .1f;
         private readonly float FluidStiffness = 1500f;
         private readonly float FluidViscosity = 75;
 
@@ -105,7 +106,10 @@ namespace Fluid_Simulator
             // DebugStuff
             inputState.DoAction(ActionType.SaveData, () => 
             {
-                if (!_collectData) return;
+                if (!_collectData) {
+                    _infoDrawer.AddMessage("Data collection is off!!", Color.Yellow);
+                    return;
+                }
                 var data = new DataCollector("constants", new() { "ParticleDiameter", "FluidDensity", "FluidStiffness", "FluidViscosity", "Gravitation", "TimeSteps" });
                 data.AddData("ParticleDiameter", ParticleDiameter);
                 data.AddData("FluidDensity", FluidDensity);
@@ -145,11 +149,13 @@ namespace Fluid_Simulator
             RenderTarget2D screenshotTarget = new(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             GraphicsDevice.SetRenderTarget(screenshotTarget);
             Draw(gameTime);
-            FileStream fs = new($"{_serializer.RootPath}/screen.png", FileMode.OpenOrCreate);
+            var date = DateTime.Now.ToString("yyyyMMddHHmmss");
+            FileStream fs = new($"{_serializer.RootPath}/{date}.png", FileMode.OpenOrCreate);
             GraphicsDevice.SetRenderTarget(null);
             screenshotTarget.SaveAsPng(fs, screenshotTarget.Width, screenshotTarget.Height);
             fs.Flush();
             fs.Close();
+            _infoDrawer.AddMessage("Screenshot saved", _colorManager.TextColor);
         }
 
         private SpriteFont _spriteFont;
@@ -166,14 +172,15 @@ namespace Fluid_Simulator
             _spriteBatch.End();
 
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(_spriteFont, $"{Math.Round(_frameCounter.CurrentFramesPerSecond).ToString()} fps", new(5), _colorManager.TextColor, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, $"{_particleManager.Count} Particels", new(5, 30), _colorManager.TextColor, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, "Pause", new(5, 55), _paused ? Color.LightGreen : Color.Red, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, "Collect Data", new(5, 80), _collectData ? Color.LightGreen : Color.Red, 0, Vector2.Zero, .2f, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"{Math.Round(_frameCounter.CurrentFramesPerSecond).ToString()} fps", new(5), _colorManager.TextColor, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"{_particleManager.Count} Particels", new(5, 30), _colorManager.TextColor, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, "Pause", new(5, 55), _paused ? Color.LightGreen : Color.Red, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, "Collect Data", new(5, 80), _collectData ? Color.LightGreen : Color.Red, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
 
 
             _infoDrawer.DrawKeyBinds(_spriteBatch, _spriteFont, _colorManager.TextColor, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             _infoDrawer.DrawMesage(_spriteFont, _spriteBatch, GraphicsDevice.Viewport.Bounds);
+            _infoDrawer.DrawProperties(_spriteBatch, _spriteFont, _colorManager.TextColor, GraphicsDevice.Viewport.Width, TimeSteps, FluidStiffness, FluidViscosity);
             _spriteBatch.End();
 
             base.Draw(gameTime);

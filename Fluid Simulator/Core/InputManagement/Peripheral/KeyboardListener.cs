@@ -21,7 +21,10 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
         {
             mActionOnMultiplePressed = new()
             {
-                
+                { Hash(Keys.LeftControl, Keys.W), ActionType.FastIncreaseHeight },
+                { Hash(Keys.LeftControl, Keys.A), ActionType.FastDecreaseWidthAndRadius },
+                { Hash(Keys.LeftControl, Keys.S), ActionType.FastDecreaseHeight },
+                { Hash(Keys.LeftControl, Keys.D), ActionType.FastIncreaseWidthAndRadius},
             };
 
             mActionOnPressed = new()

@@ -21,6 +21,11 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement
         DecreaseWidthAndRadius,
         IncreaseHeight,
         DecreaseHeight,
+        FastIncreaseWidthAndRadius,
+        FastDecreaseWidthAndRadius,
+        FastIncreaseHeight,
+        FastDecreaseHeight,
+
         ChangeColor,
         Help,
 
