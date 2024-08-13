@@ -86,7 +86,7 @@ namespace Tests
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 79
             var kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, Vector2.Zero, ParticleSize);
             Assert.AreEqual(0, kernelDerivative.Length());
- 
+
             kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(ParticleSize, 0), ParticleSize);
             Assert.AreEqual(3 * SphFluidSolver.KernelAlpha(ParticleSize) / ParticleSize, kernelDerivative.X, 0.001);
             Assert.AreEqual(kernelDerivative.Y, 0);

@@ -38,7 +38,7 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
             mousePosition = mCurrentState.Position.ToVector2();
 
             // Track the time the Keys are Pressed
-            if (LeftMouseButtonPressed) 
+            if (LeftMouseButtonPressed)
                 mLeftCounter += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (RightMouseButtonPressed)

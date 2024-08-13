@@ -31,7 +31,7 @@ namespace Fluid_Simulator.Core
             _actualColorPalet = _colorPalets[_actualColorPaleIndex];
         }
 
-        public void Update(InputState inputState) 
+        public void Update(InputState inputState)
         {
             if (!inputState.HasAction(ActionType.ChangeColor)) return;
             _actualColorPaleIndex++;

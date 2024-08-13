@@ -23,9 +23,9 @@ namespace Fluid_Simulator.Core
             _particles = new();
             _spatialHashing = new(particleDiameter * 2);
             ParticleDiameter = particleDiameter;
-            FluidDensity = fluidDensity;    
+            FluidDensity = fluidDensity;
 
-            DataCollector = new("physics", new() { "relativeDensityError", "localPressure", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL"});
+            DataCollector = new("physics", new() { "relativeDensityError", "localPressure", "pressureAcceleration.X", "pressureAcceleration.Y", "viscosityAcceleration.X", "viscosityAcceleration.Y", "averageVelocity.X", "averageVelocity.Y", "CFL" });
         }
 
         #region Utilitys
@@ -40,7 +40,7 @@ namespace Fluid_Simulator.Core
             var offsetCircle = new CircleF(Vector2.Zero, ParticleDiameter);
             for (int i = 1; i <= polygon.Vertices.Length; i++)
             {
-                var nextVertex = i == polygon.Vertices.Length ? polygon.Vertices.First(): polygon.Vertices[i];
+                var nextVertex = i == polygon.Vertices.Length ? polygon.Vertices.First() : polygon.Vertices[i];
                 var stepDirection = Vector2.Subtract(nextVertex, vertex).NormalizedCopy();
                 var stepAngle = stepDirection.ToAngle() - MathHelper.Pi;
                 var particlePosition = vertex * ParticleDiameter;
@@ -124,7 +124,7 @@ namespace Fluid_Simulator.Core
                     _neighbors[particle] = neighbors;
             });
 
-            Parallel.ForEach(_particles, particle => 
+            Parallel.ForEach(_particles, particle =>
             {
                 if (particle.IsBoundary) return;
 
@@ -191,7 +191,7 @@ namespace Fluid_Simulator.Core
                     if (_cfl.TryGetValue(particle, out var cfl))
                         color = ColorSpectrum.ValueToColor(cfl / 1);
 
-                spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f) , ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }
         }
         #endregion

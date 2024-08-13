@@ -24,7 +24,7 @@ namespace Fluid_Simulator.Core.Profiling
         public void Clear()
         {
             _count = 0;
-            foreach(var list in Data.Values) list.Clear();
+            foreach (var list in Data.Values) list.Clear();
         }
 
         public int Count => _count / Data.Keys.Count;

@@ -35,6 +35,6 @@ namespace Fluid_Simulator.Core
 
         public Vector2 ScreenToWorld(Vector2 screenPosition) => Vector2.Transform(screenPosition, Matrix.Invert(TransformationMatrix));
 
-        public Vector2 WorldToScreen(Vector2 worldPosition) =>  Vector2.Transform(worldPosition, TransformationMatrix);
+        public Vector2 WorldToScreen(Vector2 worldPosition) => Vector2.Transform(worldPosition, TransformationMatrix);
     }
 }

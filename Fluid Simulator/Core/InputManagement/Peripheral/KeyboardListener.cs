@@ -48,7 +48,7 @@ namespace StellarLiberation.Game.Core.CoreProceses.InputManagement.Peripheral
                 { Keys.H, ActionType.Help},
             };
 
-            mActionOnHold = new();  
+            mActionOnHold = new();
 
             mKeysKeyEventTypes = new();
         }

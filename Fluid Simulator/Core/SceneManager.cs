@@ -10,7 +10,7 @@ namespace Fluid_Simulator.Core
 {
     internal class SceneManager
     {
-        
+
         private readonly Dictionary<Polygon, string> _scenes = new()
         {
             { PolygonFactory.CreateRectangle(5, 130), "" },
@@ -21,7 +21,7 @@ namespace Fluid_Simulator.Core
         private readonly ParticleManager _particleManager;
         private int _activeSceneIndex;
         private RectangleF _sceneBoundry;
-        
+
         public Rectangle SceneBoundry => _sceneBoundry.ToRectangle();
 
         public SceneManager(ParticleManager particleManager)

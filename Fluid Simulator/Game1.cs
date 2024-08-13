@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
 using System.IO;
-using System.Linq;
 using Tests;
 
 namespace Fluid_Simulator
@@ -104,9 +103,10 @@ namespace Fluid_Simulator
             inputState.DoAction(ActionType.Exit, Exit);
 
             // DebugStuff
-            inputState.DoAction(ActionType.SaveData, () => 
+            inputState.DoAction(ActionType.SaveData, () =>
             {
-                if (!_collectData) {
+                if (!_collectData)
+                {
                     _infoDrawer.AddMessage("Data collection is off!!", Color.Yellow);
                     return;
                 }
@@ -132,10 +132,13 @@ namespace Fluid_Simulator
             _particlePlacer.Update(inputState, _camera);
 
             inputState.DoAction(ActionType.TogglePause, () => { _paused = !_paused; _infoDrawer.AddMessage(_paused ? "Paused" : "Resume", _colorManager.TextColor); });
-            inputState.DoAction(ActionType.ToggleData, () => { _collectData = !_collectData; _infoDrawer.AddMessage(_collectData ? "Start collect data" : "Stop collect data", _colorManager.TextColor);
-                if (!_collectData) _particleManager.DataCollector.Clear(); });
+            inputState.DoAction(ActionType.ToggleData, () =>
+            {
+                _collectData = !_collectData; _infoDrawer.AddMessage(_collectData ? "Start collect data" : "Stop collect data", _colorManager.TextColor);
+                if (!_collectData) _particleManager.DataCollector.Clear();
+            });
 
-            if (!_paused) 
+            if (!_paused)
                 _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
 
             // Other Stuff

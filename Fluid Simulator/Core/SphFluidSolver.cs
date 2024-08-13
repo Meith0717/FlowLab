@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 
 namespace Fluid_Simulator.Core
 {
@@ -9,9 +8,9 @@ namespace Fluid_Simulator.Core
     {
         private const float kernelCorrection = 0.04f / 0.0400344729f;
 
-        public static float KernelAlpha(float particelDiameter) 
+        public static float KernelAlpha(float particelDiameter)
             => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
-        private static float DistanceOverH(Vector2 pos1,  Vector2 pos2, float H) 
+        private static float DistanceOverH(Vector2 pos1, Vector2 pos2, float H)
             => Vector2.Distance(pos1, pos2) / H;
         public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
             => MathF.Max(fluidStiffness * ((localDensity / fluidDensity) - 1), 0);
@@ -61,7 +60,7 @@ namespace Fluid_Simulator.Core
                 var neighborPressureOverDensitySquared = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 pressureAcceleration += neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
             }
-            return - pressureAcceleration - pressureBoundaryAcceleration;
+            return -pressureAcceleration - pressureBoundaryAcceleration;
         }
 
         public static Vector2 GetViscosityAcceleration(float particelDiameter, float fluidViscosity, Particle particle, List<Particle> neighbors)
@@ -69,7 +68,7 @@ namespace Fluid_Simulator.Core
             Vector2 sumNonBoundry = Vector2.Zero;
             Vector2 sumBoundry = Vector2.Zero;
 
-            foreach (var neighbor in neighbors) 
+            foreach (var neighbor in neighbors)
             {
                 var v_ij = particle.Velocity - neighbor.Velocity;
                 var x_ij = particle.Position - neighbor.Position;

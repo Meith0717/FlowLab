@@ -55,7 +55,7 @@ namespace Fluid_Simulator.Core
                 _messageColor = Color.White;
                 _messageTime = 0;
             }
-           inputState.DoAction(ActionType.Help, () => _showHelp = !_showHelp); 
+            inputState.DoAction(ActionType.Help, () => _showHelp = !_showHelp);
         }
 
         public void DrawKeyBinds(SpriteBatch spriteBatch, SpriteFont spriteFont, Color color, int screenHeight)
@@ -68,7 +68,7 @@ namespace Fluid_Simulator.Core
                 return;
             }
 
-            foreach (var keyValuePair in _keyBinds.Reverse()) 
+            foreach (var keyValuePair in _keyBinds.Reverse())
             {
                 var text = keyValuePair.Value;
                 var texture = keyValuePair.Key;
@@ -87,7 +87,8 @@ namespace Fluid_Simulator.Core
             spriteBatch.DrawString(spriteFont, _message, position, _messageColor, 0, Vector2.Zero, 1f, SpriteEffects.None, 1);
         }
 
-        public void DrawProperties(SpriteBatch spriteBatch, SpriteFont spriteFont, Color color, int screenWidth, float timeStep, float fluidStiffness, float fluidViscosity) {
+        public void DrawProperties(SpriteBatch spriteBatch, SpriteFont spriteFont, Color color, int screenWidth, float timeStep, float fluidStiffness, float fluidViscosity)
+        {
             var data = new List<string>()
             {
                 $"Time Step: {timeStep}",

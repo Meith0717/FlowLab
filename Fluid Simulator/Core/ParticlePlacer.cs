@@ -63,7 +63,7 @@ namespace Fluid_Simulator.Core
                     return;
             }
 
-            inputState.DoAction(ActionType.LeftWasClicked, () => 
+            inputState.DoAction(ActionType.LeftWasClicked, () =>
             {
                 foreach (var particle in _particles)
                     _particleManager.AddNewParticle(particle, false);
