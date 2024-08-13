@@ -15,6 +15,7 @@
 \usepackage{algorithm}
 \usepackage{float}
 \usepackage[noend]{algpseudocode}
+\usepackage{menukeys}
 
 \makeatletter
 \def\BState{\State\hskip-\ALG@thistlm}
@@ -98,35 +99,53 @@ da \(\Delta \rho = 0\) und \(\vec{\nabla}\rho = 0\)
 \section{Smoothed Particle Hydrodynamics} \label{section_2}
 Smoothed Particle Hydrodynamics (SPH) ist eine numerische Methode zur Approximation der Navier Stokes Gleichungen. Im verlauf des Kapitels werden die einzelnen Bestandteile von SPH erläutert und die Verbindung von SPH und den Navier Stokes Gleichungen beleuchtet.
 
-\subsection{Grundlagen}
 Das Konzept von SPH lässt sich allgemein als eine Methode zur Diskretisierung von räumlichen Feldgrößen und räumlichen Differentialoperatoren verstehen. Die zentrale Idee von SPH ist es, Partikel einzusetzen, die Proben von Feldgrößen enthalten, und eine Kernel-Funktion zu nutzen, um kontinuierliche Felder zu approximieren. Ein Partikel besitzt Eigenschaften wie die Masse \( m_i \), die Position \( x_i \), die Geschwindigkeit \( v_i \) und den Druck \( \rho_i \).
 
-Die Kernel-Funktion \(W_{ij} = W(x_i - x_j, h)\) ist eine Funktion zur Glättung der Räumlichen Diskretisierung wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel-Funktion zweifach Ableitbar sein und folgende Eigenschaften besitzen: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow\) 
-\[\int_{\mathds{R}^d} W(x_i - x_j', h) dx_j'  = 1\]
-\[\lim_{h'\rightarrow 0} W(x_i - x_j, h') = \delta(r)\]
-\[W(x_i - x_j, h) \geq 0\]
-\[W(x_i - x_j, h) = W(-(x_i - x_j), h)\]
-\[W(x_i - x_j, h) = 0\;:\; |x_i - x_j| \geq h\]
+\subsection{Kernel Funktion}
+Die Kernel-Funktion \(W_{ij} = W(x_i - x_j, h)\) ist eine Funktion zur Glättung der Räumlichen Diskretisierung wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel-Funktion zweifach Ableitbar sein und folgende Eigenschaften besitzen: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow \int_{\mathds{R}^d}\)
+\begin{align}
+	W(x_i - x_j', h) dx_j' &= 1 \label{kernelEigenschaft1}\\
+	\lim_{h'\rightarrow 0} W(x_i - x_j, h') &= \delta(r) \label{kernelEigenschaft2}\\
+	W(x_i - x_j, h) &\geq 0 \label{kernelEigenschaft3}\\
+	W(x_i - x_j, h) &= W(-(x_i - x_j), h) \label{kernelEigenschaft4}\\
+	W(x_i - x_j, h) &= 0\;:\; |x_i - x_j| \geq h \label{kernelEigenschaft5}
+\end{align}
 wobei \(\delta(x)\) die Delta Verteilung ist. 
 In diesem Projekt wird die Cubic Spline Kernel Funktion verwendet, wie in [Monaghan1992] beschrieben:
 \begin{equation*}
-	W(q) = \alpha \begin{cases} 
-	(2-q)^3 - 4(1-q)^3 & 0 \leq q \leq 1\\
-	(2-q)^3 & 1 \leq q \leq 2 \\
-	0 & q \geq 2 
+	W(x_j - x_i, h) = \alpha \begin{cases} 
+	(2-\frac{\|x_j - x_i\|}{h})^3 - 4(1-\frac{\|x_j - x_i\|}{h})^3 & 0 \leq \frac{\|x_j - x_i\|}{h} \leq 1\\
+	(2-\frac{\|x_j - x_i\|}{h})^3 & 1 \leq \frac{\|x_j - x_i\|}{h} \leq 2 \\
+	0 & \frac{\|x_j - x_i\|}{h} \geq 2 
 	\end{cases}
 \end{equation*}
-	
-\begin{equation*}
-	q = \frac{\|x_j - x_i\|}{h}
-\end{equation*}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/KernelPlot.png}
+\end{figure}
 
 Dabei ist \(\alpha\) ein Normalisierungsfaktor, der in verschiedenen Dimensionen wie folgt definiert ist:
-\begin{itemize}
-	\item 1D: \(\alpha = \frac{1}{6h}\)
-	\item 2D: \(\alpha = \frac{5}{14\pi h^2}\)
-	\item 3D: \(\alpha = \frac{1}{4\pi h^3}\)
-\end{itemize}
+1D: \(\alpha = \frac{1}{6h}\), 2D: \(\alpha = \frac{5}{14\pi h^2}\), 3D: \(\alpha = \frac{1}{4\pi h^3}\)
+
+\subsection{Kernel Ableitung}
+Die Ableitung der Kernel-Funktion $W_{ij}$ spielt eine entscheidende Rolle bei der Berechnung von Gradienten in der SPH. Sie wird insbesondere zur Berechnung der Druck- und Geschwindigkeitsgradienten verwendet. Die Ableitung der Kernel-Funktion $\nabla_i W_{ij}$ bezüglich der Position des Partikels $i$ ist wie folgt definiert:
+
+\begin{equation*}
+	\nabla W(x_j - x_i, h) = \alpha \frac{x_j - x_i}{\|x_j - x_i\|h} 
+	\begin{cases} 
+	-3(2-\frac{\|x_j - x_i\|}{h})^2 + 12(1-\frac{\|x_j - x_i\|}{h})^2 & 0 \leq \frac{\|x_j - x_i\|}{h} < 1 \\ 
+	-3(2-\frac{\|x_j - x_i\|}{h})^2 & 1 \leq \frac{\|x_j - x_i\|}{h} < 2 \\ 
+	0 & \frac{\|x_j - x_i\|}{h} \geq 2 
+	\end{cases}
+\end{equation*}	
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/KernelDerivPlot.png}
+\end{figure}
+
+Die Kernel-Ableitung ist entscheidend, weil sie in mehreren wichtigen Gleichungen verwendet wird, wie z.B. bei der Berechnung der Kontinuitätsgleichung, der Impulsgleichung, insbesondere bei der Berechnung der Druck- und Viskositätsbeschleunigung.
 
 \subsection{Kontinuitätsgleichung}
 Die Kontinuitätsgleichung beschreibt die Erhaltung der Masse und wird in der SPH-Methode wie folgt diskretisiert:
@@ -179,7 +198,7 @@ Der Simulationsschritt ist in der SPH Simulation von Zentraler Bedeutung. Dort w
 
 Eigenschaften wie die Partikelgröße und die Ruhedichte der Flüssigkeit werden vor dem Starten der Simulation festgelegt. Aus diesen wird eine Masse für die Partikel ermittelt welche im laufe der Simulation konstant bleibt. Weitere Werte werden im Kapitel TODO erläutert. 
 
-Darauf hin werden in der ersten Schleife die restlichen locale Eigenschaften ermittelt. Dazu müssen die Nachbar Partikel ermittelt werden. Mit Hilfe dieser wird die Lokale Dichte und der Lokale Druck bestimmt. Diese werden für die Berechnungen der nächste Schleife benötigt. In dieser werden, für alle Partikel die das Fluid bilden, die Viskosität- und Druckbeschleunigungen berechnet.
+Darauf hin werden in der ersten Schleife die restlichen locale Eigenschaften ermittelt. Dazu müssen die Nachbar Partikel in einem Radius $2 \cdot Partikelgröße$ um die Partikel ermittelt werden. Mit Hilfe der Nachbarn wird die Lokale Dichte und der Lokale Druck jedes Partikels bestimmt. Diese werden für die Berechnungen der nächste Schleife benötigt. In dieser werden, für alle Partikel die das Fluid bilden, die Viskosität- und Druckbeschleunigungen berechnet.
 Anhand dieser Beschleunigungen werden die Positionen der Partikel in der letzten schleife Aktualisiert. 
 
 \begin{algorithm}[H]
@@ -255,12 +274,28 @@ Dies erlaubt es die Anzahl an Partikel welche überprüft werden müssen zu besc
 Die Implementierung ist zentraler Bestandteil des Projektes. Implementiert wurde in C\# mit Hilfe des Frameworks Monogame. In diesem Kapitel wird die Implementierung von Tests, essenziell für die Korrektheit der Simulation, und die Implementierung Spezieller Hilfsmittel vorgestellt. 
 
 \subsection{Tests}
+Das Testen der einzelnen Komponenten des Simulationsschrittes sind essenziell für die Funktionalität und Korrektheit der Simulation. Sie helfen dabei offensichtliche Probleme in der Simulation zu isolieren und zu Korrigieren. Allerdings sind ebenfalls nicht offensichtliche Fehler in der Simulation nicht auszuschließen, weshalb die Test ebenfalls zusätzliche Sicherheit garantieren. Diese werden beim Starten der Simulation gestartet. Dabei wird ein Ideales Gitter der Größe  $10 \cdot 10$  mit Partikel erzeugt. Ideale bedeutet dass alle Partikel den gleichen Abstand h zueinander haben. Auf diesen Partikeln werden schließlich die Tests angewendet. Schlägt ein Test fehl erscheint eine Nachricht in Roter Schrift auf dem Bildschirm. 
 
+Das Fundament aller Berechnungen ist die Nachbarschafts Suche. Ausschließlich bei diesem Test wird ein kleineres Ideales Gitter mit $5 \cdot 5$ Partikeln erzeugt. Um zu gewährleisten dass alle Partikel, die sich im Such-Radius um den mittleren Partikel befinden, gefunden werden, werden die von der Räumlichen Datenstruktur gefunden Partikeln in einer Liste gesammelt. Die Anzahl der Partikel in der Liste muss nach dem suchen 13 ergeben.
 
-\subsection{TODO}
+Für die folgenden Tests werden für alle Partikel aus dem größerem Gitter die Nachbarn gesucht und die Komponenten getestet. 
+Begonnen wird mit der Kernel Funktion. Eine falsche Gewichtung der Nachbarn in den Berechnungen führt zu falschen Kräften und Bewegungen der Teilchen. Um die Funktionalität der Kernel Funktion zu gewährleisten werden vier Test auf diese angewandt. Der erste Test beruht auf der Eigenschaft \eqref{kernelEigenschaft1}. Dabei wird der Wert der Kernel-Funktion für ein Ideales Gitter an Nachbarn berechnet, welcher eins ergeben soll. Des weiterem werden noch 3 Tests ohne das Gitter durchlaufen. Für eine relative Partikel Entfernung $q= \frac{0}{1} = 0$ und $q = \frac{1}{1} = 1$ ergeben die Werte der Kernel Gleichung $W(1, 0) = 4 * \alpha$ und $W(1, 1) = \alpha$ wobei $\alpha$ der Normalisierungsfaktor der Kernel-Funktion ist. 
+\[W(0) = \alpha ((2-0)^3 - 4(1-0)^3) = \alpha (8 - 4) = 4\alpha\]
+\[W(1) = \alpha ((2-1)^3) = \alpha\]
+Zuletzt wird die Kernel Eigenschaft \eqref{kernelEigenschaft5} geprüft. Dabei muss $W = 0$ für eine Partikel Entfernung größer $2h$ sein.
+Weiterhin wird die Funktionalität der Kernel Ableitung getestet. Diese ist ein Wesentlicher Bestandteil der Gleichungen zum berechnen der wirkenden Kräfte auf die Partikel. Auf dieser Komponente werden sieben Tests angewandt. TODO
+
+\subsection{Tools}
+Die simulation verfügt über einige implementierte Tools zur Steuerung der Simulation. Durch drücken der Taste H öffnet sich eine Liste von Aktionen zum Steuern der Simulation. Einige der Wichtigsten Aktionen werden in diesem Unterkapitel vorgestellt. 
+
+Die Simulation verfügt über mehrere Verschiedene \glqq Szenarios\grqq{}. Ein \glqq Szenarios\grqq{} bedeutet hier, ein Box oder andere Geometrische Form, welche eine Barriere für die zu simulierenden Flüssigkeit bildet. Diese können mit der Taste \keys{V} gewechselt werden. Durch wechseln der Szene oder Drücken der Taste \keys{del} werden alle Partikel der Szene gelöscht. 
+
+Ebenfalls können, zum Zwecke der Simulation, Partikel mit Hilfe der Maus un der jeweiligen Szene platziert werden. Dazu wird mit der Taste \keys{Q} die Form einer Box, eines Kreises oder eines einzelnes Partikel
+ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite mit den Tasten \keys{W}, \keys{S} und \keys{D}, \keys{A} verändert werden. Platziert werden die Partikel durch linkes Klicken der Maus.
+
+Im sinne der Analyse können durch drücken der Taste \keys{F2} Daten gesammelt werden und durch drücken von \keys{F1} gespeichert werden. Zusätzlich wird durch drücken der Taste \keys{F12} ein Screenshot aufgenommen. Gespeichert werden alle Dateien im Dokumenten Ordner des Benutzers.
 
 \section{Analysen} \label{section_6}
-
 
 \section{Schlussfolgerung}
 
