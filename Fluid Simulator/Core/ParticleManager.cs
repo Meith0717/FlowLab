@@ -95,7 +95,7 @@ namespace Fluid_Simulator.Core
         private readonly Dictionary<Particle, float> _cfl = new();
         private readonly Dictionary<Particle, Vector2> _particleSurface = new();
 
-        public void Update(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
+        public void UpdateParallel(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
             _neighbors.Clear();
             _viscosityAcceleration.Clear();
@@ -121,13 +121,13 @@ namespace Fluid_Simulator.Core
                 particle.Pressure = localPressure;
 
                 lock (lockObject)
-                    _neighbors[particle] = neighbors;
+                {
+                    _neighbors.Add(particle, neighbors);
+                }
             });
 
-            Parallel.ForEach(_particles, particle =>
+            Parallel.ForEach(_particles.Where((p) => !p.IsBoundary), particle =>
             {
-                if (particle.IsBoundary) return;
-
                 // Compute non-pressure accelerations
                 var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, fluidViscosity, particle, _neighbors[particle]);
 
@@ -136,9 +136,9 @@ namespace Fluid_Simulator.Core
 
                 lock (lockObject)
                 {
-                    _viscosityAcceleration[particle] = viscosityAcceleration;
-                    _pressureAcceleration[particle] = pressureAcceleration;
-                    _particleSurface[particle] = Vector2.Zero;
+                    _viscosityAcceleration.Add(particle, viscosityAcceleration);
+                    _pressureAcceleration.Add(particle, pressureAcceleration);
+                    _particleSurface.Add(particle, Vector2.Zero);
                 }
             });
 
@@ -157,8 +157,8 @@ namespace Fluid_Simulator.Core
                 particle.Position += timeSteps * particle.Velocity;
                 _spatialHashing.InsertObject(particle);
 
-                _particleVelocitys[particle] = particle.Velocity;
-                _cfl[particle] = timeSteps * (particle.Velocity.Length() / ParticleDiameter);
+                _particleVelocitys.Add(particle, particle.Velocity);
+                _cfl.Add(particle, timeSteps * (particle.Velocity.Length() / ParticleDiameter));
             }
 
             // Colect Data
@@ -177,6 +177,85 @@ namespace Fluid_Simulator.Core
 
             DataCollector.AddData("CFL", Math.Round(_cfl.Values.Max(), 4));
         }
+
+        public void Update(GameTime gameTime, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
+        {
+            _neighbors.Clear();
+            _viscosityAcceleration.Clear();
+            _pressureAcceleration.Clear();
+            _particleVelocitys.Clear();
+            _cfl.Clear();
+            _particleSurface.Clear();
+
+            foreach (var particle in _particles)
+            {
+                // Get neighbors Particles
+                var neighbors = new List<Particle>();
+                _spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref neighbors);
+
+                // Compute density
+                var localDensity = neighbors.Count <= 1 ? FluidDensity : SphFluidSolver.ComputeLocalDensity(ParticleDiameter, particle, neighbors);
+
+                // Compute pressure
+                var localPressure = SphFluidSolver.ComputeLocalPressure(fluidStiffness, FluidDensity, localDensity);
+
+                particle.Density = localDensity;
+                particle.Pressure = localPressure;
+
+                _neighbors.Add(particle, neighbors);
+            }
+
+            foreach (var particle in _particles)
+            {
+                if (particle.IsBoundary) continue;
+
+                // Compute non-pressure accelerations
+                var viscosityAcceleration = SphFluidSolver.GetViscosityAcceleration(ParticleDiameter, fluidViscosity, particle, _neighbors[particle]);
+
+                // Compute pressure acceleration
+                var pressureAcceleration = SphFluidSolver.GetPressureAcceleration(ParticleDiameter, particle, _neighbors[particle]);
+
+                _viscosityAcceleration.Add(particle, viscosityAcceleration);
+                _pressureAcceleration.Add(particle, pressureAcceleration);
+                _particleSurface.Add(particle, Vector2.Zero);
+            }
+
+            foreach (var particle in _particles)
+            {
+                if (particle.IsBoundary) continue;
+
+                // Compote total acceleration & update velocity
+                var acceleration = _viscosityAcceleration[particle] + new Vector2(0, gravitation) + _pressureAcceleration[particle];
+
+                // Update Velocity
+                particle.Velocity += timeSteps * acceleration;
+
+                // Update Position
+                _spatialHashing.RemoveObject(particle);
+                particle.Position += timeSteps * particle.Velocity;
+                _spatialHashing.InsertObject(particle);
+
+                _particleVelocitys.Add(particle, particle.Velocity);
+                _cfl.Add(particle, timeSteps * (particle.Velocity.Length() / ParticleDiameter));
+            }
+
+            // Colect Data
+            if (_particleVelocitys.Count <= 0 || !collectData) return;
+            DataCollector.AddData("relativeDensityError", (_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Density) - FluidDensity) / FluidDensity);
+            DataCollector.AddData("localPressure", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Pressure));
+
+            DataCollector.AddData("pressureAcceleration.X", timeSteps * (float)_pressureAcceleration.Values.Average(vector => vector.X));
+            DataCollector.AddData("pressureAcceleration.Y", timeSteps * (float)_pressureAcceleration.Values.Average(vector => vector.Y));
+
+            DataCollector.AddData("viscosityAcceleration.X", timeSteps * (float)_viscosityAcceleration.Values.Average(vector => vector.X));
+            DataCollector.AddData("viscosityAcceleration.Y", timeSteps * (float)_viscosityAcceleration.Values.Average(vector => vector.Y));
+
+            DataCollector.AddData("averageVelocity.X", (float)_particleVelocitys.Values.Average(vector => vector.X));
+            DataCollector.AddData("averageVelocity.Y", (float)_particleVelocitys.Values.Average(vector => vector.Y));
+
+            DataCollector.AddData("CFL", Math.Round(_cfl.Values.Max(), 4));
+        }
+
         #endregion
 
         #region Rendering

@@ -22,21 +22,21 @@ namespace Fluid_Simulator.Core
 
         public void LoadContent(ContentManager content)
         {
-            _helpTexture = content.Load<Texture2D>("h");
-            _keyBinds.Add(content.Load<Texture2D>("scroll"), "Zoom in/out");
-            _keyBinds.Add(content.Load<Texture2D>("escape"), "Exit");
-            _keyBinds.Add(content.Load<Texture2D>("F1"), "Save data");
-            _keyBinds.Add(content.Load<Texture2D>("F2"), "Collect Data");
-            _keyBinds.Add(content.Load<Texture2D>("F12"), "Take screenshot");
-            _keyBinds.Add(content.Load<Texture2D>("v"), "Change scene");
-            _keyBinds.Add(content.Load<Texture2D>("c"), "Change color");
-            _keyBinds.Add(content.Load<Texture2D>("q"), "Change particle shape");
-            _keyBinds.Add(content.Load<Texture2D>("w"), "Increase shape height");
-            _keyBinds.Add(content.Load<Texture2D>("s"), "Decrease shape height");
-            _keyBinds.Add(content.Load<Texture2D>("a"), "Derease shape width");
-            _keyBinds.Add(content.Load<Texture2D>("d"), "Incease shape width");
-            _keyBinds.Add(content.Load<Texture2D>("delete"), "Clear particles");
-            _keyBinds.Add(content.Load<Texture2D>("space"), "Pause/Resume");
+            _helpTexture = content.Load<Texture2D>(@"keys\h");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\scroll"), "Zoom in/out");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\escape"), "Exit");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\F1"), "Save data");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\F2"), "Collect Data");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\F12"), "Take screenshot");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\v"), "Change scene");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\c"), "Change color");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\q"), "Change particle shape");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\w"), "Increase shape height");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\s"), "Decrease shape height");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\a"), "Derease shape width");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\d"), "Incease shape width");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\delete"), "Clear particles");
+            _keyBinds.Add(content.Load<Texture2D>(@"keys\space"), "Pause/Resume");
         }
 
         public void AddMessage(string message, Color color)

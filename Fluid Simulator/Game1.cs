@@ -5,7 +5,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Tests;
 
 namespace Fluid_Simulator
@@ -15,15 +17,14 @@ namespace Fluid_Simulator
         private const int ParticleDiameter = 11;
         private const float FluidDensity = 0.3f;
         private const float Gravitation = 0.3f;
-
-        private readonly float TimeSteps = .1f;
-        private readonly float FluidStiffness = 1500f;
-        private readonly float FluidViscosity = 75;
+        private float TimeSteps;
+        private float FluidStiffness;
+        private float FluidViscosity;
 
         private SpriteBatch _spriteBatch;
+        private ParticleManager _particleManager;
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
-        private readonly ParticleManager _particleManager;
         private readonly SceneManager _sceneManager;
         private readonly ParticlePlacer _particlePlacer;
         private readonly Camera _camera;
@@ -33,18 +34,20 @@ namespace Fluid_Simulator
         private readonly InfoDrawer _infoDrawer;
         private readonly NeighborSearchTests _neighborSearchTests;
         private readonly SphTests _sphTests;
+        private readonly DataCollector _performanceCollector;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
-            _sceneManager = new(_particleManager);
+            _performanceCollector = new("performance", new() {"fps", "frameDuration", "particleCount"});
 
             _particlePlacer = new(_particleManager, ParticleDiameter);
+            _sceneManager = new(_particleManager, _particlePlacer);
             _camera = new();
             _serializer = new("Fluid_Simulator");
-            _frameCounter = new(250);
+            _frameCounter = new(100);
             _colorManager = new();
             _infoDrawer = new();
             Content.RootDirectory = "Content";
@@ -86,12 +89,25 @@ namespace Fluid_Simulator
             }
         }
 
+        private Dictionary<string, JsonElement> LoadJsonDictionary(string filePath)
+        {
+            using StreamReader reader = new(filePath);
+            string jsonString = reader.ReadToEnd();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString, options);
+            return dict;
+        }
+
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _particleTexture = Content.Load<Texture2D>(@"particle");
             _spriteFont = Content.Load<SpriteFont>(@"fonts/text");
             _infoDrawer.LoadContent(Content);
+            var simulationProperties = LoadJsonDictionary(Path.Combine(Content.RootDirectory, "SimulationProperties.json"));
+            TimeSteps = simulationProperties["TimeSteps"].GetSingle();
+            FluidStiffness = simulationProperties["FluidStiffness"].GetSingle();
+            FluidViscosity = simulationProperties["FluidViscosity"].GetSingle();
         }
 
         private bool _paused;
@@ -117,7 +133,8 @@ namespace Fluid_Simulator
                 data.AddData("FluidViscosity", FluidViscosity);
                 data.AddData("Gravitation", Gravitation);
                 data.AddData("TimeSteps", TimeSteps);
-                DataSaver.SaveToCsv(_serializer, data, _particleManager.DataCollector);
+                DataSaver.SaveToCsv(_serializer, _performanceCollector, data, _particleManager.DataCollector);
+                _infoDrawer.AddMessage("Data saved", Color.Green);
             });
             _frameCounter.Update(gameTime);
             inputState.DoAction(ActionType.ScreenShot, () => Screenshot(gameTime));
@@ -139,11 +156,17 @@ namespace Fluid_Simulator
             });
 
             if (!_paused)
-                _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
+                _particleManager.UpdateParallel(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
 
             // Other Stuff
             _infoDrawer.Update(gameTime, inputState);
             _colorManager.Update(inputState);
+            if (_collectData)
+            {
+                _performanceCollector.AddData("particleCount", _particleManager.Count);
+                _performanceCollector.AddData("fps", _frameCounter.CurrentFramesPerSecond);
+                _performanceCollector.AddData("frameDuration", _frameCounter.FrameDuration);
+            }
             base.Update(gameTime);
         }
 

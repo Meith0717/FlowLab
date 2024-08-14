@@ -3,50 +3,63 @@ using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.Shapes;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Fluid_Simulator.Core
 {
+
     internal class SceneManager
     {
-
-        private readonly Dictionary<Polygon, string> _scenes = new()
-        {
-            { PolygonFactory.CreateRectangle(5, 130), "" },
-            { PolygonFactory.CreateRectangle(170, 130), "" },
-            { PolygonFactory.CreateCircle(70, 50), "" }
-        };
-
+        private readonly Dictionary<Polygon, Action> _scenes;
         private readonly ParticleManager _particleManager;
-        private int _activeSceneIndex;
+        private readonly ParticlePlacer _particlePlacer;
         private RectangleF _sceneBoundry;
+        private int _activeSceneIndex;
 
-        public Rectangle SceneBoundry => _sceneBoundry.ToRectangle();
+        public Rectangle SceneBoundry 
+            => _sceneBoundry.ToRectangle();
 
-        public SceneManager(ParticleManager particleManager)
+        public SceneManager(ParticleManager particleManager, ParticlePlacer particlePlacer)
         {
             _particleManager = particleManager;
-            var polygone = _scenes.Keys.ToList()[_activeSceneIndex];
-            _sceneBoundry = new(polygone.Left, polygone.Top, polygone.Right, polygone.Bottom);
-            _particleManager.AddPolygon(polygone);
+            _particlePlacer = particlePlacer;
+            _sceneBoundry = new();
+
+            _scenes = new() 
+            {
+                { PolygonFactory.CreateRectangle(5, 130), () => { _particlePlacer.GetBlock(Vector2.Zero, 5, 130);   _particlePlacer.Place(); } },
+                { PolygonFactory.CreateRectangle(170, 130), null },
+                { PolygonFactory.CreateCircle(70, 50), null },
+            };
+
+            ApplyScene(_activeSceneIndex);
         }
 
-        public void Update(InputState inputState)
-        {
-            inputState.DoAction(ActionType.NextScene, NextScene);
-        }
+        public void Update(InputState inputState) 
+            => inputState.DoAction(ActionType.NextScene, NextScene);
 
         private void NextScene()
         {
+            _particlePlacer.Clear();
             _activeSceneIndex = (_activeSceneIndex + 1) % _scenes.Count;
+            ApplyScene( _activeSceneIndex );
+        }
+
+        private void ApplyScene(int index)
+        {
+            var keyValue = _scenes.ElementAt(index);
+            var polygone = keyValue.Key;
+            var action = keyValue.Value;
             _particleManager.ClearAll();
-            var polygone = _scenes.Keys.ToList()[_activeSceneIndex];
+            _particleManager.AddPolygon(polygone);
+            action?.Invoke();
+
             _sceneBoundry.X = polygone.Left;
             _sceneBoundry.Y = polygone.Top;
             _sceneBoundry.Width = polygone.Right;
             _sceneBoundry.Height = polygone.Bottom;
-            _particleManager.AddPolygon(polygone);
         }
     }
 }
