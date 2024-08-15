@@ -1,0 +1,2 @@
+sample,ParticleDiameter,FluidDensity,FluidStiffness,FluidViscosity,Gravitation,TimeSteps
+0,11,0.3,500,75,0.3,0.1
