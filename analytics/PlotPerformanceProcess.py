@@ -1,13 +1,16 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-plt.figure(figsize=(10, 6))
-lst = {"Sequentielle Verarbeitung": "20240814_153827", "Parallele Verarbeitung": "20240814_154140"}
+lst = {"Sequentielle Verarbeitung": "20240815_104526", "Parallele Verarbeitung": "20240815_103911"}
+
+plt.figure(figsize=(10, 5))
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.size'] = 17 
 
 for name, _dir in lst.items(): 
     # Read the data from the file
-    performance_file = f"{_dir}\\performance.csv"
-    constants_file = f"{_dir}\\constants.csv"
+    performance_file = f"analytics\\{_dir}\\performance.csv"
+    constants_file = f"analytics\\{_dir}\\constants.csv"
     performance = pd.read_csv(performance_file)
     constants = pd.read_csv(constants_file)
 
@@ -17,7 +20,7 @@ for name, _dir in lst.items():
 
 plt.xlabel('Anzahl an Partikel')
 plt.ylabel('Simulationsschrittzeit (ms)')
-plt.title(f"Prozessverarbeitung")
 plt.legend()
 plt.grid(True)
-plt.show()
+plt.tight_layout()
+plt.savefig(r"report\\graphics\\Prozessverarbeitung.png")

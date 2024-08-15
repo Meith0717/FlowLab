@@ -33,16 +33,20 @@ def kernel_derivative(position1, position2, particle_diameter):
 
 # Function to plot W(q) from x = -2 to 2
 def plot_W_from_x():
-    plt.figure(figsize=(10, 5.5))
+    plt.figure(figsize=(10, 5))
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.size'] = 17 
+
     for h in range(1, 4):
         x_values = np.linspace(-5.2, 5.2, 400)  # x from -2 to 2
-        W_values = [kernel_derivative(x_values[i], 0, h) for i in range(0, 400) ]
-        plt.plot(x_values, W_values, label=f'h={h}')
+        W_values = [kernel(x_values[i], 0, h) for i in range(0, 400) ]
+        plt.plot(x_values, W_values, linewidth=2, label=f'h={h}')
     plt.xlabel('xj - xi')
-    plt.ylabel('∇W(xj-xi, h)') #('∇W(xj-xi, h)')
+    plt.ylabel('W(xj-xi, h)') #('∇W(xj-xi, h)')
     plt.legend()
     plt.grid(True)
-    plt.savefig('report\graphics\KernelDerivPlot.png', dpi=100)
+    plt.tight_layout()
+    plt.savefig('report\graphics\KernelPlot.png', dpi=100)
 
 # Example usage
 plot_W_from_x()

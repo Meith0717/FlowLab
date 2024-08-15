@@ -123,6 +123,7 @@ In diesem Projekt wird die Cubic Spline Kernel Funktion verwendet, wie in [Monag
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{graphics/KernelPlot.png}
+	\caption{TODO}
 \end{figure}
 
 Dabei ist \(\alpha\) ein Normalisierungsfaktor, der in verschiedenen Dimensionen wie folgt definiert ist:
@@ -143,6 +144,7 @@ Die Ableitung der Kernel-Funktion $W_{ij}$ spielt eine entscheidende Rolle bei d
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{graphics/KernelDerivPlot.png}
+	\caption{TODO}
 \end{figure}
 
 Die Kernel-Ableitung ist entscheidend, weil sie in mehreren wichtigen Gleichungen verwendet wird, wie z.B. bei der Berechnung der Kontinuitätsgleichung, der Impulsgleichung, insbesondere bei der Berechnung der Druck- und Viskositätsbeschleunigung.
@@ -296,15 +298,38 @@ ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite mit d
 Im sinne der Analyse können durch drücken der Taste \keys{F2} Daten gesammelt werden und durch drücken von \keys{F1} gespeichert werden. Zusätzlich wird durch drücken der Taste \keys{F12} ein Screenshot aufgenommen. Gespeichert werden alle Dateien im Dokumenten Ordner des Benutzers.
 
 \section{Analysen} \label{section_6}
-% Säule Analyse 
-% Folgt Sinuskurve
-% Absoluter Dichte Fehler kleiner => Steifichkeit Größer
-% Viskosität => ändert Amplitude
-% Zeitschritt Frequenz
+\subsection{Kolonnentest}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/Steifigkeit.png}
+	\caption{Kolonnentest mit Verschiedener Steifigkeit k}
+\end{figure}
 
-% Nachbarschafts Suche
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/Viskosität.png}
+	\caption{Kolonnentest mit Verschiedener Viskosität v}
+\end{figure}
 
-% Paralelisierung
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/Zeitschritt.png}
+	\caption{Kolonnentest mit Verschiedenen Zeitschritten $\Delta$ t}
+\end{figure}
+
+\subsection{Nachbarschafts Suche}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/Nachbarschafts-Suche.png}
+	\caption{Nachbarschafts-Suche}
+\end{figure}
+
+\subsection{Prozessverarbeitung}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{graphics/Prozessverarbeitung.png}
+	\caption{Prozessverarbeitung}
+\end{figure}
 
 \section{Schlussfolgerung}
 

@@ -156,7 +156,7 @@ namespace Fluid_Simulator
             });
 
             if (!_paused)
-                _particleManager.UpdateParallel(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
+                _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
 
             // Other Stuff
             _infoDrawer.Update(gameTime, inputState);
