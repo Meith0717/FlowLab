@@ -22,9 +22,6 @@ for Dir in lst:
     # Plot
     plt.plot(data['sample'], data['relativeDensityError'], linestyle='-', linewidth=2, label=f"k = {constants["FluidStiffness"][0]}")
 
-    # Annotate the mean value on the y-axis
-    plt.text(30000, mean_value, f'{mean_value:.3f}', va='center', ha='left')
-
 plt.ylim(0, .11)
 plt.xlim(5000, 30000)
 

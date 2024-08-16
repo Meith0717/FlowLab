@@ -5,7 +5,6 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{graphicx} 
 \usepackage{microtype}
-\usepackage{subcaption}
 \usepackage{float}
 \usepackage{parskip}
 \usepackage{amsmath}
@@ -16,6 +15,8 @@
 \usepackage{float}
 \usepackage[noend]{algpseudocode}
 \usepackage{menukeys}
+\usepackage{subfigure}
+\usepackage{wrapfig}
 
 \makeatletter
 \def\BState{\State\hskip-\ALG@thistlm}
@@ -298,24 +299,47 @@ ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite mit d
 Im sinne der Analyse können durch drücken der Taste \keys{F2} Daten gesammelt werden und durch drücken von \keys{F1} gespeichert werden. Zusätzlich wird durch drücken der Taste \keys{F12} ein Screenshot aufgenommen. Gespeichert werden alle Dateien im Dokumenten Ordner des Benutzers.
 
 \section{Analysen} \label{section_6}
-\subsection{Kolonnentest}
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\textwidth]{graphics/Steifigkeit.png}
-	\caption{Kolonnentest mit Verschiedener Steifigkeit k}
-\end{figure}
+Zuletzt werden in diesem Kapitel die gesammelten Daten von Experimenten visualisiert und Vorstellen. Die Experimente befassen sich mit Schwerpunkte der Simulation. Das erste Experiment beobachtet die Auswirkung der Einstellungsparameter auf die Stabilität und das Verhalten des Fluiden. Dazu wird eine Wassersäule simuliert und das Verhalten der Dichte aller Partikel zu analysieren. Da der Druck innerhalb eines Fluiden Abhängig der Gravitation, Fluid Höhe und Fluid Dichte ist, reicht es hier eine schmale Säule für das Experiment zu nutzen. 
+Zunächst wird der Einfluss der Beschleunigung Nachbarschafts Suche auf die Performance der Simulation betrachtet. Hierfür wird die Zeit um einen Simulationsschritt zu durchlaufen (Simulationsschrittzeit) beobachtet. Dabei wird die Anzahl an Partikel kontinuierliche erhöht und in Relation zur Simulationsschrittzeit gesetzt. Dieses Vorgehen wird auf beide Methoden der Nachbarschafts Suche angewandt.
+Analog dazu wird ebenfalls betrachtet, wie sich die Performance verhält für eine Sequentielle- und Parallele Prozessverarbeitung.
+
+\subsection{Säulenexperiment}
+
+\begin{wrapfigure}{r}{.39\textwidth}
+	\includegraphics[width=\linewidth]{graphics/20240813135808.png} 
+	\caption{Säulenexperiment}
+	\label{Säulenexperiment}
+\end{wrapfigure}
+
+Beim Säulenexperiment (siehe Abbildung \ref{Säulenexperiment}) wurde die Auswirkung der Steifigkeit $k$, der Viskosität $\nu$ und des Zeitschrittes $\Delta t$ auf die locale Dichten aller Partikel beobachtet. Dazu wurde für jeden Simulationsschritt der Mittelwert der Dichten aller Partikeln ermittelt und im Verhältnis der Simulationsschritte oder der Zeit dargestellt. Der wichtigste Parameter ist hierbei der Steifigkeit Parameter. Dieser ist ein Skalar für die Berechnung des der Lokalen Dichte \eqref{equ:localDichte} und hat direkten Einfluss auf die Druckbeschleunigungen \eqref{equ:druckBesch}. 
+
+In Abbildung \ref{Säulenexperiment_k} wurde die Säule mit verschiedenen Werten für $k$ simuliert. Bemerkbar ist, dass die lokale Dichte konstant bleibt und sich der Dichtefehler für steigendes $k$ minimiert. Die lokale Dichte konvergiert dabei in Richtung der Flüssigkeitsdichte. Somit ist $k$ ein Skalar für die Kompressibilität des Fluiden.
+Um die Visualisierung anschaulicher zu gestalten wurde für dieses Experiment eine hohe Viskosität gewählt. Dadurch werden Schwankungen des Dichtefehler minimiert, was zu einem Konstanten Wert führt. 
+
+Im Zweitem Säulenexperiment wurde die Viskosität $\nu$ variiert. Diese kontrolliert wie stark ein Partikel von seinen Nachbarn gedämpft wird. In Abbildung \ref{Säulenexperiment_v} wird dargestellt wie die Viskosität die Schwankungen der lokalen Dichte Dämpft. Dies Zeigt sich durch ein verringern der Amplitude. Umso größer die Viskosität, umso stärker kleben die Partikel aneinander. 
+
+Der letzte Parameter ist der Zeitschritt. Dieser skaliert die Beschleunigung auf das Partikel und ebenfalls den Bewegungsschritt des Partikeln. In Abbildung \ref{Säulenexperiment_t} ist auffällig wie sich mit kleinerem $\Delta t$ die Amplitude vergrößert und die Frequenz vergrößert. Dass die Frequenz sich vergrößert ist trivial da die Bewegung des Partikel gebremst wird und sich die Schritte der Partikel sich für ein Simulationsschritt verkleinert haben. 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{graphics/Viskosität.png}
-	\caption{Kolonnentest mit Verschiedener Viskosität v}
+	\subfigure[Säulenexperiment mit Verschiedener Steifigkeit k]
+	{
+		\includegraphics[width=.9\textwidth]{graphics/Steifigkeit.png}	
+		\label{Säulenexperiment_k}
+	}
+	\subfigure[Säulenexperiment mit Verschiedener Viskosität v]
+	{
+		\includegraphics[width=.9\textwidth]{graphics/Viskosität.png}	
+		\label{Säulenexperiment_v}
+	}
+	\subfigure[Säulenexperiment mit Verschiedenen Zeitschritten $\Delta$ t]
+	{
+		\includegraphics[width=.9\textwidth]{graphics/Zeitschritt.png}	
+		\label{Säulenexperiment_t}
+	}
+	\caption{Säulenexperiment mit verschiedenen Einstellungsparameter}
 \end{figure}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=\textwidth]{graphics/Zeitschritt.png}
-	\caption{Kolonnentest mit Verschiedenen Zeitschritten $\Delta$ t}
-\end{figure}
+% Larger stiffness -> less compressibility -> smaller time step 
 
 \subsection{Nachbarschafts Suche}
 \begin{figure}[H]
