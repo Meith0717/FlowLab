@@ -268,7 +268,7 @@ namespace Fluid_Simulator.Core
                 color = boundaryColor;
                 if (!particle.IsBoundary)
                     if (_cfl.TryGetValue(particle, out var cfl))
-                        color = ColorSpectrum.ValueToColor(cfl / 1);
+                        color = ColorSpectrum.ValueToColor(cfl / .2);
 
                 spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }

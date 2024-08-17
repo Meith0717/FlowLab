@@ -124,7 +124,7 @@ namespace Tests
             }
         }
 
-        public void LocalStiffnesIdealSamplingTest()
+        public void LocalPressureIdealSamplingTest()
         {
             var neighbors = new List<Particle>();
             foreach (var particle in _particles)

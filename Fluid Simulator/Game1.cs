@@ -81,7 +81,7 @@ namespace Fluid_Simulator
                 _sphTests.KernelDerivativeIdealSamplingTest();
                 _sphTests.KernelDerivativeComputationTest();
                 _sphTests.LocalDensityIdealSamplingTest();
-                _sphTests.LocalStiffnesIdealSamplingTest();
+                _sphTests.LocalPressureIdealSamplingTest();
             }
             catch (AssertFailedException)
             {
