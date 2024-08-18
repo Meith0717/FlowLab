@@ -195,7 +195,8 @@ Die Implementierung ist zentraler Bestandteil des Projektes. Implementiert wurde
 \subsection{Tests}
 Das Testen der einzelnen Komponenten des Simulationsschrittes ist essenziell für die Funktionalität und Korrektheit der Simulation. Sie helfen dabei offensichtliche Probleme in der Simulation zu isolieren und zu korrigieren. Allerdings sind ebenfalls nicht offensichtliche Fehler in der Simulation nicht auszuschließen, weshalb die Tests ebenfalls zusätzliche Sicherheit garantieren. Diese werden beim Starten der Simulation gestartet. Dabei wird ein ideales Gitter der Größe  $10 \cdot 10$  mit Partikeln erzeugt. \glqq Ideale\grqq{}, dass alle Partikel den gleichen Abstand h zueinander haben. Auf diesen Partikeln werden schließlich die Tests angewendet. Schlägt ein Test fehl, erscheint eine Nachricht in roter Schrift auf dem Bildschirm. 
 
-Das Fundament aller Berechnungen ist die Nachbarschaftssuche. Ausschließlich bei diesem Test wird ein kleineres ideales Gitter mit $5 \cdot 5$ Partikeln erzeugt. TODO LONG Um zu gewährleisten dass alle Partikel, die sich im Such-Radius um den mittleren Partikel befinden, gefunden werden, werden die von der Räumlichen Datenstruktur gefunden Partikeln in einer Liste gesammelt. Die Anzahl der Partikel in der Liste muss nach dem Suchen 13 ergeben.
+Das Fundament aller Berechnungen ist die Nachbarschaftssuche. Ausschließlich bei diesem Test wird ein kleineres ideales Gitter mit $5 \cdot 5$ Partikeln erzeugt.
+Die gefundenen Partikel werden in einer Liste Gesammelt. Somit wird gewährleisten dass alle Partikel, die sich im Such-Radius um den mittleren Partikel befinden, gefunden werden. Die Anzahl der Partikel in der Liste muss nach dem Suchen 13 ergeben.
 
 Für die folgenden Tests werden für alle Partikel aus dem größerem Gitter die Nachbarn gesucht und die Komponenten getestet. 
 Begonnen wird mit der Kernel Funktion. Eine falsche Gewichtung der Nachbarn in den Berechnungen führt zu falschen Kräften und Bewegungen der Teilchen. Um die Funktionalität der Kernel Funktion zu gewährleisten werden folgende vier Tests \cite{huang2024journey} auf diese angewandt:
@@ -229,7 +230,7 @@ Die Simulation verfügt über einige implementierte Tools zur Steuerung der Simu
 Die Simulation verfügt über mehrere verschiedene \glqq Szenarios\grqq{}. Ein \glqq Szenarios\grqq{} bedeutet hier, eine Box oder eine andere geometrische Form, welche eine Barriere für die zu simulierende Flüssigkeit bildet. Diese können mit der Taste \keys{V} gewechselt werden. Durch das Wechseln der Szene oder Drücken der Taste \keys{del} werden alle Partikel der Szene gelöscht. 
 
 Ebenfalls können zu Zwecken der Simulation Partikel mit Hilfe der Maus in der jeweiligen Szene platziert werden. Dazu wird mit der Taste \keys{Q} die Form einer Box, eines Kreises oder eines einzelnes Partikels
-ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite mit den Tasten \keys{W}, \keys{S} und \keys{D}, \keys{A} TODO verändert werden. Platziert werden die Partikel durch ein Linksklick.
+ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite verändert werden. \keys{W}, \keys{S} vergrößern bzs. verkleinern die Höhe, \keys{D}, \keys{A}vergrößern bzs. verkleinern die Breite. Platziert werden die Partikel durch ein Linksklick.
 
 Im Sinne der Analyse können durch das Drücken der Taste \keys{F2} Daten gesammelt werden und durch das Drücken von \keys{F1} gespeichert werden. Zusätzlich wird durch drücken der Taste \keys{F12} ein Screenshot aufgenommen. Gespeichert werden alle Dateien im Dokumentenordner des Benutzers.
 
@@ -242,15 +243,15 @@ Der CFL-Wert wird berechnet als $\text{CFL} = \frac{v \Delta t}{h}$, wobei \(v\)
 Die Partikel werden proportional zum CFL-Wert im Farbspektrum von Blau bis Rot eingefärbt. Durch diesen Farbverlauf wird eine intuitive visuelle Darstellung der Stabilität im gesamten Simulationsraum ermöglicht.
  
 \subsection{Behandlung von Grenzen}
-Die Simulation findet in einem eingeschränktem Raum satt. Dieser Raum wird mithilfe einer Grenze aus Grenzpartikeln gebildet. Die Breite der Grenze beträgt zwei Partikel. Dadurch füllen die Grenzpartikeln alle freien Nachbarstellen eines Flüssigkeitspartikeln. Die Position der  Grenzpartikel bleibt im Verlauf der Simulation konstant. 
+Die Simulation findet in einem eingeschränktem Raum satt. Dieser Raum wird mithilfe einer Grenze aus Grenzpartikeln gebildet. Die Breite der Grenze beträgt zwei Partikel. Dadurch füllen die Grenzpartikel alle freien Nachbarstellen eines Flüssigkeitspartikels. Die Position der  Grenzpartikel bleibt im Verlauf der Simulation konstant. 
 
-In der Implementierung werden bei der Berechnung der Beschleunigungen die Partikeln und Grenzpartikeln differenziert. Die Implementierte Gleichung zur Druckbeschleunigung \eqref{equ:druckBesch} lautet: $\forall j_f \in \text{Flüssigkeitspartikel}, \forall j_b \in \text{Grenzpartikel}$ 
+In der Implementierung werden bei der Berechnung der Beschleunigungen die Flüssigkeitspartikel von Grenzpartikeln differenziert. Die implementierte Gleichung zur Druckbeschleunigung \eqref{equ:druckBesch} lautet: $\forall j_f \in \text{Flüssigkeitspartikel}, \forall j_b \in \text{Grenzpartikel}$ 
 
 \begin{equation} \label{equ:druckBeschGrenze}
 	a_{druck} = -\sum_{j_f} m_{j_f} \left( \frac{p_i}{\rho_i^2} + \frac{p_{j_f}}{\rho_{j_f}^2} \right) \nabla_i W_{i{j_f}} -\sum_{j_b} p_i 2\frac{m_i}{\rho_i^2} \nabla_i W_{i{j_b}}
 \end{equation}
 
-Zusätzlich wird die dei der Viskositätsbeschleunigung \eqref{equ:viskositätBesch} der Einfluss der Grenze verringert indem die Viskosität für Grenzpartikel verringert wird:
+Zusätzlich wird bei der Viskositätsbeschleunigung \eqref{equ:viskositätBesch} der Einfluss der Grenze verringert, indem die Viskosität für Grenzpartikel verringert wird:
 
 \begin{align}
 	a_{viskosität} &= 2 \nu \sum_{j_f} \frac{m_{j_f}}{\rho_{j_f}} \frac{(v_i - v_{j_f}) \cdot (x_i - x_{j_f})}{(x_i - x_{j_f}) \cdot (x_i - x_{j_f}) + 0.01\cdot h^2} \nabla_i W_{i{j_f}} \nonumber \\
@@ -400,7 +401,7 @@ Das Ziel dieses Projekts war, eine grundlegende SPH-Simulation (Smoothed Particl
 
 Das Projekt trug maßgeblich dazu bei, ein tieferes Verständnis für die zugrunde liegenden Prozesse in SPH zu entwickeln und zu erkennen, wie komplexe Strömungen realistisch simuliert werden können. Die Analyse und Interpretation der experimentellen Ergebnisse ermöglichte es, die Einflüsse der Parameter auf das Fluidverhalten besser zu verstehen und deren Wechselwirkungen zu identifizieren. Dadurch konnte eine stabile Simulation durch gezielte Anpassung der Parameter gewährleistet werden.
 
-Abbildung \ref{exampleSimulation} zeigt den Ablauf des Verhalten eines Fluiden, welcher mit dem SPH-Simulator simuliert wurde. Die Flüssigkeit verhält sich stabil und realistisch, ohne unerwünschte Artefakte oder Instabilitäten. Die Anpassungen führten zu einer präziseren und natürlicheren Darstellung der Fluiddynamik,.
+Abbildung \ref{exampleSimulation} zeigt den Ablauf des Verhalten eines Fluiden, welcher mit dem SPH-Simulator simuliert wurde. Die Flüssigkeit verhält sich stabil und realistisch, ohne unerwünschte Artefakte oder Instabilitäten. Die Anpassungen führten zu einer präziseren und natürlicheren Darstellung der Fluiddynamik.
 
 \begin{figure}[H]
 	\centering
