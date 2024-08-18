@@ -54,7 +54,7 @@ namespace Fluid_Simulator.Core
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
                 if (neighbor.IsBoundary)
                 {
-                    pressureBoundaryAcceleration += neighbor.Mass * (2f * pressureOverDensitySquared) * kernelDerivative;
+                    pressureBoundaryAcceleration += neighbor.Pressure * (2f * neighbor.Mass / MathF.Pow(particle.Density, 2)) * kernelDerivative;
                     continue;
                 }
                 var neighborPressureOverDensitySquared = neighbor.Pressure / (neighbor.Density * neighbor.Density);
