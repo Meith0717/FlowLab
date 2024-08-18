@@ -11,6 +11,8 @@
 *.lot
 *.out
 *.toc
+*.bcf
+*.xml
 
 # OS generated files #
 ######################
