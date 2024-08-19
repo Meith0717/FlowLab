@@ -20,7 +20,7 @@ for Dir in lst:
     plt.plot(data['sample'], data['relativeDensityError'], linestyle='-', linewidth=2, label=f"Δt = {constants["TimeSteps"][0]}")
 
 plt.ylim(0, .08)
-plt.xlim(1000, 45000)
+plt.xlim(1000, 32000)
 
 plt.xlabel('Simulationsschritte')
 plt.ylabel('Relativer Dichtefehler')
