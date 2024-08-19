@@ -31,8 +31,11 @@ namespace Fluid_Simulator.Core
             {
                 { PolygonFactory.CreateRectangle(5, 130), () => { _particlePlacer.GetBlock(Vector2.Zero, 5, 130);   _particlePlacer.Place(); } },
                 { PolygonFactory.CreateRectangle(170, 130), null },
-                { PolygonFactory.CreateRectangle(260, 150), null },
+                { PolygonFactory.CreateRectangle(170, 170), null },
+                { PolygonFactory.CreateRectangle(250, 150), null },
+                { PolygonFactory.CreateRectangle(250, 250), null },
                 { PolygonFactory.CreateCircle(70, 50), null },
+                { PolygonFactory.CreateCircle(120, 60), null },
             };
 
             ApplyScene(_activeSceneIndex);
