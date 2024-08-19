@@ -10,8 +10,10 @@ namespace Fluid_Simulator.Core
 
         public static float KernelAlpha(float particelDiameter)
             => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+
         private static float DistanceOverH(Vector2 pos1, Vector2 pos2, float H)
             => Vector2.Distance(pos1, pos2) / H;
+
         public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
             => MathF.Max(fluidStiffness * ((localDensity / fluidDensity) - 1), 0);
 
@@ -54,7 +56,7 @@ namespace Fluid_Simulator.Core
                 var kernelDerivative = KernelDerivative(particle.Position, neighbor.Position, particelDiameter);
                 if (neighbor.IsBoundary)
                 {
-                    pressureBoundaryAcceleration += neighbor.Pressure * (2f * neighbor.Mass / MathF.Pow(particle.Density, 2)) * kernelDerivative;
+                    pressureBoundaryAcceleration += neighbor.Mass * (2f * pressureOverDensitySquared) * kernelDerivative;
                     continue;
                 }
                 var neighborPressureOverDensitySquared = neighbor.Pressure / (neighbor.Density * neighbor.Density);

@@ -1,3 +1,3 @@
 ﻿
-using var game = new Fluid_Simulator.Game1();
-game.Run();
+using var simulation = new Fluid_Simulator.Simulation();
+simulation.Run();

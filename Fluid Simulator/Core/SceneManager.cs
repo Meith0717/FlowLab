@@ -18,7 +18,7 @@ namespace Fluid_Simulator.Core
         private RectangleF _sceneBoundry;
         private int _activeSceneIndex;
 
-        public Rectangle SceneBoundry 
+        public Rectangle SceneBoundry
             => _sceneBoundry.ToRectangle();
 
         public SceneManager(ParticleManager particleManager, ParticlePlacer particlePlacer)
@@ -27,7 +27,7 @@ namespace Fluid_Simulator.Core
             _particlePlacer = particlePlacer;
             _sceneBoundry = new();
 
-            _scenes = new() 
+            _scenes = new()
             {
                 { PolygonFactory.CreateRectangle(5, 130), () => { _particlePlacer.GetBlock(Vector2.Zero, 5, 130);   _particlePlacer.Place(); } },
                 { PolygonFactory.CreateRectangle(170, 130), null },
@@ -38,14 +38,14 @@ namespace Fluid_Simulator.Core
             ApplyScene(_activeSceneIndex);
         }
 
-        public void Update(InputState inputState) 
+        public void Update(InputState inputState)
             => inputState.DoAction(ActionType.NextScene, NextScene);
 
         private void NextScene()
         {
             _particlePlacer.Clear();
             _activeSceneIndex = (_activeSceneIndex + 1) % _scenes.Count;
-            ApplyScene( _activeSceneIndex );
+            ApplyScene(_activeSceneIndex);
         }
 
         private void ApplyScene(int index)

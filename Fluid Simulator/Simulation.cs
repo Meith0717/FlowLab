@@ -12,7 +12,7 @@ using Tests;
 
 namespace Fluid_Simulator
 {
-    public class Game1 : Game
+    public class Simulation : Game
     {
         private const int ParticleDiameter = 11;
         private const float FluidDensity = 0.3f;
@@ -36,12 +36,12 @@ namespace Fluid_Simulator
         private readonly SphTests _sphTests;
         private readonly DataCollector _performanceCollector;
 
-        public Game1()
+        public Simulation()
         {
             _graphics = new GraphicsDeviceManager(this);
             _inputManager = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
-            _performanceCollector = new("performance", new() {"fps", "frameDuration", "particleCount"});
+            _performanceCollector = new("performance", new() { "fps", "frameDuration", "particleCount" });
 
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _sceneManager = new(_particleManager, _particlePlacer);
