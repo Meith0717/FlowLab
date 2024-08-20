@@ -20,9 +20,9 @@ sorting=ynt
 Fluid Simulationen haben sich zu einem unverzichtbaren Werkzeug in zahlreichen Bereichen unserer Gesellschaft entwickelt. Sie ermöglichen das präzise Simulieren von Flüssigkeiten und Gasen in verschiedenen Umgebungen, wodurch das Verhalten dieser Stoffe und ihre Interaktionen mit der Umgebung untersucht werden können. Aufgrund ihrer Vielseitigkeit kommen Fluid Simulationen in einer großen Bandbreite von Anwendungsgebieten zum Einsatz, darunter die Optimierung von Fahrzeugen und Gebäuden, Wettervorhersagen, medizinische Forschung, die Erzeugung realistischer Effekte in Filmen und Spielen, industrielle Prozesse und Energieerzeugung. Diese Simulationen tragen wesentlich dazu bei, Designs zu verbessern, die Effizienz zu steigern und komplexe Strömungen besser zu verstehen.
 
 Die Allgegenwärtigkeit und Bedeutung dieser Technologie in verschiedenen Branchen wecken das Interesse an dem Thema. Insbesondere die Verbindung von Physik und Informatik weckt zusätzlich persönliche Interessen und ist eine Motivation zur Arbeit an diesem Projekt. Das Hauptziel ist die Implementierung einer Fluid Simulation mit der Smoothed Particle Hydrodynamics (SPH) Methode, um ein tieferes Verständnis für die Komponenten und Mechanismen von SPH zu entwickeln. Um die Performance zu verbessern wird zusätzlich eine beschleunigte Nachbarschaftssuche implementiert. 
-Dazu werden zu beginn alle Komponenten von SPH implementiert und auf Korrektheit getestet. Daraufhin werden die einzelnen Komponenten zusammengefügt, woraus sich der Simulationsschritt ergibt. Durch Analysen wird schließlich das Verhalten des Fluiden für verschiedene Einstellungsparameter studiert und interpretiert. Dadurch können die Parameter von SPH richtig gesetzt werden um die Stabilität der Simulation zu optimieren.
+Dazu werden zu Beginn alle Komponenten von SPH implementiert und auf Korrektheit getestet. Daraufhin werden die einzelnen Komponenten zusammengefügt, woraus sich der Simulationsschritt ergibt. Durch Analysen wird schließlich das Verhalten des Fluiden für verschiedene Einstellungsparameter studiert und interpretiert. Dadurch können die Parameter von SPH richtig gesetzt werden um die Stabilität der Simulation zu optimieren.
 
-In diesem Bericht folgt zuerst eine Motivation. In Abschnitt \ref{Kap:NavierStrokes} werden die Navier-Stokes-Gleichungen vorgestellt. Sie bilden die Grundlage aller Methoden zur Simulation von Fluiden und Gasen. In Abschnitt \ref{Kap:SPH} folgt eine Übersicht aller Komponenten der SPH-Methode, die zur Implementierung der Simulation verwendet wurden. Des weiteren folgt in Abschnitt \ref{Kap:Simulationsschritt} eine Übersicht über den verwendeten Simulationsschritt. Daraufhin wird in Kapitel \ref{Kap:NachbarschaftsSuche} die Funktion der beschleunigten Nachbarschaftssuche erläutert. In Kapitel \ref{Kap:Implementierung} werden einige erwähnenswerte Implementierungen erläutert. Schlussendlich wird in Kapitel \ref{Kap:Alanysen} die Analysen des Simulation vorgestellt.
+In diesem Bericht folgt zuerst eine Motivation. In Abschnitt \ref{Kap:NavierStrokes} werden die Navier-Stokes-Gleichungen vorgestellt. Sie bilden die Grundlage aller Methoden zur Simulation von Fluiden und Gasen. In Abschnitt \ref{Kap:SPH} folgt eine Übersicht aller Komponenten der SPH-Methode, die zur Implementierung der Simulation verwendet wurden. In Kapitel \ref{Kap:Implementierung} werden einige erwähnenswerte Implementierungen erläutert. Daraufhin wird in Kapitel \ref{Kap:NachbarschaftsSuche} die Funktion der beschleunigten Nachbarschaftssuche erläutert. Des weiteren folgt in Abschnitt \ref{Kap:Simulationsschritt} eine Übersicht über den verwendeten Simulationsschritt. Schlussendlich wird in Kapitel \ref{Kap:Alanysen} die Analysen des Simulation vorgestellt.
 
 \section{Navier-Stokes-Gleichungen} \label{Kap:NavierStrokes}
 Die Navier-Stokes-Gleichungen sind fundamentale Gleichungen in der Fluidmechanik, die das Verhalten von strömenden Flüssigkeiten und Gasen beschreiben. Sie bilden ein System von nichtlinearen partiellen Differentialgleichungen zweiter Ordnung. Diese basieren auf den Prinzipien der Erhaltung von Masse, Impuls und Energie und modellieren die Bewegung des Fluids, indem sie die Einflüsse von Druck, Viskosität und externen Kräften auf das Strömungsverhalten berücksichtigen \cite{studyflix_navierstokes}.
@@ -95,7 +95,7 @@ Smoothed Particle Hydrodynamics (SPH) ist eine numerische Methode zur Approximat
 Das Konzept von SPH lässt sich allgemein als eine Methode zur Diskretisierung von räumlichen Feldgrößen und räumlichen Differentialoperatoren verstehen. Die zentrale Idee von SPH ist es, Partikel einzusetzen, die Proben von Feldgrößen enthalten und eine Kernel Funktion zu nutzen, um kontinuierliche Felder zu approximieren \cite{huang2024journey}. Ein Partikel besitzt Eigenschaften wie die Masse \( m_i \), die Position \( x_i \), die Geschwindigkeit \( v_i \) und den Druck \( \rho_i \).
 
 \subsection{Kernel Funktion}
-Die Kernel Funktion \(W_{ij} = W(x_i - x_j, h)\) ist eine Funktion zur Glättung der Räumlichen Diskretisierung, wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird \cite{10.1111:cgf.14508}. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel Funktion zweifach ableitbar sein und folgende Eigenschaften besitzen: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow \int_{\mathds{R}^d}\)
+Die Kernel Funktion \(W_{ij} = W(x_i - x_j, h)\) ist eine Funktion zur Glättung der räumlichen Diskretisierung, wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird \cite{10.1111:cgf.14508}. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel Funktion zweifach ableitbar sein und folgende Eigenschaften besitzen: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow \int_{\mathds{R}^d}\)
 \begin{align}
 	W(x_i - x_j', h) dx_j' &= 1 \label{kernelEigenschaft1}\\
 	\lim_{h'\rightarrow 0} W(x_i - x_j, h') &= \delta(r) \label{kernelEigenschaft2}\\
@@ -176,7 +176,7 @@ Die externen Kräfte, die auf ein Partikel wirken, werden durch \( f_i \) darges
 \end{equation}
 \subsection{Berechnung der Partikeleigenschaften}
 \subsubsection{Dichteberechnung}
-Die Dichte jedes Partikels \(i\) wird durch die Summe der Massen der benachbarten Partikel \(j\) gewichtet durch die Kernel Funktion berechnet:
+Die Dichte jedes Partikels \(i\) wird durch die Summe der gewichteten Massen der benachbarten Partikel \(j\) berechnet. Die Gewichtung wird durch die Kernel Funktion ermittelt:
 \begin{equation} \label{equ:localDichte}
 	\rho_i = \sum_j m_j W_{ij}
 \end{equation}
@@ -186,16 +186,16 @@ Der Druck \(p_i\) wird häufig durch eine Zustandsgleichung \cite{Adams2007} ber
 \begin{equation} \label{equ:lokalDruck}
 	p_i = k (\frac{\rho_i}{\rho_0} - 1)
 \end{equation}
-wobei \(k\) die Steifigkeit Konstante ist und \(\rho_0\) die Ruhe-Dichte.
+wobei \(k\) die Steifigkeitskonstante ist und \(\rho_0\) die Ruhe-Dichte.
 
 \section{Implementierung} \label{Kap:Implementierung}
-Die Implementierung ist zentraler Bestandteil des Projektes. Implementiert wurde in C\# mit Hilfe des Frameworks Monogame. In diesem Kapitel wird die Implementierung von Tests, essenziell für die Korrektheit der Simulation, und die Implementierung Spezieller Hilfsmittel vorgestellt. 
+Die Implementierung ist zentraler Bestandteil des Projektes. Implementiert wurde in C\# mit Hilfe des Frameworks Monogame. In diesem Kapitel wird die Implementierung von Tests, essenziell für die Korrektheit der Simulation, und die Implementierung spezieller Hilfsmittel vorgestellt. 
 
 \subsection{Tests}
-Das Testen der einzelnen Komponenten des Simulationsschrittes ist essenziell für die Funktionalität und Korrektheit der Simulation. Sie helfen dabei offensichtliche Probleme in der Simulation zu isolieren und zu korrigieren. Allerdings sind ebenfalls nicht offensichtliche Fehler in der Simulation nicht auszuschließen, weshalb die Tests ebenfalls zusätzliche Sicherheit garantieren. Diese werden beim Starten der Simulation gestartet. Dabei wird ein ideales Gitter der Größe  $10 \cdot 10$  mit Partikeln erzeugt. \glqq Ideale\grqq{}, dass alle Partikel den gleichen Abstand h zueinander haben. Auf diesen Partikeln werden schließlich die Tests angewendet. Schlägt ein Test fehl, erscheint eine Nachricht in roter Schrift auf dem Bildschirm. 
+Das Testen der einzelnen Komponenten des Simulationsschrittes ist essenziell für die Funktionalität und Korrektheit der Simulation. Sie helfen dabei offensichtliche Probleme in der Simulation zu isolieren und zu korrigieren. Allerdings sind ebenfalls nicht offensichtliche Fehler in der Simulation nicht auszuschließen, weshalb die Tests ebenfalls zusätzliche Sicherheit garantieren. Diese werden beim Starten der Simulation gestartet. Dabei wird ein ideales Gitter der Größe  $10 \cdot 10$  mit Partikeln erzeugt. \glqq Ideale\grqq{} bedeutet, dass alle Partikel den gleichen Abstand h zueinander haben. Auf diesen Partikeln werden schließlich die Tests angewendet. Schlägt ein Test fehl, erscheint eine Nachricht in roter Schrift auf dem Bildschirm. 
 
 Das Fundament aller Berechnungen ist die Nachbarschaftssuche. Ausschließlich bei diesem Test wird ein kleineres ideales Gitter mit $5 \cdot 5$ Partikeln erzeugt.
-Die gefundenen Partikel werden in einer Liste Gesammelt. Somit wird gewährleisten dass alle Partikel, die sich im Such-Radius um den mittleren Partikel befinden, gefunden werden. Die Anzahl der Partikel in der Liste muss nach dem Suchen 13 ergeben.
+Die gefundenen Partikel werden in einer Liste gesammelt. Somit wird gewährleistet dass alle Partikel, die sich im Such-Radius um den mittleren Partikel befinden, gefunden werden. Die Anzahl der Partikel in der Liste muss nach dem Suchen 13 ergeben.
 
 Für die folgenden Tests werden für alle Partikel aus dem größerem Gitter die Nachbarn gesucht und die Komponenten getestet. 
 Begonnen wird mit der Kernel Funktion. Eine falsche Gewichtung der Nachbarn in den Berechnungen führt zu falschen Kräften und Bewegungen der Teilchen. Um die Funktionalität der Kernel Funktion zu gewährleisten werden folgende vier Tests \cite{huang2024journey} auf diese angewandt:
@@ -226,23 +226,23 @@ Daraus folgt ebenfalls dass die Funktion des lokalen Drucks 0 ergibt:
 \subsection{Tools}
 Die Simulation verfügt über einige implementierte Tools zur Steuerung der Simulation. Durch das Drücken der Taste \keys{H} öffnet sich eine Liste von Aktionen zum Steuern der Simulation. Einige der wichtigsten Aktionen werden in diesem Unterkapitel vorgestellt. 
 
-Die Simulation verfügt über mehrere verschiedene \glqq Szenarios\grqq{}. Ein \glqq Szenarios\grqq{} bedeutet hier, eine Box oder eine andere geometrische Form, welche eine Barriere für die zu simulierende Flüssigkeit bildet. Diese können mit der Taste \keys{V} gewechselt werden. Durch das Wechseln der Szene oder Drücken der Taste \keys{del} werden alle Partikel der Szene gelöscht. 
+Die Simulation verfügt über mehrere verschiedene \glqq Szenen\grqq{}. Eine \glqq Szene\grqq{} bedeutet hier, eine Box oder eine andere geometrische Form, welche eine Barriere für die zu simulierende Flüssigkeit bildet. Die Szenen können mit der Taste \keys{V} gewechselt werden. Durch das Wechseln der Szene oder Drücken der Taste \keys{del} werden alle Partikel der Szene gelöscht. 
 
 Ebenfalls können zu Zwecken der Simulation Partikel mit Hilfe der Maus in der jeweiligen Szene platziert werden. Dazu wird mit der Taste \keys{Q} die Form einer Box, eines Kreises oder eines einzelnes Partikels
-ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite verändert werden. \keys{W}, \keys{S} vergrößern bzs. verkleinern die Höhe, \keys{D}, \keys{A}vergrößern bzs. verkleinern die Breite. Platziert werden die Partikel durch ein Linksklick.
+ausgewählt. Im Falle der Box und des Kreises können die Höhe und Breite verändert werden. \keys{W}, \keys{S} vergrößern bzs. verkleinern die Höhe, \keys{D}, \keys{A}vergrößern bzs. verkleinern die Breite. Platziert werden die Partikel durch einen Linksklick.
 
 Im Sinne der Analyse können durch das Drücken der Taste \keys{F2} Daten gesammelt werden und durch das Drücken von \keys{F1} gespeichert werden. Zusätzlich wird durch drücken der Taste \keys{F12} ein Screenshot aufgenommen. Gespeichert werden alle Dateien im Dokumentenordner des Benutzers.
 
 \subsection{Parallelisierung des Simulationsschrittes}
-Die ersten beiden Schleifen des Simulationsschrittes (siehe Kapitel \ref{Kap:Simulationsschritt}) wurden mit Hilfe der Funktion Parallel.ForEach() implementiert. Diese Funktion ermöglicht es, die einzelnen Prozesse auf verschiedene Threads der CPU aufzuteilen. Dabei wartet die Funktion automatisch, bis alle Threads ihre Aufgaben abgeschlossen haben, bevor die Verarbeitung im sequentiellen Code fortgesetzt wird. Da beide Schleifen auf Hashtabellen zugreifen werden diese Zugriffe gesperrt um Wettlaufsituation zu verhindern.  
+Die ersten beiden Schleifen des Simulationsschrittes (siehe Kapitel \ref{Kap:Simulationsschritt}) wurden mit Hilfe der Funktion Parallel.ForEach() implementiert. Diese Funktion ermöglicht es, die einzelnen Prozesse auf verschiedene Threads der CPU aufzuteilen. Dabei wartet die Funktion automatisch, bis alle Threads ihre Aufgaben abgeschlossen haben, bevor die Verarbeitung im sequentiellen Code fortgesetzt wird. Da beide Schleifen auf Hashtabellen zugreifen, werden diese Zugriffe gesperrt um Wettlaufsituation zu verhindern.  
 
 \subsection{Färbung der Geschwindigkeit}
-Die Färbung der Partikel basierend auf dem CFL-Kriterium stellt eine wichtige Funktion der Simulation dar, um die Stabilität der Simulation visuell zu analysieren. Um die Stabilität der Simulation darzustellen, wird eine Farbcodierung verwendet, bei der die Farbe proportional zum CFL-Wert variiert.
+Die Färbung der Partikel, basierend auf dem CFL-Kriterium, stellt eine wichtige Funktion der Simulation dar, um die Stabilität der Simulation visuell zu analysieren. Um die Stabilität der Simulation darzustellen wird eine Farbcodierung verwendet, bei der die Farbe proportional zum CFL-Wert variiert.
 Der CFL-Wert wird berechnet als $\text{CFL} = \frac{v \Delta t}{h}$, wobei \(v\) die Geschwindigkeit des Partikels, \(\Delta t\) der Zeitschritt und \(h\) die Partikelgröße ist.
 Die Partikel werden proportional zum CFL-Wert im Farbspektrum von Blau bis Rot eingefärbt. Durch diesen Farbverlauf wird eine intuitive visuelle Darstellung der Stabilität im gesamten Simulationsraum ermöglicht.
  
 \subsection{Behandlung von Grenzen}
-Die Simulation findet in einem eingeschränktem Raum satt. Dieser Raum wird mithilfe einer Grenze aus Grenzpartikeln gebildet. Die Breite der Grenze beträgt zwei Partikel. Dadurch füllen die Grenzpartikel alle freien Nachbarstellen eines Flüssigkeitspartikels. Die Position der  Grenzpartikel bleibt im Verlauf der Simulation konstant. 
+Die Simulation findet in einem eingeschränkten Raum satt. Dieser Raum wird mithilfe einer Grenze aus Grenzpartikeln gebildet. Die Breite der Grenze beträgt zwei Partikel. Dadurch füllen die Grenzpartikel alle freien Nachbarstellen eines Flüssigkeitspartikels. Die Position der  Grenzpartikel bleibt im Verlauf der Simulation konstant. 
 
 In der Implementierung werden bei der Berechnung der Beschleunigungen die Flüssigkeitspartikel von Grenzpartikeln differenziert. Die implementierte Gleichung zur Druckbeschleunigung \eqref{equ:druckBesch} lautet: $\forall j_f \in \text{Flüssigkeitspartikel}, \forall j_b \in \text{Grenzpartikel}$ 
 
@@ -260,7 +260,7 @@ Zusätzlich wird bei der Viskositätsbeschleunigung \eqref{equ:viskositätBesch}
 \section{Nachbarschaftssuche} \label{Kap:NachbarschaftsSuche}
 Die Nachbarschaftssuche ist das Fundament der Simulation. Diese erlaubt das Ermitteln der Nachbarpartikel in einem festen Radius um eine Position zum Berechnen lokaler Werte. Ein naiver Ansatz wäre, für alle Partikel den Abstand zur Position zu ermitteln und zu prüfen, ob sich diese im Radius befinden. Diese Methode weist jedoch eine quadratische Laufzeitkomplexität auf, da für jedes Partikel der Abstand zu allen anderen Partikeln berechnet werden muss. Dies führt zu einer Laufzeit von $O(n^2)$, wobei $n$ die Anzahl der Partikel ist. Bei einer großen Partikelanzahl wird dieser Ansatz daher ineffizient und rechenintensiv.
 
-Für das Projekt wurde dementsprechend das Räumliche Hashing verwendet. Dabei handelt es sich um eine Datenstruktur die den Raum in einzelne Blöcke unterteilt. Beim ermitteln von Nachbarpartikel müssen dadurch nicht mehr alle Partikel geprüft werden sondern nur diese, die sich in dem selbem Block oder Nachbarblock befinden. Dies führt zu einer effizienteren und weniger rechenintensiven Methode zum Bestimmen der Nachbarn.
+Für das Projekt wurde dementsprechend das Räumliche Hashing verwendet. Dabei handelt es sich um eine Datenstruktur, die den Raum in einzelne Blöcke unterteilt. Beim Ermitteln von Nachbarpartikel müssen dadurch nicht mehr alle Partikel geprüft werden sondern nur jene, welche sich in dem selbem Block oder Nachbarblock befinden. Dies führt zu einer effizienteren und weniger rechenintensiven Methode zum Bestimmen der Nachbarn.
 
 \subsection{Einfügen von Partikeln}
 Um ein Partikel in die Datenstruktur einzufügen wird als erstes ein Hashwert bezüglich der Position errechnet. Dazu wird der Positionsvektor durch die Blockgröße geteilt und das Ergebnis abgerundet.
@@ -277,11 +277,12 @@ Um ein Partikel in die Datenstruktur einzufügen wird als erstes ein Hashwert be
 
 Schließlich wird der Partikel in eine Liste innerhalb der Hashtabelle eingefügt. Das Löschen eines Partikels aus der Datenstruktur funktioniert analog.
 
-\subsection{Updaten der Partikel Positionen}
-Wurden die Positionen der Partikel im Simulationsschritt aktualisiert, müssen ebenfalls die Einträge in der Hashtabelle Aktualisiert werden. Dazu werden die Partikel vor dem Aktualisieren der Position aus der Datenstruktur entfernt und nach der Aktualisierung wieder eingefügt. 
+\subsection{Updaten der Partikelpositionen}
+Wurden die Positionen der Partikel im Simulationsschritt aktualisiert, müssen ebenfalls die Einträge in der Hashtabelle aktualisiert werden. Dazu werden die Partikel vor dem Aktualisieren der Position aus der Datenstruktur entfernt und nach der Aktualisierung wieder eingefügt. 
 
 \subsection{Ermitteln von Nachbarn}
-Das ermitteln von Nachbar Partikeln ist das Fundament des Simulationsschrittes. Zu erst werden die Blöcke, welche Teil des Radiuses sind und somit durchsucht werden müssen, ermittelt. Des Weiteren werden die Partikel in den Blöcke überprüft, ob sich diese in dem Radius um die Position befinden.
+Das Ermitteln von Nachbar Partikeln ist das Fundament des Simulationsschrittes. Zuerst werden die Blöcke, welche Teil des Radiuses sind und somit durchsucht werden müssen, ermittelt. Des Weiteren werden die Partikel in den Blöcken überprüft, ob sich diese in dem Radius um die Position befinden.
+Dies erlaubt es die Anzahl an Partikeln, welche überprüft werden müssen, zu beschränken und die Laufzeit zu verringern. 
 \begin{algorithm}[H]
     \caption{Partikel im Radius}
     \begin{algorithmic}[1]
@@ -305,12 +306,11 @@ Das ermitteln von Nachbar Partikeln ist das Fundament des Simulationsschrittes. 
         \Return $\text{partikelImRadius}$
     \end{algorithmic}
 \end{algorithm}
-Dies erlaubt es die Anzahl an Partikeln welche überprüft werden müssen zu beschränken und die Laufzeit zu verringern. 
 
 \section{Simulationsschritt} \label{Kap:Simulationsschritt}
-Der Simulationsschritt ist in der SPH Simulation von Zentraler Bedeutung. Dort werden alle nötigen Beschleunigungen ermittelt, die zum simulieren eines Fluides mithilfe von Partikeln, nötig sind. In diesem Projekt wurde die Methode in 3 Schleifen unterteilt wobei die erste als einzige alle Partikel berücksichtigt. In den Restlichen Schleifen werden nur Partikel welche das Fluid bilden beachtet und Partikel zum Simulieren der Grenze Ignoriert. Eigenschaften wie die Partikelgröße und die Ruhedichte der Flüssigkeit werden vor dem Starten der Simulation festgelegt. Aus diesen wird eine Masse für die Partikel ermittelt, welche im Laufe der Simulation konstant bleibt. Eigenschaften wie die Position, Geschwindigkeit, lokale Dichte und lokaler Druck werden im Partikel gespeichert. Die Nachbarn der einzelnen Partikel als auch alle berechneten Beschleunigungen werden in Hashtabellen gespeichert damit diese über alle schleifen zugänglich sind.
+Der Simulationsschritt ist in der SPH Simulation von zentraler Bedeutung. Dort werden alle nötigen Beschleunigungen ermittelt, die zum Simulieren eines Fluides mithilfe von Partikeln nötig sind. In diesem Projekt wurde die Methode in 3 Schleifen unterteilt, wobei die erste als einzige alle Partikel berücksichtigt. In den restlichen Schleifen werden nur Partikel, welche das Fluid bilden, beachtet und Partikel zum Simulieren der Grenze ignoriert. Eigenschaften wie die Partikelgröße und die Ruhedichte der Flüssigkeit werden vor dem Starten der Simulation festgelegt. Aus diesen wird eine Masse für die Partikel ermittelt, welche im Laufe der Simulation konstant bleibt. Eigenschaften wie die Position, Geschwindigkeit, lokale Dichte und lokaler Druck werden im Partikel gespeichert. Sowohl die Nachbarn der einzelnen Partikel als auch alle berechneten Beschleunigungen werden in Hashtabellen gespeichert damit diese über alle Schleifen zugänglich sind.
 
-In der ersten Schleife werden die lokalen Eigenschaften ermittelt. Dazu müssen die Nachbarpartikel in einem Radius $2 \cdot \text{Partikelgröße}$ um die Partikel ermittelt werden. Mithilfe der Nachbarn wird die lokale Dichte und der lokale Druck jedes Partikels bestimmt. Diese werden für die Berechnungen der nächsten Schleife benötigt. In dieser werden für alle Partikel die das Fluid bilden, die Viskosität- und Druckbeschleunigungen berechnet. Anhand dieser Beschleunigungen werden die Positionen der Partikel in der letzten schleife aktualisiert. 
+In der ersten Schleife werden die lokalen Eigenschaften ermittelt. Dazu müssen die Nachbarpartikel in einem Radius $2 \cdot \text{Partikelgröße}$ um die Partikel ermittelt werden. Mithilfe der Nachbarn wird die lokale Dichte und der lokale Druck jedes Partikels bestimmt. Diese werden für die Berechnungen der nächsten Schleife benötigt. In dieser werden für alle Partikel, die das Fluid bilden, die Viskosität- und Druckbeschleunigungen berechnet. Anhand dieser Beschleunigungen werden die Positionen der Partikel in der letzten Schleife aktualisiert. 
 
 \begin{algorithm}[H]
 	\caption{Simulationsschritt}
@@ -332,21 +332,20 @@ In der ersten Schleife werden die lokalen Eigenschaften ermittelt. Dazu müssen 
 	\end{algorithm}
 
 \section{Analysen} \label{Kap:Alanysen}
-Zuletzt werden die gesammelten Daten von Experimenten visualisiert und vorgestellt. Die Experimente befassen sich mit Schwerpunkten der Simulation. Das erste Experiment beobachtet die Auswirkung der Einstellungsparameter auf die Stabilität um das Verhalten des Fluiden. Dazu wird eine Wassersäule simuliert und das Verhalten der Dichte aller Partikel zu analysieren. Da der Druck innerhalb eines Fluiden Abhängig der Gravitation, Fluid Höhe und Fluid Dichte ist, reicht es hier eine schmale Säule für das Experiment zu nutzen. 
-Zunächst wird der Einfluss der beschleunigten Nachbarschaftssuche auf die Performance der Simulation betrachtet. Hierfür wird die Zeit um einen Simulationsschritt zu durchlaufen (Simulationsschrittzeit) beobachtet. Dabei wird die Anzahl an Partikeln kontinuierlich erhöht und in Relation zur Simulationsschrittzeit gesetzt. Dieses Vorgehen wird auf beide Methoden der Nachbarschaftssuche angewandt.
+Zuletzt werden die gesammelten Daten von Experimenten visualisiert und vorgestellt. Das erste Experiment beobachtet die Auswirkung der Einstellungsparameter auf die Stabilität um das Verhalten des Fluiden. Dazu wird eine Wassersäule simuliert um das Verhalten der Dichte aller Partikel zu analysieren. Da der Druck innerhalb eines Fluiden abhängig der Gravitation, Fluid Höhe und Fluid Dichte ist, reicht es hier eine schmale Säule für das Experiment zu nutzen. 
+Zunächst wird der Einfluss der beschleunigten Nachbarschaftssuche auf die Performance der Simulation betrachtet. Hierfür wird die Zeit, um einen Simulationsschritt zu durchlaufen(Simulationsschrittzeit), beobachtet. Dabei wird die Anzahl an Partikeln kontinuierlich erhöht und in Relation zur Simulationsschrittzeit gesetzt. Dieses Vorgehen wird auf beide Methoden der Nachbarschaftssuche angewandt.
 Analog dazu wird ebenfalls betrachtet, wie sich die Performance verhält für eine sequentielle- und parallele Prozessverarbeitung.
 
 \subsection{Säulenexperiment}
-
-In dem durchgeführten Säulenexperiment wurden die Auswirkungen der Steifigkeit \(k\), der Viskosität \(\nu\) und des Zeitschritts \(\Delta t\) auf die lokalen Dichten aller Partikel untersucht. Hierbei wurde in jedem Simulationsschritt der Mittelwert der lokalen Dichten aller Partikel ermittelt und im Verhältnis zu den Simulationsschritten bzw. der Zeit dargestellt. Die Dichten werden in den Grafiken als relativer Dichtefehler angezeigt, der die prozentuale Abweichung von der Ruhedichte angibt. Der relative Dichtefehler dient als Maß für die numerische Kompressibilität des Fluids; ein optimaler Wert wäre ein relativer Dichtefehler von Null. In der Praxis ist dies jedoch schwer zu erreichen, insbesondere bei numerischen Simulationen. Ziel ist es daher, ein Verständnis für die Beziehung zwischen den Parametern und dem Verhalten des Fluids zu entwickeln.
+In dem durchgeführten Säulenexperiment wird die Auswirkungen der Steifigkeit \(k\), der Viskosität \(\nu\) und des Zeitschritts \(\Delta t\) auf die lokalen Dichten aller Partikel untersucht. Hierbei wird in jedem Simulationsschritt der Mittelwert der lokalen Dichten aller Partikel ermittelt und im Verhältnis zu den Simulationsschritten bzw. der Zeit dargestellt. Die Dichten werden in den Grafiken als relativer Dichtefehler angezeigt, der die prozentuale Abweichung von der Ruhedichte angibt. Der relative Dichtefehler dient als Maß für die numerische Kompressibilität des Fluids; ein optimaler Wert wäre ein relativer Dichtefehler von Null. In der Praxis ist dies jedoch schwer zu erreichen, insbesondere bei numerischen Simulationen. Ziel ist es daher, ein Verständnis für die Beziehung zwischen den Parametern und dem Verhalten des Fluids zu entwickeln.
 
 \subsubsection{Steifigkeit k}
-Der wichtigste Parameter in diesem Zusammenhang ist der Steifigkeitsparameter \(k\). Dieser skaliert die Berechnung der lokalen Dichte \eqref{equ:localDichte} und hat einen direkten Einfluss auf die Druckbeschleunigungen \eqref{equ:druckBesch} sowie die Kompressibilität des Fluids. In Abbildung \ref{Säulenexperiment_k} wurde das Säulenexperiment mit verschiedenen Werten für \(k\) simuliert. Um die Visualisierung anschaulicher zu gestalten, wurde für dieses Experiment eine hohe Viskosität gewählt, wodurch Schwankungen des Dichtefehlers minimiert werden, was zu einem konstanten Wert führt. Auffällig ist, dass die lokale Dichte konstant bleibt und sich der Dichtefehler mit steigendem \(k\) verringert. Die lokale Dichte konvergiert dabei in Richtung der Ruhedichte. Daraus lässt sich schließen, dass eine höhere Steifigkeit \(k\) die numerische Kompressibilität des Fluids reduziert und somit die Simulation stabiler und präziser wird.
+Der wichtigste Parameter in diesem Zusammenhang ist der Steifigkeitsparameter \(k\). Dieser skaliert die Berechnung der lokalen Dichte \eqref{equ:localDichte} und hat einen direkten Einfluss auf die Druckbeschleunigung \eqref{equ:druckBesch} sowie die Kompressibilität des Fluids. In Abbildung \ref{Säulenexperiment_k} wurde das Säulenexperiment mit verschiedenen Werten für \(k\) simuliert. Um die Visualisierung anschaulicher zu gestalten, wurde für dieses Experiment eine hohe Viskosität gewählt, wodurch Schwankungen des Dichtefehlers minimiert werden, was zu einem konstanten Wert führt. Auffällig ist, dass die lokale Dichte konstant bleibt und sich der Dichtefehler mit steigendem \(k\) verringert. Die lokale Dichte konvergiert dabei in Richtung der Ruhedichte. Daraus lässt sich schließen, dass eine höhere Steifigkeit \(k\) die numerische Kompressibilität des Fluids reduziert und somit die Simulation stabiler und präziser wird.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=.85\textwidth]{graphics/Steifigkeit.png}	
-	\caption{Säulenexperiment mit Verschiedener Steifigkeit k}
+	\caption{Säulenexperiment mit verschiedener Steifigkeit k}
 	\label{Säulenexperiment_k}
 \end{figure}
 
@@ -356,22 +355,22 @@ Im zweiten Säulenexperiment wurde die Viskosität \(\nu\) variiert. Diese beein
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=.85\textwidth]{graphics/Viskosität.png}	
-	\caption{Säulenexperiment mit Verschiedener Viskosität v}
+	\caption{Säulenexperiment mit verschiedener Viskosität v}
 	\label{Säulenexperiment_v}
 \end{figure}
 
-\subsubsection{Zeitschritten $\Delta$ t}
+\subsubsection{Zeitschritt $\Delta$ t}
 Der letzte untersuchte Parameter ist der Zeitschritt \(\Delta t\). Dieser skaliert die auf die Partikel wirkende Beschleunigung und damit auch die Bewegung der Partikel. In Abbildung \ref{Säulenexperiment_t} ist zu erkennen, dass kleinere Zeitschritte \(\Delta t\) zu einer Vergrößerung der Amplitude und einer Verkleinerung der Frequenz der Dichteschwankungen führen. Die verringerte Frequenz ist darauf zurückzuführen, dass die Bewegungsdistanz der Partikel bei kleineren Zeitschritten innerhalb eines Simulationsschritts reduziert wird. Die größere Amplitude rührt daher, dass bei kleineren \(\Delta t\) auch die Beschleunigungen geringer ausfallen, was dazu führt, dass die Partikel mehrere Simulationsschritte benötigen, bis die Beschleunigungen ihre volle Wirkung entfalten. Es sollte jedoch betont werden, dass ein zu großer Zeitschritt die Simulation instabil machen kann, da wichtige physikalische Prozesse möglicherweise nicht richtig aufgelöst werden. Andererseits können zu kleine Zeitschritte die Rechenzeit erheblich verlängern, ohne einen proportionalen Nutzen in der Genauigkeit zu bringen.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=.85\textwidth]{graphics/Zeitschritt.png}	
+	\caption{Säulenexperiment mit verschiedenen Zeitschritten $\Delta$ t}
 	\label{Säulenexperiment_t}
-	\caption{Säulenexperiment mit Verschiedenen Zeitschritten $\Delta$ t}
 \end{figure}
 
 \subsection{Nachbarschaftssuche}
-Wie in Kapitel \ref{Kap:NachbarschaftsSuche} erläutert, ist die Nachbarschaftssuche das Fundament. Alle Berechnungen für die Simulation von Fluiden benötigen die Nachbarpartikel. Daher werden diese wie in Kapitel \ref{Kap:Implementierung} beschrieben, für alle Partikel in jedem Simulationsschritt ermittelt. Dabei ist eine effiziente Nachbarschaftssuche von großem Vorteil. Eine schnellere Suche ermöglicht eine weniger rechenintensive Simulation bei einer höheren Anzahl an Partikeln. In dieser Analyse wird geprüft, ob die Benutzung der Räumlichen Datenstruktur die Performance der Simulation, im Vergleich zur Quadratischen suche, positiv beeinflusst wird. Dazu werden während der Simulation kontinuierlich neue Partikel erzeugt. Dabei wird die Simulationsschrittzeit gemessen und in Verhältnis zur Anzahl an Partikeln dargestellt.
+Wie in Kapitel \ref{Kap:NachbarschaftsSuche} erläutert, ist die Nachbarschaftssuche das Fundament. Alle Berechnungen für die Simulation von Fluiden benötigen die Nachbarpartikel. Daher werden diese, wie in Kapitel \ref{Kap:Implementierung} beschrieben, für alle Partikel in jedem Simulationsschritt ermittelt. Dabei ist eine effiziente Nachbarschaftssuche von großem Vorteil. Eine schnellere Suche ermöglicht eine weniger rechenintensive Simulation bei einer höheren Anzahl an Partikeln. In dieser Analyse wird geprüft, ob die Benutzung der räumlichen Datenstruktur die Performance der Simulation, im Vergleich zur quadratischen Suche, positiv beeinflusst wird. Dazu werden während der Simulation kontinuierlich neue Partikel erzeugt. Dabei wird die Simulationsschrittzeit gemessen und im Verhältnis zur Anzahl an Partikeln dargestellt.
 
 \begin{figure}[H]
 	\centering
@@ -380,7 +379,7 @@ Wie in Kapitel \ref{Kap:NachbarschaftsSuche} erläutert, ist die Nachbarschaftss
 	\label{NachbarschaftsSuche}
 \end{figure}
 
-Wie erwartet steigert sich die Simulationsschrittzeit für die Quadratische Suche, bei erhöhen der Partikel Anzahl, Exponentiell, wobei sich die Simulationsschrittzeit bei der Räumlichen Datenstruktur linear erhöht. Die Räumliche Datenstruktur erlaubt es eine eine erhebliche höhere Anzahl an Partikeln simulieren zu können bei linearem Wachstum des Rechenaufwandes.  
+Wie erwartet steigert sich die Simulationsschrittzeit (Siehe Abbildung  \ref{NachbarschaftsSuche}) für die quadratische Suche, bei Erhöhen der Partikel Anzahl, exponentiell, wobei sich die Simulationsschrittzeit bei der räumlichen Datenstruktur linear erhöht. Die räumliche Datenstruktur erlaubt es eine erhebliche höhere Anzahl an Partikeln simulieren zu können bei linearem Wachstum des Rechenaufwandes.  
 
 \subsection{Prozessverarbeitung}
 Die Parallelisierung des Simulationsschrittes (siehe Kapitel \ref{Kap:Simulationsschritt}) trägt ebenfalls zu einer Verringerung der Simulationsschrittzeit bei. Bei dieser Analyse wird wie zuvor, die Anzahl an Partikeln kontinuierlich erhöht und die Simulationsschrittzeit gemessen. Dies wird dann mithilfe eines sequentiellen Simulationsschrittes und mit einem parallelen Simulationsschritt simuliert.
@@ -395,10 +394,10 @@ Die Parallelisierung des Simulationsschrittes (siehe Kapitel \ref{Kap:Simulation
 Die Ergebnisse (siehe Abbildung \ref{Prozessverarbeitung}) zeigen eine klare Verkürzung der Simulationsschrittzeit bei einer parallelen Prozessverarbeitung. Bei diesen Daten wird die Simulationsschrittzeit bei paralleler Verarbeitung halbiert. Dabei gilt jedoch zu beachten, dass dieser Trend je nach CPU abweichen kann.  
 
 \section{Schlussfolgerung}
-Das Ziel dieses Projekts war, eine grundlegende SPH-Simulation (Smoothed Particle Hydrodynamics) zu implementieren, ein vertieftes Verständnis für die SPH-Methode zu entwickeln und die Auswirkungen der Einstellungsparameter auf das Fluidverhalten zu analysieren. SPH erwies sich als eine leistungsfähige und zugleich einfache Methode zur Simulation von Fluiden. Im Rahmen des Projekts wurde ein einfacher SPH-Simulator erfolgreich implementiert. Durch die Integration einer beschleunigten Nachbarschaftssuche und paralleler Verarbeitung konnte eine stabilere und flüssigere Simulation mit einer größeren Anzahl von Partikeln erreicht werden.
+Das Ziel dieses Projekts ist, eine grundlegende SPH-Simulation (Smoothed Particle Hydrodynamics) zu implementieren, ein vertieftes Verständnis für die SPH-Methode zu entwickeln und die Auswirkungen der Einstellungsparameter auf das Fluidverhalten zu analysieren. SPH erwies sich als eine leistungsfähige und zugleich einfache Methode zur Simulation von Fluiden. Im Rahmen des Projekts wurde ein einfacher SPH-Simulator erfolgreich implementiert. Durch die Integration einer beschleunigten Nachbarschaftssuche und paralleler Verarbeitung konnte eine stabilere und flüssigere Simulation mit einer größeren Anzahl von Partikeln erreicht werden.
 
-Das Projekt trug maßgeblich dazu bei, ein tieferes Verständnis für die zugrunde liegenden Prozesse in SPH zu entwickeln und zu erkennen, wie komplexe Strömungen realistisch simuliert werden können. Die Analyse und Interpretation der experimentellen Ergebnisse ermöglichte es, die Einflüsse der Parameter auf das Fluidverhalten besser zu verstehen und deren Wechselwirkungen zu identifizieren. Dadurch konnte eine stabile Simulation durch gezielte Anpassung der Parameter gewährleistet werden.
 
+Das Projekt trug maßgeblich dazu bei, ein tieferes Verständnis für die zugrunde liegenden Prozesse in SPH zu entwickeln, und zu erkennen, wie komplexe Strömungen realistisch simuliert werden können. Die Analyse und Interpretation der experimentellen Ergebnisse ermöglichte es, die Einflüsse der Parameter auf das Fluidverhalten besser zu verstehen und deren Wechselwirkungen zu identifizieren. Dadurch konnte eine stabile Simulation durch gezielte Anpassung der Parameter gewährleistet werden.
 Abbildung \ref{exampleSimulation} zeigt den Ablauf des Verhalten eines Fluiden, welcher mit dem SPH-Simulator simuliert wurde. Die Flüssigkeit verhält sich stabil und realistisch, ohne unerwünschte Artefakte oder Instabilitäten. Die Anpassungen führten zu einer präziseren und natürlicheren Darstellung der Fluiddynamik.
 
 \begin{figure}[H]
