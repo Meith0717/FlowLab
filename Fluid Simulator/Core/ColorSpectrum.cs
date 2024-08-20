@@ -68,17 +68,11 @@ namespace Fluid_Simulator.Core
 
             // Let the intensity fall off near the vision limits
             if (wavelength >= 380 && wavelength < 420)
-            {
                 factor = 0.3 + 0.7 * (wavelength - 380) / (420 - 380);
-            }
             else if (wavelength >= 645 && wavelength <= 750)
-            {
                 factor = 0.3 + 0.7 * (750 - wavelength) / (750 - 645);
-            }
             else
-            {
                 factor = 1.0;
-            }
 
             int r = AdjustIntensity(red, factor, gamma, intensityMax);
             int g = AdjustIntensity(green, factor, gamma, intensityMax);
@@ -90,13 +84,8 @@ namespace Fluid_Simulator.Core
         private static int AdjustIntensity(double color, double factor, double gamma, double intensityMax)
         {
             if (color == 0.0)
-            {
                 return 0;
-            }
-            else
-            {
-                return (int)Math.Round(intensityMax * Math.Pow(color * factor, gamma));
-            }
+            return (int)Math.Round(intensityMax * Math.Pow(color * factor, gamma));
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Fluid_Simulator
             int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
-            // Set fullscreen mode
+            // Set Fullscreen mode
             _graphics.PreferredBackBufferWidth = screenWidth;
             _graphics.PreferredBackBufferHeight = screenHeight;
             _graphics.IsFullScreen = true;

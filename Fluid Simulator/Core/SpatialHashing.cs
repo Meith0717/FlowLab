@@ -5,9 +5,6 @@ using System.Linq;
 
 namespace Fluid_Simulator.Core
 {
-    /// <summary>
-    /// Represents a spatial hashing data structure for efficient object retrieval based on their coordinates.
-    /// </summary>
     public class SpatialHashing
     {
         public int Count { get; private set; }

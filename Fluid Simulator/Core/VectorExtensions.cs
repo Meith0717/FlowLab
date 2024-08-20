@@ -15,7 +15,6 @@ namespace Fluid_Simulator.Core
 
             float cosAngle = dotProduct / magnitudeProduct;
 
-            // Clamp the value to avoid NaN due to floating-point inaccuracies
             cosAngle = MathHelper.Clamp(cosAngle, -1f, 1f);
 
             return (float)Math.Acos(cosAngle);

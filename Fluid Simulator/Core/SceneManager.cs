@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.Shapes;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
