@@ -95,13 +95,13 @@ Smoothed Particle Hydrodynamics (SPH) ist eine numerische Methode zur Approximat
 Das Konzept von SPH lässt sich allgemein als eine Methode zur Diskretisierung von räumlichen Feldgrößen und räumlichen Differentialoperatoren verstehen. Die zentrale Idee von SPH ist es, Partikel einzusetzen, die Proben von Feldgrößen enthalten und eine Kernel Funktion zu nutzen, um kontinuierliche Felder zu approximieren \cite{huang2024journey}. Ein Partikel besitzt Eigenschaften wie die Masse \( m_i \), die Position \( x_i \), die Geschwindigkeit \( v_i \) und den Druck \( \rho_i \).
 
 \subsection{Kernel Funktion}
-Die Kernel Funktion \(W_{ij} = W(x_i - x_j, h)\) ist eine Funktion zur Glättung der räumlichen Diskretisierung, wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird \cite{10.1111:cgf.14508}. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel Funktion zweifach ableitbar sein und folgende Eigenschaften besitzen: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow \int_{\mathds{R}^d}\)
+Die Kernel Funktion \(W_{ij} = W(x_j - x_i, h)\) ist eine Funktion zur Glättung der räumlichen Diskretisierung, wobei \(h\) als die Glättungslänge des Kernels bezeichnet wird. Diese steuert, wie stark der Wert an Position \(x_j\) Einfluss auf den Wert an Position \(x_i\) nimmt. Dabei soll die Kernel Funktion zweifach ableitbar sein und folgende Eigenschaften besitzen \cite{10.1111:cgf.14508}: \(\forall x_i, x_j \in \mathds{R}^d, h\in \mathds{R}^+ \rightarrow\)
 \begin{align}
-	W(x_i - x_j', h) dx_j' &= 1 \label{kernelEigenschaft1}\\
-	\lim_{h'\rightarrow 0} W(x_i - x_j, h') &= \delta(r) \label{kernelEigenschaft2}\\
-	W(x_i - x_j, h) &\geq 0 \label{kernelEigenschaft3}\\
-	W(x_i - x_j, h) &= W(-(x_i - x_j), h) \label{kernelEigenschaft4}\\
-	W(x_i - x_j, h) &= 0\;:\; |x_i - x_j| \geq h \label{kernelEigenschaft5}
+	\int_{\mathds{R}^d} W(x_j - x_i, h) dx_j &= 1 \label{kernelEigenschaft1}\\
+	\lim_{h'\rightarrow 0} W(x_j - x_i, h') &= \delta(r) \label{kernelEigenschaft2}\\
+	W(x_j - x_i, h) &\geq 0 \label{kernelEigenschaft3}\\
+	W(x_j - x_i, h) &= W(-(x_j - x_i), h) \label{kernelEigenschaft4}\\
+	W(x_j - x_i, h) &= 0\;:\; |x_j - x_i| \geq h \label{kernelEigenschaft5}
 \end{align}
 wobei \(\delta(x)\) die Delta-Verteilung ist. 
 In diesem Projekt wird die Cubic Spline Kernel Funktion verwendet, wie in \cite{professor_presentation_2024} beschrieben:
@@ -115,7 +115,7 @@ In diesem Projekt wird die Cubic Spline Kernel Funktion verwendet, wie in \cite{
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{graphics/KernelPlot.png}
+	\includegraphics[width=.85\textwidth]{graphics/KernelPlot.png}
 	\caption{Plot der Kernel Funktion für Verschiedene h}
 \end{figure}
 
@@ -136,7 +136,7 @@ Die Ableitung der Kernel Funktion $W_{ij}$ \cite{professor_presentation_2024} sp
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{graphics/KernelDerivPlot.png}
+	\includegraphics[width=.85\textwidth]{graphics/KernelDerivPlot.png}
 	\caption{Plot der Kernel Ableitung Funktion für verschiedene h}
 \end{figure}
 
@@ -152,7 +152,7 @@ Dabei ist \(\rho_i\) die Dichte des Partikels \(i\), \(m_j\) die Masse des Parti
 \subsection{Impulsgleichung}
 Die Impulsgleichung beschreibt die Erhaltung des Impulses und wird in der SPH-Methode wie folgt diskretisiert:
 \[
-\frac{d v_i}{dt} = -\sum_j m_j \left( \frac{p_i}{\rho_i^2} + \frac{p_j}{\rho_j^2} \right) \nabla_i W_{ij} + 2 \nu \sum_j \frac{m_j}{\rho_j} \frac{(v_i - v_j) \times (x_i - x_j)}{(x_i - x_j) \times (x_i - x_j) + 0.01\cdot h^2} \nabla_i W_{ij} + f_i
+\frac{d v_i}{dt} = -\sum_j m_j \left( \frac{p_i}{\rho_i^2} + \frac{p_j}{\rho_j^2} \right) \nabla_i W_{ij} + 2 \nu \sum_j \frac{m_j}{\rho_j} \frac{(v_i - v_j) \times (x_j - x_i)}{(x_j - x_i) \times (x_j - x_i) + 0.01\cdot h^2} \nabla_i W_{ij} + f_i
 \]
 
 \subsubsection{Druckbeschleunigung}
@@ -165,7 +165,7 @@ Dabei sind \( p_i \) und \( p_j \) die Drücke der Partikel \( i \) und \( j \),
 \subsubsection{Viskositätsbeschleunigung}
 Die Beschleunigung aufgrund der Viskosität wird durch die folgende Gleichung \cite{monaghan1992smoothed} beschrieben:
 \begin{equation} \label{equ:viskositätBesch}
-	a_{viskosität} = 2 \nu \sum_j \frac{m_j}{\rho_j} \frac{(v_i - v_j) \cdot (x_i - x_j)}{(x_i - x_j) \cdot (x_i - x_j) + 0.01\cdot h^2} \nabla_i W_{ij}
+	a_{viskosität} = 2 \nu \sum_j \frac{m_j}{\rho_j} \frac{(v_i - v_j) \cdot (x_j - x_i)}{(x_j - x_i) \cdot (x_j - x_i) + 0.01\cdot h^2} \nabla_i W_{ij}
 \end{equation}
 Hier ist \(\nu\) die kinematische Viskosität, \( v_i \) und \( v_j \) sind die Geschwindigkeiten der Partikel \( i \) und \( j \), \( x_i \) und \( x_j \) sind die Positionen der Partikel \( i \) und \( j \), und \(\nabla_i W_{ij}\) ist der Gradient der Kernel Funktion bezüglich des Partikels \( i \).
 
@@ -221,7 +221,7 @@ Weiterhin wird die Funktionalität der Kernel Ableitung getestet. Diese ist ein 
 Ebenfalls werden die Funktionen zum Berechnen lokaler Werte getestet. Da die Partikel sich beim Test in einem idealem Gitter befinden, ergibt die Berechnung der lokalen Dichte die Ruhedichte $\rho_0$.
 \[\rho_i = \sum_{j} m_j W_{i, j} = m \sum_{j} W_{i, j} = \frac{m}{h^2} = \rho_0\]
 Daraus folgt ebenfalls dass die Funktion des lokalen Drucks 0 ergibt:
-\[p_i = k(\frac{\rho_0}{\rho_0} - 1) = k(1 - 1) = 0\]
+\[p_i = k(\frac{\rho_i}{\rho_0} - 1) = k(1 - 1) = 0\]
 
 \subsection{Tools}
 Die Simulation verfügt über einige implementierte Tools zur Steuerung der Simulation. Durch das Drücken der Taste \keys{H} öffnet sich eine Liste von Aktionen zum Steuern der Simulation. Einige der wichtigsten Aktionen werden in diesem Unterkapitel vorgestellt. 
