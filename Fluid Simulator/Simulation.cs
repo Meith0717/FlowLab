@@ -156,7 +156,7 @@ namespace Fluid_Simulator
             });
 
             if (!_paused)
-                _particleManager.Update(gameTime, FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
+                _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, _collectData);
 
             // Other Stuff
             _infoDrawer.Update(gameTime, inputState);
@@ -192,8 +192,9 @@ namespace Fluid_Simulator
             _frameCounter.UpdateFrameCouning();
             GraphicsDevice.Clear(_colorManager.BackgroundColor);
 
+            _particleManager.DrawParticles(_spriteBatch, _camera.TransformationMatrix, _particleTexture, _colorManager.BoundryColor);
+
             _spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.LinearWrap, DepthStencilState.None, RasterizerState.CullNone, null, _camera.TransformationMatrix);
-            _particleManager.DrawParticles(_spriteBatch, _spriteFont, _particleTexture, _colorManager.BoundryColor);
             _particlePlacer.Draw(_spriteBatch, _particleTexture, _colorManager.PlacerColor);
             _spriteBatch.End();
 

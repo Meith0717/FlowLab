@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin FilledCircle.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:FilledCircle.fx
+
 #begin fonts/text.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

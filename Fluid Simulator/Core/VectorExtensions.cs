@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace Fluid_Simulator.Core
 {
@@ -18,6 +19,14 @@ namespace Fluid_Simulator.Core
             cosAngle = MathHelper.Clamp(cosAngle, -1f, 1f);
 
             return (float)Math.Acos(cosAngle);
+        }
+
+        public static Vector2 Sum<T>(IEnumerable<T> scource, Func<T, Vector2> body)
+        {
+            var sum = Vector2.Zero;
+            foreach (var item in scource)
+                sum += body(item);
+            return sum;
         }
     }
 }

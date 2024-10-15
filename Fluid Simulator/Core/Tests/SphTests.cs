@@ -1,6 +1,7 @@
 
 
 using Fluid_Simulator.Core;
+using Fluid_Simulator.Core.SphComponents;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using System;
@@ -44,7 +45,7 @@ namespace Tests
                 if (neighbors.Count < 13) continue;
                 var kernelSum = 0f;
                 foreach (var neighbor in neighbors)
-                    kernelSum += SphFluidSolver.Kernel(particle.Position, neighbor.Position, ParticleSize);
+                    kernelSum += SphKernel.CubicSpline(particle.Position, neighbor.Position, ParticleSize);
                 Assert.AreEqual(kernelSum, 1 / MathF.Pow(ParticleSize, 2), 0.001);
             }
         }
@@ -53,13 +54,13 @@ namespace Tests
         {
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 75
 
-            var kernelSum = SphFluidSolver.Kernel(Vector2.Zero, Vector2.Zero, ParticleSize);
-            Assert.AreEqual(kernelSum, 4 * SphFluidSolver.KernelAlpha(ParticleSize), 0.001);
+            var kernelSum = SphKernel.CubicSpline(Vector2.Zero, Vector2.Zero, ParticleSize);
+            Assert.AreEqual(kernelSum, 4 * SphKernel.CubicSplineAlpha(ParticleSize), 0.001);
 
-            kernelSum = SphFluidSolver.Kernel(Vector2.Zero, new Vector2(ParticleSize, 0), ParticleSize);
-            Assert.AreEqual(kernelSum, SphFluidSolver.KernelAlpha(ParticleSize), 0.001);
+            kernelSum = SphKernel.CubicSpline(Vector2.Zero, new Vector2(ParticleSize, 0), ParticleSize);
+            Assert.AreEqual(kernelSum, SphKernel.CubicSplineAlpha(ParticleSize), 0.001);
 
-            kernelSum = SphFluidSolver.Kernel(Vector2.Zero, new Vector2(ParticleSize * 2, 0), ParticleSize);
+            kernelSum = SphKernel.CubicSpline(Vector2.Zero, new Vector2(ParticleSize * 2, 0), ParticleSize);
             Assert.AreEqual(kernelSum, 0);
         }
 
@@ -75,7 +76,7 @@ namespace Tests
 
                 Vector2 kernelDerivative = Vector2.Zero;
                 foreach (var neighbor in neighbors)
-                    kernelDerivative += SphFluidSolver.KernelDerivative(particle.Position, neighbor.Position, ParticleSize);
+                    kernelDerivative += SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, ParticleSize);
                 Assert.AreEqual(kernelDerivative.X, 0, 0.01);
                 Assert.AreEqual(kernelDerivative.Y, 0, 0.01);
             }
@@ -84,26 +85,26 @@ namespace Tests
         public void KernelDerivativeComputationTest()
         {
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 79
-            var kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, Vector2.Zero, ParticleSize);
+            var kernelDerivative = SphKernel.NablaCubicSpline(Vector2.Zero, Vector2.Zero, ParticleSize);
             Assert.AreEqual(0, kernelDerivative.Length());
 
-            kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(ParticleSize, 0), ParticleSize);
-            Assert.AreEqual(3 * SphFluidSolver.KernelAlpha(ParticleSize) / ParticleSize, kernelDerivative.X, 0.001);
+            kernelDerivative = SphKernel.NablaCubicSpline(Vector2.Zero, new Vector2(ParticleSize, 0), ParticleSize);
+            Assert.AreEqual(3 * SphKernel.CubicSplineAlpha(ParticleSize) / ParticleSize, kernelDerivative.X, 0.001);
             Assert.AreEqual(kernelDerivative.Y, 0);
 
-            kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(-ParticleSize, 0), ParticleSize);
-            Assert.AreEqual(-(3 * SphFluidSolver.KernelAlpha(ParticleSize) / ParticleSize), kernelDerivative.X, 0.001);
+            kernelDerivative = SphKernel.NablaCubicSpline(Vector2.Zero, new Vector2(-ParticleSize, 0), ParticleSize);
+            Assert.AreEqual(-(3 * SphKernel.CubicSplineAlpha(ParticleSize) / ParticleSize), kernelDerivative.X, 0.001);
             Assert.AreEqual(kernelDerivative.Y, 0);
 
-            kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(0, ParticleSize), ParticleSize);
+            kernelDerivative = SphKernel.NablaCubicSpline(Vector2.Zero, new Vector2(0, ParticleSize), ParticleSize);
             Assert.AreEqual(kernelDerivative.X, 0);
-            Assert.AreEqual(3 * SphFluidSolver.KernelAlpha(ParticleSize) / ParticleSize, kernelDerivative.Y, 0.001);
+            Assert.AreEqual(3 * SphKernel.CubicSplineAlpha(ParticleSize) / ParticleSize, kernelDerivative.Y, 0.001);
 
-            kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(ParticleSize), ParticleSize);
+            kernelDerivative = SphKernel.NablaCubicSpline(Vector2.Zero, new Vector2(ParticleSize), ParticleSize);
             Assert.AreEqual(kernelDerivative.X, kernelDerivative.Y);
             Assert.AreEqual(kernelDerivative.Y, -5.147 / (14 * MathF.PI * MathF.Pow(ParticleSize, 3) * MathF.Sqrt(2)), 0.001f);
 
-            kernelDerivative = SphFluidSolver.KernelDerivative(Vector2.Zero, new Vector2(-ParticleSize, ParticleSize), ParticleSize);
+            kernelDerivative = SphKernel.NablaCubicSpline(Vector2.Zero, new Vector2(-ParticleSize, ParticleSize), ParticleSize);
             Assert.AreEqual(-kernelDerivative.X, kernelDerivative.Y);
             Assert.AreEqual(kernelDerivative.Y, 5.147 / (14 * MathF.PI * MathF.Pow(ParticleSize, 3) * MathF.Sqrt(2)), 0.001f);
         }
@@ -119,7 +120,7 @@ namespace Tests
                 _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref neighbors);
                 if (neighbors.Count < 13) continue;
 
-                var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleSize, particle, neighbors);
+                var localDensity = Sph.ComputeLocalDensity(ParticleSize, particle, neighbors);
                 Assert.AreEqual(localDensity, FluidDensity, 0.001);
             }
         }
@@ -133,9 +134,9 @@ namespace Tests
                 _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref neighbors);
                 if (neighbors.Count < 13) continue;
 
-                var localDensity = SphFluidSolver.ComputeLocalDensity(ParticleSize, particle, neighbors);
+                var localDensity = Sph.ComputeLocalDensity(ParticleSize, particle, neighbors);
                 Assert.AreEqual(localDensity, FluidDensity, 0.001);
-                var localPressure = SphFluidSolver.ComputeLocalPressure(FluidStiffness, FluidDensity, localDensity);
+                var localPressure = Sph.ComputeLocalPressure(FluidStiffness, FluidDensity, localDensity);
                 Assert.AreEqual(localPressure, 0, 0.001);
             }
         }
