@@ -2,59 +2,74 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Fluid_Simulator.Core.SphComponents
 {
     internal class SPHSolver
     {
-        private Dictionary<Particle, List<Particle>> Neighbors = new();
-        public readonly Dictionary<Particle, Vector2> ViscosityAcceleration = new();
-        public readonly Dictionary<Particle, Vector2> PressureAcceleration = new();
-        public readonly Dictionary<Particle, Vector2> ParticleVelocitys = new();
         public readonly Dictionary<Particle, float> Cfl = new();
+        private IEnumerable<Particle> _noBoundaryParticles;
         private readonly object _lock = new object();
 
         private void Clear()
         {
-            Neighbors.Clear();
-            ViscosityAcceleration.Clear();
-            PressureAcceleration.Clear();
-            ParticleVelocitys.Clear();
             Cfl.Clear();
         }
 
-        public void ComputeIISPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
+        public void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
         {
-            // TODO
+            Clear();
+            Parallel.ForEach(_particles, particle => {
+                particle.NeighborParticles.Clear();
+                spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref particle.NeighborParticles);
+            });
+
+            // Pressure computation with the IISPH PPE solver
+            Parallel.ForEach(_particles, particle =>
+            {
+                particle.DiagonalElement = IISPHComponents.ComputeDiagonalElement(particle, ParticleDiameter, timeSteps);
+                particle.SourceTerm = IISPHComponents.ComputeSourceTerm(particle, ParticleDiameter, timeSteps, FluidDensity);
+                particle.Pressure = 0;
+            });
+
+            var densityAverageError = float.PositiveInfinity;
+            var iterations = 0;
+
+            while (densityAverageError < 0.1f)
+            {
+                Parallel.ForEach(_particles, particle => particle.PressureAcceleration = IISPHComponents.ComputePressureAcceleration(particle, ParticleDiameter));
+
+                var densityErrorSum = 0f;
+                Parallel.ForEach(_particles, particle => 
+                {
+                    particle.Laplacian = IISPHComponents.ComputeLaplacian(particle, timeSteps, ParticleDiameter);
+                    particle.Pressure = IISPHComponents.UpdatePressure(particle.Pressure, particle.DiagonalElement, particle.SourceTerm, particle.Laplacian);
+                    densityErrorSum += IISPHComponents.ComputeDensityError(particle.Laplacian, particle.SourceTerm, FluidDensity);
+                });
+
+                densityAverageError = densityErrorSum / _particles.Count;
+                iterations++;
+            }
         }
 
-
-        private IEnumerable<Particle> _noBoundaryParticles;
-        public void ComputeSPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
+        public void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
         {
             Clear();
             Parallel.ForEach(_particles, particle =>
             {
-                // Get neighbors Particles
-                if (!Neighbors.TryGetValue(particle, out var neighbors))
-                    neighbors = new();
-                else
-                    neighbors.Clear();
-
-                spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref neighbors);
+                var neighbors = particle.NeighborParticles;
+                neighbors.Clear();
+                spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref particle.NeighborParticles);
 
                 // Compute density
-                var localDensity = neighbors.Count <= 1 ? FluidDensity : Sph.ComputeLocalDensity(ParticleDiameter, particle, neighbors);
+                var localDensity = neighbors.Count <= 1
+                    ? FluidDensity : SESPHComponents.ComputeLocalDensity(ParticleDiameter, particle);
 
                 // Compute pressure
-                var localPressure = Sph.ComputeLocalPressure(fluidStiffness, FluidDensity, localDensity);
+                var localPressure = SESPHComponents.ComputeLocalPressure(fluidStiffness, FluidDensity, localDensity);
 
                 particle.Density = localDensity;
                 particle.Pressure = localPressure;
-
-                lock (_lock)
-                    Neighbors.Add(particle, neighbors);
             });
 
             _noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
@@ -62,35 +77,26 @@ namespace Fluid_Simulator.Core.SphComponents
             Parallel.ForEach(_noBoundaryParticles, particle =>
             {
                 // Compute non-pressure accelerations
-                var viscosityAcceleration = Sph.GetViscosityAcceleration(ParticleDiameter, fluidViscosity, particle, Neighbors[particle]);
+                var viscosityAcceleration = SESPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
 
                 // Compute pressure acceleration
-                var pressureAcceleration = Sph.GetPressureAcceleration(ParticleDiameter, particle, Neighbors[particle]);
+                var pressureAcceleration = SESPHComponents.ComputePressureAcceleration(ParticleDiameter, particle);
 
-                lock (_lock)
-                {
-                    ViscosityAcceleration.Add(particle, viscosityAcceleration);
-                    PressureAcceleration.Add(particle, pressureAcceleration);
-                }
+                var acceleration = viscosityAcceleration + new Vector2(0, gravitation) + pressureAcceleration;
+                particle.PressureAcceleration = acceleration;
             });
 
             foreach (var particle in _noBoundaryParticles)
             {
-                // Compote total acceleration & update velocity
-                var acceleration = ViscosityAcceleration[particle] + new Vector2(0, gravitation) + PressureAcceleration[particle];
-
                 // Update Velocity
-                particle.Velocity += timeSteps * acceleration;
-
+                particle.Velocity += timeSteps * particle.PressureAcceleration;
                 // Update Position
                 spatialHashing.RemoveObject(particle);
                 particle.Position += timeSteps * particle.Velocity;
                 spatialHashing.InsertObject(particle);
 
-                ParticleVelocitys.Add(particle, particle.Velocity);
                 Cfl.Add(particle, timeSteps * (particle.Velocity.Length() / ParticleDiameter));
             }
-
         }
     }
 }

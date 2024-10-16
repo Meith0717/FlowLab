@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-lst = {"Sequentielle Verarbeitung": "20240815_104526", "Parallele Verarbeitung": "20240815_103911"}
+lst = {"Sequentielle Verarbeitung": "20240815_104526", "Parallele Verarbeitung 1": "20240815_103911", "Parallele Verarbeitung 2" : "20241016_191528"}
 
 plt.figure(figsize=(10, 5))
 plt.rcParams['font.family'] = 'serif'
@@ -23,4 +23,4 @@ plt.ylabel('Simulationsschrittzeit (ms)')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(r"report\\graphics\\Prozessverarbeitung.png")
+plt.savefig(r"analytics\\Prozessverarbeitung.png")

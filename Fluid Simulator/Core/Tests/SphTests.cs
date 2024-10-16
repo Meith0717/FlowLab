@@ -113,30 +113,27 @@ namespace Tests
         {
             // https://cg.informatik.uni-freiburg.de/course_notes/sim_03_particleFluids.pdf – 76
 
-            var neighbors = new List<Particle>();
             foreach (var particle in _particles)
             {
-                neighbors.Clear();
-                _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref neighbors);
-                if (neighbors.Count < 13) continue;
+                _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref particle.NeighborParticles);
+                if (particle.NeighborParticles.Count < 13) continue;
 
-                var localDensity = Sph.ComputeLocalDensity(ParticleSize, particle, neighbors);
+                var localDensity = SESPHComponents.ComputeLocalDensity(ParticleSize, particle);
                 Assert.AreEqual(localDensity, FluidDensity, 0.001);
             }
         }
 
         public void LocalPressureIdealSamplingTest()
         {
-            var neighbors = new List<Particle>();
             foreach (var particle in _particles)
             {
-                neighbors.Clear();
-                _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref neighbors);
-                if (neighbors.Count < 13) continue;
+                particle.NeighborParticles.Clear();
+                _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref particle.NeighborParticles);
+                if (particle.NeighborParticles.Count < 13) continue;
 
-                var localDensity = Sph.ComputeLocalDensity(ParticleSize, particle, neighbors);
+                var localDensity = SESPHComponents.ComputeLocalDensity(ParticleSize, particle);
                 Assert.AreEqual(localDensity, FluidDensity, 0.001);
-                var localPressure = Sph.ComputeLocalPressure(FluidStiffness, FluidDensity, localDensity);
+                var localPressure = SESPHComponents.ComputeLocalPressure(FluidStiffness, FluidDensity, localDensity);
                 Assert.AreEqual(localPressure, 0, 0.001);
             }
         }

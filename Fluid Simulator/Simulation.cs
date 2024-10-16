@@ -70,22 +70,30 @@ namespace Fluid_Simulator
             _graphics.ApplyChanges();
 
             // Tests
+            var test = "";
             try
             {
                 _neighborSearchTests = new();
+                test = "Neighbor_Search";
                 _neighborSearchTests.Neighbor_Search();
 
                 _sphTests = new();
+                test = "KernelIdealSamplingTest";
                 _sphTests.KernelIdealSamplingTest();
+                test = "KernelComputationTest";
                 _sphTests.KernelComputationTest();
+                test = "KernelDerivativeIdealSamplingTest";
                 _sphTests.KernelDerivativeIdealSamplingTest();
+                test = "KernelDerivativeComputationTest";
                 _sphTests.KernelDerivativeComputationTest();
+                test = "LocalDensityIdealSamplingTest";
                 _sphTests.LocalDensityIdealSamplingTest();
+                test = "LocalPressureIdealSamplingTest";
                 _sphTests.LocalPressureIdealSamplingTest();
             }
             catch (AssertFailedException)
             {
-                _infoDrawer.AddMessage("Tests Failed", Color.Red);
+                _infoDrawer.AddMessage($"{test}\nFailed", Color.Red);
             }
         }
 

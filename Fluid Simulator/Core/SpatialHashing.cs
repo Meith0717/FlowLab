@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using StellarLiberation.Engine.ClassExtensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +11,7 @@ namespace Fluid_Simulator.Core
     {
         public int Count { get; private set; }
         public readonly int CellSize;
-        private readonly Dictionary<Vector2, HashSet<Particle>> mSpatialGrids = new();
+        private readonly Dictionary<Vector2, HashSet<Particle>> _spatialGrids = new();
 
         public SpatialHashing(int cellSize) => CellSize = cellSize;
 
@@ -23,10 +25,10 @@ namespace Fluid_Simulator.Core
         public void InsertObject(Particle particle)
         {
             var hash = Hash(particle.Position);
-            if (!mSpatialGrids.TryGetValue(hash, out var objectBucket))
+            if (!_spatialGrids.TryGetValue(hash, out var objectBucket))
             {
                 objectBucket = new();
-                mSpatialGrids[hash] = objectBucket;
+                _spatialGrids[hash] = objectBucket;
             }
             objectBucket.Add(particle);
             Count++;
@@ -35,14 +37,14 @@ namespace Fluid_Simulator.Core
         public void RemoveObject(Particle particle)
         {
             var hash = Hash(particle.Position);
-            if (!mSpatialGrids.TryGetValue(hash, out var objectBucket)) return;
+            if (!_spatialGrids.TryGetValue(hash, out var objectBucket)) return;
             if (!objectBucket.Remove(particle)) return;
             Count--;
-            mSpatialGrids[hash] = objectBucket;
-            if (objectBucket.Count == 0) mSpatialGrids.Remove(hash);
+            _spatialGrids[hash] = objectBucket;
+            if (objectBucket.Count == 0) _spatialGrids.Remove(hash);
         }
 
-        public void Clear() => mSpatialGrids.Clear();
+        public void Clear() => _spatialGrids.Clear();
 
         public void InRadius(Vector2 position, float radius, ref List<Particle> particleInRadius)
         {
@@ -58,8 +60,8 @@ namespace Fluid_Simulator.Core
                 foreach (var y in yRange)
                 {
                     var hash = new Vector2(x, y);
-                    if (!mSpatialGrids.ContainsKey(hash)) continue;
-                    var objectsInBucket = mSpatialGrids[hash];
+                    if (!_spatialGrids.ContainsKey(hash)) continue;
+                    var objectsInBucket = _spatialGrids[hash];
                     foreach (Particle particle in objectsInBucket)
                     {
                         var distance = Vector2.Distance(particle.Position, position);
