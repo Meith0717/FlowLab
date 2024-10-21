@@ -49,8 +49,7 @@ namespace Fluid_Simulator.Core.SphComponents
         // Eq 41
         public static Vector2 ComputePressureAcceleration(Particle particle, float particleDiameter)
         {
-            var particlePressure = particle.Pressure;
-            var particlePressureOverDensity2 =   particlePressure / (particle.Density * particle.Density) ;
+            var particlePressureOverDensity2 =   particle.Pressure / (particle.Density * particle.Density) ;
 
             return - Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
@@ -64,13 +63,10 @@ namespace Fluid_Simulator.Core.SphComponents
         private static float ComputeLaplacian(Particle particle, float timeStep, float particleDiameter)
         {
             var timeStep2 = timeStep * timeStep;
-            var particlePressureAcceleration = particle.Acceleration;
             var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
-                var neighborMass = neighbor.Mass;
-                var neighborPressureAcceleration = particlePressureAcceleration;
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighborMass * Vector2.Dot(particlePressureAcceleration - neighborPressureAcceleration, nablaCubicSpline);
+                return neighbor.Mass * Vector2.Dot(particle.Acceleration - neighbor.Acceleration, nablaCubicSpline);
             });
 
             return timeStep2 * sum;
@@ -101,7 +97,7 @@ namespace Fluid_Simulator.Core.SphComponents
             var densityAverageError = float.PositiveInfinity;
             var iterations = 0;
 
-            while (densityAverageError >= 0.01f)
+            while (densityAverageError >= 0.001f)
             {
                 foreach (var particle in particles)
                     particle.Acceleration = ComputePressureAcceleration(particle, particleDiameter);
@@ -117,7 +113,8 @@ namespace Fluid_Simulator.Core.SphComponents
                 densityAverageError = densityErrorSum / particles.Count;
                 iterations++;
 
-                if (iterations > 1000) throw new TimeoutException();
+                if (iterations > 10000) 
+                    throw new TimeoutException();
             }
         }
     }

@@ -16,7 +16,6 @@ namespace Fluid_Simulator.Core
 
         public List<Particle> NeighborParticles;
         public Vector2 Acceleration;
-        public Vector2 PressureAcceleration;
         public float DiagonalElement;
         public float SourceTerm;
         public float Laplacian;
