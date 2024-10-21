@@ -9,17 +9,16 @@ namespace Fluid_Simulator.Core.SphComponents
         // Eq 49
         private static float ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep)
         {
-
-            var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
-            {
-                var massOverDensity2 = neighbor.Mass / (neighbor.Density * neighbor.Density);
-                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return massOverDensity2 * nablaCubicSpline;
-            });
-
             var sum1 = Utilitys.Sum(particle.NeighborParticles, (neighbor) =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
+                {
+                    var massOverDensity2 = neighbor.Mass / (neighbor.Density * neighbor.Density);
+                    var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                    return massOverDensity2 * nablaCubicSpline;
+                });
+
                 return neighbor.Mass * Vector2.Dot(sum, nablaCubicSpline);
             });
 
@@ -31,7 +30,7 @@ namespace Fluid_Simulator.Core.SphComponents
             });
 
             var timeStep2 = timeStep * timeStep;
-            return - (timeStep2 * sum1) - (timeStep2 * sum2);
+            return (- timeStep2 * sum1) - (timeStep2 * sum2);
         }
 
         // Eq 39
@@ -84,7 +83,6 @@ namespace Fluid_Simulator.Core.SphComponents
         public static float ComputeDensityError(float laplacian, float sourceTerm, float fluidDensity)
             => (laplacian - sourceTerm) / fluidDensity;
 
-
         public static void SolveLocalPressures(List<Particle> particles, float particleDiameter, float timeStep, float fluidDensity)
         {
             foreach (var particle in particles)
@@ -94,8 +92,8 @@ namespace Fluid_Simulator.Core.SphComponents
                 particle.Pressure = 0;
             }
 
-            var densityAverageError = float.PositiveInfinity;
             var iterations = 0;
+            var densityAverageError = float.PositiveInfinity;
 
             while (densityAverageError >= 0.001f)
             {

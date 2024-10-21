@@ -94,7 +94,7 @@ namespace Fluid_Simulator.Core
 
         public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
-            _sphSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidViscosity, gravitation, timeSteps);
+            _sphSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
 
             // Collect Data
             if (_particles.Count <= 0 || !collectData) return;

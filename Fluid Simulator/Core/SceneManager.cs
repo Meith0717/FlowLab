@@ -28,7 +28,7 @@ namespace Fluid_Simulator.Core
 
             _scenes = new()
             {
-                { PolygonFactory.CreateRectangle(5, 130), () => { _particlePlacer.GetBlock(Vector2.Zero, 5, 130);   _particlePlacer.Place(); } },
+                { PolygonFactory.CreateRectangle(5, 130), null },
                 { PolygonFactory.CreateRectangle(170, 130), null },
                 { PolygonFactory.CreateRectangle(170, 170), null },
                 { PolygonFactory.CreateRectangle(250, 150), null },
