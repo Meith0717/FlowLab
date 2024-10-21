@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace Fluid_Simulator.Core.SphComponents
@@ -11,28 +12,26 @@ namespace Fluid_Simulator.Core.SphComponents
 
             var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
-                var mass = neighbor.Mass;
-                var density2 = neighbor.Density * neighbor.Density;
+                var massOverDensity2 = neighbor.Mass / (neighbor.Density * neighbor.Density);
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return mass / density2 * nablaCubicSpline;
+                return massOverDensity2 * nablaCubicSpline;
             });
 
             var sum1 = Utilitys.Sum(particle.NeighborParticles, (neighbor) =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * Vector2.Dot(- sum, nablaCubicSpline);
+                return neighbor.Mass * Vector2.Dot(sum, nablaCubicSpline);
             });
 
-            var timeStep2 = timeStep * timeStep;
-            var massDensity2 = particle.Mass / (particle.Density * particle.Density);
-
+            var massOverDensity2 = particle.Mass / (particle.Density * particle.Density);
             var sum2 = Utilitys.Sum(particle.NeighborParticles, (neighbor) =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * Vector2.Dot((massDensity2 * nablaCubicSpline), nablaCubicSpline);
+                return neighbor.Mass * Vector2.Dot((massOverDensity2 * nablaCubicSpline), nablaCubicSpline);
             });
 
-            return timeStep2 * sum1 + timeStep2 * sum2;
+            var timeStep2 = timeStep * timeStep;
+            return - (timeStep2 * sum1) - (timeStep2 * sum2);
         }
 
         // Eq 39
@@ -44,7 +43,7 @@ namespace Fluid_Simulator.Core.SphComponents
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
                 return particle.Mass * Vector2.Dot(particle.Velocity - neighbor.Velocity, nablaCubicSpline);
             });
-            return fluidDensity - particle.Density - timeStep2 * sum;
+            return fluidDensity - particle.Density - (timeStep2 * sum);
         }
 
         // Eq 41
@@ -102,7 +101,7 @@ namespace Fluid_Simulator.Core.SphComponents
             var densityAverageError = float.PositiveInfinity;
             var iterations = 0;
 
-            while (densityAverageError >= 0.001f)
+            while (densityAverageError >= 0.01f)
             {
                 foreach (var particle in particles)
                     particle.Acceleration = ComputePressureAcceleration(particle, particleDiameter);
@@ -117,6 +116,8 @@ namespace Fluid_Simulator.Core.SphComponents
 
                 densityAverageError = densityErrorSum / particles.Count;
                 iterations++;
+
+                if (iterations > 1000) throw new TimeoutException();
             }
         }
     }

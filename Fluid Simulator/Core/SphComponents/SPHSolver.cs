@@ -35,7 +35,7 @@ namespace Fluid_Simulator.Core.SphComponents
                 particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
             }
 
-            // IISPHComponents.SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity); // <- TODO: Rest ist working fine
+            IISPHComponents.SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity); // <- TODO: Rest ist working fine
 
             foreach (var particle in _noBoundaryParticles)
             {
