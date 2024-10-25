@@ -1,4 +1,5 @@
 ﻿using Fluid_Simulator.Core;
+using Fluid_Simulator.Core.ParticleManagement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;

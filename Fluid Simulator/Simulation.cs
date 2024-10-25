@@ -1,4 +1,6 @@
 ﻿using Fluid_Simulator.Core;
+using Fluid_Simulator.Core.ColorManagement;
+using Fluid_Simulator.Core.ParticleManagement;
 using Fluid_Simulator.Core.Profiling;
 using Fluid_Simulator.Core.ScenarioManagement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -6,9 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using Tests;
 
 namespace Fluid_Simulator
@@ -25,14 +25,14 @@ namespace Fluid_Simulator
         private SpriteBatch _spriteBatch;
         private ParticleManager _particleManager;
         private readonly GraphicsDeviceManager _graphics;
-        private readonly InputManager _inputManager;
-        private readonly ScenarioManager _sceneManager;
+        private readonly InputManager _inputManager = new();
+        private readonly ScenarioManager _sceneManager = new();
         private readonly ParticlePlacer _particlePlacer;
-        private readonly Camera _camera;
-        private readonly Serializer _serializer;
-        private readonly FrameCounter _frameCounter;
-        private readonly ColorManager _colorManager;
-        private readonly InfoDrawer _infoDrawer;
+        private readonly Camera _camera = new();
+        private readonly Serializer _serializer = new("Fluid_Simulator");
+        private readonly FrameCounter _frameCounter = new(100);
+        private readonly ColorManager _colorManager = new();
+        private readonly InfoDrawer _infoDrawer = new();
         private readonly NeighborSearchTests _neighborSearchTests;
         private readonly SphTests _sphTests;
         private readonly DataCollector _performanceCollector;
@@ -40,17 +40,10 @@ namespace Fluid_Simulator
         public Simulation()
         {
             _graphics = new GraphicsDeviceManager(this);
-            _inputManager = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
             _performanceCollector = new("performance", new() { "fps", "frameDuration", "particleCount" });
 
             _particlePlacer = new(_particleManager, ParticleDiameter);
-            _sceneManager = new(_particleManager, _particlePlacer);
-            _camera = new();
-            _serializer = new("Fluid_Simulator");
-            _frameCounter = new(100);
-            _colorManager = new();
-            _infoDrawer = new();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
@@ -98,22 +91,13 @@ namespace Fluid_Simulator
             }
         }
 
-        private Dictionary<string, JsonElement> LoadJsonDictionary(string filePath)
-        {
-            using StreamReader reader = new(filePath);
-            string jsonString = reader.ReadToEnd();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString, options);
-            return dict;
-        }
-
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _particleTexture = Content.Load<Texture2D>(@"particle");
             _spriteFont = Content.Load<SpriteFont>(@"fonts/text");
             _infoDrawer.LoadContent(Content);
-            var simulationProperties = LoadJsonDictionary(Path.Combine(Content.RootDirectory, "SimulationProperties.json"));
+            var simulationProperties = Utilitys.LoadJsonDictionary(Path.Combine(Content.RootDirectory, "SimulationProperties.json"));
             TimeSteps = simulationProperties["TimeSteps"].GetSingle();
             FluidStiffness = simulationProperties["FluidStiffness"].GetSingle();
             FluidViscosity = simulationProperties["FluidViscosity"].GetSingle();
@@ -149,15 +133,16 @@ namespace Fluid_Simulator
             inputState.DoAction(ActionType.ScreenShot, () => Screenshot(gameTime));
 
             // Camera Stuff
-            _camera.Update(_graphics.GraphicsDevice);
+            _camera.Update(new(_graphics.GraphicsDevice.Viewport.Width, _graphics.GraphicsDevice.Viewport.Height));
             CameraMover.ControllZoom(gameTime, inputState, _camera, .05f, 20);
 
             // Main Stuff
-            _sceneManager.Update(inputState);
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             _particlePlacer.Update(inputState, _camera);
 
+            inputState.DoAction(ActionType.NextScene, () => { _sceneManager.NextScene(_particleManager); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.TogglePause, () => { _paused = !_paused; _infoDrawer.AddMessage(_paused ? "Paused" : "Resume", _colorManager.TextColor); });
+
             inputState.DoAction(ActionType.ToggleData, () =>
             {
                 _collectData = !_collectData; _infoDrawer.AddMessage(_collectData ? "Start collect data" : "Stop collect data", _colorManager.TextColor);
@@ -209,7 +194,7 @@ namespace Fluid_Simulator
 
             _spriteBatch.Begin();
             _spriteBatch.DrawString(_spriteFont, $"{Math.Round(_frameCounter.CurrentFramesPerSecond).ToString()} fps", new(5), _colorManager.TextColor, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
-            _spriteBatch.DrawString(_spriteFont, $"{_particleManager.Count} Particels", new(5, 30), _colorManager.TextColor, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
+            _spriteBatch.DrawString(_spriteFont, $"{_particleManager.Count} Particles", new(5, 30), _colorManager.TextColor, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
             _spriteBatch.DrawString(_spriteFont, "Pause", new(5, 55), _paused ? Color.LightGreen : Color.Red, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
             _spriteBatch.DrawString(_spriteFont, "Collect Data", new(5, 80), _collectData ? Color.LightGreen : Color.Red, 0, Vector2.Zero, InfoDrawer.TextScale, SpriteEffects.None, 1);
 

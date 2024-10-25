@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace Fluid_Simulator.Core
+namespace Fluid_Simulator.Core.ColorManagement
 {
     public class ColorSpectrum
     {

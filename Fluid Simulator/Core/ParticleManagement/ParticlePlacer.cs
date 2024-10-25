@@ -4,7 +4,7 @@ using MonoGame.Extended;
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System.Collections.Generic;
 
-namespace Fluid_Simulator.Core
+namespace Fluid_Simulator.Core.ParticleManagement
 {
     internal class ParticlePlacer
     {
@@ -86,8 +86,8 @@ namespace Fluid_Simulator.Core
 
         public void GetBlock(Vector2 position, int xAmount, int yAmount)
         {
-            position.X -= (xAmount * _particleDiameter) / 2f;
-            position.Y -= (yAmount * _particleDiameter) / 2f;
+            position.X -= xAmount * _particleDiameter / 2f;
+            position.Y -= yAmount * _particleDiameter / 2f;
             for (int i = 0; i < xAmount; i++)
                 for (int j = 0; j < yAmount; j++)
                     _particles.Add(position + new Vector2(i, j) * _particleDiameter);
@@ -95,13 +95,13 @@ namespace Fluid_Simulator.Core
 
         public void GetCircle(Vector2 position, int diameterAmount)
         {
-            position.X -= (diameterAmount * _particleDiameter) / 2f;
-            position.Y -= (diameterAmount * _particleDiameter) / 2f;
+            position.X -= diameterAmount * _particleDiameter / 2f;
+            position.Y -= diameterAmount * _particleDiameter / 2f;
             var circle = new CircleF(position + new Vector2(diameterAmount * _particleDiameter / 2), diameterAmount / 2 * _particleDiameter);
             for (int i = 0; i < diameterAmount; i++)
                 for (int j = 0; j < diameterAmount; j++)
                 {
-                    var pos = position + (new Vector2(i, j) * _particleDiameter);
+                    var pos = position + new Vector2(i, j) * _particleDiameter;
                     if (!circle.Contains(pos)) continue;
                     _particles.Add(pos);
                 }

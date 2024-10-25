@@ -1,7 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using StellarLiberation.Engine.ClassExtensions;
+﻿using Fluid_Simulator.Core.ParticleManagement;
+using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 

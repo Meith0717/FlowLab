@@ -1,4 +1,5 @@
-﻿using Fluid_Simulator.Core.Profiling;
+﻿using Fluid_Simulator.Core.ColorManagement;
+using Fluid_Simulator.Core.Profiling;
 using Fluid_Simulator.Core.SphComponents;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -8,8 +9,8 @@ using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
- 
-namespace Fluid_Simulator.Core
+
+namespace Fluid_Simulator.Core.ParticleManagement
 {
     internal class ParticleManager
     {
@@ -31,7 +32,7 @@ namespace Fluid_Simulator.Core
             DataCollector = new("physics", new() { "relativeDensityError", "localPressure", "CFL" });
         }
 
-        public void LoadContent(ContentManager content) 
+        public void LoadContent(ContentManager content)
             => _effect = content.Load<Effect>("FilledCircle");
 
         public void AddPolygon(Polygon polygon)
@@ -89,7 +90,7 @@ namespace Fluid_Simulator.Core
             _spatialHashing.InsertObject(particle);
         }
 
-        public int Count 
+        public int Count
             => _particles.Count;
 
         public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
@@ -103,16 +104,16 @@ namespace Fluid_Simulator.Core
             DataCollector.AddData("localPressure", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Pressure));
             DataCollector.AddData("CFL", Math.Round(_sphSolver.Cfl.Values.Max(), 4));
         }
-         
+
         public void DrawParticles(SpriteBatch spriteBatch, Matrix transformationMatrix, Texture2D particleTexture, Color boundaryColor)
         {
             spriteBatch.Begin(transformMatrix: transformationMatrix, effect: _effect, blendState: BlendState.AlphaBlend);
             foreach (var particle in _particles)
             {
                 var position = particle.Position;
-                Color color = (!particle.IsBoundary && _sphSolver.Cfl.TryGetValue(particle, out var cfl)) ? ColorSpectrum.ValueToColor(cfl / .2) : boundaryColor;
+                Color color = !particle.IsBoundary && _sphSolver.Cfl.TryGetValue(particle, out var cfl) ? ColorSpectrum.ValueToColor(cfl / .2) : boundaryColor;
 
-                spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width + .05f, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             }
             spriteBatch.End();
         }

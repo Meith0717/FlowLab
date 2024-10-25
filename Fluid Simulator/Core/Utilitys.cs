@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace Fluid_Simulator.Core
 {
@@ -20,6 +22,15 @@ namespace Fluid_Simulator.Core
             foreach (var item in scource)
                 sum += body(item);
             return sum;
+        }
+
+        public static Dictionary<string, JsonElement> LoadJsonDictionary(string filePath)
+        {
+            using StreamReader reader = new(filePath);
+            string jsonString = reader.ReadToEnd();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString, options);
+            return dict;
         }
     }
 }

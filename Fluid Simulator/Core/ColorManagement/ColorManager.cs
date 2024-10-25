@@ -2,7 +2,7 @@
 using StellarLiberation.Game.Core.CoreProceses.InputManagement;
 using System.Collections.Generic;
 
-namespace Fluid_Simulator.Core
+namespace Fluid_Simulator.Core.ColorManagement
 {
     internal class ColorManager
     {

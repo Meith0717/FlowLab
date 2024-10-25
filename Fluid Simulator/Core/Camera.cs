@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
 namespace Fluid_Simulator.Core
@@ -20,7 +19,8 @@ namespace Fluid_Simulator.Core
             Rotation = 0;
         }
 
-        public void Update(GraphicsDevice graphicsDevice) => TransformationMatrix = CreateViewTransformationMatrix(Position, Zoom, Rotation, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+        public void Update(Size dimension) 
+            => TransformationMatrix = CreateViewTransformationMatrix(Position, Zoom, Rotation, dimension.Width, dimension.Height);
 
         private static Matrix CreateViewTransformationMatrix(Vector2 cameraPosition, float cameraZoom, float cameraRotation,
                 int screenWidth, int screenHeight)
@@ -33,8 +33,10 @@ namespace Fluid_Simulator.Core
             return translationMatrix * scaleMatrix * rotationMatrix * screenCenterMatrix;
         }
 
-        public Vector2 ScreenToWorld(Vector2 screenPosition) => Vector2.Transform(screenPosition, Matrix.Invert(TransformationMatrix));
+        public Vector2 ScreenToWorld(Vector2 screenPosition)
+            => Vector2.Transform(screenPosition, Matrix.Invert(TransformationMatrix));
 
-        public Vector2 WorldToScreen(Vector2 worldPosition) => Vector2.Transform(worldPosition, TransformationMatrix);
+        public Vector2 WorldToScreen(Vector2 worldPosition) 
+            => Vector2.Transform(worldPosition, TransformationMatrix);
     }
 }

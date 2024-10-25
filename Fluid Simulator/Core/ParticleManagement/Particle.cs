@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Fluid_Simulator.Core
+namespace Fluid_Simulator.Core.ParticleManagement
 {
     public class Particle
     {

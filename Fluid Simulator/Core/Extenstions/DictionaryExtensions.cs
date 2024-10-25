@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace StellarLiberation.Engine.ClassExtensions
+namespace Fluid_Simulator.Core.Extenstions
 {
     public static class DictionaryExtensions
     {

@@ -1,6 +1,7 @@
 
 
 using Fluid_Simulator.Core;
+using Fluid_Simulator.Core.ParticleManagement;
 using Fluid_Simulator.Core.SphComponents;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
