@@ -8,7 +8,7 @@ using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+ 
 namespace Fluid_Simulator.Core
 {
     internal class ParticleManager
@@ -94,7 +94,8 @@ namespace Fluid_Simulator.Core
 
         public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
-            _sphSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidViscosity, gravitation, timeSteps);
+            // _sphSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidViscosity, gravitation, timeSteps);
+            _sphSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
 
             // Collect Data
             if (_particles.Count <= 0 || !collectData) return;
@@ -102,16 +103,16 @@ namespace Fluid_Simulator.Core
             DataCollector.AddData("localPressure", (float)_particles.Where((p) => !p.IsBoundary).Average(particle => particle.Pressure));
             DataCollector.AddData("CFL", Math.Round(_sphSolver.Cfl.Values.Max(), 4));
         }
-
+         
         public void DrawParticles(SpriteBatch spriteBatch, Matrix transformationMatrix, Texture2D particleTexture, Color boundaryColor)
         {
-            spriteBatch.Begin(transformMatrix: transformationMatrix, effect: _effect);
+            spriteBatch.Begin(transformMatrix: transformationMatrix, effect: _effect, blendState: BlendState.AlphaBlend);
             foreach (var particle in _particles)
             {
                 var position = particle.Position;
                 Color color = (!particle.IsBoundary && _sphSolver.Cfl.TryGetValue(particle, out var cfl)) ? ColorSpectrum.ValueToColor(cfl / .2) : boundaryColor;
 
-                spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width + .05f, SpriteEffects.None, 0);
             }
             spriteBatch.End();
         }

@@ -7,7 +7,7 @@ namespace Fluid_Simulator.Core.SphComponents
     internal static class IISPHComponents
     {
         // Eq 49
-        private static float ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep)
+        public static float ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep)
         {
             var sum1 = Utilitys.Sum(particle.NeighborParticles, (neighbor) =>
             {
@@ -34,7 +34,7 @@ namespace Fluid_Simulator.Core.SphComponents
         }
 
         // Eq 39
-        private static float ComputeSourceTerm(Particle particle, float particleDiameter, float timeStep, float fluidDensity)
+        public static float ComputeSourceTerm(Particle particle, float particleDiameter, float timeStep, float fluidDensity)
         {
             var timeStep2 = timeStep * timeStep;
             var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
@@ -59,7 +59,7 @@ namespace Fluid_Simulator.Core.SphComponents
         }
 
         // Eq 40
-        private static float ComputeLaplacian(Particle particle, float timeStep, float particleDiameter)
+        public static float ComputeLaplacian(Particle particle, float timeStep, float particleDiameter)
         {
             var timeStep2 = timeStep * timeStep;
             var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
@@ -72,7 +72,7 @@ namespace Fluid_Simulator.Core.SphComponents
         }
 
         // Eq 48
-        private static float UpdatePressure(float pressure, float diagonalElement, float sourceTerm, float laplacian)
+        public static float UpdatePressure(float pressure, float diagonalElement, float sourceTerm, float laplacian)
         {
             var omegaOverDiagonalElement = .5f / diagonalElement;
             var diff = sourceTerm - laplacian;
@@ -83,37 +83,5 @@ namespace Fluid_Simulator.Core.SphComponents
         public static float ComputeDensityError(float laplacian, float sourceTerm, float fluidDensity)
             => (laplacian - sourceTerm) / fluidDensity;
 
-        public static void SolveLocalPressures(List<Particle> particles, float particleDiameter, float timeStep, float fluidDensity)
-        {
-            foreach (var particle in particles)
-            {
-                particle.DiagonalElement = ComputeDiagonalElement(particle, particleDiameter, timeStep);
-                particle.SourceTerm = ComputeSourceTerm(particle, particleDiameter, timeStep, fluidDensity);
-                particle.Pressure = 0;
-            }
-
-            var iterations = 0;
-            var densityAverageError = float.PositiveInfinity;
-
-            while (densityAverageError >= 0.001f)
-            {
-                foreach (var particle in particles)
-                    particle.Acceleration = ComputePressureAcceleration(particle, particleDiameter);
-
-                var densityErrorSum = 0f;
-                foreach (var particle in particles)
-                {
-                    particle.Laplacian = ComputeLaplacian(particle, timeStep, particleDiameter);
-                    particle.Pressure = UpdatePressure(particle.Pressure, particle.DiagonalElement, particle.SourceTerm, particle.Laplacian);
-                    densityErrorSum += ComputeDensityError(particle.Laplacian, particle.SourceTerm, fluidDensity);
-                }
-
-                densityAverageError = densityErrorSum / particles.Count;
-                iterations++;
-
-                if (iterations > 10000) 
-                    throw new TimeoutException();
-            }
-        }
     }
 }

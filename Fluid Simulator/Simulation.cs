@@ -1,5 +1,6 @@
 ﻿using Fluid_Simulator.Core;
 using Fluid_Simulator.Core.Profiling;
+using Fluid_Simulator.Core.ScenarioManagement;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -25,7 +26,7 @@ namespace Fluid_Simulator
         private ParticleManager _particleManager;
         private readonly GraphicsDeviceManager _graphics;
         private readonly InputManager _inputManager;
-        private readonly SceneManager _sceneManager;
+        private readonly ScenarioManager _sceneManager;
         private readonly ParticlePlacer _particlePlacer;
         private readonly Camera _camera;
         private readonly Serializer _serializer;

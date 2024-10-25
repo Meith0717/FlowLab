@@ -6,10 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Fluid_Simulator.Core
+namespace Fluid_Simulator.Core.ScenarioManagement
 {
-
-    internal class SceneManager
+    internal class ScenarioManager
     {
         private readonly Dictionary<Polygon, Action> _scenes;
         private readonly ParticleManager _particleManager;
@@ -20,7 +19,7 @@ namespace Fluid_Simulator.Core
         public Rectangle SceneBoundry
             => _sceneBoundry.ToRectangle();
 
-        public SceneManager(ParticleManager particleManager, ParticlePlacer particlePlacer)
+        public ScenarioManager(ParticleManager particleManager, ParticlePlacer particlePlacer)
         {
             _particleManager = particleManager;
             _particlePlacer = particlePlacer;
