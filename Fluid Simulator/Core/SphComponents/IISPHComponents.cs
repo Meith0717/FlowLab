@@ -1,7 +1,5 @@
 ﻿using Fluid_Simulator.Core.ParticleManagement;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace Fluid_Simulator.Core.SphComponents
 {
@@ -84,6 +82,5 @@ namespace Fluid_Simulator.Core.SphComponents
         // Stop criterion p 13 Techniques for the Physics Based Simulation of Fluids and Solids
         public static float ComputeDensityError(float laplacian, float sourceTerm, float fluidDensity)
             => (laplacian - sourceTerm) / fluidDensity;
-
     }
 }

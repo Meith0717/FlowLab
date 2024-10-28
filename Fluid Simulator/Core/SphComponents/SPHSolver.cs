@@ -15,7 +15,7 @@ namespace Fluid_Simulator.Core.SphComponents
 
         private void Clear() => Cfl.Clear();
 
-        private static void SolveLocalPressures(List<Particle> particles, float particleDiameter, float timeStep, float fluidDensity)
+        private static void SolveLocalPressures(List<Particle> particles, float particleDiameter, float timeStep, float fluidDensity, out int iterations)
         {
             foreach (var particle in particles)
             {
@@ -24,7 +24,7 @@ namespace Fluid_Simulator.Core.SphComponents
                 particle.Pressure = 0;
             }
 
-            var iterations = 0;
+            iterations = 0;
             var densityAverageError = float.PositiveInfinity;
 
             while (densityAverageError >= 0.001f)
@@ -40,6 +40,7 @@ namespace Fluid_Simulator.Core.SphComponents
                     densityErrorSum += IISPHComponents.ComputeDensityError(particle.Laplacian, particle.SourceTerm, fluidDensity);
                 }
 
+                // TODO densityAverageError is negative??? Why??? Solve it!!!
                 densityAverageError = densityErrorSum / particles.Count;
                 iterations++;
 
@@ -70,7 +71,8 @@ namespace Fluid_Simulator.Core.SphComponents
                 particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
             }
 
-            SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity); // <- TODO: Rest ist working fine
+            SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity, out var iterations); // <- TODO: Rest ist working fine
+            System.Diagnostics.Debug.WriteLine(iterations);
 
             foreach (var particle in _noBoundaryParticles)
             {
