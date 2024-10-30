@@ -54,13 +54,13 @@ namespace Fluid_Simulator
             _graphics.SynchronizeWithVerticalRetrace = false;
 
             // Get screen size
-            int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            //int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            //int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             // Set Fullscreen mode
-            _graphics.PreferredBackBufferWidth = screenWidth;
-            _graphics.PreferredBackBufferHeight = screenHeight;
-            _graphics.IsFullScreen = true;
+            _graphics.PreferredBackBufferWidth = 1500;
+            _graphics.PreferredBackBufferHeight = 800;
+            _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
             // Tests

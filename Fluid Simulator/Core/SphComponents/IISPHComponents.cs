@@ -1,5 +1,6 @@
 ﻿using Fluid_Simulator.Core.ParticleManagement;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace Fluid_Simulator.Core.SphComponents
 {
@@ -15,14 +16,14 @@ namespace Fluid_Simulator.Core.SphComponents
                 return massOverDensity2 * nablaCubicSpline;
             });
 
-            var sum1 = Utilitys.Sum(particle.NeighborParticles, (neighbor) =>
+            var sum1 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
                 return neighbor.Mass * Vector2.Dot(innerSum, nablaCubicSpline);
             });
 
             var massOverDensity2 = particle.Mass / (particle.Density * particle.Density);
-            var sum2 = Utilitys.Sum(particle.NeighborParticles, (neighbor) =>
+            var sum2 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
                 return neighbor.Mass * Vector2.Dot((massOverDensity2 * nablaCubicSpline), nablaCubicSpline);
@@ -71,16 +72,19 @@ namespace Fluid_Simulator.Core.SphComponents
         }
 
         // Eq 48 Techniques for the Physics Based Simulation of Fluids and Solids
-        public static float UpdatePressure(float pressure, float diagonalElement, float sourceTerm, float laplacian)
+        public static float UpdatePressure(float pressure, float diagonalElement, float sourceTerm, float laplacian, float omega = .5f)
         {
-            var omegaOverDiagonalElement = .5f / diagonalElement;
             var diff = sourceTerm - laplacian;
-            var value = pressure + (omegaOverDiagonalElement * diff);
+            var diffOverDiagonalElement = diff / diagonalElement;
+            var value = pressure + (omega * diffOverDiagonalElement);
             return float.Max(value, 0);
         }
 
         // Stop criterion p 13 Techniques for the Physics Based Simulation of Fluids and Solids
         public static float ComputeDensityError(float laplacian, float sourceTerm, float fluidDensity)
-            => (laplacian - sourceTerm) / fluidDensity;
+        {
+            var error = Math.Abs(laplacian - sourceTerm) / fluidDensity;
+            return error;
+        }
     }
 }

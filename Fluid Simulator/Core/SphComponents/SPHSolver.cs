@@ -15,7 +15,7 @@ namespace Fluid_Simulator.Core.SphComponents
 
         private void Clear() => Cfl.Clear();
 
-        private static void SolveLocalPressures(List<Particle> particles, float particleDiameter, float timeStep, float fluidDensity, out int iterations)
+        private static void SolveLocalPressures(List<Particle> particles, float particleDiameter, float timeStep, float fluidDensity, out int iterations, out float densityAverageError)
         {
             foreach (var particle in particles)
             {
@@ -23,11 +23,11 @@ namespace Fluid_Simulator.Core.SphComponents
                 particle.SourceTerm = IISPHComponents.ComputeSourceTerm(particle, particleDiameter, timeStep, fluidDensity);
                 particle.Pressure = 0;
             }
-
+            
             iterations = 0;
-            var densityAverageError = float.PositiveInfinity;
+            densityAverageError = float.PositiveInfinity;
 
-            while (densityAverageError >= 0.001f)
+            while (densityAverageError >= float.PositiveInfinity || iterations < 10) // 0.001
             {
                 foreach (var particle in particles)
                     particle.Acceleration = SPHComponents.ComputePressureAcceleration(particleDiameter, particle);
@@ -40,11 +40,11 @@ namespace Fluid_Simulator.Core.SphComponents
                     densityErrorSum += IISPHComponents.ComputeDensityError(particle.Laplacian, particle.SourceTerm, fluidDensity);
                 }
 
-                // TODO densityAverageError is negative??? Why??? Solve it!!!
                 densityAverageError = densityErrorSum / particles.Count;
+
                 iterations++;
 
-                if (iterations > 10000)
+                if (iterations > 1000) 
                     throw new TimeoutException();
             }
         }
@@ -64,15 +64,15 @@ namespace Fluid_Simulator.Core.SphComponents
                 particle.Density = SPHComponents.ComputeLocalDensity(ParticleDiameter, particle);
             }
 
-            foreach (var particle in _particles)
+            foreach (var particle in _noBoundaryParticles)
             {
                 // Predict Velocity for non-pressure accelerations
                 var visAcceleration = SPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
                 particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
             }
 
-            SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity, out var iterations); // <- TODO: Rest ist working fine
-            System.Diagnostics.Debug.WriteLine(iterations);
+            SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity, out var iterations, out var error); // <- TODO: Rest ist working fine
+            //System.Diagnostics.Debug.WriteLine($"Iterations: {iterations}, Error: {error}");
 
             foreach (var particle in _noBoundaryParticles)
             {
