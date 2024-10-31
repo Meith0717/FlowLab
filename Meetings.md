@@ -12,17 +12,18 @@
 ---
 ## Meeting 01 (31.10.24)
 - **Preparation:**
-    - Diagonal element: Gewicht wie stark ein Partikel von seinem eigenem Druck beeinflusst wird
-    - Scource Therm: abweichung zur ruhedichte
+  - Fehler an der Boundary behoben -> wurde Geschwindigkeit berechnet (unnötig)
+  - Diagonal element: Gewicht wie stark ein Partikel von seinem eigenem Druck beeinflusst wird
+  - Scource Therm: abweichung zur ruhedichte
 - **Questions:**
-    - Fehler Komvergiert nicht 
-        -  Druck bleibt Null 
-        - Druck Update ist kleiner 0
-        - Diagonal Element ist kleiner 0
+  - Fehler Komvergiert nicht 
+    -  Druck bleibt Null 
+    - Druck Update ist kleiner 0
+    - Diagonal Element ist kleiner 0
 
-    - Diagonal Element Formel 
+  - Diagonal Element Formel 
 
-    - Meine Gliederung für die Arbeit:
+  - Meine Gliederung für die Arbeit:
     ``` 
     1. Deckblatt: Titel der Arbeit, Name des Verfassers, Universität, Datum, etc.
     2. Abstract: Kurze Zusammenfassung der Arbeit (Thema, Ziel, Methodik, Ergebnisse).
