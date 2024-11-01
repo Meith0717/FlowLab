@@ -44,7 +44,12 @@
     13. Eidesstattliche Erklärung
     ```
 - **Notes:**
-    - TODO
+    - ISPH -> Lösung der Poisson Gleichung
+    - IISPH -> Methode für ISHP
+    - Feher Betrag berechnen
+    - Omega kleiner -> Diagonal Element
+    - Diagonal element 0
+    - Zeitschritt fehlerquelle
 ---
 # Template
 ## Meeting x (date)
