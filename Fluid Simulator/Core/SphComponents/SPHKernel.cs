@@ -9,7 +9,7 @@ namespace Fluid_Simulator.Core.SphComponents
         private const float kernelCorrection = 0.04f / 0.0400344729f;
 
         public static float CubicSplineAlpha(float particelDiameter)
-            => 5 / (14 * MathF.PI * MathF.Pow(particelDiameter, 2));
+            => 5 / (14 * MathF.PI * float.Pow(particelDiameter, 2));
 
         private static float DistanceOverH(Vector2 pos1, Vector2 pos2, float H)
             => Vector2.Distance(pos1, pos2) / H;
@@ -18,8 +18,8 @@ namespace Fluid_Simulator.Core.SphComponents
         {
             var alpha = CubicSplineAlpha(particelDiameter);
             var distanceOverH = DistanceOverH(position1, position2, particelDiameter);
-            var t1 = MathF.Max(1 - distanceOverH, 0);
-            var t2 = MathF.Max(2 - distanceOverH, 0);
+            var t1 = float.Max(1 - distanceOverH, 0);
+            var t2 = float.Max(2 - distanceOverH, 0);
             var t3 = (t2 * t2 * t2) - 4 * (t1 * t1 * t1);
             return alpha * t3 * kernelCorrection;
         }
@@ -29,8 +29,8 @@ namespace Fluid_Simulator.Core.SphComponents
             var positionDifference = position1 - position2;
             var distanceOverH = DistanceOverH(position1, position2, particelDiameter);
             if (distanceOverH == 0) return Vector2.Zero;
-            var t1 = MathF.Max(1 - distanceOverH, 0);
-            var t2 = MathF.Max(2 - distanceOverH, 0);
+            var t1 = float.Max(1 - distanceOverH, 0);
+            var t2 = float.Max(2 - distanceOverH, 0);
             var t3 = (-3 * t2 * t2) + (12 * t1 * t1);
             return CubicSplineAlpha(particelDiameter) * (positionDifference / (positionDifference.Length() * particelDiameter)) * t3;
         }

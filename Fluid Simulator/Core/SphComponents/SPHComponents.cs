@@ -13,18 +13,18 @@ namespace Fluid_Simulator.Core.SphComponents
         {
             var pressureAcceleration = Vector2.Zero;
             var pressureBoundaryAcceleration = Vector2.Zero;
-            var pressureOverDensitySquared = particle.Pressure / MathF.Pow(particle.Density, 2);
+            var pressureOverDensitySquared = particle.Pressure / (particle.Density * particle.Density);
 
             var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
-                var kernelDerivative = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
                 var neighborPressureOverDensitySquared = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 if (neighbor.IsBoundary)
-                    return neighbor.Mass * 2f * pressureOverDensitySquared * kernelDerivative;
-                return neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * kernelDerivative;
+                    return neighbor.Mass * 2f * pressureOverDensitySquared * nablaCubicSpline;
+                return neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * nablaCubicSpline;
             });
 
-            return - sum;
+            return -sum;
         }
 
         public static Vector2 ComputeViscosityAcceleration(float particleDiameter, float fluidViscosity, Particle particle)

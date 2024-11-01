@@ -9,7 +9,7 @@ namespace Fluid_Simulator.Core.SphComponents
         // Eq 49 Techniques for the Physics Based Simulation of Fluids and Solids
         public static float ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep)
         {
-            var innerSum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            var innerSum = - Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var massOverDensity2 = neighbor.Mass / (neighbor.Density * neighbor.Density);
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
@@ -19,42 +19,42 @@ namespace Fluid_Simulator.Core.SphComponents
             var sum1 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * Vector2.Dot(innerSum, nablaCubicSpline);
+                return Vector2.Dot(neighbor.Mass * innerSum, nablaCubicSpline);
             });
 
             var massOverDensity2 = particle.Mass / (particle.Density * particle.Density);
             var sum2 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
-                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * Vector2.Dot((massOverDensity2 * nablaCubicSpline), nablaCubicSpline);
+                var nablaCubicSpline = SphKernel.NablaCubicSpline(neighbor.Position, particle.Position, particleDiameter);
+                return Vector2.Dot(neighbor.Mass * (massOverDensity2 * nablaCubicSpline), nablaCubicSpline);
             });
 
             var timeStep2 = timeStep * timeStep;
-            return (- timeStep2 * sum1) + (- timeStep2 * sum2);
+            var res = (timeStep2 * sum1) + (timeStep2 * sum2);
+            return res;
         }
 
         // Eq 39 Techniques for the Physics Based Simulation of Fluids and Solids
         public static float ComputeSourceTerm(Particle particle, float particleDiameter, float timeStep, float fluidDensity)
         {
-            var timeStep2 = timeStep * timeStep;
-            var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            var sum = timeStep * Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return particle.Mass * Vector2.Dot(particle.Velocity - neighbor.Velocity, nablaCubicSpline);
+                return neighbor.Mass * Vector2.Dot(particle.Velocity - neighbor.Velocity, nablaCubicSpline);
             });
-            return fluidDensity - particle.Density - (timeStep2 * sum);
+            return fluidDensity - particle.Density - sum;
         }
 
         // Eq 41 Techniques for the Physics Based Simulation of Fluids and Solids
         public static Vector2 ComputePressureAcceleration(Particle particle, float particleDiameter)
         {
-            var particlePressureOverDensity2 =   particle.Pressure / (particle.Density * particle.Density) ;
+            var particlePressureOverDensity2 = particle.Pressure / (particle.Density * particle.Density) ;
 
             return - Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
-
-                return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * nablaCubicSpline;
             });
         }
 
@@ -75,8 +75,9 @@ namespace Fluid_Simulator.Core.SphComponents
         public static float UpdatePressure(float pressure, float diagonalElement, float sourceTerm, float laplacian, float omega = .5f)
         {
             var diff = sourceTerm - laplacian;
-            var diffOverDiagonalElement = diff / diagonalElement;
-            var value = pressure + (omega * diffOverDiagonalElement);
+            var omegaOverDiagonalElement = omega / diagonalElement;
+            if (diagonalElement == 0) omegaOverDiagonalElement = 0;
+            var value = pressure + (omegaOverDiagonalElement * diff);
             return float.Max(value, 0);
         }
 
