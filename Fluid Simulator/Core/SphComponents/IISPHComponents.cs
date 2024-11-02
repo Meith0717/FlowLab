@@ -1,6 +1,5 @@
 ﻿using Fluid_Simulator.Core.ParticleManagement;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace Fluid_Simulator.Core.SphComponents
 {
@@ -9,7 +8,7 @@ namespace Fluid_Simulator.Core.SphComponents
         // Eq 49 Techniques for the Physics Based Simulation of Fluids and Solids
         public static float ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep)
         {
-            var innerSum = - Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            var innerSum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var massOverDensity2 = neighbor.Mass / (neighbor.Density * neighbor.Density);
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
@@ -30,7 +29,7 @@ namespace Fluid_Simulator.Core.SphComponents
             });
 
             var timeStep2 = timeStep * timeStep;
-            var res = (timeStep2 * sum1) + (timeStep2 * sum2);
+            var res = - timeStep2 * (sum1 + sum2);
             return res;
         }
 
@@ -40,9 +39,9 @@ namespace Fluid_Simulator.Core.SphComponents
             var sum = timeStep * Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * Vector2.Dot(particle.Velocity - neighbor.Velocity, nablaCubicSpline);
+                return Vector2.Dot(neighbor.Mass * (particle.Velocity - neighbor.Velocity), nablaCubicSpline);
             });
-            return fluidDensity - particle.Density - sum;
+            return fluidDensity - (particle.Density + sum);
         }
 
         // Eq 41 Techniques for the Physics Based Simulation of Fluids and Solids
@@ -50,12 +49,13 @@ namespace Fluid_Simulator.Core.SphComponents
         {
             var particlePressureOverDensity2 = particle.Pressure / (particle.Density * particle.Density) ;
 
-            return - Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            return Vector2.Negate(Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
+                var pressureOverDensity2Sum = particlePressureOverDensity2 + neighborPressureOverDensity2;
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * nablaCubicSpline;
-            });
+                return neighbor.Mass * pressureOverDensity2Sum * nablaCubicSpline;
+            }));
         }
 
         // Eq 40 Techniques for the Physics Based Simulation of Fluids and Solids
@@ -65,7 +65,8 @@ namespace Fluid_Simulator.Core.SphComponents
             var sum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return neighbor.Mass * Vector2.Dot(particle.Acceleration - neighbor.Acceleration, nablaCubicSpline);
+                var aDiff = particle.Acceleration - neighbor.Acceleration;
+                return Vector2.Dot(neighbor.Mass * aDiff, nablaCubicSpline);
             });
 
             return timeStep2 * sum;
@@ -74,18 +75,16 @@ namespace Fluid_Simulator.Core.SphComponents
         // Eq 48 Techniques for the Physics Based Simulation of Fluids and Solids
         public static float UpdatePressure(float pressure, float diagonalElement, float sourceTerm, float laplacian, float omega = .5f)
         {
-            var diff = sourceTerm - laplacian;
-            var omegaOverDiagonalElement = omega / diagonalElement;
-            if (diagonalElement == 0) omegaOverDiagonalElement = 0;
-            var value = pressure + (omegaOverDiagonalElement * diff);
-            return float.Max(value, 0);
+            var diff = (sourceTerm - laplacian) / diagonalElement;
+            var value = pressure + (omega * diff);
+             return float.Max(value, 0);
         }
 
         // Stop criterion p 13 Techniques for the Physics Based Simulation of Fluids and Solids
-        public static float ComputeDensityError(float laplacian, float sourceTerm, float fluidDensity)
+        public static float ComputeDensityError(float laplacian, float sourceTerm)
         {
-            var error = Math.Abs(laplacian - sourceTerm) / fluidDensity;
-            return error;
+            var err = laplacian - sourceTerm;
+            return err;
         }
     }
 }

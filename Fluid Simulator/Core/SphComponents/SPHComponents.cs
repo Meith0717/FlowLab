@@ -1,13 +1,12 @@
 ﻿using Fluid_Simulator.Core.ParticleManagement;
 using Microsoft.Xna.Framework;
-using System;
 
 namespace Fluid_Simulator.Core.SphComponents
 {
     public static class SPHComponents
     {
         public static float ComputeLocalDensity(float particleDiameter, Particle particle) 
-            => particle.Mass * Utilitys.Sum(particle.NeighborParticles, neighbor => SphKernel.CubicSpline(particle.Position, neighbor.Position, particleDiameter));
+            => Utilitys.Sum(particle.NeighborParticles, neighbor => neighbor.Mass * SphKernel.CubicSpline(particle.Position, neighbor.Position, particleDiameter));
 
         public static Vector2 ComputePressureAcceleration(float particleDiameter, Particle particle)
         {
@@ -24,7 +23,7 @@ namespace Fluid_Simulator.Core.SphComponents
                 return neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * nablaCubicSpline;
             });
 
-            return -sum;
+            return - sum;
         }
 
         public static Vector2 ComputeViscosityAcceleration(float particleDiameter, float fluidViscosity, Particle particle)

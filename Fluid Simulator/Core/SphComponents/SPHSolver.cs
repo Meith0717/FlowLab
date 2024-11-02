@@ -1,6 +1,5 @@
 ﻿using Fluid_Simulator.Core.ParticleManagement;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,15 +18,16 @@ namespace Fluid_Simulator.Core.SphComponents
         {
             foreach (var particle in particles)
             {
+                particle.SourceTerm = IISPHComponents.ComputeSourceTerm(particle, particleDiameter, timeStep, fluidDensity); // Nothing Found, Works fine
                 particle.DiagonalElement = IISPHComponents.ComputeDiagonalElement(particle, particleDiameter, timeStep);
-                particle.SourceTerm = IISPHComponents.ComputeSourceTerm(particle, particleDiameter, timeStep, fluidDensity);
                 particle.Pressure = IISPHComponents.UpdatePressure(0, particle.DiagonalElement, particle.SourceTerm, 0);
             }
             
             iterations = 0;
             densityAverageError = float.PositiveInfinity;
+            var errors = new List<float>();
 
-            while (densityAverageError >= float.PositiveInfinity || iterations < 1)
+            while (densityAverageError >= float.PositiveInfinity || iterations < 10)
             {
                 foreach (var particle in particles)
                     particle.Acceleration = IISPHComponents.ComputePressureAcceleration(particle, particleDiameter);
@@ -35,18 +35,20 @@ namespace Fluid_Simulator.Core.SphComponents
                 var densityErrorSum = 0f;
                 foreach (var particle in particles)
                 {
-                    particle.Laplacian = IISPHComponents.ComputeLaplacian(particle, timeStep, particleDiameter);
-                    particle.Pressure = IISPHComponents.UpdatePressure(particle.Pressure, particle.DiagonalElement, particle.SourceTerm, particle.Laplacian);
-                    densityErrorSum += IISPHComponents.ComputeDensityError(particle.Laplacian, particle.SourceTerm, fluidDensity);
+                    var laplacian = IISPHComponents.ComputeLaplacian(particle, timeStep, particleDiameter);
+                    densityErrorSum += IISPHComponents.ComputeDensityError(laplacian, particle.SourceTerm);
+                    if (particle.DiagonalElement == 0) continue;
+                    // if (particle.SourceTerm < 0) System.Diagnostics.Debugger.Break();
+                    particle.Pressure = IISPHComponents.UpdatePressure(particle.Pressure, particle.DiagonalElement, particle.SourceTerm, laplacian);
                 }
 
                 densityAverageError = densityErrorSum / particles.Count;
-
+                errors.Add(densityAverageError);
                 iterations++;
-
-                if (iterations > 1000) 
-                    throw new TimeoutException();
             }
+            foreach (var error in errors)
+                System.Diagnostics.Debug.Write(error + ", ");
+            System.Diagnostics.Debug.Write("\n");
         }
 
         public void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
@@ -64,8 +66,8 @@ namespace Fluid_Simulator.Core.SphComponents
             foreach (var particle in _noBoundaryParticles)
             {
                 // Predict Velocity for non-pressure accelerations
-                var visAcceleration = SPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
-                particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
+                // var visAcceleration = SPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
+                // particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
             }
 
             SolveLocalPressures(_particles, ParticleDiameter, timeSteps, FluidDensity, out var iterations, out var error); // <- TODO: Rest ist working fine
@@ -81,7 +83,7 @@ namespace Fluid_Simulator.Core.SphComponents
 
                 Cfl.Add(particle, timeSteps * (particle.Velocity.Length() / ParticleDiameter));
             }
-            System.Diagnostics.Debug.WriteLine(Cfl.Count > 0 ? Cfl.Max(p => p.Value) : 0);
+            // System.Diagnostics.Debug.WriteLine(Cfl.Count > 0 ? Cfl.Max(p => p.Value) : 0);
         }
 
         public void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)

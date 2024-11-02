@@ -17,7 +17,7 @@ namespace Fluid_Simulator
     {
         private const int ParticleDiameter = 11;
         private const float FluidDensity = 0.3f;
-        private const float Gravitation = .0f;
+        private const float Gravitation = .3f;
         private float TimeSteps;
         private float FluidStiffness;
         private float FluidViscosity;

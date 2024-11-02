@@ -15,10 +15,10 @@ namespace Fluid_Simulator.Core.ParticleManagement
         public readonly bool IsBoundary;
 
         public List<Particle> NeighborParticles= new();
+        public List<float> Laplacian = new();
         public Vector2 Acceleration;
         public float DiagonalElement;
         public float SourceTerm;
-        public float Laplacian;
 
         public Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
         {
