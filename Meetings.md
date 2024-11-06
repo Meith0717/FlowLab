@@ -22,8 +22,38 @@
     - Diagonal Element ist kleiner 0
 
   - Diagonal Element Formel 
-
-  - Meine Gliederung für die Arbeit:
+- **Notes:**
+    - ISPH -> Lösung der Poisson Gleichung
+    - IISPH -> Methode für ISHP
+    - Feher Betrag berechnen
+    - Omega kleiner -> Diagonal Element
+    - Diagonal element 0
+    - Zeitschritt fehlerquelle
+---
+## Meeting 02 (06.11.24)
+- **Preparation:**
+    - Scource Term 
+        - Compression: < 0
+        - Neutral: = 0
+        - Expansion: > 0
+    - Laplace (Pressure acceleraion Divergence) ?? 
+        - To a point: ?> 0? but !< 0!
+        - Same direction: = 0
+        - From a point: ?< 0? but !> 0! 
+- **Questions:**
+    - Diagonal Element (Erklären wie funktioniert)
+        - Fluid Compressed
+            - Source Term < 0
+            - Laplace < 0
+                - sf - Ap < 0 => aii < 0
+        - Fluid Ideal
+            - Scource Term = 0
+            - Laplace = 0
+                sf - Ap = 0
+        - Fluid Expansion
+            - Scource Term > 0
+            Wie ist es hier? 
+      - Meine Gliederung für die Arbeit:
     ``` 
     1. Deckblatt: Titel der Arbeit, Name des Verfassers, Universität, Datum, etc.
     2. Abstract: Kurze Zusammenfassung der Arbeit (Thema, Ziel, Methodik, Ergebnisse).
@@ -44,12 +74,8 @@
     13. Eidesstattliche Erklärung
     ```
 - **Notes:**
-    - ISPH -> Lösung der Poisson Gleichung
-    - IISPH -> Methode für ISHP
-    - Feher Betrag berechnen
-    - Omega kleiner -> Diagonal Element
-    - Diagonal element 0
-    - Zeitschritt fehlerquelle
+    - TODO
+
 ---
 # Template
 ## Meeting x (date)

@@ -56,7 +56,7 @@ namespace Fluid_Simulator.Core.SphComponents
             //});
 
             //var timeStep2 = timeStep * timeStep;
-            value = -.0001f;// -timeStep2 * (sum1 + sum2);
+            value = 1f;// -timeStep2 * (sum1 + sum2);
             particle.DiagonalElement = value;
         }
 
