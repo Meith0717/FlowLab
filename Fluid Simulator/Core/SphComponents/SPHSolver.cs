@@ -19,37 +19,62 @@ namespace Fluid_Simulator.Core.SphComponents
 
         public void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
         {
-            _noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
-
+            if (_particles.Count <= 0) return;
             Clear();
-            foreach (var particle in _particles)
+            Parallel.ForEach(_particles, particle =>
             {
                 particle.NeighborParticles.Clear();
                 spatialHashing.InRadius(particle.Position, ParticleDiameter * 2f, ref particle.NeighborParticles);
                 particle.Density = SPHComponents.ComputeLocalDensity(ParticleDiameter, particle);
-            }
+            });
 
-            foreach (var particle in _noBoundaryParticles)
+            _noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
+            Parallel.ForEach(_particles, particle =>
             {
-                // Predict Velocity for non-pressure accelerations
-                var visAcceleration = SPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
+                IISPHComponents.ComputeDiagonalElement(particle, ParticleDiameter, timeSteps, out var dE);
+                var visAcceleration = Vector2.Zero;// SPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
                 particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
-            }
+                IISPHComponents.ComputeSourceTerm(timeSteps, FluidDensity, particle, ParticleDiameter, out var sT);
+                particle.Pressure = 0;
+                particle.DensityError = -sT;
+                particle.Acceleration = Vector2.Zero;
+            });
 
-            IISPHComponents.SolveLocalPressures(_noBoundaryParticles.ToList(), ParticleDiameter, timeSteps, FluidDensity, out var iterations, out var error); // <- TODO: Rest is working fine
+            var i = 0;
+            var errors = new List<float>();
 
-            foreach (var particle in _noBoundaryParticles)
+            for (; ; )
             {
-                IISPHComponents.ComputePressureAcceleration(particle, ParticleDiameter, out var aP);
-                particle.Velocity += timeSteps * aP;
+                var avgDensityError = _particles.Average(p => p.DensityError);
+                errors.Add(avgDensityError);
+                System.Diagnostics.Debug.WriteLine(avgDensityError);
+                if (i > 10) break;
+                i++;
 
-                spatialHashing.RemoveObject(particle);
-                particle.Position += timeSteps * particle.Velocity;
-                spatialHashing.InsertObject(particle);
+                foreach (var particle in _particles)
+                {
+                    IISPHComponents.ComputePressureAcceleration(particle, ParticleDiameter, out var aP);
+                }
 
-                Cfl.Add(particle, timeSteps * (particle.Velocity.Length() / ParticleDiameter));
+                foreach (var particle in _particles)
+                {
+                    IISPHComponents.ComputeLaplacian(particle, timeSteps, ParticleDiameter, out var laplacian);
+                    particle.DensityError = laplacian - particle.SourceTerm;
+                    IISPHComponents.UpdatePressure(particle, laplacian);
+                }
             }
-            // System.Diagnostics.Debug.WriteLine(Cfl.Count > 0 ? Cfl.Max(p => p.Value) : 0);
+
+            foreach (var noBoundaryParticle in _noBoundaryParticles)
+            {
+                IISPHComponents.ComputePressureAcceleration(noBoundaryParticle, ParticleDiameter, out var aP);
+                noBoundaryParticle.Velocity += timeSteps * aP;
+
+                spatialHashing.RemoveObject(noBoundaryParticle);
+                noBoundaryParticle.Position += timeSteps * noBoundaryParticle.Velocity;
+                spatialHashing.InsertObject(noBoundaryParticle);
+
+                Cfl.Add(noBoundaryParticle, timeSteps * (noBoundaryParticle.Velocity.Length() / ParticleDiameter));
+            }
         }
 
         public void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float ParticleDiameter, float FluidDensity, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)

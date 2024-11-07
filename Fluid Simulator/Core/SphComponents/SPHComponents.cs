@@ -28,7 +28,7 @@ namespace Fluid_Simulator.Core.SphComponents
 
         public static Vector2 ComputeViscosityAcceleration(float particleDiameter, float fluidViscosity, Particle particle)
         {
-            return  Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            return Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var v_ij = particle.Velocity - neighbor.Velocity;
                 var x_ij = particle.Position - neighbor.Position;
