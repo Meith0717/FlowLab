@@ -33,7 +33,7 @@ namespace Fluid_Simulator.Core.SphComponents
             {
                 // Predict Velocity for non-pressure accelerations
                 var visAcceleration = SPHComponents.ComputeViscosityAcceleration(ParticleDiameter, fluidViscosity, particle);
-                // particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
+                particle.Velocity += timeSteps * (visAcceleration + new Vector2(0, gravitation));
             }
 
             IISPHComponents.SolveLocalPressures(_noBoundaryParticles.ToList(), ParticleDiameter, timeSteps, FluidDensity, out var iterations, out var error); // <- TODO: Rest is working fine

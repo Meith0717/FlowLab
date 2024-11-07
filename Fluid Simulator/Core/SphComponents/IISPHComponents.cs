@@ -9,57 +9,33 @@ namespace Fluid_Simulator.Core.SphComponents
     internal static class IISPHComponents
     {
         //Eq 49 Techniques for the Physics Based Simulation of Fluids and Solids
-        private static void ComputeDiagonalElement1(Particle particle, float particleDiameter, float timeStep, out float value)
+        private static void ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep, out float value)
         {
-            var particleMassOverDensity2 = particle.Mass / (particle.Density * particle.Density);
-            var sum1 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
-            {
-                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return (neighbor.Mass * (particleMassOverDensity2 * nablaCubicSpline)).Dot(nablaCubicSpline);
-            });
-
-            var sum2 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            var innerSum1 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
             {
                 var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
                 return (neighbor.Mass / (neighbor.Density * neighbor.Density)) * nablaCubicSpline;
-            }); 
-
-            value = (timeStep * timeStep) * Utilitys.Sum(particle.NeighborParticles, neighbor =>
-            {
-                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-                return (neighbor.Mass * Vector2.Negate(sum2)).Dot(nablaCubicSpline) + ((timeStep * timeStep) * sum1);
             });
 
+            var sum1 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            {
+                var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                return (neighbor.Mass * Vector2.Negate(innerSum1)).Dot(nablaCubicSpline);
+            });
+
+            var particleMassOverDensity2 = particle.Mass / (particle.Density * particle.Density);
+            var sum2 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
+            {
+                var nablaCubicSplineIJ = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
+                var nablaCubicSplineJI = SphKernel.NablaCubicSpline(neighbor.Position, particle.Position, particleDiameter);
+
+                return (neighbor.Mass * (particleMassOverDensity2 * nablaCubicSplineJI)).Dot(nablaCubicSplineIJ);
+            });
+
+
+            value = ((timeStep * timeStep) * sum1) + ((timeStep * timeStep) * sum2);
             particle.DiagonalElement = value;
         }
-
-        public static void ComputeDiagonalElement(Particle particle, float particleDiameter, float timeStep, out float value)
-        {
-            //var innerSum = Utilitys.Sum(particle.NeighborParticles, neighbor =>
-            //{
-            //    var massOverDensity2 = neighbor.Mass / (neighbor.Density * neighbor.Density);
-            //    var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-            //    return massOverDensity2 * nablaCubicSpline;
-            //});
-
-            //var sum1 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
-            //{
-            //    var nablaCubicSpline = SphKernel.NablaCubicSpline(particle.Position, neighbor.Position, particleDiameter);
-            //    return Vector2.Dot(neighbor.Mass * innerSum, nablaCubicSpline);
-            //});
-
-            //var massOverDensity2 = particle.Mass / (particle.Density * particle.Density);
-            //var sum2 = Utilitys.Sum(particle.NeighborParticles, neighbor =>
-            //{
-            //    var nablaCubicSpline = SphKernel.NablaCubicSpline(neighbor.Position, particle.Position, particleDiameter);
-            //    return Vector2.Dot(neighbor.Mass * (massOverDensity2 * nablaCubicSpline), nablaCubicSpline);
-            //});
-
-            //var timeStep2 = timeStep * timeStep;
-            value = 1f;// -timeStep2 * (sum1 + sum2);
-            particle.DiagonalElement = value;
-        }
-
 
         /// <summary>
         /// (Eq 39 from Techniques for the Physics Based Simulation of Fluids and Solids)
@@ -151,7 +127,7 @@ namespace Fluid_Simulator.Core.SphComponents
             avError = float.PositiveInfinity;
             var errors = new List<float>();
 
-            while (avError >= float.PositiveInfinity || i < 10)
+            while (avError >= float.PositiveInfinity || i < 20)
             {
                 foreach (var particle in particles)
                     ComputePressureAcceleration(particle, particleDiameter, out var aP); // Nothing Found, Works fine
