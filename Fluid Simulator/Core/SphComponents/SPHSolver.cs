@@ -21,6 +21,8 @@ namespace Fluid_Simulator.Core.SphComponents
         {
             if (_particles.Count <= 0) return;
             Clear();
+
+
             Parallel.ForEach(_particles, particle =>
             {
                 particle.NeighborParticles.Clear();
