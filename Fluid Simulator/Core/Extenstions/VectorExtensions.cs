@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Fluid_Simulator.Core.Extenstions
 {
@@ -19,6 +20,11 @@ namespace Fluid_Simulator.Core.Extenstions
             cosAngle = MathHelper.Clamp(cosAngle, -1f, 1f);
 
             return (float)Math.Acos(cosAngle);
+        }
+
+        public static float SquaredNorm(this Vector2 vec)
+        {
+            return vec.X * vec.X + vec.Y * vec.Y;
         }
 
         public static Vector2 Sum<T>(IEnumerable<T> scource, Func<T, Vector2> body)

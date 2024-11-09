@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fluid_Simulator.Core.ParticleManagement;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,9 @@ namespace Fluid_Simulator.Core.SphComponents
 {
     internal class SESPHComponents
     {
-        public static float ComputeLocalPressure(float fluidStiffness, float fluidDensity, float localDensity)
-            => MathF.Max(fluidStiffness * ((localDensity / fluidDensity) - 1), 0);
-
+        public static void ComputeLocalPressure(Particle particle, float fluidStiffness)
+        {
+            particle.Pressure = MathF.Max(fluidStiffness * ((particle.Density / particle.Density0) - 1), 0);
+        }
     }
 }

@@ -135,6 +135,7 @@ namespace Fluid_Simulator
             // Camera Stuff
             _camera.Update(new(_graphics.GraphicsDevice.Viewport.Width, _graphics.GraphicsDevice.Viewport.Height));
             CameraMover.ControllZoom(gameTime, inputState, _camera, .05f, 20);
+            CameraMover.UpdateCameraByMouseDrag(inputState, _camera);
 
             // Main Stuff
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);

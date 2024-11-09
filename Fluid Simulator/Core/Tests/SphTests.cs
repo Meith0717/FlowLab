@@ -116,11 +116,11 @@ namespace Tests
 
             foreach (var particle in _particles)
             {
-                _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref particle.NeighborParticles);
-                if (particle.NeighborParticles.Count < 13) continue;
+                particle.Initialize(_spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
+                if (particle.Neighbors.Count < 13) continue;
 
-                var localDensity = SPHComponents.ComputeLocalDensity(ParticleSize, particle);
-                Assert.AreEqual(localDensity, FluidDensity, 0.001);
+                SPHComponents.ComputeLocalDensity(particle);
+                Assert.AreEqual(particle.Density, FluidDensity, 0.001);
             }
         }
 
@@ -128,14 +128,13 @@ namespace Tests
         {
             foreach (var particle in _particles)
             {
-                particle.NeighborParticles.Clear();
-                _spatialHashing.InRadius(particle.Position, 2 * ParticleSize, ref particle.NeighborParticles);
-                if (particle.NeighborParticles.Count < 13) continue;
+                particle.Initialize(_spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
+                if (particle.Neighbors.Count < 13) continue;
 
-                var localDensity = SPHComponents.ComputeLocalDensity(ParticleSize, particle);
-                Assert.AreEqual(localDensity, FluidDensity, 0.001);
-                var localPressure = SESPHComponents.ComputeLocalPressure(FluidStiffness, FluidDensity, localDensity);
-                Assert.AreEqual(localPressure, 0, 0.001);
+                SPHComponents.ComputeLocalDensity(particle);
+                Assert.AreEqual(particle.Density, FluidDensity, 0.001);
+                SESPHComponents.ComputeLocalPressure(particle, FluidStiffness);
+                Assert.AreEqual(particle.Pressure, 0, 0.001);
             }
         }
     }

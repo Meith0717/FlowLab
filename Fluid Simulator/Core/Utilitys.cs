@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Fluid_Simulator.Core
 {
@@ -31,6 +32,15 @@ namespace Fluid_Simulator.Core
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString, options);
             return dict;
+        }
+
+        public static void ForEach<T>(bool parallel, IEnumerable<T> scource, Action<T>  body)
+        {
+            if (parallel)
+                Parallel.ForEach(scource, body);
+            else
+                foreach (var element in scource)
+                    body.Invoke(element);
         }
     }
 }
