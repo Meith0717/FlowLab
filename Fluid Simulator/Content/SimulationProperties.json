@@ -1,5 +1,5 @@
 {
-  "TimeSteps": 0.3,
+  "TimeSteps": 0.06,
   "FluidStiffness": 2000,
   "FluidViscosity": 50
 }
