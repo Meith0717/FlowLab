@@ -3,16 +3,17 @@ using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Fluid_Simulator.Core.ParticleManagement
 {
     public class Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
-        public readonly float Diameter = diameter;
-        public readonly float Density0 = fluidDensity;
-        public readonly bool IsBoundary = isBoundary;
-        public readonly float Volume = diameter * diameter;
-        public readonly float Mass = (diameter * diameter) * fluidDensity;
+        public float Diameter { get; private set; } = diameter;
+        public float Density0 { get; private set; } = fluidDensity;
+        public bool IsBoundary { get; private set; } = isBoundary;
+        public float Volume { get; private set; } = diameter * diameter;
+        public float Mass { get; private set; } = (diameter * diameter) * fluidDensity;
 
         [NotNull] public Vector2 Position = position;
         [NotNull] public Vector2 Velocity;
@@ -79,7 +80,11 @@ namespace Fluid_Simulator.Core.ParticleManagement
             ViscosityAcceleration = Vector2.Zero;
             GravitationAcceleration = Vector2.Zero;
 
-            Pressure = 0;
+            // Pressure = 0;
+
+            if (!IsBoundary) return;
+            var sum = Utilitys.Sum(_neighbors.Where(p => p.IsBoundary), Kernel);
+            Mass = Density0 * (1 / sum);
         }
 
         public float Kernel(Particle neighbor)

@@ -7,7 +7,7 @@ namespace Fluid_Simulator.Core.SphComponents
     internal static class SPHSolver
     {
         private const float MaxError = .1f;
-        private const int MaxI = 10; // > 2
+        private const int MaxI = 10;
 
         public static void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
         {

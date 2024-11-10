@@ -50,11 +50,10 @@ namespace Fluid_Simulator.Core.ParticleManagement
                 var stepAngle = stepDirection.ToAngle() - MathHelper.Pi;
                 var particlePosition = vertex * ParticleDiameter;
 
-                for (int _ = 0; _ < Vector2.Distance(nextVertex, vertex) + 2; _++)
+                for (int _ = 0; _ < Vector2.Distance(nextVertex, vertex) + 1; _++)
                 {
                     offsetCircle.Position = particlePosition;
                     AddNewParticle(particlePosition + position, true);
-                    AddNewParticle(offsetCircle.BoundaryPointAt(stepAngle) + position, true);
                     particlePosition += stepDirection * ParticleDiameter;
                 }
 
@@ -93,8 +92,8 @@ namespace Fluid_Simulator.Core.ParticleManagement
 
         public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
-            // SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps);
-            SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
+            SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps);
+            // SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
 
             // Collect Data
             if (_particles.Count <= 0 || !collectData) return;
