@@ -7,34 +7,35 @@ namespace Fluid_Simulator.Core.SphComponents
     internal static class SPHSolver
     {
         private const float MaxError = .1f;
-        private const int MaxI = 10;
+        private const int MaxI = 10; // > 2
 
         public static void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
         {
+            var parallel = true;
             if (_particles.Count <= 0) return;
             var noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
 
             // neighborhood search & reset the accelerations of the particles
-            Utilitys.ForEach(false, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
+            Utilitys.ForEach(parallel, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
 
             // Compute densities DONE
-            Utilitys.ForEach(false, _particles, SPHComponents.ComputeLocalDensity);
+            Utilitys.ForEach(parallel, _particles, SPHComponents.ComputeLocalDensity);
 
             // Compute diagonal matrix elements DONE
-            Utilitys.ForEach(false, noBoundaryParticles, particle =>  IISPHComponents.ComputeDiagonalElement(particle, timeSteps));
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle =>  IISPHComponents.ComputeDiagonalElement(particle, timeSteps));
 
             // compute non-pressure forces Done
-            Utilitys.ForEach(false, noBoundaryParticles, particle =>
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle =>
             {
                 SPHComponents.ComputeViscosityAcceleration(h, fluidViscosity, particle);
                 particle.GravitationAcceleration = new(0, gravitation);
             });
 
             // update velocities using non-pressure forces Done
-            Utilitys.ForEach(false, noBoundaryParticles, particle => particle.Velocity += timeSteps * particle.NonPAcceleration);
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle => particle.Velocity += timeSteps * particle.NonPAcceleration);
 
             // Compute source term Done
-            Utilitys.ForEach(false, noBoundaryParticles, particle => IISPHComponents.ComputeSourceTerm(timeSteps, particle));
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeSourceTerm(timeSteps, particle));
 
             // perform pressure solve using IISPH
             var errors = new List<float>();
@@ -42,13 +43,13 @@ namespace Fluid_Simulator.Core.SphComponents
             for (; ; )
             {
                 // compute pressure accelerations Done
-                Utilitys.ForEach(false, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);
+                Utilitys.ForEach(parallel, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);
 
                 // compute aij * pj Done
-                Utilitys.ForEach(false, noBoundaryParticles, particle => IISPHComponents.ComputeLaplacian(particle, timeSteps));
+                Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeLaplacian(particle, timeSteps));
 
                 // update pressure values
-                foreach (var pI in noBoundaryParticles)
+                Utilitys.ForEach(parallel, noBoundaryParticles, pI =>
                 {
                     if (float.Abs(pI.AII) > 0)
                         pI.Pressure += .5f / pI.AII * (pI.St - pI.Ap);
@@ -59,13 +60,15 @@ namespace Fluid_Simulator.Core.SphComponents
 
                     // pressure clamping
                     pI.Pressure = float.Max(pI.Pressure, 0);
-                    pI.RhoError = float.Max(pI.Ap - pI.St, 0);
-                }
-                var avgDensityError = _particles.Average(p => p.RhoError);
+                    pI.RhoError = 100 * (float.Max(pI.Ap - pI.St, 0) / FluidDensity);
+                });
+
+                // Break condition
+                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.RhoError) : 0;
                 errors.Add(avgDensityError);
-                if (i > 10) break;
-                // if ((avgDensityError < MaxError * 0.01f * FluidDensity) && (i > MaxI) ||  i > 2) 
-                //    break;
+                if ((avgDensityError <= MaxError) && (i > 2)) 
+                     break;
+
                 i++;
             }
 

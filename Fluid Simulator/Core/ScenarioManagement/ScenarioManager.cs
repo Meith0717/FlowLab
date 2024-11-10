@@ -16,7 +16,7 @@ namespace Fluid_Simulator.Core.ScenarioManagement
             _activeSceneIndex -= 1;
             _scenes = new()
             {
-                { PolygonFactory.CreateRectangle(85, 50), null },
+                { PolygonFactory.CreateRectangle(40, 40), null },
                 { PolygonFactory.CreateRectangle(5, 50), null },
                 { PolygonFactory.CreateRectangle(170, 130), null },
                 { PolygonFactory.CreateRectangle(170, 170), null },

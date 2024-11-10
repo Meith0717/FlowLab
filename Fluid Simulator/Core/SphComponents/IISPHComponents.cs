@@ -12,7 +12,7 @@ namespace Fluid_Simulator.Core.SphComponents
         public static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;
-            var sum1 = Utilitys.Sum(particle.Neighbors, neighbor => neighbor.Mass * KernelDerivativ(neighbor).SquaredNorm());
+            var sum1 = Utilitys.Sum(particle.Neighbors, neighbor => (neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm());
 
             var sum2 = Utilitys.Sum(particle.Neighbors, neighbor => neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm();
 
@@ -29,7 +29,7 @@ namespace Fluid_Simulator.Core.SphComponents
             var predDensityOfNonPVel = Utilitys.Sum(particle.Neighbors, neighbor =>
             {
                 var velDif = particle.Velocity - neighbor.Velocity;
-                return neighbor.Mass * velDif.Dot(KernelDerivativ(neighbor));
+                return (neighbor.Mass * velDif).Dot(KernelDerivativ(neighbor));
             });
             var predDensity = particle.Density + (timeStep * predDensityOfNonPVel);
             particle.St = (particle.Density0 - predDensity) / timeStep;
@@ -52,7 +52,7 @@ namespace Fluid_Simulator.Core.SphComponents
         public static void ComputeLaplacian(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;
-            particle.Ap = timeStep * Utilitys.Sum(particle.Neighbors, neighbor => neighbor.Mass * (particle.Acceleration - neighbor.Acceleration).Dot(KernelDerivativ(neighbor)));
+            particle.Ap = timeStep * Utilitys.Sum(particle.Neighbors, neighbor => (neighbor.Mass * (particle.Acceleration - neighbor.Acceleration)).Dot(KernelDerivativ(neighbor)));
             if (float.IsNaN(particle.Ap)) throw new System.Exception();
         }
     }
