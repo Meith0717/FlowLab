@@ -26,7 +26,7 @@ namespace Fluid_Simulator.Core.ParticleManagement
         public float St;
         public float Ap;
         public float Cfl;
-        public float RhoError;
+        public float DensityError;
 
         /// <summary>
         /// Current particle neighbors.

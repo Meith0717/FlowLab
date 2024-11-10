@@ -60,11 +60,11 @@ namespace Fluid_Simulator.Core.SphComponents
 
                     // pressure clamping
                     pI.Pressure = float.Max(pI.Pressure, 0);
-                    pI.RhoError = 100 * (float.Max(pI.Ap - pI.St, 0) / FluidDensity);
+                    pI.DensityError = 100 * (float.Max(pI.Ap - pI.St, 0) / FluidDensity);
                 });
 
                 // Break condition
-                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.RhoError) : 0;
+                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.DensityError) : 0;
                 errors.Add(avgDensityError);
                 if ((avgDensityError <= MaxError) && (i > 2)) 
                      break;
@@ -91,32 +91,32 @@ namespace Fluid_Simulator.Core.SphComponents
 
         public static void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
         {
-            Utilitys.ForEach(true, _particles, particle =>
-            {
-                particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
-                SPHComponents.ComputeLocalDensity(particle);
-
-                // Compute density
-                particle.Density = particle.Neighbors.Count <= 1
-                    ? FluidDensity : particle.Density;
-
-                // Compute pressure
-                SESPHComponents.ComputeLocalPressure(particle, fluidStiffness);
-            });
-
+            Utilitys.ForEach(true, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
             var noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
 
+            // Compute density
+            Utilitys.ForEach(true, _particles, particle =>
+            {
+                SPHComponents.ComputeLocalDensity(particle);
+                particle.Density = particle.Neighbors.Count <= 1 ? FluidDensity : particle.Density;
+                particle.DensityError = (particle.Density - FluidDensity) / FluidDensity;
+            });
+
+            // Compute pressures
+            Utilitys.ForEach(true, noBoundaryParticles, particle => SESPHComponents.ComputeLocalPressure(particle, fluidStiffness));
+
+            // Compute accelerations
             Utilitys.ForEach(true, noBoundaryParticles, fluidParticle =>
             {
-                // Compute non-pressure accelerations
+                // Non-pressure accelerations
                 SPHComponents.ComputeViscosityAcceleration(h, fluidViscosity, fluidParticle);
-
-                // Compute pressure acceleration
+                // Pressure acceleration
                 fluidParticle.PressureAcceleration = SPHComponents.ComputePressureAcceleration(fluidParticle);
-
+                // Gravitational acceleration
                 fluidParticle.GravitationAcceleration = new(0, gravitation);
             });
 
+            // Update Velocities
             foreach (var fluidParticle in noBoundaryParticles)
             {
                 // Update Velocity
