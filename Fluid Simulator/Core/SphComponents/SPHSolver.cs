@@ -51,7 +51,7 @@ namespace Fluid_Simulator.Core.SphComponents
                 // update pressure values
                 Utilitys.ForEach(parallel, noBoundaryParticles, pI =>
                 {
-                    if (float.Abs(pI.AII) > 0)
+                    if (float.Abs(pI.AII) > 1e-5)
                         pI.Pressure += .5f / pI.AII * (pI.St - pI.Ap);
                     else
                         pI.Pressure = 0;
