@@ -98,7 +98,7 @@ namespace FlowLab
         protected override void Draw(GameTime gameTime)
         {
             _frameCounter.UpdateFrameCounting();
-            GraphicsDevice.Clear(Color.Transparent);
+            GraphicsDevice.Clear(Color.Black);
             LayerManager.Draw(_spriteBatch);
             base.Draw(gameTime);
         }

@@ -4,6 +4,7 @@
 
 using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
+using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,9 +15,10 @@ namespace FlowLab.Logic.SphComponents
         private const float MaxError = .1f;
         private const int MaxI = 10;
 
-        public static void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps)
+        public static void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps, out int iterations)
         {
             var parallel = true;
+            iterations = 0;
             if (_particles.Count <= 0) return;
             var noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
 
@@ -76,6 +78,7 @@ namespace FlowLab.Logic.SphComponents
 
                 i++;
             }
+            iterations = i;
 
             // update velocities using pressure forces
             foreach (var fluidParticle in noBoundaryParticles)

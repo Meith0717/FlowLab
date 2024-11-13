@@ -9,45 +9,46 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Objects.Widgets
 {
-    internal class StateWidget : UiLayer
+    internal class SolverWidget : UiLayer
     {
         private readonly ParticleManager _particleManager;
+        private int _maxIterations;
 
-        public StateWidget(UiLayer root, ParticleManager particleManager)
+        public SolverWidget(UiLayer root, ParticleManager particleManager)
             : base(root)
         {
             _particleManager = particleManager;
             new UiText(this, "consola")
             {
-                Text = "STATE",
+                Text = "SOLVER",
                 Scale = .18f,
                 Color = Color.White
             }.Place(x: 5, y: 2);
 
             new UiText(this, "consola")
             {
-                Text = "Rel.Density error:",
+                Text = "Iterations:",
                 Scale = .15f,
                 Color = Color.White
             }.Place(x: 5, y: 30);
             new UiText(this, "consola")
             {
-                Text = "CLF Condition:",
+                Text = "MaxIterations:",
                 Scale = .15f,
                 Color = Color.White
             }.Place(x: 5, y: 50);
 
-            new UiText(this, "consola", self => { self.Text =  $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; })
+            new UiText(this, "consola", self => { self.Text = float.Round(_particleManager.SolverIterations, 2).ToString(); _maxIterations = int.Max(_maxIterations, _particleManager.SolverIterations); })
             {
                 Scale = .15f,
                 Color = Color.White
-            }.Place(x: 200, y: 30);
+            }.Place(x: 160, y: 30);
 
-            new UiText(this, "consola", self => { self.Text = $"{double.Round(_particleManager.CflCondition * 100).ToString()}%"; })
+            new UiText(this, "consola", self => { self.Text = _maxIterations.ToString(); })
             {
                 Scale = .15f,
                 Color = Color.White
-            }.Place(x: 200, y: 50);
+            }.Place(x: 160, y: 50);
         }
     }
 }

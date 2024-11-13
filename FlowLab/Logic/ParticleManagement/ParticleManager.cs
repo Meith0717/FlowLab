@@ -18,6 +18,8 @@ namespace FlowLab.Logic.ParticleManagement
     internal class ParticleManager
     {
         public double SimulationTime { get; private set; }
+        public int SolverIterations { get; private set; }
+
         private readonly List<Particle> _particles;
         private readonly List<Particle> _fluidParticles;
         private readonly List<Particle> _boundaryParticles;
@@ -108,10 +110,12 @@ namespace FlowLab.Logic.ParticleManagement
 
         public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
+            var solverIterations = 0;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            // SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps);
-            SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
+            SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps, out solverIterations);
+            // SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
             watch.Stop();
+            SolverIterations = solverIterations;
             SimulationTime = watch.Elapsed.TotalMilliseconds;
         }
          
