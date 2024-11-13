@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StellarLiberation": {
+      "commandName": "Project",
+      "jsWebView2Debugging": false
+    }
+  }
+}
