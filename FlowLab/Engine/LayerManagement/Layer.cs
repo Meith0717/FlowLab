@@ -38,7 +38,7 @@ public abstract class Layer : IDisposable
         DrawBelow = drawBelow;
 
         UiRoot = new(_layerCanvas) { Alpha = 0 };
-        UiRoot.Place(width: 1920, height: 1080, fillScale: FillScale.Fit, anchor: Anchor.Center);
+        UiRoot.Place(fillScale: FillScale.Both, anchor: Anchor.Center);
 
         _renderTarget2D = new(game1.GraphicsDevice,
             game1.GraphicsManager.PreferredBackBufferWidth,

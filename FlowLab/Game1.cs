@@ -8,6 +8,7 @@ using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Game.Objects.Layers;
+using FlowLab.Objects.Layers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -27,7 +28,7 @@ namespace FlowLab
         private readonly ContentLoader _contentLoader;
         private readonly InputManager _inputManager = new();
         private readonly FrameCounter _frameCounter = new(200);
-        private bool mResulutionWasResized;
+        private bool mResolutionWasResized;
 
         public Game1()
         {
@@ -44,7 +45,7 @@ namespace FlowLab
             Window.AllowUserResizing = true;
             Window.Title = "FlowLab";
 
-            Window.ClientSizeChanged += delegate { mResulutionWasResized = true; };
+            Window.ClientSizeChanged += delegate { mResolutionWasResized = true; };
         }
 
         protected override void Initialize()
@@ -72,6 +73,7 @@ namespace FlowLab
 
             LayerManager.PopLayer();
             LayerManager.AddLayer(new SimulationLayer(this));
+            LayerManager.AddLayer(new InfoLayer(this, _frameCounter));
 
             _safeToStart = false;
         }
@@ -83,7 +85,7 @@ namespace FlowLab
                 StartMainMenu();
 
             MusicManager.Instance.Update();
-            if (mResulutionWasResized)
+            if (mResolutionWasResized)
                 LayerManager.OnResolutionChanged(gameTime);
 
             if (_active)
@@ -100,9 +102,6 @@ namespace FlowLab
             _frameCounter.UpdateFrameCounting();
             GraphicsDevice.Clear(Color.Transparent);
             LayerManager.Draw(_spriteBatch);
-            _spriteBatch.Begin();
-            TextureManager.Instance.DrawString("pixeloid", new Vector2(1, 1), $"{MathF.Round(_frameCounter.CurrentFramesPerSecond)} fps", 0.1f, Color.White);
-            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

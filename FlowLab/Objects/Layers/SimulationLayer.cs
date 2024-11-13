@@ -8,6 +8,7 @@ using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
+using FlowLab.Objects.Layers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
