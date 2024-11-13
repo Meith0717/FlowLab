@@ -21,6 +21,13 @@
 /processorParam:TextureFormat=Compressed
 /build:fonts/brolink/brolink.spritefont
 
+#begin fonts/consola/consola.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:fonts/consola/consola.spritefont
+
 #begin fonts/pixeloid/pixeloid.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

@@ -17,7 +17,10 @@ namespace FlowLab.Logic.ParticleManagement
 {
     internal class ParticleManager
     {
+        public double SimulationTime { get; private set; }
         private readonly List<Particle> _particles;
+        private readonly List<Particle> _fluidParticles;
+        private readonly List<Particle> _boundaryParticles;
         private readonly SpatialHashing _spatialHashing;
         public readonly float ParticleDiameter;
         public readonly float FluidDensity;
@@ -26,6 +29,8 @@ namespace FlowLab.Logic.ParticleManagement
         public ParticleManager(int particleDiameter, float fluidDensity)
         {
             _particles = new();
+            _fluidParticles = new();
+            _boundaryParticles = new();
             _spatialHashing = new(particleDiameter * 2);
             ParticleDiameter = particleDiameter;
             FluidDensity = fluidDensity;
@@ -69,12 +74,18 @@ namespace FlowLab.Logic.ParticleManagement
         public void ClearAll()
         {
             _particles.Clear();
+            _fluidParticles.Clear();
+            _boundaryParticles.Clear();
             _spatialHashing.Clear();
         }
 
         public void RemoveParticle(Particle particle)
         {
             _particles.Remove(particle);
+            if (particle.IsBoundary)
+                _boundaryParticles.Remove(particle);
+            else
+                _fluidParticles.Remove(particle);
             _spatialHashing.RemoveObject(particle);
         }
 
@@ -82,15 +93,26 @@ namespace FlowLab.Logic.ParticleManagement
         {
             var particle = new Particle(position, ParticleDiameter, FluidDensity, isBoundary);
             _particles.Add(particle);
+            if (isBoundary)
+                _boundaryParticles.Add(particle);
+            else
+                _fluidParticles.Add(particle);
             _spatialHashing.InsertObject(particle);
         }
 
-        public int Count => _particles.Count;
+        public int Count => _particles.Where(p => !p.IsBoundary).Count();
+
+        public float RelativeDensityError => _fluidParticles.Count <= 0 ? 0 : float.Abs(_fluidParticles.Average(p => p.DensityError));
+
+        public float CflCondition => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
 
         public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             // SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps);
             SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
+            watch.Stop();
+            SimulationTime = watch.Elapsed.TotalMilliseconds;
         }
          
         public void DrawParticles(SpriteBatch spriteBatch, Matrix transformationMatrix, Texture2D particleTexture, Color boundaryColor)

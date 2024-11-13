@@ -8,7 +8,6 @@ using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Game.Objects.Layers;
-using FlowLab.Objects.Layers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -72,8 +71,7 @@ namespace FlowLab
         {
 
             LayerManager.PopLayer();
-            LayerManager.AddLayer(new SimulationLayer(this));
-            LayerManager.AddLayer(new InfoLayer(this, _frameCounter));
+            LayerManager.AddLayer(new SimulationLayer(this, _frameCounter));
 
             _safeToStart = false;
         }

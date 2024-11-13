@@ -45,7 +45,7 @@ namespace FlowLab.Logic.SphComponents
             // perform pressure solve using IISPH
             var errors = new List<float>();
             var i = 0;
-            for (; ; )
+            for (;;)
             {
                 // compute pressure accelerations Done
                 Utilitys.ForEach(parallel, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);
@@ -104,7 +104,7 @@ namespace FlowLab.Logic.SphComponents
             {
                 SPHComponents.ComputeLocalDensity(particle);
                 particle.Density = particle.Neighbors.Count <= 1 ? FluidDensity : particle.Density;
-                particle.DensityError = (particle.Density - FluidDensity) / FluidDensity;
+                particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
             });
 
             // Compute pressures

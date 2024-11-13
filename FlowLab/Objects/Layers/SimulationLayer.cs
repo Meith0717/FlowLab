@@ -4,11 +4,13 @@
 
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
+using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
+using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
-using FlowLab.Objects.Layers;
+using FlowLab.Objects.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -28,11 +30,19 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ScenarioManager _scenarioManager = new();
         private readonly ParticlePlacer _particlePlacer;
 
-        public SimulationLayer(Game1 game1)
+        public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
         {
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _scenarioManager.NextScene(_particleManager);
+
+            new PerformanceWidget(UiRoot, _particleManager, frameCounter) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.NW, width: 190, height: 90, hSpace: 10, vSpace: 10);
+            new StateWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.SW, width: 270, height: 70, hSpace: 10, vSpace: 10);
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
@@ -44,11 +54,6 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer.Update(inputState, _camera);
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(_particleManager); _particlePlacer.Clear(); });
             base.Update(gameTime, inputState);
-        }
-
-        public override void ApplyResolution(GameTime gameTime)
-        {
-            base.ApplyResolution(gameTime);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
