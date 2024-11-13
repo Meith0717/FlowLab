@@ -51,8 +51,6 @@ namespace FlowLab.Core.InputManagement.Peripheral
 
             mActionOnHold = new()
             {
-                { Keys.Q, ActionType.CameraZoomIn },
-                { Keys.E, ActionType.CameraZoomOut },
             };
             mKeysKeyEventTypes = new();
         }

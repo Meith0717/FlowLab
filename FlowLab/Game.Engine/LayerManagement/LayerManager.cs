@@ -18,16 +18,11 @@ public class LayerManager
     // layer stack
     private readonly LinkedList<Layer> _layerStack = new();
     private readonly List<Layer> _addedLayers = new();
-    private readonly Effect _blurEffect;
-    private RenderTarget2D _blurRenderTarget;
 
     public LayerManager(Game1 game1)
     {
         _game1 = game1;
-        _blurEffect = ShaderManager.Instance.GetEffect("Blur");
         var screenSize = _game1.GraphicsDevice.Viewport.Bounds.Size;
-        _blurEffect.Parameters["texelSize"].SetValue(new Vector2(1.0f / _game1.GraphicsDevice.Viewport.Width, 1.0f / _game1.GraphicsDevice.Viewport.Height));
-        _blurRenderTarget = new(game1.GraphicsDevice, game1.GraphicsManager.PreferredBackBufferWidth, game1.GraphicsManager.PreferredBackBufferHeight);
     }
 
     // add and remove layers from stack
@@ -93,23 +88,17 @@ public class LayerManager
             }
 
             // Set Blur Render Target
-            _game1.GraphicsDevice.SetRenderTarget(_blurRenderTarget);
+            _game1.GraphicsDevice.SetRenderTarget(null);
             _game1.GraphicsDevice.Clear(Color.Transparent);
             foreach (var renderTarget in _renderTargets)
             {
                 // Draw on Blur Render Target
-                spriteBatch.Begin(effect: topLayer.BlurBelow ? _blurEffect : _layerEffects[renderTarget]);
+                spriteBatch.Begin();
                 spriteBatch.Draw(renderTarget, _game1.GraphicsDevice.Viewport.Bounds, Color.White);
                 spriteBatch.End();
             }
-            // Free GraphicsDevice
-            _game1.GraphicsDevice.SetRenderTarget(null);
-
             _renderTargets.Clear();
             _layerEffects.Clear();
-            spriteBatch.Begin(effect: topLayer.BlurBelow ? _blurEffect : null);
-            spriteBatch.Draw(_blurRenderTarget, _game1.GraphicsDevice.Viewport.Bounds, Color.White);
-            spriteBatch.End();
         }
 
         spriteBatch.Begin(effect: topLayer.Effect);
@@ -128,10 +117,8 @@ public class LayerManager
     // fullScreen stuff
     public void OnResolutionChanged(GameTime gameTime)
     {
-        _blurRenderTarget.Dispose();
         foreach (Layer layer in _layerStack)
             layer.ApplyResolution(gameTime);
-        _blurRenderTarget = new(_game1.GraphicsDevice, _game1.GraphicsDevice.Viewport.Width, _game1.GraphicsDevice.Viewport.Height);
     }
 
     public bool ContainsLayer(Layer layer) => _layerStack.Contains(layer);

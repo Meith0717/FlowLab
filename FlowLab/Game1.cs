@@ -21,36 +21,40 @@ namespace FlowLab
 
         public LayerManager LayerManager { get; private set; }
         public readonly GraphicsDeviceManager GraphicsManager;
-        public readonly VideoManager VideoManager;
         public readonly PersistenceManager PersistenceManager = new();
         public readonly ConfigsManager ConfigsManager = new();
         private SpriteBatch _spriteBatch;
         private readonly ContentLoader _contentLoader;
         private readonly InputManager _inputManager = new();
         private readonly FrameCounter _frameCounter = new(200);
+        private bool mResulutionWasResized;
 
         public Game1()
         {
             Content.RootDirectory = "Content";
             GraphicsManager = new(this) { GraphicsProfile = GraphicsProfile.HiDef };
-            VideoManager = new(this, GraphicsManager);
             _contentLoader = new(Content);
 
             // Manage if Window is selected or not
             Activated += (object _, EventArgs _) => _active = true;
-            Deactivated += (object _, EventArgs _) => _active = true; ;
+            Deactivated += (object _, EventArgs _) => _active = false; ;
 
             // Window properties
             IsMouseVisible = true;
             Window.AllowUserResizing = true;
-            Window.Title = "Stellar Liberation";
-            // GraphicsManager.ToggleFullScreen();
+            Window.Title = "FlowLab";
+
+            Window.ClientSizeChanged += delegate { mResulutionWasResized = true; };
         }
 
         protected override void Initialize()
         {
             base.Initialize();
             LayerManager = new(this);
+            IsFixedTimeStep = false;
+            GraphicsManager.PreferMultiSampling = false;
+            GraphicsManager.SynchronizeWithVerticalRetrace = false;
+            GraphicsManager.ApplyChanges();
         }
 
         protected override void LoadContent()
@@ -65,8 +69,6 @@ namespace FlowLab
 
         private void StartMainMenu()
         {
-            GraphicsManager.PreferMultiSampling = true;
-            VideoManager.ApplyVideoSettings(0, false, false); // 0 -> No Fixed Framerate 
 
             LayerManager.PopLayer();
             LayerManager.AddLayer(new SimulationLayer(this));
@@ -76,19 +78,18 @@ namespace FlowLab
 
         protected override void Update(GameTime gameTime)
         {
+            if (!_active) return;
             if (_safeToStart)
                 StartMainMenu();
 
             MusicManager.Instance.Update();
-            if (VideoManager.SettingsHaveChanged)
+            if (mResulutionWasResized)
                 LayerManager.OnResolutionChanged(gameTime);
-            Window.ClientSizeChanged += (_, _) => LayerManager.OnResolutionChanged(gameTime);
 
             if (_active)
             {
                 _frameCounter.Update(gameTime);
                 InputState inputState = _inputManager.Update(gameTime);
-                inputState.DoAction(ActionType.ToggleFullscreen, VideoManager.ToggleFullScreen);
                 LayerManager.Update(gameTime, inputState);
             }
             base.Update(gameTime);

@@ -17,9 +17,7 @@ public abstract class Layer : IDisposable
 {
     [JsonIgnore] public readonly bool UpdateBelow;
     [JsonIgnore] public readonly bool DrawBelow;
-    [JsonIgnore] public readonly bool BlurBelow;
     [JsonIgnore] public readonly LayerManager LayerManager;
-    [JsonIgnore] protected readonly VideoManager VideoManager;
     [JsonIgnore] protected readonly Game1 Game1;
     [JsonIgnore] protected readonly GraphicsDevice GraphicsDevice;
     [JsonIgnore] protected readonly PersistenceManager PersistenceManager;
@@ -30,16 +28,14 @@ public abstract class Layer : IDisposable
 
     [JsonIgnore] public Effect Effect { get; protected set; }
 
-    protected Layer(Game1 game1, bool updateBelow, bool drawBelow, bool blurBelow)
+    protected Layer(Game1 game1, bool updateBelow, bool drawBelow)
     {
         Game1 = game1;
         LayerManager = game1.LayerManager;
         GraphicsDevice = game1.GraphicsDevice;
         PersistenceManager = game1.PersistenceManager;
-        VideoManager = game1.VideoManager;
         UpdateBelow = updateBelow;
         DrawBelow = drawBelow;
-        BlurBelow = blurBelow;
 
         UiRoot = new(_layerCanvas) { Alpha = 0 };
         UiRoot.Place(width: 1920, height: 1080, fillScale: FillScale.Fit, anchor: Anchor.Center);

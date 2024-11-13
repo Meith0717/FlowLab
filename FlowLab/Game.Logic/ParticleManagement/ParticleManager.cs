@@ -47,7 +47,6 @@ namespace FlowLab.Logic.ParticleManagement
             {
                 var nextVertex = i == polygon.Vertices.Length ? polygon.Vertices.First() : polygon.Vertices[i];
                 var stepDirection = Vector2.Subtract(nextVertex, vertex).NormalizedCopy();
-                var stepAngle = stepDirection.ToAngle() - MathHelper.Pi;
                 var particlePosition = vertex * ParticleDiameter;
 
                 for (int _ = 0; _ < Vector2.Distance(nextVertex, vertex); _++)
@@ -93,7 +92,7 @@ namespace FlowLab.Logic.ParticleManagement
             // SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps);
             SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
         }
-
+         
         public void DrawParticles(SpriteBatch spriteBatch, Matrix transformationMatrix, Texture2D particleTexture, Color boundaryColor)
         {
             spriteBatch.Begin(transformMatrix: transformationMatrix, effect: _effect, blendState: BlendState.AlphaBlend);

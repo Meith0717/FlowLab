@@ -12,20 +12,8 @@ namespace FlowLab.Utilities
         public static Matrix CreateViewTransformationMatrix(Vector2 cameraPosition, float cameraZoom, float cameraRotation,
                 int screenWidth, int screenHeight)
         {
-            int virtualWidth = 1920;
-            int virtualHeight = 1080;
-
-            float screenAspect = (float)screenWidth / screenHeight;
-            float virtualAspect = (float)virtualWidth / virtualHeight;
-
-            float scale;
-            if (screenAspect < virtualAspect)
-                scale = (float)screenWidth / virtualWidth;
-            else
-                scale = (float)screenHeight / virtualHeight;
-
             Matrix translationMatrix = Matrix.CreateTranslation(new Vector3(-cameraPosition.X, -cameraPosition.Y, 0));
-            Matrix scaleMatrix = Matrix.CreateScale(cameraZoom * scale, cameraZoom * scale, 1);
+            Matrix scaleMatrix = Matrix.CreateScale(cameraZoom, cameraZoom, 1);
             Matrix rotationMatrix = Matrix.CreateRotationZ(cameraRotation);
             Matrix screenCenterMatrix = Matrix.CreateTranslation(new Vector3(screenWidth / 2f, screenHeight / 2f, 0));
 
