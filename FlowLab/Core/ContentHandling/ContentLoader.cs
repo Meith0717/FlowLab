@@ -25,7 +25,6 @@ namespace FlowLab.Core.ContentHandling
         public void LoadEssenzialContentSerial()
         {
             TextureManager.Instance.LoadBuildTextureContent(_content, "missingContent", "missingContent");
-            LoadBuildContentIntoManager("shaders", ShaderManager.Instance.LoadBuildContent);
             LoadBuildContentIntoManager("fonts", TextureManager.Instance.LoadBuildFontContent);
             LoadBuildContentIntoManager("gui", TextureManager.Instance.LoadBuildTextureContent);
         }
@@ -36,10 +35,8 @@ namespace FlowLab.Core.ContentHandling
             {
                 try
                 {
-                    LoadBuildContentIntoManager("music", MusicManager.Instance.LoadBuildContent);
                     LoadBuildContentIntoManager("sfx", SoundEffectManager.Instance.LoadBuildContent);
                     LoadBuildContentIntoManager("textures", TextureManager.Instance.LoadBuildTextureContent);
-                    LoadCleanContent(configsManager);
                     ProcessMessage = "Ready";
                 }
                 catch (Exception ex)
