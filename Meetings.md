@@ -54,7 +54,6 @@
             - Scource Term > 0
             Wie ist es hier? 
   ---
-# Template
 ## Meeting 03 (14.11.24)
 - **Preparation:**
     - TODO
