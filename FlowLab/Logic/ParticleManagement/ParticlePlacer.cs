@@ -76,6 +76,7 @@ namespace FlowLab.Logic.ParticleManagement
         {
             foreach (var particle in _particles)
                 _particleManager.AddNewParticle(particle, false);
+            Clear();
         }
 
         public void Clear()

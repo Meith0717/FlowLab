@@ -41,11 +41,6 @@ namespace FlowLab.Game.Objects.Layers
             new SolverWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.W, width: 200, height: 70, hSpace: 10, vSpace: 10);
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
         public override void Update(GameTime gameTime, InputState inputState)
         {
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
@@ -54,6 +49,7 @@ namespace FlowLab.Game.Objects.Layers
             _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
             _particlePlacer.Update(inputState, _camera);
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(_particleManager); _particlePlacer.Clear(); });
+            inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             base.Update(gameTime, inputState);
         }
 
