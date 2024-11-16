@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "StellarLiberation": {
+    "FlowLab": {
       "commandName": "Project",
       "jsWebView2Debugging": false
     }
