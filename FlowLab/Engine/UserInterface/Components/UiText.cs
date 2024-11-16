@@ -16,11 +16,6 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         private Point _textDimension = new();
         private readonly Action<UiText> _updateTracker = updateTraker;
 
-        public override void Place(int? x = null, int? y = null, int? width = null, int? height = null, float relX = 0, float relY = 0, float relWidth = 0.1F, float relHeight = 0.1F, int? hSpace = null, int? vSpace = null, Anchor anchor = Anchor.None, FillScale fillScale = FillScale.None)
-        {
-            base.Place(x, y, _textDimension.X, _textDimension.Y, relX, relY, relWidth, relHeight, hSpace, vSpace, anchor, fillScale);
-        }
-
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             base.Update(inputState, transformedMousePosition, gameTime);

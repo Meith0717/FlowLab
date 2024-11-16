@@ -20,26 +20,32 @@ namespace FlowLab.Game.Objects.Layers
     {
         private const int ParticleDiameter = 11;
         private const float FluidDensity = 0.3f;
-        private const float Gravitation = .3f;
-        private const float TimeSteps = .1f;
-        private const float FluidStiffness = 2000f;
-        private const float FluidViscosity = 30f;
+        public float Gravitation = .3f;
+        public float TimeSteps = .1f;
+        public float FluidStiffness = 2000f;
+        public float FluidViscosity = 30f;
 
-        private readonly Camera2D _camera = new();
-        private readonly ParticleManager _particleManager = new(ParticleDiameter, FluidDensity);
-        private readonly ScenarioManager _scenarioManager = new();
+        private readonly Camera2D _camera;
+        private readonly ParticleManager _particleManager;
+        private readonly ScenarioManager _scenarioManager;
         private readonly ParticlePlacer _particlePlacer;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
         {
+            _camera = new();
+            _particleManager = new(ParticleDiameter, FluidDensity);
+            _scenarioManager = new();
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _scenarioManager.NextScene(_particleManager);
 
             new PerformanceWidget(UiRoot, _particleManager, frameCounter) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.NW, width: 190, height: 90, hSpace: 10, vSpace: 10);
+
             new StateWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.SW, width: 270, height: 70, hSpace: 10, vSpace: 10);
+
             new SolverWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.W, width: 200, height: 70, hSpace: 10, vSpace: 10);
-            new ControlsWidget(UiRoot) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.E, width: 280, relHeight: 1, hSpace: 10, vSpace: 10);
+
+            new ControlsWidget(UiRoot, this) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.E, width: 280, relHeight: 1, hSpace: 10, vSpace: 10);
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
