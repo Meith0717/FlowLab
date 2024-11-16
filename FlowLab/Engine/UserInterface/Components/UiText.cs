@@ -21,9 +21,9 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             base.Place(x, y, _textDimension.X, _textDimension.Y, relX, relY, relWidth, relHeight, hSpace, vSpace, anchor, fillScale);
         }
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
-            base.Update(inputState, transformedMousePosition);
+            base.Update(inputState, transformedMousePosition, gameTime);
 
             _updateTracker?.Invoke(this);
             var textSize = _font.MeasureString(Text) * Scale * new Vector2(1, .75f);

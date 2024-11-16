@@ -52,7 +52,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         private bool _clicked;
         private bool _disabled;
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             if (_disabled) return;
             if (Canvas.GetGlobalBounds().Contains(transformedMousePosition) && !_hover)

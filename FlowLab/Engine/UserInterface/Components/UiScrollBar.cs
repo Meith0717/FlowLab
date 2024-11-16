@@ -27,7 +27,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         private RectangleF _sliderBounds = new();
         private float _relativeMousePositionOnSlider;
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             _rootHeight = _root.Canvas.GetGlobalBounds().Height;
 

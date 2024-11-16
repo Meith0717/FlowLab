@@ -20,46 +20,46 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             _uiText = new(this, spriteFont);
         }
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
-            base.Update(inputState, transformedMousePosition);
+            base.Update(inputState, transformedMousePosition, gameTime);
 
             if (Canvas.GetGlobalBounds().Contains(transformedMousePosition)
                 && inputState.HasAction(ActionType.LeftWasClicked))
             {
                 _isActive = !_isActive;
             }
+            _uiText.Text = string.Concat(_chars);
             if (!_isActive) return;
             _isActive = !inputState.HasAction(ActionType.LeftWasClicked);
-
-            var typedString = inputState.TypedString;
-            if (!string.IsNullOrEmpty(typedString))
-            {
-                _caretCoolDown = 0;
-                _chars.AddLast(inputState.TypedString);
-            }
-            if (_chars.Count > 0)
-                inputState.DoAction(ActionType.BackSpace, () =>
-                {
-                    _caretCoolDown = 0;
-                    _chars.RemoveLast();
-                });
+            CaretController(gameTime);
+            CheckForInput(inputState);
         }
 
-        public override void ApplyResolution(float uiScale)
+        private void CheckForInput(InputState inputState)
         {
-            base.ApplyResolution(uiScale);
-            //if (_isActive) {
-            //    _caretCoolDown -= gameTime.ElapsedGameTime.TotalMilliseconds;
-            //    _caretCoolDown = double.Clamp(_caretCoolDown, -500, 500);
-            //    if (_caretCoolDown == -500) _caretCoolDown = -_caretCoolDown;
-            //} else
-            //{
-            //    _caretCoolDown = 1;
-            //}
-            //_uiText.Text = string.Concat(_chars);
-            //if (_caretCoolDown <= 0) 
-            //    _uiText.Text += "|";
+            if (_chars.Count > 0)
+                inputState.DoAction(ActionType.BackSpace, () => { _caretCoolDown = 0; _chars.RemoveLast(); });
+            var typedString = inputState.TypedString;
+            if (string.IsNullOrEmpty(typedString)) return;
+            _caretCoolDown = 0;
+            _chars.AddLast(inputState.TypedString);
+        }
+
+        private void CaretController(GameTime gameTime)
+        {
+            if (!_isActive) 
+            {
+                _caretCoolDown = 1;
+                return;
+            };
+
+            _caretCoolDown -= gameTime.ElapsedGameTime.TotalMilliseconds;
+            _caretCoolDown = double.Clamp(_caretCoolDown, -500, 500);
+            if (_caretCoolDown == -500) _caretCoolDown = -_caretCoolDown;
+            if (_caretCoolDown <= 0)
+                _uiText.Text += "|";
+
         }
 
         public override void Place(int? x = null, int? y = null, int? width = null, int? height = null, float relX = 0, float relY = 0, float relWidth = 0.1F, float relHeight = 0.1F, int? hSpace = null, int? vSpace = null, Anchor anchor = Anchor.None, FillScale fillScale = FillScale.None)
@@ -69,7 +69,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         }
 
         public float TextScale { set { _uiText.Scale = value; } }
-
+        public Color TextColor { set { _uiText.Color = value; } }
         public string Text => _uiText.Text;
 
     }

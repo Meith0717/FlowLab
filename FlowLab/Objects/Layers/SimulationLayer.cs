@@ -39,6 +39,7 @@ namespace FlowLab.Game.Objects.Layers
             new PerformanceWidget(UiRoot, _particleManager, frameCounter) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.NW, width: 190, height: 90, hSpace: 10, vSpace: 10);
             new StateWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.SW, width: 270, height: 70, hSpace: 10, vSpace: 10);
             new SolverWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.W, width: 200, height: 70, hSpace: 10, vSpace: 10);
+            new ControlsWidget(UiRoot) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.E, width: 280, relHeight: 1, hSpace: 10, vSpace: 10);
         }
 
         public override void Update(GameTime gameTime, InputState inputState)

@@ -54,7 +54,7 @@ public abstract class Layer : IDisposable
 
     public virtual void Update(GameTime gameTime, InputState inputState)
     {
-        UiRoot.Update(inputState, inputState.MousePosition);
+        UiRoot.Update(inputState, inputState.MousePosition, gameTime);
     }
 
     public virtual void Draw(SpriteBatch spriteBatch) {; }

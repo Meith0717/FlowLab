@@ -35,9 +35,9 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             _text.Place(anchor: Anchor.Center);
         }
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
-            base.Update(inputState, transformedMousePosition);
+            base.Update(inputState, transformedMousePosition, gameTime);
         }
 
         private void IncreaseIndex()

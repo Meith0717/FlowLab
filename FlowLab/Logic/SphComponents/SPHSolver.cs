@@ -4,7 +4,6 @@
 
 using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
-using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -73,7 +72,7 @@ namespace FlowLab.Logic.SphComponents
                 // Break condition
                 var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.DensityError) : 0;
                 errors.Add(avgDensityError);
-                if ((avgDensityError <= MaxError) && (i > 2))
+                if ((avgDensityError <= MaxError) && (i > 2) || (i > 100))
                     break;
 
                 i++;

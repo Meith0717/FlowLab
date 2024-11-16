@@ -5,10 +5,11 @@
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Tiled;
 
 namespace FlowLab.Game.Engine.UserInterface
 {
-    public enum Anchor { N, NE, E, SE, S, SW, W, NW, Center, CenterH, CenterV, None }
+    public enum Anchor { N, NE, E, SE, S, SW, W, NW, Center, CenterH, CenterV, Left, Right, Top, Down, None }
     public enum FillScale { X, Y, Both, FillIn, Fit, None }
 
     public class Canvas
@@ -113,6 +114,7 @@ namespace FlowLab.Game.Engine.UserInterface
                 Anchor.NW => 0,
                 Anchor.SW => 0,
                 Anchor.W => 0,
+                Anchor.Left => 0,
                 Anchor.N => (root.Width - width) / 2,
                 Anchor.Center => (root.Width - width) / 2,
                 Anchor.CenterV => (root.Width - width) / 2,
@@ -120,7 +122,10 @@ namespace FlowLab.Game.Engine.UserInterface
                 Anchor.NE => root.Width - width,
                 Anchor.E => root.Width - width,
                 Anchor.SE => root.Width - width,
+                Anchor.Right => root.Width - width,
                 Anchor.CenterH => x,
+                Anchor.Top => x,
+                Anchor.Down => x,
                 Anchor.None => x,
                 _ => throw new System.NotImplementedException()
             };
@@ -129,6 +134,7 @@ namespace FlowLab.Game.Engine.UserInterface
                 Anchor.NW => 0,
                 Anchor.N => 0,
                 Anchor.NE => 0,
+                Anchor.Top => 0,
                 Anchor.E => (root.Height - height) / 2,
                 Anchor.W => (root.Height - height) / 2,
                 Anchor.Center => (root.Height - height) / 2,
@@ -136,7 +142,10 @@ namespace FlowLab.Game.Engine.UserInterface
                 Anchor.SE => root.Height - height,
                 Anchor.S => root.Height - height,
                 Anchor.SW => root.Height - height,
+                Anchor.Down => root.Height - height,
                 Anchor.CenterV => y,
+                Anchor.Left => y,
+                Anchor.Right => y,
                 Anchor.None => y,
                 _ => throw new System.NotImplementedException()
             };

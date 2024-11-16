@@ -19,7 +19,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
 
         public float Value { get => _sliderValue; set => _sliderValue = value; }
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             if (!_hoverable) return;
             var rectangle = Canvas.GetGlobalBounds();

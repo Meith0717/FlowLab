@@ -49,7 +49,7 @@ namespace FlowLab.Game.Engine.UserInterface
         public void Add(UiLayer child)
             => _elementChilds.Add(child);
 
-        public override void Update(InputState inputState, Vector2 transformedMousePosition)
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             var mousePosition = Transformations.ScreenToWorld(_scrollMatrix, transformedMousePosition);
 
@@ -63,12 +63,12 @@ namespace FlowLab.Game.Engine.UserInterface
                 virtualChildBounds = child.Canvas.GetGlobalBounds();
                 virtualChildBounds.Y += _actualVirtualHeight;
                 if (!Canvas.GetGlobalBounds().Intersects(virtualChildBounds)) continue;
-                child.Update(inputState, mousePosition);
+                child.Update(inputState, mousePosition, gameTime);
             }
 
             _scrollBar.VirtualHeight = virtualHeight;
             _scrollBar.ApplyResolution(UiScale);
-            _scrollBar.Update(inputState, transformedMousePosition);
+            _scrollBar.Update(inputState, transformedMousePosition, gameTime);
             if (Canvas.GetGlobalBounds().Contains(inputState.MousePosition))
                 _scrollBar.ScrollByMouse(inputState);
             _scrollMatrix = Matrix.CreateTranslation(0, _actualVirtualHeight = _scrollBar.Value, 0);

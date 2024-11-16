@@ -56,7 +56,7 @@ namespace FlowLab.Game.Engine.UserInterface
             FillScale = fillScale;
         }
 
-        public virtual void Update(InputState inputState, Vector2 transformedMousePosition) {; }
+        public virtual void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime) {; }
 
         public virtual void ApplyResolution(float uiScale)
         {
