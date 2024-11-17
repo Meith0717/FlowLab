@@ -86,6 +86,10 @@ namespace FlowLab.Core.InputManagement
             MousePosition = mousePosition;
         }
 
+
+
+        public readonly bool ContainAction(ActionType action) => Actions.Contains(action);
+
         public readonly bool HasAction(ActionType action) => Actions.Remove(action);
 
         public readonly void DoAction(ActionType action, Action function)

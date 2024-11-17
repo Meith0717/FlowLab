@@ -33,12 +33,15 @@ namespace FlowLab.Game.Engine.UserInterface.Components
 
         private void ActiveController(InputState inputState, Vector2 mousePosition)
         {
-            if (!inputState.HasAction(ActionType.LeftWasClicked)) return;
             if (Canvas.GetGlobalBounds().Contains(mousePosition))
             {
-                _isActive = !_isActive;
-                if (_isActive) return;
-            }
+                if (inputState.ContainAction(ActionType.LeftWasClicked))
+                    _isActive = !_isActive;
+                if (_isActive)
+                    return;
+            } 
+            if (!inputState.ContainAction(ActionType.LeftWasClicked)) 
+                return;
             _isActive = false;
             OnClose?.Invoke(this);
         }

@@ -131,6 +131,8 @@ namespace FlowLab.Core.InputManagement.Peripheral
         private string GetPressedDigs(Keys pressedKey)
         {
             if (mPreviousKeysPressed.Contains(pressedKey)) return "";
+            if (pressedKey == Keys.OemPeriod) return ".";
+            if (pressedKey == Keys.OemMinus) return "-";
             if (pressedKey >= Keys.D0 && pressedKey <= Keys.D9)
                 return ((char)('0' + (pressedKey - Keys.D0))).ToString();
             return "";
