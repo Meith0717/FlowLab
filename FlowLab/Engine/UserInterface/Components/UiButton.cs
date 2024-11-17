@@ -54,6 +54,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
 
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
+            UpdatTracker.Invoke(this);
             if (_disabled) return;
             if (Canvas.GetGlobalBounds().Contains(transformedMousePosition) && !_hover)
                 SoundEffectManager.Instance.PlaySound("hoverButton");
@@ -103,6 +104,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             base.Draw(spriteBatch);
         }
 
+        public Action<UiButton> UpdatTracker { get; set; }
         public TextAlign TextAlign { private get; set; } = TextAlign.Center;
         public float TextScale { private get; set; } = 1;
         public string Text { private get; set; } = "";

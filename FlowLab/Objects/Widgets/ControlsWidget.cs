@@ -21,6 +21,15 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 2, hSpace: 5);
 
+            new UiButton(this, "consola", "Pause", "button", () => simulationLayer.Paused = !simulationLayer.Paused)
+            {
+                UpdatTracker = (self) => self.TextureIdleColor = simulationLayer.Paused ? Color.Green : Color.Red,
+                TextScale = .15f,
+                TextureScale = .6f,
+                TextIdleColor = Color.White,
+                TextureIdleColor = Color.Red,
+            }.Place(anchor: Anchor.Right, y: 2, hSpace: 5);
+
             #region global settings
             new UiText(this, "consola")
             {

@@ -24,6 +24,7 @@ namespace FlowLab.Game.Objects.Layers
         public float TimeSteps = .1f;
         public float FluidStiffness = 2000f;
         public float FluidViscosity = 30f;
+        public bool Paused = true;
 
         private readonly Camera2D _camera;
         private readonly ParticleManager _particleManager;
@@ -53,10 +54,12 @@ namespace FlowLab.Game.Objects.Layers
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 2);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
-            _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
-            _particlePlacer.Update(inputState, _camera);
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(_particleManager); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
+            inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
+            _particlePlacer.Update(inputState, _camera);
+            if (!Paused) 
+                _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
             base.Update(gameTime, inputState);
         }
 
