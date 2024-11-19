@@ -1,0 +1,40 @@
+﻿// ControlWidget.cs 
+// Copyright (c) 2023-2024 Thierry Meiers 
+// All rights reserved.
+
+using FlowLab.Game.Engine.UserInterface;
+using FlowLab.Game.Engine.UserInterface.Components;
+using FlowLab.Game.Objects.Layers;
+using FlowLab.Logic.ParticleManagement;
+using FlowLab.Logic.ScenarioManagement;
+
+namespace FlowLab.Objects.Widgets
+{
+    internal class ControlWidget : UiLayer
+    {
+
+        public ControlWidget(UiLayer root, SimulationLayer simulationLayer, ParticleManager particleManager, ScenarioManager scenarioManager) 
+            : base(root)
+        {
+            new UiButton(this, "consola", "Pause", "button", () => simulationLayer.Paused = !simulationLayer.Paused)
+            {
+                UpdatTracker = self => self.Text = simulationLayer.Paused ? "Resume" : "Pause",
+                TextureScale = .75f,
+                TextScale = .15f
+            }.Place(anchor: Anchor.CenterV, y: 5);
+
+            new UiButton(this, "consola", "Clear", "button", particleManager.Clear)
+            {
+                UpdatTracker = self => self.Disable = particleManager.Count == 0,
+                TextureScale = .75f,
+                TextScale = .15f
+            }.Place(anchor: Anchor.CenterV, y: 50);
+
+            new UiButton(this, "consola", "Next Scene", "button", scenarioManager.NextScene)
+            {
+                TextureScale = .75f,
+                TextScale = .15f
+            }.Place(anchor: Anchor.CenterV, y: 95);
+        }
+    }
+}

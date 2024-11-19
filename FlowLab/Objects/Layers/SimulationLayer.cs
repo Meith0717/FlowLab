@@ -8,6 +8,7 @@ using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
 using FlowLab.Game.Engine.UserInterface;
+using FlowLab.Game.Engine.UserInterface.Components;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
 using FlowLab.Objects.Widgets;
@@ -36,15 +37,42 @@ namespace FlowLab.Game.Objects.Layers
         {
             _camera = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
-            _scenarioManager = new();
+            _scenarioManager = new(_particleManager);
             _particlePlacer = new(_particleManager, ParticleDiameter);
-            _scenarioManager.NextScene(_particleManager);
+            _scenarioManager.NextScene();
 
-            new PerformanceWidget(UiRoot, _particleManager, frameCounter) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.NW, width: 200, height: 250, hSpace: 10, vSpace: 10);
+            new PerformanceWidget(UiRoot, _particleManager, frameCounter)
+            { 
+                InnerColor = new(30, 30, 30),
+                BorderColor = new(75, 75, 75),
+                BorderSize = 5,
+                Alpha = .75f 
+            }.Place(anchor: Anchor.NW, width: 200, height: 200, hSpace: 10, vSpace: 10);
 
-            new StateWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.SW, width: 220, height: 70, hSpace: 10, vSpace: 10);
+            new StateWidget(UiRoot, _particleManager) 
+            { 
+                InnerColor = new(30, 30, 30),
+                BorderColor = new(75, 75, 75),
+                BorderSize = 5, 
+                Alpha = .75f 
+            }.Place(anchor: Anchor.SE, width: 260, height:85, hSpace: 10, vSpace: 10);
 
-            new ControlsWidget(UiRoot, this) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.E, width: 280, relHeight: 1, hSpace: 10, vSpace: 10);
+            new SettingsWidget(UiRoot, this) 
+            { 
+                InnerColor = new(30, 30, 30), 
+                BorderColor = new(75, 75, 75),
+                BorderSize = 5, 
+                Alpha = .75f 
+            }.Place(anchor: Anchor.NE, width: 280, relHeight: .6f, hSpace: 10, vSpace: 10);
+
+            new ControlWidget(UiRoot, this, _particleManager, _scenarioManager)
+            {
+                InnerColor = new(30, 30, 30),
+                BorderColor = new(75, 75, 75),
+                BorderSize = 5,
+                Alpha = .75f
+            }.Place(anchor: Anchor.SW, width: 150, height: 134, hSpace: 10, vSpace: 10);
+
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
@@ -52,7 +80,7 @@ namespace FlowLab.Game.Objects.Layers
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 2);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
-            inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(_particleManager); _particlePlacer.Clear(); });
+            inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
             _particlePlacer.Update(inputState, _camera);

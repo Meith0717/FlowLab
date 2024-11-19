@@ -32,62 +32,62 @@ namespace FlowLab.Objects.Widgets
                 Text = "GLOBAL",
                 Scale = .19f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 40);
+            }.Place(anchor: Anchor.Left, hSpace: 5, y: 30);
 
             new UiText(this, "consola")
             {
                 Text = "Fps:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 80);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 60);
             new UiText(this, "consola", self => self.Text = float.Round(_frameCounter.CurrentFramesPerSecond).ToString())
             {
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 5, y: 80);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 60);
 
             new UiText(this, "consola")
             {
                 Text = "Sim.Time:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 110);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 90);
             new UiText(this, "consola", self => self.Text = double.Round(_particleManager.SimulationTime, 2).ToString())
             {
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 5, y: 110);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 90);
 
             new UiText(this, "consola")
             {
                 Text = "Particles:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 140);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 120);
             new UiText(this, "consola", self => self.Text = _particleManager.Count.ToString())
             {
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 5, y: 140);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 120);
 
             new UiText(this, "consola")
             {
                 Text = "IISPH",
                 Scale = .19f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 180);
+            }.Place(anchor: Anchor.Left, hSpace: 5, y: 150);
 
             new UiText(this, "consola")
             {
                 Text = "Iterations:",
                 Scale = .15f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 220);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 180);
             new UiText(this, "consola", self => self.Text = float.Round(_particleManager.SolverIterations, 2).ToString())
             {
                 Scale = .15f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 5, y: 220);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 180);
         }
     }
 }

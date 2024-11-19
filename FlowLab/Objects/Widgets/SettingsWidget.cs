@@ -9,9 +9,9 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Objects.Widgets
 {
-    internal class ControlsWidget : UiLayer
+    internal class SettingsWidget : UiLayer
     {
-        public ControlsWidget(UiLayer root, SimulationLayer simulationLayer) 
+        public SettingsWidget(UiLayer root, SimulationLayer simulationLayer) 
             : base(root)
         {
             new UiText(this, "consola")
@@ -20,14 +20,6 @@ namespace FlowLab.Objects.Widgets
                 Scale = .2f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 2, hSpace: 5);
-
-            new UiButton(this, "play", () => simulationLayer.Paused = !simulationLayer.Paused)
-            {
-                UpdatTracker = (self) => self.Texture = simulationLayer.Paused ? "play" : "pause",
-                TextureScale = .1f,
-                TextureIdleColor = Color.White,
-                TextureHoverColor = Color.Gray,
-            }.Place(anchor: Anchor.Right, y: 5, hSpace: 5);
 
             new UiText(this, "consola")
             {

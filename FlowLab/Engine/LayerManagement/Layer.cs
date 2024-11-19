@@ -75,7 +75,7 @@ public abstract class Layer : IDisposable
     public virtual void ApplyResolution(GameTime gameTime)
     {
         _layerCanvas.UpdateFrame(GraphicsDevice.Viewport.Bounds, 1, fillScale: FillScale.Both);
-        UiRoot.ApplyResolution(1);
+        UiRoot.ApplyResolution(1f);
 
         _renderTarget2D.Dispose();
         _renderTarget2D = new(Game1.GraphicsDevice, Game1.GraphicsDevice.Viewport.Width, Game1.GraphicsDevice.Viewport.Height, false, GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);

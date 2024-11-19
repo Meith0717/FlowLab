@@ -10,9 +10,10 @@ namespace FlowLab.Logic.ScenarioManagement
     internal class ScenarioManager
     {
         private readonly Dictionary<Polygon, Action> _scenes;
+        private readonly ParticleManager _particleManager;
         private int _activeSceneIndex;
 
-        public ScenarioManager()
+        public ScenarioManager(ParticleManager particleManager)
         {
             _activeSceneIndex -= 1;
             _scenes = new()
@@ -26,22 +27,23 @@ namespace FlowLab.Logic.ScenarioManagement
                 { PolygonFactory.CreateCircle(70, 50), null },
                 { PolygonFactory.CreateCircle(120, 60), null },
             };
+            _particleManager = particleManager;
         }
 
-        public void NextScene(ParticleManager particleManager)
+        public void NextScene()
         {
             if (_scenes.Count <= 0) return;
             _activeSceneIndex = (_activeSceneIndex + 1) % _scenes.Count;
-            ApplyScene(_activeSceneIndex, particleManager);
+            ApplyScene(_activeSceneIndex);
         }
 
-        private void ApplyScene(int index, ParticleManager particleManager)
+        private void ApplyScene(int index)
         {
             var keyValue = _scenes.ElementAt(index);
             var polygone = keyValue.Key;
             var action = keyValue.Value;
-            particleManager.ClearAll();
-            particleManager.AddPolygon(polygone);
+            _particleManager.ClearAll();
+            _particleManager.AddPolygon(polygone);
             action?.Invoke();
         }
     }
