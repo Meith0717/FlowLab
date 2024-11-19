@@ -8,12 +8,14 @@ using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
 using FlowLab.Game.Engine.UserInterface;
-using FlowLab.Game.Engine.UserInterface.Components;
+using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
-using FlowLab.Logic.ScenarioManagement;
 using FlowLab.Objects.Widgets;
+using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
+using System.Diagnostics;
 
 namespace FlowLab.Game.Objects.Layers
 {
@@ -31,6 +33,8 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ParticleManager _particleManager;
         private readonly ScenarioManager _scenarioManager;
         private readonly ParticlePlacer _particlePlacer;
+        private readonly ParticelDebugger _debugger;
+
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -39,6 +43,7 @@ namespace FlowLab.Game.Objects.Layers
             _particleManager = new(ParticleDiameter, FluidDensity);
             _scenarioManager = new(_particleManager);
             _particlePlacer = new(_particleManager, ParticleDiameter);
+            _debugger = new();
             _scenarioManager.NextScene();
 
             new PerformanceWidget(UiRoot, _particleManager, frameCounter)
@@ -79,7 +84,7 @@ namespace FlowLab.Game.Objects.Layers
         public override void Update(GameTime gameTime, InputState inputState)
         {
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
-            Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 2);
+            Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
@@ -87,6 +92,9 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer.Update(inputState, _camera);
             if (!Paused) 
                 _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
+            var worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
+            _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePosition, ParticleDiameter);
+            if (_debugger.IsSelected) _camera.Position = _debugger.SelectedParticle.Position;
             base.Update(gameTime, inputState);
         }
 
@@ -94,10 +102,11 @@ namespace FlowLab.Game.Objects.Layers
         {
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
-            _particleManager.DrawParticles(spriteBatch, _camera.TransformationMatrix, particleTexture, Color.Gray);
+            _particleManager.DrawParticles(spriteBatch, _debugger, _camera.TransformationMatrix, particleTexture, Color.Gray);
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
             _particlePlacer.Draw(spriteBatch, particleTexture, Color.White);
             spriteBatch.End();
+            _debugger.DrawParticleInfo(spriteBatch, GraphicsDevice.Viewport.Bounds.GetCorners()[3].ToVector2());
             base.Draw(spriteBatch);
         }
     }

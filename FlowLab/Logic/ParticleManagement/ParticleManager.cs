@@ -11,6 +11,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
@@ -23,23 +24,19 @@ namespace FlowLab.Logic.ParticleManagement
         private readonly List<Particle> _particles;
         private readonly List<Particle> _fluidParticles;
         private readonly List<Particle> _boundaryParticles;
-        private readonly SpatialHashing _spatialHashing;
+        public readonly SpatialHashing SpatialHashing;
         public readonly float ParticleDiameter;
         public readonly float FluidDensity;
-        private Effect _effect;
 
         public ParticleManager(int particleDiameter, float fluidDensity)
         {
             _particles = new();
             _fluidParticles = new();
             _boundaryParticles = new();
-            _spatialHashing = new(particleDiameter * 2);
+            SpatialHashing = new(particleDiameter * 2);
             ParticleDiameter = particleDiameter;
             FluidDensity = fluidDensity;
         }
-
-        public void LoadContent(ContentManager content)
-            => _effect = content.Load<Effect>("FilledCircle");
 
         public void AddPolygon(Polygon polygon)
         {
@@ -78,7 +75,7 @@ namespace FlowLab.Logic.ParticleManagement
             _particles.Clear();
             _fluidParticles.Clear();
             _boundaryParticles.Clear();
-            _spatialHashing.Clear();
+            SpatialHashing.Clear();
         }
 
         public void RemoveParticle(Particle particle)
@@ -88,7 +85,7 @@ namespace FlowLab.Logic.ParticleManagement
                 _boundaryParticles.Remove(particle);
             else
                 _fluidParticles.Remove(particle);
-            _spatialHashing.RemoveObject(particle);
+            SpatialHashing.RemoveObject(particle);
         }
 
         public void AddNewParticle(Vector2 position, bool isBoundary = false)
@@ -99,7 +96,7 @@ namespace FlowLab.Logic.ParticleManagement
                 _boundaryParticles.Add(particle);
             else
                 _fluidParticles.Add(particle);
-            _spatialHashing.InsertObject(particle);
+            SpatialHashing.InsertObject(particle);
         }
 
         public int Count => _particles.Where(p => !p.IsBoundary).Count();
@@ -112,23 +109,29 @@ namespace FlowLab.Logic.ParticleManagement
         {
             var solverIterations = 0;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            SPHSolver.IISPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps, out solverIterations);
-            // SPHSolver.SESPH(_particles, _spatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
+            SPHSolver.IISPH(_particles, SpatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps, out solverIterations);
+            // SPHSolver.SESPH(_particles, SpatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
             watch.Stop();
             SolverIterations = solverIterations;
             SimulationTime = watch.Elapsed.TotalMilliseconds;
         }
          
-        public void DrawParticles(SpriteBatch spriteBatch, Matrix transformationMatrix, Texture2D particleTexture, Color boundaryColor)
+        public void DrawParticles(SpriteBatch spriteBatch, ParticelDebugger debugger,  Matrix transformationMatrix, Texture2D particleTexture, Color boundaryColor)
         {
-            spriteBatch.Begin(transformMatrix: transformationMatrix, effect: _effect, blendState: BlendState.AlphaBlend);
+            spriteBatch.Begin(transformMatrix: transformationMatrix, effect: null, blendState: BlendState.AlphaBlend);
             foreach (var particle in _particles)
             {
                 var position = particle.Position;
                 Color color = !particle.IsBoundary ? Color.Blue : boundaryColor;
-
+                if (debugger.IsSelected)
+                {
+                    color = debugger.SelectedParticle.Neighbors.Contains(particle) ? Color.Orange : color;
+                    color = debugger.SelectedParticle == particle ? Color.Red : color;
+                }
                 spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), ParticleDiameter / particleTexture.Width, SpriteEffects.None, 0);
             } 
+            if (debugger.IsSelected)
+                spriteBatch.DrawCircle(debugger.SelectedParticle.Position, ParticleDiameter * 2, 30, Color.Red);
             spriteBatch.End();
         }
     }

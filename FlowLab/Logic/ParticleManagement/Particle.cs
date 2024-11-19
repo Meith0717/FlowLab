@@ -14,24 +14,25 @@ namespace FlowLab.Logic.ParticleManagement
 {
     public class Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
+        [NotNull] public Vector2 Position { get; set; } = position;
+        [NotNull] public Vector2 Velocity { get; set; }
+        [NotNull] public Vector2 PressureAcceleration { get; set; }
+        [NotNull] public Vector2 GravitationAcceleration { get; set; }
+        [NotNull] public Vector2 ViscosityAcceleration { get; set; }
+
         public float Diameter { get; private set; } = diameter;
         public float Density0 { get; private set; } = fluidDensity;
         public bool IsBoundary { get; private set; } = isBoundary;
         public float Volume { get; private set; } = diameter * diameter;
         public float Mass { get; private set; } = (diameter * diameter) * fluidDensity;
 
-        [NotNull] public Vector2 Position = position;
-        [NotNull] public Vector2 Velocity;
-        [NotNull] public Vector2 PressureAcceleration;
-        [NotNull] public Vector2 GravitationAcceleration;
-        [NotNull] public Vector2 ViscosityAcceleration;
-        public float Density;
-        public float Pressure;
-        public float AII;
-        public float St;
-        public float Ap;
-        public float Cfl;
-        public float DensityError;
+        public float Density { get; set; }
+        public float Pressure { get; set; }
+        public float AII { get; set; }
+        public float St { get; set; }
+        public float Ap { get; set; }
+        public float Cfl { get; set; }
+        public float DensityError { get; set; }
 
         /// <summary>
         /// Current particle neighbors.
