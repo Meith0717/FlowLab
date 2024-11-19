@@ -21,16 +21,14 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 2, hSpace: 5);
 
-            new UiButton(this, "consola", "Pause", "button", () => simulationLayer.Paused = !simulationLayer.Paused)
+            new UiButton(this, "play", () => simulationLayer.Paused = !simulationLayer.Paused)
             {
-                UpdatTracker = (self) => self.TextureIdleColor = simulationLayer.Paused ? Color.Green : Color.Red,
-                TextScale = .15f,
-                TextureScale = .6f,
-                TextIdleColor = Color.White,
-                TextureIdleColor = Color.Red,
-            }.Place(anchor: Anchor.Right, y: 2, hSpace: 5);
+                UpdatTracker = (self) => self.Texture = simulationLayer.Paused ? "play" : "pause",
+                TextureScale = .1f,
+                TextureIdleColor = Color.White,
+                TextureHoverColor = Color.Gray,
+            }.Place(anchor: Anchor.Right, y: 5, hSpace: 5);
 
-            #region global settings
             new UiText(this, "consola")
             {
                 Text = "GLOBAL",
@@ -38,8 +36,12 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 40, hSpace: 5);
 
-            #region time Step
-            new UiText(this, "consola") { Text = "Time step:", Scale = .17f, Color = Color.White }.Place(anchor: Anchor.Left, y: 80, hSpace: 5);
+            new UiText(this, "consola") 
+            { 
+                Text = "Time step:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: 80, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,
@@ -53,10 +55,13 @@ namespace FlowLab.Objects.Widgets
                     simulationLayer.TimeSteps = f; 
                 }
             }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 80, hSpace: 5);
-            #endregion
 
-            #region viscosity
-            new UiText(this, "consola") { Text = "Viscosity:", Scale = .17f, Color = Color.White }.Place(anchor: Anchor.Left, y: 110, hSpace: 5);
+            new UiText(this, "consola") 
+            { 
+                Text = "Viscosity:", 
+                Scale = .17f, 
+                Color = Color.White 
+            }.Place(anchor: Anchor.Left, y: 110, hSpace: 5);
             new UiEntryField(this, "consola") 
             { 
                 TextScale = .17f,
@@ -70,10 +75,13 @@ namespace FlowLab.Objects.Widgets
                     simulationLayer.FluidViscosity = f;
                 }
             }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 110, hSpace: 5);
-            #endregion
 
-            #region graviattion
-            new UiText(this, "consola") { Text = "Gravitation:", Scale = .17f, Color = Color.White }.Place(anchor: Anchor.Left, y: 140, hSpace: 5);
+            new UiText(this, "consola") 
+            { 
+                Text = "Gravitation:",
+                Scale = .17f,
+                Color = Color.White 
+            }.Place(anchor: Anchor.Left, y: 140, hSpace: 5);
             new UiEntryField(this, "consola") {
                 TextScale = .17f, 
                 InnerColor = new(50, 50, 50),
@@ -86,10 +94,7 @@ namespace FlowLab.Objects.Widgets
                     simulationLayer.Gravitation = f;
                 }
             }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 140, hSpace: 5);
-            #endregion
-            #endregion
 
-            #region sesph settings
             new UiText(this, "consola")
             {
                 Text = "SESPH",
@@ -97,8 +102,12 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 180, hSpace: 5);
 
-            #region stiffnes
-            new UiText(this, "consola") { Text = "Stiffnes:", Scale = .17f, Color = Color.White }.Place(anchor: Anchor.Left, y: 220, hSpace: 5);
+            new UiText(this, "consola") 
+            {
+                Text = "Stiffnes:", 
+                Scale = .17f, 
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: 220, hSpace: 5);
             new UiEntryField(this, "consola") { 
                 TextScale = .17f, 
                 InnerColor = new(50, 50, 50), 
@@ -111,14 +120,7 @@ namespace FlowLab.Objects.Widgets
                     simulationLayer.FluidStiffness = f;
                 }
             }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 220, hSpace: 5);
-            #endregion
-            #endregion
-        }
-
-        private void TryPhrase(ref string obj, string text) 
-        {
-            if (float.TryParse(text, out var f)) return;
-            obj = text;
+        
         }
     }
 }

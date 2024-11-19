@@ -22,32 +22,31 @@ namespace FlowLab.Objects.Widgets
                 Text = "STATE",
                 Scale = .18f,
                 Color = Color.White
-            }.Place(x: 5, y: 2);
+            }.Place(anchor: Anchor.Left, hSpace: 5, y: 2);
 
             new UiText(this, "consola")
             {
-                Text = "Rel.Density error:",
+                Text = "Density error:",
                 Scale = .15f,
                 Color = Color.White
-            }.Place(x: 5, y: 30);
+            }.Place(anchor: Anchor.Left, hSpace: 5, y: 30);
+            new UiText(this, "consola", self => { self.Text =  $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; })
+            {
+                Scale = .15f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 5, y: 30);
+
             new UiText(this, "consola")
             {
                 Text = "CLF Condition:",
                 Scale = .15f,
                 Color = Color.White
-            }.Place(x: 5, y: 50);
-
-            new UiText(this, "consola", self => { self.Text =  $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; })
-            {
-                Scale = .15f,
-                Color = Color.White
-            }.Place(x: 200, y: 30);
-
+            }.Place(anchor: Anchor.Left, hSpace: 5, y: 50);
             new UiText(this, "consola", self => { self.Text = $"{double.Round(_particleManager.CflCondition * 100).ToString()}%"; })
             {
                 Scale = .15f,
                 Color = Color.White
-            }.Place(x: 200, y: 50);
+            }.Place(anchor: Anchor.Right, hSpace: 5, y: 50);
         }
     }
 }

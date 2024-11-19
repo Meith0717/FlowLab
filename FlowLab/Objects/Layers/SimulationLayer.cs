@@ -40,11 +40,9 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _scenarioManager.NextScene(_particleManager);
 
-            new PerformanceWidget(UiRoot, _particleManager, frameCounter) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.NW, width: 190, height: 90, hSpace: 10, vSpace: 10);
+            new PerformanceWidget(UiRoot, _particleManager, frameCounter) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.NW, width: 200, height: 250, hSpace: 10, vSpace: 10);
 
-            new StateWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.SW, width: 270, height: 70, hSpace: 10, vSpace: 10);
-
-            new SolverWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.W, width: 200, height: 70, hSpace: 10, vSpace: 10);
+            new StateWidget(UiRoot, _particleManager) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.SW, width: 220, height: 70, hSpace: 10, vSpace: 10);
 
             new ControlsWidget(UiRoot, this) { InnerColor = new(30, 30, 30), BorderColor = new(75, 75, 75), BorderSize = 5, Alpha = .75f }.Place(anchor: Anchor.E, width: 280, relHeight: 1, hSpace: 10, vSpace: 10);
         }
