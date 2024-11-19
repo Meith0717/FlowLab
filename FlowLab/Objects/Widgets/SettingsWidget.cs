@@ -1,4 +1,4 @@
-﻿// ControlsWidget.cs 
+﻿// SettingsWidget.cs 
 // Copyright (c) 2023-2024 Thierry Meiers 
 // All rights reserved.
 
@@ -11,7 +11,7 @@ namespace FlowLab.Objects.Widgets
 {
     internal class SettingsWidget : UiLayer
     {
-        public SettingsWidget(UiLayer root, SimulationLayer simulationLayer) 
+        public SettingsWidget(UiLayer root, SimulationLayer simulationLayer)
             : base(root)
         {
             new UiText(this, "consola")
@@ -28,8 +28,8 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 40, hSpace: 5);
 
-            new UiText(this, "consola") 
-            { 
+            new UiText(this, "consola")
+            {
                 Text = "Time step:",
                 Scale = .17f,
                 Color = Color.White
@@ -40,26 +40,26 @@ namespace FlowLab.Objects.Widgets
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
                 Text = simulationLayer.TimeSteps.ToString(),
-                OnClose = (self) => 
+                OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
                         return;
-                    simulationLayer.TimeSteps = f; 
+                    simulationLayer.TimeSteps = f;
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 80, hSpace: 5);
 
-            new UiText(this, "consola") 
-            { 
-                Text = "Viscosity:", 
-                Scale = .17f, 
-                Color = Color.White 
+            new UiText(this, "consola")
+            {
+                Text = "Viscosity:",
+                Scale = .17f,
+                Color = Color.White
             }.Place(anchor: Anchor.Left, y: 110, hSpace: 5);
-            new UiEntryField(this, "consola") 
-            { 
+            new UiEntryField(this, "consola")
+            {
                 TextScale = .17f,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
-                Text= simulationLayer.FluidViscosity.ToString(),
+                Text = simulationLayer.FluidViscosity.ToString(),
                 OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
@@ -68,14 +68,15 @@ namespace FlowLab.Objects.Widgets
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 110, hSpace: 5);
 
-            new UiText(this, "consola") 
-            { 
+            new UiText(this, "consola")
+            {
                 Text = "Gravitation:",
                 Scale = .17f,
-                Color = Color.White 
+                Color = Color.White
             }.Place(anchor: Anchor.Left, y: 140, hSpace: 5);
-            new UiEntryField(this, "consola") {
-                TextScale = .17f, 
+            new UiEntryField(this, "consola")
+            {
+                TextScale = .17f,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
                 Text = simulationLayer.Gravitation.ToString(),
@@ -94,16 +95,17 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 180, hSpace: 5);
 
-            new UiText(this, "consola") 
+            new UiText(this, "consola")
             {
-                Text = "Stiffnes:", 
-                Scale = .17f, 
+                Text = "Stiffnes:",
+                Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 220, hSpace: 5);
-            new UiEntryField(this, "consola") { 
-                TextScale = .17f, 
-                InnerColor = new(50, 50, 50), 
-                TextColor = Color.White, 
+            new UiEntryField(this, "consola")
+            {
+                TextScale = .17f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
                 Text = simulationLayer.FluidStiffness.ToString(),
                 OnClose = (self) =>
                 {

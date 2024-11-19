@@ -5,7 +5,6 @@
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Tiled;
 
 namespace FlowLab.Game.Engine.UserInterface
 {

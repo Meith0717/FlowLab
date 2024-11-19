@@ -15,7 +15,6 @@ using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using System.Diagnostics;
 
 namespace FlowLab.Game.Objects.Layers
 {
@@ -34,6 +33,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ScenarioManager _scenarioManager;
         private readonly ParticlePlacer _particlePlacer;
         private readonly ParticelDebugger _debugger;
+        private readonly ParticleRenderer _particleRenderer;
 
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
@@ -44,23 +44,24 @@ namespace FlowLab.Game.Objects.Layers
             _scenarioManager = new(_particleManager);
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _debugger = new();
+            _particleRenderer = new();
             _scenarioManager.NextScene();
 
             new PerformanceWidget(UiRoot, _particleManager, frameCounter)
-            { 
+            {
                 InnerColor = new(30, 30, 30),
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
-                Alpha = .75f 
+                Alpha = .75f
             }.Place(anchor: Anchor.NW, width: 250, height: 200, hSpace: 5, vSpace: 5);
 
-            new StateWidget(UiRoot, _particleManager) 
-            { 
+            new StateWidget(UiRoot, _particleManager)
+            {
                 InnerColor = new(30, 30, 30),
                 BorderColor = new(75, 75, 75),
-                BorderSize = 5, 
-                Alpha = .75f 
-            }.Place(anchor: Anchor.Left, y: 215, width: 250, height:85, hSpace: 5, vSpace: 5);
+                BorderSize = 5,
+                Alpha = .75f
+            }.Place(anchor: Anchor.Left, y: 215, width: 250, height: 85, hSpace: 5, vSpace: 5);
 
             new SettingsWidget(UiRoot, this)
             {
@@ -90,7 +91,7 @@ namespace FlowLab.Game.Objects.Layers
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
             _particlePlacer.Update(inputState, _camera);
-            if (!Paused) 
+            if (!Paused)
                 _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
             var worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
             _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePosition, ParticleDiameter);
@@ -102,7 +103,7 @@ namespace FlowLab.Game.Objects.Layers
         {
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
-            _particleManager.DrawParticles(spriteBatch, _debugger, _camera.TransformationMatrix, particleTexture, Color.Gray);
+            _particleRenderer.Render(spriteBatch, GraphicsDevice, _particleManager.Particles, _debugger, _camera.TransformationMatrix, particleTexture, ParticleDiameter, Color.Gray);
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
             _particlePlacer.Draw(spriteBatch, particleTexture, Color.White);
             spriteBatch.End();

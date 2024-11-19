@@ -4,7 +4,6 @@
 
 using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
 namespace FlowLab.Engine.Rendering

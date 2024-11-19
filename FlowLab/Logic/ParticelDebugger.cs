@@ -9,9 +9,7 @@ using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FlowLab.Logic
 {
@@ -49,7 +47,7 @@ namespace FlowLab.Logic
                 if (value is List<Particle> lst)
                     value = lst.Count();
                 position.Y -= 20;
-                spriteBatch.DrawString(font,$"{prop.Name}: {value}", position, Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+                spriteBatch.DrawString(font, $"{prop.Name}: {value}", position, Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
             }
             spriteBatch.End();
         }

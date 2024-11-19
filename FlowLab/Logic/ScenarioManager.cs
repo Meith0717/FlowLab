@@ -1,4 +1,8 @@
-﻿using FlowLab.Engine;
+﻿// ScenarioManager.cs 
+// Copyright (c) 2023-2024 Thierry Meiers 
+// All rights reserved.
+
+using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
 using MonoGame.Extended.Shapes;
 using System;

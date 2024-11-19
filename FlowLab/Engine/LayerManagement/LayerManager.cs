@@ -2,7 +2,6 @@
 // Copyright (c) 2023-2024 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

@@ -46,7 +46,7 @@ namespace FlowLab.Logic.SphComponents
             // perform pressure solve using IISPH
             var errors = new List<float>();
             var i = 0;
-            for (;;)
+            for (; ; )
             {
                 // compute pressure accelerations Done
                 Utilitys.ForEach(parallel, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);

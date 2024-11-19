@@ -1,4 +1,4 @@
-﻿// StateInfo.cs 
+﻿// StateWidget.cs 
 // Copyright (c) 2023-2024 Thierry Meiers 
 // All rights reserved.
 
@@ -30,7 +30,7 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 30);
-            new UiText(this, "consola", self => { self.Text =  $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; })
+            new UiText(this, "consola", self => { self.Text = $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; })
             {
                 Scale = .17f,
                 Color = Color.White

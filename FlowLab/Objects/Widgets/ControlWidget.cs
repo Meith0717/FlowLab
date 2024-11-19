@@ -13,7 +13,7 @@ namespace FlowLab.Objects.Widgets
     internal class ControlWidget : UiLayer
     {
 
-        public ControlWidget(UiLayer root, SimulationLayer simulationLayer, ParticleManager particleManager, ScenarioManager scenarioManager) 
+        public ControlWidget(UiLayer root, SimulationLayer simulationLayer, ParticleManager particleManager, ScenarioManager scenarioManager)
             : base(root)
         {
             new UiButton(this, "consola", "Pause", "button", () => simulationLayer.Paused = !simulationLayer.Paused)

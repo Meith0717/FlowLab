@@ -16,7 +16,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         private double _caretCoolDown;
         private bool _isActive;
 
-        public UiEntryField(UiLayer root, string spriteFont) 
+        public UiEntryField(UiLayer root, string spriteFont)
             : base(root)
         {
             _uiText = new(this, spriteFont);
@@ -39,8 +39,8 @@ namespace FlowLab.Game.Engine.UserInterface.Components
                     _isActive = !_isActive;
                 if (_isActive)
                     return;
-            } 
-            if (!inputState.ContainAction(ActionType.LeftWasClicked)) 
+            }
+            if (!inputState.ContainAction(ActionType.LeftWasClicked))
                 return;
             _isActive = false;
             OnClose?.Invoke(this);
