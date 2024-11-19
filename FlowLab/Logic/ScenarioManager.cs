@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FlowLab.Logic.ScenarioManagement
+namespace FlowLab.Logic
 {
     internal class ScenarioManager
     {

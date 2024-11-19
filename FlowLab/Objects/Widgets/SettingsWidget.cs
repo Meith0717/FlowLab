@@ -46,7 +46,7 @@ namespace FlowLab.Objects.Widgets
                         return;
                     simulationLayer.TimeSteps = f; 
                 }
-            }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 80, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 80, hSpace: 5);
 
             new UiText(this, "consola") 
             { 
@@ -66,7 +66,7 @@ namespace FlowLab.Objects.Widgets
                         return;
                     simulationLayer.FluidViscosity = f;
                 }
-            }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 110, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 110, hSpace: 5);
 
             new UiText(this, "consola") 
             { 
@@ -85,7 +85,7 @@ namespace FlowLab.Objects.Widgets
                         return;
                     simulationLayer.Gravitation = f;
                 }
-            }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 140, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 140, hSpace: 5);
 
             new UiText(this, "consola")
             {
@@ -111,8 +111,7 @@ namespace FlowLab.Objects.Widgets
                         return;
                     simulationLayer.FluidStiffness = f;
                 }
-            }.Place(height: 20, width: 100, anchor: Anchor.Right, y: 220, hSpace: 5);
-        
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 220, hSpace: 5);
         }
     }
 }
