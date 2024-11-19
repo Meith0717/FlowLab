@@ -28,7 +28,7 @@ indent_size = 2
 #### Benennungsstile ####
 
 # Header
-file_header_template = {fileName} \nCopyright (c) 2023-2024 Thierry Meiers \nAll rights reserved.
+file_header_template = {fileName} \nCopyright (c) 2023-2025 Thierry Meiers \nAll rights reserved.
 
 # Benennungsregeln
 
@@ -161,3 +161,6 @@ dotnet_diagnostic.CA1811.severity = warning
 dotnet_diagnostic.CA1812.severity = warning
 
 dotnet_diagnostic.CA1823.severity = warning
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
+tab_width = 4
+indent_size = 4

@@ -1,7 +1,8 @@
 ﻿// ParticleRenderer.cs 
-// Copyright (c) 2023-2024 Thierry Meiers 
+// Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using Fluid_Simulator.Core.ColorManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -17,7 +18,7 @@ namespace FlowLab.Logic.ParticleManagement
             foreach (var particle in particles)
             {
                 var position = particle.Position;
-                Color color = !particle.IsBoundary ? Color.Blue : boundaryColor;
+                Color color = !particle.IsBoundary ? ColorSpectrum.ValueToColor(particle.Cfl) : boundaryColor;
                 if (debugger.IsSelected)
                 {
                     color = debugger.SelectedParticle.Neighbors.Contains(particle) ? Color.Orange : color;
