@@ -14,18 +14,11 @@ namespace FlowLab.Logic.ParticleManagement
 {
     public class Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
-        [NotNull] public Vector2 Position { get; set; } = position;
-        [NotNull] public Vector2 Velocity { get; set; }
-        [NotNull] public Vector2 PressureAcceleration { get; set; }
-        [NotNull] public Vector2 GravitationAcceleration { get; set; }
-        [NotNull] public Vector2 ViscosityAcceleration { get; set; }
-
         public float Diameter { get; private set; } = diameter;
         public float Density0 { get; private set; } = fluidDensity;
         public bool IsBoundary { get; private set; } = isBoundary;
         public float Volume { get; private set; } = diameter * diameter;
         public float Mass { get; private set; } = (diameter * diameter) * fluidDensity;
-
         public float Density { get; set; }
         public float Pressure { get; set; }
         public float AII { get; set; }
@@ -34,6 +27,11 @@ namespace FlowLab.Logic.ParticleManagement
         public float Cfl { get; set; }
         public float EstimatedDensityError { get; set; }
         public float DensityError { get; set; }
+        [NotNull] public Vector2 Position { get; set; } = position;
+        [NotNull] public Vector2 Velocity { get; set; }
+        [NotNull] public Vector2 PressureAcceleration { get; set; }
+        [NotNull] public Vector2 GravitationAcceleration { get; set; }
+        [NotNull] public Vector2 ViscosityAcceleration { get; set; }
 
         /// <summary>
         /// Current particle neighbors.
@@ -58,9 +56,9 @@ namespace FlowLab.Logic.ParticleManagement
         [NotNull]
         public Vector2 NonPAcceleration => ViscosityAcceleration + GravitationAcceleration;
 
-        [NotNull] private List<Particle> _neighbors = new();
-        [NotNull] private readonly Dictionary<Particle, float> _neighborKernels = new();
-        [NotNull] private readonly Dictionary<Particle, Vector2> _neighborKernelDerivatives = new();
+        [NotNull] private List<Particle> _neighbors = [];
+        [NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
+        [NotNull] private readonly Dictionary<Particle, Vector2> _neighborKernelDerivatives = [];
 
         /// <summary>
         /// This Method search for neighbors around and calculates the Kernel and Kernel derivative of these.

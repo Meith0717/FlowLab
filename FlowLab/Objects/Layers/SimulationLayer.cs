@@ -22,10 +22,6 @@ namespace FlowLab.Game.Objects.Layers
     {
         private const int ParticleDiameter = 11;
         private const float FluidDensity = 0.3f;
-        public float Gravitation = .3f;
-        public float TimeSteps = .1f;
-        public float FluidStiffness = 2000f;
-        public float FluidViscosity = 30f;
         public bool Paused = true;
 
         private readonly Camera2D _camera;
@@ -34,7 +30,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ParticlePlacer _particlePlacer;
         private readonly ParticelDebugger _debugger;
         private readonly ParticleRenderer _particleRenderer;
-
+        private readonly SimulationSettings _simulationSettings;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -45,6 +41,7 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _debugger = new();
             _particleRenderer = new();
+            _simulationSettings = new();
             _scenarioManager.NextScene();
 
             new PerformanceWidget(UiRoot, _particleManager, frameCounter)
@@ -63,13 +60,12 @@ namespace FlowLab.Game.Objects.Layers
                 Alpha = .75f
             }.Place(anchor: Anchor.Left, y: 215, width: 250, height: 85, hSpace: 5, vSpace: 5);
 
-            new SettingsWidget(UiRoot, this)
+            new SettingsWidget(UiRoot, _simulationSettings)
             {
                 InnerColor = new(30, 30, 30),
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-
             }.Place(anchor: Anchor.NE, width: 250, height: 400, hSpace: 5, vSpace: 5);
 
             new ControlWidget(UiRoot, this, _particleManager, _scenarioManager)
@@ -92,7 +88,7 @@ namespace FlowLab.Game.Objects.Layers
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
-                _particleManager.Update(FluidStiffness, FluidViscosity, Gravitation, TimeSteps, false);
+                _particleManager.Update(_simulationSettings);
             var worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
             _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePosition, ParticleDiameter);
             if (_debugger.IsSelected) _camera.Position = _debugger.SelectedParticle.Position;

@@ -102,14 +102,23 @@ namespace FlowLab.Logic.ParticleManagement
 
         public float CflCondition => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
 
-        public void Update(float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps, bool collectData)
+        public void Update(SimulationSettings simulationSettings)
         {
-            var solverIterations = 0;
+            // ____Update____
+            SolverIterations = 0;
+            bool alg = true;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, FluidDensity, gravitation, timeSteps, out solverIterations);
-            // SPHSolver.SESPH(_particles, SpatialHashing, ParticleDiameter, FluidDensity, fluidStiffness, fluidViscosity, gravitation, timeSteps);
+            switch (alg)
+            {
+                case true:
+                    SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings, out var solverIterations);
+                    SolverIterations = solverIterations;
+                    break;
+                case false:
+                    SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
+                    break;
+            }
             watch.Stop();
-            SolverIterations = solverIterations;
             SimulationTime = watch.Elapsed.TotalMilliseconds;
         }
     }

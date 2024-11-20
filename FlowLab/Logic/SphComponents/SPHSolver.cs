@@ -11,15 +11,19 @@ namespace FlowLab.Logic.SphComponents
 {
     internal static class SPHSolver
     {
-        private const float MaxError = .1f;
-        private const int MaxI = 10;
-
-        public static void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidViscosity, float gravitation, float timeSteps, out int iterations)
+        public static void IISPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings simulationSettings, out int iterations)
         {
             var parallel = true;
             iterations = 0;
             if (_particles.Count <= 0) return;
             var noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
+
+            var timeStep = simulationSettings.TimeStep;
+            var fluidViscosity = simulationSettings.FluidViscosity;
+            var gravitation = simulationSettings.Gravitation;
+            var omega = simulationSettings.RelaxationCoefficient;
+            var minError = simulationSettings.MinError;
+            var maxIterations = simulationSettings.MaxIterations;
 
             // neighborhood search & reset the accelerations of the particles
             Utilitys.ForEach(parallel, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
@@ -29,7 +33,7 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, noBoundaryParticles, p => p.DensityError = 100 * ((p.Density - FluidDensity) / FluidDensity));
 
             // Compute diagonal matrix elements
-            Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeDiagonalElement(particle, timeSteps));
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeDiagonalElement(particle, timeStep));
 
             // compute non-pressure forces
             Utilitys.ForEach(parallel, noBoundaryParticles, particle =>
@@ -39,10 +43,10 @@ namespace FlowLab.Logic.SphComponents
             });
 
             // update velocities using non-pressure forces
-            Utilitys.ForEach(parallel, noBoundaryParticles, particle => particle.Velocity += timeSteps * particle.NonPAcceleration);
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle => particle.Velocity += timeStep * particle.NonPAcceleration);
 
             // Compute source term
-            Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeSourceTerm(timeSteps, particle));
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeSourceTerm(timeStep, particle));
 
             // perform pressure solve using IISPH
             var i = 0;
@@ -52,13 +56,13 @@ namespace FlowLab.Logic.SphComponents
                 Utilitys.ForEach(parallel, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);
 
                 // compute aij * pj
-                Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeLaplacian(particle, timeSteps));
+                Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeLaplacian(particle, timeStep));
 
                 // update pressure values
                 Utilitys.ForEach(parallel, noBoundaryParticles, pI =>
                 {
                     if (float.Abs(pI.AII) > 1e-6)
-                        pI.Pressure += .5f / pI.AII * (pI.St - pI.Ap);
+                        pI.Pressure += omega / pI.AII * (pI.St - pI.Ap);
                     else
                         pI.Pressure = 0;
 
@@ -71,9 +75,10 @@ namespace FlowLab.Logic.SphComponents
 
                 // Break condition
                 var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => float.Max(p.EstimatedDensityError, 0)) : 0;
-                if ((avgDensityError <= MaxError) && (i > 2) || (i >= 100))
+                if ((avgDensityError <= minError) && (i > 2) || (i >= maxIterations))
                     break;
 
+                // Increment
                 i++;
             }
             iterations = i;
@@ -82,21 +87,26 @@ namespace FlowLab.Logic.SphComponents
             foreach (var fluidParticle in noBoundaryParticles)
             {
                 // integrate velocity considering pressure forces 
-                fluidParticle.Velocity += timeSteps * fluidParticle.PressureAcceleration;
+                fluidParticle.Velocity += timeStep * fluidParticle.PressureAcceleration;
 
                 // integrate position
                 spatialHashing.RemoveObject(fluidParticle);
-                fluidParticle.Position += timeSteps * fluidParticle.Velocity;
+                fluidParticle.Position += timeStep * fluidParticle.Velocity;
                 spatialHashing.InsertObject(fluidParticle);
 
-                fluidParticle.Cfl = timeSteps * (fluidParticle.Velocity.Length() / h);
+                fluidParticle.Cfl = timeStep * (fluidParticle.Velocity.Length() / h);
                 // warm start with factor 0.5
                 fluidParticle.Pressure *= .5f;
             }
         }
 
-        public static void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, float fluidStiffness, float fluidViscosity, float gravitation, float timeSteps)
+        public static void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings simulationSettings)
         {
+            var timeStep = simulationSettings.TimeStep;
+            var fluidViscosity = simulationSettings.FluidViscosity;
+            var fluidStiffness = simulationSettings.FluidStiffness;
+            var gravitation = simulationSettings.Gravitation;
+
             Utilitys.ForEach(true, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
             var noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
 
@@ -126,13 +136,13 @@ namespace FlowLab.Logic.SphComponents
             foreach (var fluidParticle in noBoundaryParticles)
             {
                 // Update Velocity
-                fluidParticle.Velocity += timeSteps * fluidParticle.Acceleration;
+                fluidParticle.Velocity += timeStep * fluidParticle.Acceleration;
                 // Update Position
                 spatialHashing.RemoveObject(fluidParticle);
-                fluidParticle.Position += timeSteps * fluidParticle.Velocity;
+                fluidParticle.Position += timeStep * fluidParticle.Velocity;
                 spatialHashing.InsertObject(fluidParticle);
 
-                fluidParticle.Cfl = timeSteps * (fluidParticle.Velocity.Length() / h);
+                fluidParticle.Cfl = timeStep * (fluidParticle.Velocity.Length() / h);
             }
         }
     }

@@ -4,14 +4,14 @@
 
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Engine.UserInterface.Components;
-using FlowLab.Game.Objects.Layers;
+using FlowLab.Logic;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Objects.Widgets
 {
     internal class SettingsWidget : UiLayer
     {
-        public SettingsWidget(UiLayer root, SimulationLayer simulationLayer)
+        public SettingsWidget(UiLayer root, SimulationSettings settings)
             : base(root)
         {
             new UiText(this, "consola")
@@ -39,12 +39,12 @@ namespace FlowLab.Objects.Widgets
                 TextScale = .17f,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
-                Text = simulationLayer.TimeSteps.ToString(),
+                Text = settings.TimeStep.ToString(),
                 OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
                         return;
-                    simulationLayer.TimeSteps = f;
+                    settings.TimeStep = f;
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 80, hSpace: 5);
 
@@ -59,12 +59,12 @@ namespace FlowLab.Objects.Widgets
                 TextScale = .17f,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
-                Text = simulationLayer.FluidViscosity.ToString(),
+                Text = settings.FluidViscosity.ToString(),
                 OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
                         return;
-                    simulationLayer.FluidViscosity = f;
+                    settings.FluidViscosity = f;
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 110, hSpace: 5);
 
@@ -79,12 +79,12 @@ namespace FlowLab.Objects.Widgets
                 TextScale = .17f,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
-                Text = simulationLayer.Gravitation.ToString(),
+                Text = settings.Gravitation.ToString(),
                 OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
                         return;
-                    simulationLayer.Gravitation = f;
+                    settings.Gravitation = f;
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 140, hSpace: 5);
 
@@ -106,12 +106,12 @@ namespace FlowLab.Objects.Widgets
                 TextScale = .17f,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
-                Text = simulationLayer.FluidStiffness.ToString(),
+                Text = settings.FluidStiffness.ToString(),
                 OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
                         return;
-                    simulationLayer.FluidStiffness = f;
+                    settings.FluidStiffness = f;
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 220, hSpace: 5);
         }

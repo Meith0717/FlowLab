@@ -24,7 +24,7 @@ namespace FlowLab.Logic.ParticleManagement
                     color = debugger.SelectedParticle.Neighbors.Contains(particle) ? Color.Orange : color;
                     color = debugger.SelectedParticle == particle ? Color.Red : color;
                 }
-                spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), particleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, position, null, color, 0, new Vector2(particleTexture.Width * .5f), 1.1f*(particleDiameter / particleTexture.Width), SpriteEffects.None, 0);
             }
             if (debugger.IsSelected)
                 spriteBatch.DrawCircle(debugger.SelectedParticle.Position, particleDiameter * 2, 30, Color.Red);
