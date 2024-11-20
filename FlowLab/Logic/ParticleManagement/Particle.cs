@@ -32,6 +32,7 @@ namespace FlowLab.Logic.ParticleManagement
         public float St { get; set; }
         public float Ap { get; set; }
         public float Cfl { get; set; }
+        public float EstimatedDensityError { get; set; }
         public float DensityError { get; set; }
 
         /// <summary>

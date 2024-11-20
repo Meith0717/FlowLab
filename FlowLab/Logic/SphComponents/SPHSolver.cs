@@ -25,7 +25,11 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
 
             // Compute densities DONE
-            Utilitys.ForEach(parallel, _particles, SPHComponents.ComputeLocalDensity);
+            Utilitys.ForEach(parallel, _particles,(p) =>
+            { 
+                SPHComponents.ComputeLocalDensity(p);
+                p.DensityError = 100 * ((p.Density - FluidDensity) / FluidDensity);
+            });
 
             // Compute diagonal matrix elements DONE
             Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeDiagonalElement(particle, timeSteps));
@@ -66,11 +70,11 @@ namespace FlowLab.Logic.SphComponents
 
                     // pressure clamping
                     pI.Pressure = float.Max(pI.Pressure, 0);
-                    pI.DensityError = 100 * (float.Max(pI.Ap - pI.St, 0) / FluidDensity);
+                    pI.EstimatedDensityError = 100 * (float.Max(pI.Ap - pI.St, 0) / FluidDensity);
                 });
 
                 // Break condition
-                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.DensityError) : 0;
+                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.EstimatedDensityError) : 0;
                 errors.Add(avgDensityError);
                 if ((avgDensityError <= MaxError) && (i > 2) || (i > 100))
                     break;
