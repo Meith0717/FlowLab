@@ -66,7 +66,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.NE, width: 250, height: 400, hSpace: 5, vSpace: 5);
+            }.Place(anchor: Anchor.NE, width: 250, height: 410, hSpace: 5, vSpace: 5);
 
             new ControlWidget(UiRoot, this, _particleManager, _scenarioManager)
             {

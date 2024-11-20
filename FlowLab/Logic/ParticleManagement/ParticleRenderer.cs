@@ -18,7 +18,7 @@ namespace FlowLab.Logic.ParticleManagement
             foreach (var particle in particles)
             {
                 var position = particle.Position;
-                Color color = !particle.IsBoundary ? ColorSpectrum.ValueToColor(particle.Cfl) : boundaryColor;
+                Color color = !particle.IsBoundary ? ColorSpectrum.ValueToColor(particle.Cfl/.1f) : boundaryColor;
                 if (debugger.IsSelected)
                 {
                     color = debugger.SelectedParticle.Neighbors.Contains(particle) ? Color.Orange : color;

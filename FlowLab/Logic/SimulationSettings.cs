@@ -13,8 +13,8 @@ namespace FlowLab.Logic
         public float FluidStiffness = 2000f;
 
         // Boundary handling
-        public float Gamma1 = 1.0f;
-        public float Gamma2 = 1.0f;
+        public float Gamma1 = 0f;
+        public float Gamma2 = 0f;
 
         // IISPH
         public float MinError = .1f;
