@@ -5,6 +5,7 @@
 using FlowLab.Core.Extensions;
 using FlowLab.Logic.ParticleManagement;
 using MonoGame.Extended;
+using System.Linq;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -16,10 +17,8 @@ namespace FlowLab.Logic.SphComponents
         public static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;
-            var sum1 = Utilitys.Sum(particle.Neighbors, neighbor => (neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm());
-
+            var sum1 = Utilitys.Sum(particle.Neighbors.Where(p => !p.IsBoundary), neighbor => (neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm());
             var sum2 = Utilitys.Sum(particle.Neighbors, neighbor => neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm();
-
             var sum = sum1 + sum2;
 
             particle.AII = -timeStep / (particle.Density * particle.Density) * sum;
