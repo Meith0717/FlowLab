@@ -4,6 +4,9 @@
 
 using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
@@ -49,6 +52,12 @@ namespace FlowLab.Logic
             _particleManager.ClearAll();
             _particleManager.AddPolygon(polygone);
             action?.Invoke();
+        }
+
+        public void Draw(SpriteBatch spriteBatch, Matrix transformationMatrix, float particleDiameter)
+        {
+            spriteBatch.Begin(transformMatrix: transformationMatrix);
+            spriteBatch.End();
         }
     }
 }

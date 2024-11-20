@@ -108,6 +108,7 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer.Draw(spriteBatch, particleTexture, Color.White);
             spriteBatch.End();
             _debugger.DrawParticleInfo(spriteBatch, GraphicsDevice.Viewport.Bounds.GetCorners()[3].ToVector2());
+            _scenarioManager.Draw(spriteBatch, _camera.TransformationMatrix, ParticleDiameter);
             base.Draw(spriteBatch);
         }
     }

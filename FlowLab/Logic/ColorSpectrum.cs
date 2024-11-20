@@ -1,4 +1,6 @@
-﻿// ColorSpectrum.cs
+﻿// ColorSpectrum.cs 
+// Copyright (c) 2023-2025 Thierry Meiers 
+// All rights reserved.
 
 using Microsoft.Xna.Framework;
 using System;
