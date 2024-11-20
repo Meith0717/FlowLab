@@ -67,7 +67,7 @@
     - Druk ist ein Werkzeug zum anpassen der Geschwindigkeit
 
     - Gamas1 und Gamma2 einführen und damit spielen -> Iterationan beobachten (hoch einstelen) kleine veränderung
-    - paerikel in der Boundary besser -> mehr nachbarn
+        - paerikel in der Boundary besser -> mehr nachbarn
     - ???pressure boundaries over reflection????
     - Wasserseule tests -> Je höher umseo mehr i -> zeitschritt größer -> mehr I -> 
     - Motivation -> Gesamtlaufzeiten vergleichen: SE kleiner fehler kleinerer zeitschritt -> IISPH größee zeitschritte
