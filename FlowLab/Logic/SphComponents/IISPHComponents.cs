@@ -17,11 +17,11 @@ namespace FlowLab.Logic.SphComponents
         public static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;
-            var sum1 = Utilitys.Sum(particle.Neighbors.Where(p => !p.IsBoundary), neighbor => (neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm());
-            var sum2 = Utilitys.Sum(particle.Neighbors, neighbor => neighbor.Mass * KernelDerivativ(neighbor)).SquaredNorm();
-            var sum = sum1 + sum2;
+            var sum1 = Utilitys.Sum(particle.Neighbors.Where(p => !p.IsBoundary), n => (n.Mass * KernelDerivativ(n)).SquaredNorm());
+            var sum2 = Utilitys.Sum(particle.Neighbors, n => n.Mass * KernelDerivativ(n));
+            sum1 += sum2.SquaredNorm();
 
-            particle.AII = -timeStep / (particle.Density * particle.Density) * sum;
+            particle.AII = - timeStep / (particle.Density * particle.Density) * sum1;
             if (float.IsNaN(particle.AII)) throw new System.Exception();
         }
 

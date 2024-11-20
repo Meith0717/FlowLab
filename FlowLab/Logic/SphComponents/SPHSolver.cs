@@ -24,41 +24,40 @@ namespace FlowLab.Logic.SphComponents
             // neighborhood search & reset the accelerations of the particles
             Utilitys.ForEach(parallel, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
 
-            // Compute densities DONE
+            // Compute densities
             Utilitys.ForEach(parallel, _particles, SPHComponents.ComputeLocalDensity);
             Utilitys.ForEach(parallel, noBoundaryParticles, p => p.DensityError = 100 * ((p.Density - FluidDensity) / FluidDensity));
 
-            // Compute diagonal matrix elements DONE
+            // Compute diagonal matrix elements
             Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeDiagonalElement(particle, timeSteps));
 
-            // compute non-pressure forces Done
+            // compute non-pressure forces
             Utilitys.ForEach(parallel, noBoundaryParticles, particle =>
             {
                 SPHComponents.ComputeViscosityAcceleration(h, fluidViscosity, particle);
                 particle.GravitationAcceleration = new(0, gravitation);
             });
 
-            // update velocities using non-pressure forces Done
+            // update velocities using non-pressure forces
             Utilitys.ForEach(parallel, noBoundaryParticles, particle => particle.Velocity += timeSteps * particle.NonPAcceleration);
 
-            // Compute source term Done
+            // Compute source term
             Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeSourceTerm(timeSteps, particle));
 
             // perform pressure solve using IISPH
-            var errors = new List<float>();
             var i = 0;
             for (; ; )
             {
-                // compute pressure accelerations Done
+                // compute pressure accelerations
                 Utilitys.ForEach(parallel, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);
 
-                // compute aij * pj Done
+                // compute aij * pj
                 Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeLaplacian(particle, timeSteps));
 
                 // update pressure values
                 Utilitys.ForEach(parallel, noBoundaryParticles, pI =>
                 {
-                    if (float.Abs(pI.AII) > 1e-5)
+                    if (float.Abs(pI.AII) > 1e-6)
                         pI.Pressure += .5f / pI.AII * (pI.St - pI.Ap);
                     else
                         pI.Pressure = 0;
@@ -67,13 +66,12 @@ namespace FlowLab.Logic.SphComponents
 
                     // pressure clamping
                     pI.Pressure = float.Max(pI.Pressure, 0);
-                    pI.EstimatedDensityError = 100 * (float.Max(pI.Ap - pI.St, 0) / FluidDensity);
+                    pI.EstimatedDensityError = 100 * ((pI.Ap - pI.St) / FluidDensity);
                 });
 
                 // Break condition
-                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => p.EstimatedDensityError) : 0;
-                errors.Add(avgDensityError);
-                if ((avgDensityError <= MaxError) && (i > 2) || (i > 100))
+                var avgDensityError = noBoundaryParticles.Any() ? noBoundaryParticles.Average(p => float.Max(p.EstimatedDensityError, 0)) : 0;
+                if ((avgDensityError <= MaxError) && (i > 2) || (i >= 100))
                     break;
 
                 i++;
