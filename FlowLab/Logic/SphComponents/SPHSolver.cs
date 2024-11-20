@@ -25,11 +25,8 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
 
             // Compute densities DONE
-            Utilitys.ForEach(parallel, _particles,(p) =>
-            { 
-                SPHComponents.ComputeLocalDensity(p);
-                p.DensityError = 100 * ((p.Density - FluidDensity) / FluidDensity);
-            });
+            Utilitys.ForEach(parallel, _particles, SPHComponents.ComputeLocalDensity);
+            Utilitys.ForEach(parallel, noBoundaryParticles, p => p.DensityError = 100 * ((p.Density - FluidDensity) / FluidDensity));
 
             // Compute diagonal matrix elements DONE
             Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeDiagonalElement(particle, timeSteps));
