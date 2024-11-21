@@ -1,8 +1,6 @@
 # Bachelor Meetings
 ---
 ## Meeting 00 (24.10.24)
-- **Preparation:**
-- **Questions:**
 - **Notes:**
     - Relative schnelle Kondensation zum eigentlichem Thema
     - Analysen: Iterationen Konstant halten -> Dichte fehler beoachten
@@ -53,12 +51,8 @@
         - Fluid Expansion
             - Scource Term > 0
             Wie ist es hier? 
-  ---
+---
 ## Meeting 03 (14.11.24)
-- **Preparation:**
-    - TODO
-- **Questions:**
-    - TODO
 - **Notes:**
     - Unterschied zwichen 
       - Geschätzter Fehler Ap . si
@@ -73,6 +67,22 @@
     - Motivation -> Gesamtlaufzeiten vergleichen: SE kleiner fehler kleinerer zeitschritt -> IISPH größee zeitschritte
     - Iterationen zu hoch->problem
     - Omega .7 -> sollte crashen : Omega groß -> de zu groß; Je höher umso weiniger Iterationen
+---
+## Meeting 04 (21.11.24)
+- **Notes:**
+    - VMV Jame Beuder (Paper)
+    - MLS pressure Boundaries 2018 (Paper)
+    - verschiedene Boundary handling Testen (Spiegeln, local pressure Boundaries, pressure Boundaries oder auf 0 setzen)
+    - Später adaptiven zeitschritt -> timestep clampen 
+---
+## Meeting x (28.11.24)
+- **Preparation:**
+    - TODO
+- **Questions:**
+    - TODO
+- **Notes:**
+    - TODO
+---
 # Template
 ## Meeting x (date)
 - **Preparation:**
