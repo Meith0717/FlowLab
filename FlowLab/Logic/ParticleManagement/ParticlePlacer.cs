@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlowLab.Logic.ParticleManagement
 {
@@ -96,8 +97,14 @@ namespace FlowLab.Logic.ParticleManagement
             position.X -= xAmount * _particleDiameter / 2f;
             position.Y -= yAmount * _particleDiameter / 2f;
             for (int i = 0; i < xAmount; i++)
-                for (int j = 0; j < yAmount; j++)
-                    _particles.Add(position + new Vector2(i, j) * _particleDiameter);
+            {
+                for (int j = 0; j < yAmount; j++) 
+                {
+                    var particlePosition = position + new Vector2(i, j) * _particleDiameter;
+                    if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;
+                    _particles.Add(particlePosition);
+                }
+            }
         }
 
         public void GetCircle(Vector2 position, int diameterAmount)
@@ -105,13 +112,18 @@ namespace FlowLab.Logic.ParticleManagement
             position.X -= diameterAmount * _particleDiameter / 2f;
             position.Y -= diameterAmount * _particleDiameter / 2f;
             var circle = new CircleF(position + new Vector2(diameterAmount * _particleDiameter / 2), diameterAmount / 2 * _particleDiameter);
+            position.X -= diameterAmount * _particleDiameter / 2f;
+            position.Y -= diameterAmount * _particleDiameter / 2f;
             for (int i = 0; i < diameterAmount; i++)
+            {
                 for (int j = 0; j < diameterAmount; j++)
                 {
-                    var pos = position + new Vector2(i, j) * _particleDiameter;
-                    if (!circle.Contains(pos)) continue;
-                    _particles.Add(pos);
+                    var particlePosition = position + new Vector2(i, j) * _particleDiameter;
+                    if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;
+                    if (!circle.Contains(particlePosition)) continue;
+                    _particles.Add(particlePosition);
                 }
+            }
         }
     }
 }
