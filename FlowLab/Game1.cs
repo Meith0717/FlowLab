@@ -27,7 +27,7 @@ namespace FlowLab
         private readonly ContentLoader _contentLoader;
         private readonly InputManager _inputManager = new();
         private readonly FrameCounter _frameCounter = new(200);
-        private bool mResolutionWasResized;
+        private bool _ResolutionWasResized;
 
         public Game1()
         {
@@ -44,7 +44,7 @@ namespace FlowLab
             Window.AllowUserResizing = true;
             Window.Title = "FlowLab";
 
-            Window.ClientSizeChanged += delegate { mResolutionWasResized = true; };
+            Window.ClientSizeChanged += delegate { _ResolutionWasResized = true; };
         }
 
         protected override void Initialize()
@@ -83,7 +83,7 @@ namespace FlowLab
                 StartMainMenu();
 
             MusicManager.Instance.Update();
-            if (mResolutionWasResized)
+            if (_ResolutionWasResized)
                 LayerManager.OnResolutionChanged(gameTime);
 
             if (_active)
