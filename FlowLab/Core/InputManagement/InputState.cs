@@ -12,6 +12,7 @@ namespace FlowLab.Core.InputManagement
     {
         CameraZoomIn,
         CameraZoomOut,
+        CameraReset,
         SaveData,
         DeleteParticels,
         TogglePause,
@@ -37,6 +38,7 @@ namespace FlowLab.Core.InputManagement
         LeftReleased,
         RightReleased,
         RightJustClicked,
+        MidJustClicked,
         LeftClickHold,
         RightClickHold,
         LeftWasClicked,

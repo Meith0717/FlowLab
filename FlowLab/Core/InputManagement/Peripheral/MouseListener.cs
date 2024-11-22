@@ -16,18 +16,21 @@ namespace FlowLab.Core.InputManagement.Peripheral
 
         private bool LeftMouseButtonPressed => mCurrentState.LeftButton == ButtonState.Pressed;
         private bool RightMouseButtonPressed => mCurrentState.RightButton == ButtonState.Pressed;
+        private bool MidMouseButtonPressed => mCurrentState.MiddleButton == ButtonState.Pressed;
 
         private bool LeftMouseButtonReleased => mCurrentState.LeftButton == ButtonState.Released;
         private bool RightMouseButtonReleased => mCurrentState.RightButton == ButtonState.Released;
+        private bool MidMouseButtonReleased => mCurrentState.MiddleButton == ButtonState.Released;
 
         private bool LeftMouseButtonJustReleased => mCurrentState.LeftButton == ButtonState.Released && mPreviousState.LeftButton == ButtonState.Pressed;
         private bool RightMouseButtonJustReleased => mCurrentState.RightButton == ButtonState.Released && mPreviousState.RightButton == ButtonState.Pressed;
-
+        private bool MidMouseButtonJustReleased => mCurrentState.MiddleButton == ButtonState.Released && mPreviousState.MiddleButton == ButtonState.Pressed;
 
         private readonly Dictionary<ActionType, ActionType> mKeyBindingsMouse = new()
             {
                 { ActionType.MouseWheelBackward, ActionType.CameraZoomOut },
                 { ActionType.MouseWheelForward, ActionType.CameraZoomIn },
+                { ActionType.MidJustClicked, ActionType.CameraReset }
             };
 
         public void Listen(GameTime gameTime, ref List<ActionType> actions, out Vector2 mousePosition)
@@ -63,6 +66,9 @@ namespace FlowLab.Core.InputManagement.Peripheral
 
             if (RightMouseButtonJustReleased)
                 actions.Add(ActionType.RightWasClicked);
+
+            if (MidMouseButtonJustReleased)
+                actions.Add(ActionType.MidJustClicked);
 
             // Recet counters
             if (LeftMouseButtonReleased)

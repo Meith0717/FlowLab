@@ -86,6 +86,7 @@ namespace FlowLab.Game.Objects.Layers
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
+            inputState.DoAction(ActionType.CameraReset, () => _camera.Position = Vector2.Zero);
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
                 _particleManager.Update(_simulationSettings);
