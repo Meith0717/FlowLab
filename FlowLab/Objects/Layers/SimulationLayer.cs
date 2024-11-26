@@ -8,7 +8,6 @@ using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
 using FlowLab.Game.Engine.UserInterface;
-using FlowLab.Game.Engine.UserInterface.Components;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Objects.Widgets;

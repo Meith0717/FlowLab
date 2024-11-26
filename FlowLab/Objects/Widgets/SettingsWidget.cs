@@ -15,8 +15,6 @@ namespace FlowLab.Objects.Widgets
 {
     internal class SettingsWidget : UiLayer
     {
-        public bool Hide;
-
         public SettingsWidget(UiLayer root, SimulationSettings settings)
             : base(root)
         {
@@ -259,18 +257,6 @@ namespace FlowLab.Objects.Widgets
                     settings.RelaxationCoefficient = f;
                 }
             }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 450, hSpace: 5);
-        }
-
-        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
-        {
-            if (Hide) return;
-            base.Update(inputState, transformedMousePosition, gameTime);
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            if (Hide) return;
-            base.Draw(spriteBatch);
         }
     }
 }
