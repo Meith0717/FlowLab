@@ -5,7 +5,9 @@
 
 using FlowLab.Core.InputManagement;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FlowLab.Game.Engine.UserInterface.Components
 {
@@ -37,6 +39,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
 
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
+            UpdatTracker?.Invoke(this);
             base.Update(inputState, transformedMousePosition, gameTime);
         }
 
@@ -57,16 +60,18 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         }
 
         public float TextScale { set { _text.Scale = value; } }
-        public float ButtonScale { set { _text.Scale = value; } }
+        public float ButtonScale { set { _leftButton.TextureScale  = _rightButton.TextureScale = value; } }
         public Color TextColor { set { _text.Color = value; } }
         public float TextAlpha { set { _text.Alpha = value; } }
-        public List<T> Values
+        public Action<UiVariableSelector<T>> UpdatTracker { get; set; }
+
+        public IEnumerable<T> Values
         {
             set
             {
-                if (value.Count == 0) return;
+                if (!value.Any()) return;
                 if (value is null) return;
-                _items = value;
+                _items = value.ToList();
                 _selectedIndex = 0;
                 _text.Text = _items[_selectedIndex].ToString();
             }

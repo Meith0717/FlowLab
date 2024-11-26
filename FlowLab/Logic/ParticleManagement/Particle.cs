@@ -32,6 +32,7 @@ namespace FlowLab.Logic.ParticleManagement
         [NotNull] public Vector2 PressureAcceleration { get; set; }
         [NotNull] public Vector2 GravitationAcceleration { get; set; }
         [NotNull] public Vector2 ViscosityAcceleration { get; set; }
+        [NotNull] public Color Color { get; set;}
 
         /// <summary>
         /// Current particle neighbors.

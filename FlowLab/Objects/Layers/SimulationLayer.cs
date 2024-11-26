@@ -8,6 +8,7 @@ using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
 using FlowLab.Game.Engine.UserInterface;
+using FlowLab.Game.Engine.UserInterface.Components;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Objects.Widgets;
@@ -60,22 +61,22 @@ namespace FlowLab.Game.Objects.Layers
                 Alpha = .75f
             }.Place(anchor: Anchor.Left, y: 215, width: 250, height: 85, hSpace: 10, vSpace: 10);
 
+
             new SettingsWidget(UiRoot, _simulationSettings)
             {
                 InnerColor = new(30, 30, 30),
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
-                Alpha = .75f
-            }.Place(anchor: Anchor.NE, width: 250, height: 410, hSpace: 10, vSpace: 10);
+                Alpha = .75f,
+            }.Place(anchor: Anchor.NE, width: 250, relHeight: 1, hSpace: 10, vSpace: 10);
 
             new ControlWidget(UiRoot, this, _particleManager, _scenarioManager)
             {
                 InnerColor = new(30, 30, 30),
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
-                Alpha = .75f
+                Alpha = .75f,
             }.Place(anchor: Anchor.N, width: 420, height: 50, hSpace: 10, vSpace: 10);
-
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
@@ -90,6 +91,7 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
                 _particleManager.Update(_simulationSettings);
+            _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
             var worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
             _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePosition, ParticleDiameter);
             if (_debugger.IsSelected) _camera.Position = _debugger.SelectedParticle.Position;
@@ -100,7 +102,7 @@ namespace FlowLab.Game.Objects.Layers
         {
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
-            _particleRenderer.Render(spriteBatch, GraphicsDevice, _particleManager.Particles, _debugger, _camera.TransformationMatrix, particleTexture, ParticleDiameter, Color.Gray);
+            _particleRenderer.Render(spriteBatch, GraphicsDevice, _particleManager.Particles, _debugger, _camera.TransformationMatrix, particleTexture, ParticleDiameter);
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
             _particlePlacer.Draw(spriteBatch, particleTexture, Color.White);
             spriteBatch.End();

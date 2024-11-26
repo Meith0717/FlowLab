@@ -4,11 +4,14 @@
 
 using FlowLab.Engine;
 using FlowLab.Logic.SphComponents;
+using Fluid_Simulator.Core.ColorManagement;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
+using MonoGame.Extended.Particles;
 using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
@@ -106,20 +109,49 @@ namespace FlowLab.Logic.ParticleManagement
         {
             // ____Update____
             SolverIterations = 0;
-            bool alg = true;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            switch (alg)
+            switch (simulationSettings.SimulationMethod)
             {
-                case true:
+                case SimulationMethod.IISPH:
                     SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings, out var solverIterations);
                     SolverIterations = solverIterations;
                     break;
-                case false:
+                case SimulationMethod.SESPH:
                     SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
                     break;
             }
             watch.Stop();
             SimulationTime = watch.Elapsed.TotalMilliseconds;
+        }
+
+        public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)
+        {
+            // ____Manage Color____
+            Utilitys.ForEach(true, Particles, (p) =>
+            {
+                switch (colorMode) {
+                    case ColorMode.None:
+                        p.Color = !p.IsBoundary ? Color.Blue : Color.DarkGray;
+                        break;
+                    case ColorMode.Velocity:
+                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl) : Color.DarkGray;
+                        break;
+                    case ColorMode.Pressure:
+                        var maxPressure = Particles.Max(p => p.Pressure);
+                        var relPressure = p.Pressure / maxPressure;
+                        relPressure = float.IsNaN(relPressure) ? 0 : relPressure;
+                        p.Color = ColorSpectrum.ValueToColor(relPressure);
+                        break;
+                    case ColorMode.Error:
+                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.DensityError) : Color.DarkGray;
+                        break;
+                }
+            });
+
+            if (!particelDebugger.IsSelected) return;
+            var debugParticle = particelDebugger.SelectedParticle;
+            Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Color.DarkOrchid);
+            debugParticle.Color = Color.DarkMagenta;
         }
     }
 }

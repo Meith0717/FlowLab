@@ -4,8 +4,14 @@
 
 namespace FlowLab.Logic
 {
+    public enum SimulationMethod { SESPH, IISPH }
+    public enum ColorMode { None, Velocity, Pressure, Error }
+
     internal class SimulationSettings
     {
+        public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
+        public ColorMode ColorMode = ColorMode.Velocity; 
+
         // Global
         public float TimeStep = .1f;
         public float Gravitation = .3f;
