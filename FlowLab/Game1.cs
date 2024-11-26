@@ -84,7 +84,10 @@ namespace FlowLab
 
             MusicManager.Instance.Update();
             if (_ResolutionWasResized)
+            {
+                _ResolutionWasResized = false;
                 LayerManager.OnResolutionChanged(gameTime);
+            }
 
             if (_active)
             {
