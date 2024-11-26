@@ -50,7 +50,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.NW, width: 250, height: 200, hSpace: 5, vSpace: 5);
+            }.Place(anchor: Anchor.NW, width: 250, height: 200, hSpace: 10, vSpace: 10);
 
             new StateWidget(UiRoot, _particleManager)
             {
@@ -58,7 +58,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.Left, y: 215, width: 250, height: 85, hSpace: 5, vSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 215, width: 250, height: 85, hSpace: 10, vSpace: 10);
 
             new SettingsWidget(UiRoot, _simulationSettings)
             {
@@ -66,7 +66,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.NE, width: 250, height: 410, hSpace: 5, vSpace: 5);
+            }.Place(anchor: Anchor.NE, width: 250, height: 410, hSpace: 10, vSpace: 10);
 
             new ControlWidget(UiRoot, this, _particleManager, _scenarioManager)
             {
@@ -74,7 +74,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.SE, width: 150, height: 134, hSpace: 10, vSpace: 10);
+            }.Place(anchor: Anchor.N, width: 420, height: 50, hSpace: 10, vSpace: 10);
 
         }
 

@@ -21,20 +21,20 @@ namespace FlowLab.Objects.Widgets
                 UpdatTracker = self => self.Text = simulationLayer.Paused ? "Resume" : "Pause",
                 TextureScale = .75f,
                 TextScale = .15f
-            }.Place(anchor: Anchor.CenterV, y: 5);
+            }.Place(anchor: Anchor.W, hSpace: 5);
 
             new UiButton(this, "consola", "Clear", "button", particleManager.Clear)
             {
                 UpdatTracker = self => self.Disable = particleManager.Count == 0,
                 TextureScale = .75f,
                 TextScale = .15f
-            }.Place(anchor: Anchor.CenterV, y: 50);
+            }.Place(anchor: Anchor.Center);
 
             new UiButton(this, "consola", "Next Scene", "button", scenarioManager.NextScene)
             {
                 TextureScale = .75f,
                 TextScale = .15f
-            }.Place(anchor: Anchor.CenterV, y: 95);
+            }.Place(anchor: Anchor.E, hSpace: 5);
         }
     }
 }
