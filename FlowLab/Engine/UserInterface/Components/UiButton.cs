@@ -56,8 +56,6 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         {
             UpdatTracker?.Invoke(this);
             if (_disabled) return;
-            if (Canvas.GetGlobalBounds().Contains(transformedMousePosition) && !_hover)
-                SoundEffectManager.Instance.PlaySound("hoverButton");
 
             _hover = Canvas.GetGlobalBounds().Contains(transformedMousePosition);
             _clicked = _hover && inputState.HasAction(ActionType.LeftWasClicked);
@@ -65,7 +63,6 @@ namespace FlowLab.Game.Engine.UserInterface.Components
 
             if (_clicked)
             {
-                SoundEffectManager.Instance.PlaySound("clickButton");
                 _onClickAction?.Invoke();
                 _hover = false;
             }

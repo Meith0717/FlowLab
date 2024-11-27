@@ -201,18 +201,6 @@
 /processorParam:TextureFormat=Color
 /build:gui/corner3.png
 
-#begin gui/corner3.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/corner3.png
-
 #begin gui/cursor.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -224,30 +212,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:gui/cursor.png
-
-#begin gui/cursor.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/cursor.png
-
-#begin gui/edge0.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/edge0.png
 
 #begin gui/edge0.png
 /importer:TextureImporter
@@ -273,18 +237,6 @@
 /processorParam:TextureFormat=Color
 /build:gui/edge1.png
 
-#begin gui/edge1.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/edge1.png
-
 #begin gui/edge2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -296,30 +248,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:gui/edge2.png
-
-#begin gui/edge2.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/edge2.png
-
-#begin gui/edge3.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/edge3.png
 
 #begin gui/edge3.png
 /importer:TextureImporter
@@ -369,18 +297,6 @@
 /processorParam:TextureFormat=Color
 /build:gui/slider_dot.png
 
-#begin gui/slider_dot.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/slider_dot.png
-
 #begin gui/toggle_off.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -392,30 +308,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:gui/toggle_off.png
-
-#begin gui/toggle_off.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/toggle_off.png
-
-#begin gui/toggle_on.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:gui/toggle_on.png
 
 #begin gui/toggle_on.png
 /importer:TextureImporter
@@ -440,66 +332,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:missingContent.png
-
-#begin sfx/chargeHyperdrive.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/chargeHyperdrive.wav
-
-#begin sfx/click.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/click.wav
-
-#begin sfx/clickButton.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/clickButton.wav
-
-#begin sfx/collect.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/collect.wav
-
-#begin sfx/coolHyperdrive.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/coolHyperdrive.wav
-
-#begin sfx/engineSound.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/engineSound.wav
-
-#begin sfx/hover.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/hover.wav
-
-#begin sfx/hoverButton.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/hoverButton.wav
-
-#begin sfx/torpedoFire.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/torpedoFire.wav
-
-#begin sfx/torpedoHit.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/torpedoHit.wav
 
 #begin textures/particle.png
 /importer:TextureImporter
