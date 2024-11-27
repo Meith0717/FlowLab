@@ -127,6 +127,7 @@ namespace FlowLab.Logic.ParticleManagement
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)
         {
             // ____Manage Color____
+            var maxPressure = Particles.Max(p => p.Pressure);
             Utilitys.ForEach(true, Particles, (p) =>
             {
                 switch (colorMode) {
@@ -137,7 +138,6 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl) : Color.DarkGray;
                         break;
                     case ColorMode.Pressure:
-                        var maxPressure = Particles.Max(p => p.Pressure);
                         var relPressure = p.Pressure / maxPressure;
                         relPressure = float.IsNaN(relPressure) ? 0 : relPressure;
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
