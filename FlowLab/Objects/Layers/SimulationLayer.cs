@@ -31,6 +31,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ParticelDebugger _debugger;
         private readonly ParticleRenderer _particleRenderer;
         private readonly SimulationSettings _simulationSettings;
+        private readonly FrameCounter _frameCounter;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -42,9 +43,14 @@ namespace FlowLab.Game.Objects.Layers
             _debugger = new();
             _particleRenderer = new();
             _simulationSettings = new();
+            _frameCounter = frameCounter;
             _scenarioManager.NextScene();
+            BuildUi();
+        }
 
-            new PerformanceWidget(UiRoot, _particleManager, frameCounter)
+        private void BuildUi()
+        {
+            new PerformanceWidget(UiRoot, _particleManager, _frameCounter)
             {
                 InnerColor = new(30, 30, 30),
                 BorderColor = new(75, 75, 75),
@@ -76,6 +82,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderSize = 5,
                 Alpha = .75f,
             }.Place(anchor: Anchor.N, width: 420, height: 50, hSpace: 10, vSpace: 10);
+
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
@@ -84,9 +91,10 @@ namespace FlowLab.Game.Objects.Layers
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(); _particlePlacer.Clear(); });
-            inputState.DoAction(ActionType.DeleteParticels, _particleManager.Clear);
+            inputState.DoAction(ActionType.DeleteParticles, _particleManager.Clear);
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = Vector2.Zero);
+            inputState.DoAction(ActionType.Reload, () => { UiRoot.Clear(); BuildUi(); ApplyResolution(gameTime); });
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
                 _particleManager.Update(_simulationSettings);

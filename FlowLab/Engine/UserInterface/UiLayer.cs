@@ -49,6 +49,13 @@ namespace FlowLab.Game.Engine.UserInterface
         public void Add(UiLayer child)
             => _elementChilds.Add(child);
 
+        public void Clear()
+        {
+            foreach (var layer in _elementChilds.OfType<UiLayer>())
+                layer.Dispose();
+            _elementChilds.Clear();
+        }
+
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             var mousePosition = Transformations.ScreenToWorld(_scrollMatrix, transformedMousePosition);
@@ -92,6 +99,8 @@ namespace FlowLab.Game.Engine.UserInterface
             if (_renderTarget is null)
             {
                 var canvas = Canvas.GetRelativeBounds();
+                if (canvas.Width == 0) canvas.Width = 1;
+                if (canvas.Height == 0) canvas.Height = 1;
                 _renderTarget = new(graphicsDevice, canvas.Width, canvas.Height);
             }
 

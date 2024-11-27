@@ -25,6 +25,12 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             base.Update(inputState, transformedMousePosition, gameTime);
+            UpdateTracker?.Invoke(this);
+            if (Disabled)
+            {
+                _uiText.Text = "";
+                return;
+            }
             _uiText.Text = string.Concat(_chars);
             ActiveController(inputState, transformedMousePosition);
             CaretController(gameTime);
@@ -77,6 +83,8 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             _uiText.Place(anchor: Anchor.NW);
         }
 
+        public Action<UiEntryField> UpdateTracker { private get; set; }
+        public bool Disabled { get; set; }
         public float TextScale { set { _uiText.Scale = value; } }
         public Color TextColor { set { _uiText.Color = value; } }
         public string Text { get { return _uiText.Text; } set { foreach (var c in value) _chars.AddLast(c.ToString()); } }

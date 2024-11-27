@@ -132,7 +132,7 @@ namespace FlowLab.Logic.ParticleManagement
             {
                 switch (colorMode) {
                     case ColorMode.None:
-                        p.Color = !p.IsBoundary ? Color.Blue : Color.DarkGray;
+                        p.Color = !p.IsBoundary ? new(75, 200, 255) : Color.DarkGray;
                         break;
                     case ColorMode.Velocity:
                         p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl) : Color.DarkGray;
@@ -143,7 +143,7 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
                         break;
                     case ColorMode.Error:
-                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.DensityError) : Color.DarkGray;
+                        p.Color = ColorSpectrum.ValueToColor(p.DensityError);
                         break;
                 }
             });

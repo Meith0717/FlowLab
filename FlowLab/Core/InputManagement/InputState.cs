@@ -14,7 +14,7 @@ namespace FlowLab.Core.InputManagement
         CameraZoomOut,
         CameraReset,
         SaveData,
-        DeleteParticels,
+        DeleteParticles,
         TogglePause,
         ToggleData,
         Exit,
@@ -33,6 +33,7 @@ namespace FlowLab.Core.InputManagement
         ChangeColor,
         Help,
         BackSpace,
+        Reload,
 
         // Mouse
         LeftReleased,
