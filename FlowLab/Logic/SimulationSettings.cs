@@ -15,12 +15,14 @@ namespace FlowLab.Logic
         // Global
         public float TimeStep = .1f;
         public float Gravitation = .3f;
-        public float FluidViscosity = 30f;
+        public float FluidViscosity = 15f;
         public float FluidStiffness = 2000f;
 
         // Boundary handling
-        public float Gamma1 = 0f;
-        public float Gamma2 = 0f;
+        public float Gamma1 = 1f;
+        public float Gamma2 = 1f;
+        public float Gamma3 = 1f;
+        public float BoundaryViscosity = 15f;
 
         // IISPH
         public float MinError = .1f;

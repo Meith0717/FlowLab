@@ -153,10 +153,30 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "Gamma 1:",
+                Text = "Viscosity:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: 300, hSpace: 5);
+            new UiEntryField(this, "consola")
+            {
+                TextScale = .17f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.BoundaryViscosity.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.BoundaryViscosity = f;
+                }
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 300, hSpace: 5);
+
+            new UiText(this, "consola")
+            {
+                Text = "Gamma 1:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: 330, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,
@@ -169,14 +189,14 @@ namespace FlowLab.Objects.Widgets
                         return;
                     settings.Gamma1 = f;
                 }
-            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 300, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 330, hSpace: 5);
 
             new UiText(this, "consola")
             {
                 Text = "Gamma 2:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y: 330, hSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 360, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,
@@ -189,21 +209,42 @@ namespace FlowLab.Objects.Widgets
                         return;
                     settings.Gamma2 = f;
                 }
-            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 330, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 360, hSpace: 5);
+
+            new UiText(this, "consola")
+            {
+                Text = "Gamma 3:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: 390, hSpace: 5);
+            new UiEntryField(this, "consola")
+            {
+                TextScale = .17f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.Gamma3.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.Gamma3 = f;
+                }
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 390, hSpace: 5);
+
 
             new UiText(this, "consola")
             {
                 Text = "SOLVER",
                 Scale = .19f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y: 360, hSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 420, hSpace: 5);
 
             new UiText(this, "consola")
             {
                 Text = "Min.Error:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y: 390, hSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 450, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,
@@ -216,14 +257,14 @@ namespace FlowLab.Objects.Widgets
                         return;
                     settings.MinError = f;
                 }
-            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 390, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 450, hSpace: 5);
 
             new UiText(this, "consola")
             {
                 Text = "Max.Iter.:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y: 420, hSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 480, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,
@@ -236,14 +277,14 @@ namespace FlowLab.Objects.Widgets
                         return;
                     settings.MaxIterations = f;
                 }
-            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 420, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 480, hSpace: 5);
 
             new UiText(this, "consola")
             {
                 Text = "Relaxation\nCoefficient:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y: 450, hSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 510, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,
@@ -256,7 +297,7 @@ namespace FlowLab.Objects.Widgets
                         return;
                     settings.RelaxationCoefficient = f;
                 }
-            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 450, hSpace: 5);
+            }.Place(height: 20, width: 90, anchor: Anchor.Right, y: 510, hSpace: 5);
         }
     }
 }

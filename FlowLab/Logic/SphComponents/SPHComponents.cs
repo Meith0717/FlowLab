@@ -9,32 +9,52 @@ namespace FlowLab.Logic.SphComponents
 {
     public static class SPHComponents
     {
-        public static void ComputeLocalDensity(Particle particle)
+        public static void ComputeLocalDensity(Particle particle, float gamma)
         {
-            particle.Density = Utilitys.Sum(particle.Neighbors, neighbor => neighbor.Mass * particle.Kernel(neighbor));
-            if (float.IsNaN(particle.Density)) throw new System.Exception();
-            if (particle.Density == 0) throw new System.Exception();
-        }
-
-        public static Vector2 ComputePressureAcceleration(Particle particle)
-        {
-            var pressureAcceleration = Vector2.Zero;
-            var pressureBoundaryAcceleration = Vector2.Zero;
-            var pressureOverDensitySquared = particle.Pressure / (particle.Density * particle.Density);
-
-            var sum = Utilitys.Sum(particle.Neighbors, neighbor =>
+            particle.Density = Utilitys.Sum(particle.Neighbors, neighbor => 
             {
-                var nablaCubicSpline = particle.KernelDerivativ(neighbor);
-                var neighborPressureOverDensitySquared = neighbor.Pressure / (neighbor.Density * neighbor.Density);
-                if (neighbor.IsBoundary)
-                    return neighbor.Mass * 2f * pressureOverDensitySquared * nablaCubicSpline;
-                return neighbor.Mass * (pressureOverDensitySquared + neighborPressureOverDensitySquared) * nablaCubicSpline;
+                var density = neighbor.Mass * particle.Kernel(neighbor);
+                if (neighbor.IsBoundary) density *= gamma;
+                return density;
             });
 
-            return -sum;
+            if (float.IsNaN(particle.Density)) 
+                throw new System.Exception();
+            if (particle.Density == 0) 
+                throw new System.Exception();
         }
 
-        public static void ComputeViscosityAcceleration(float h, float fluidViscosity, Particle particle)
+        public static void ComputePressureAccelerationWithReflection(Particle particle, float gamma)
+        {
+            var KernelDerivativ = particle.KernelDerivativ;
+            var particlePressureOverDensity2 = particle.Pressure / (particle.Density * particle.Density);
+            particle.PressureAcceleration = - Utilitys.Sum(particle.Neighbors, neighbor =>
+            {
+                var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
+                if (neighbor.IsBoundary)
+                    return gamma * neighbor.Mass * 2f * particlePressureOverDensity2 * KernelDerivativ(neighbor);
+                return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
+            });
+            if (float.IsNaN(particle.PressureAcceleration.X) || float.IsNaN(particle.PressureAcceleration.Y)) 
+                throw new System.Exception();
+        }
+
+        public static void ComputePressureAcceleration(Particle particle, float gamma)
+        {
+            var KernelDerivativ = particle.KernelDerivativ;
+
+            var particlePressureOverDensity2 = particle.Pressure / (particle.Density * particle.Density);
+            particle.PressureAcceleration = -Utilitys.Sum(particle.Neighbors, neighbor =>
+            {
+                var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
+                var acceleration = neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
+                if (neighbor.IsBoundary) return gamma * acceleration;
+                return acceleration;
+            });
+            if (float.IsNaN(particle.PressureAcceleration.X) || float.IsNaN(particle.PressureAcceleration.Y)) throw new System.Exception();
+        }
+
+        public static void ComputeViscosityAcceleration(float h, float boundaryViscosity, float fluidViscosity, Particle particle)
         {
             particle.ViscosityAcceleration = Utilitys.Sum(particle.Neighbors, neighbor =>
             {
@@ -47,7 +67,7 @@ namespace FlowLab.Logic.SphComponents
                 var kernelDerivative = particle.KernelDerivativ(neighbor);
                 var res = massOverDensity * (dotVelocityPosition / (dotPositionPosition + scaledParticleDiameter2)) * kernelDerivative;
                 if (neighbor.IsBoundary)
-                    return fluidViscosity * res;
+                    return 2 * boundaryViscosity * res;
                 return 2 * fluidViscosity * res;
             });
         }

@@ -39,19 +39,6 @@ namespace FlowLab.Logic.SphComponents
             if (float.IsNaN(particle.St)) throw new System.Exception();
         }
 
-        public static void ComputePressureAcceleration(Particle particle)
-        {
-            var KernelDerivativ = particle.KernelDerivativ;
-
-            var particlePressureOverDensity2 = particle.Pressure / (particle.Density * particle.Density);
-            particle.PressureAcceleration = -Utilitys.Sum(particle.Neighbors, neighbor =>
-            {
-                var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
-                return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
-            });
-            if (float.IsNaN(particle.PressureAcceleration.X) || float.IsNaN(particle.PressureAcceleration.Y)) throw new System.Exception();
-        }
-
         public static void ComputeLaplacian(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;

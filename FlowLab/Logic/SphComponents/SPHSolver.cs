@@ -20,16 +20,21 @@ namespace FlowLab.Logic.SphComponents
 
             var timeStep = simulationSettings.TimeStep;
             var fluidViscosity = simulationSettings.FluidViscosity;
+            var boundaryViscosity = simulationSettings.BoundaryViscosity;
             var gravitation = simulationSettings.Gravitation;
             var omega = simulationSettings.RelaxationCoefficient;
             var minError = simulationSettings.MinError;
             var maxIterations = simulationSettings.MaxIterations;
 
+            var gamma1 = simulationSettings.Gamma1;
+            var gamma2 = simulationSettings.Gamma2;
+            var gamma3 = simulationSettings.Gamma3;
+
             // neighborhood search & reset the accelerations of the particles
             Utilitys.ForEach(parallel, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
 
             // Compute densities
-            Utilitys.ForEach(parallel, _particles, SPHComponents.ComputeLocalDensity);
+            Utilitys.ForEach(parallel, _particles, p => SPHComponents.ComputeLocalDensity(p, gamma1));
             Utilitys.ForEach(parallel, noBoundaryParticles, p => p.DensityError = 100 * ((p.Density - FluidDensity) / FluidDensity));
 
             // Compute diagonal matrix elements
@@ -38,7 +43,7 @@ namespace FlowLab.Logic.SphComponents
             // compute non-pressure forces
             Utilitys.ForEach(parallel, noBoundaryParticles, particle =>
             {
-                SPHComponents.ComputeViscosityAcceleration(h, fluidViscosity, particle);
+                SPHComponents.ComputeViscosityAcceleration(h, boundaryViscosity, fluidViscosity, particle);
                 particle.GravitationAcceleration = new(0, gravitation);
             });
 
@@ -53,7 +58,7 @@ namespace FlowLab.Logic.SphComponents
             for (; ; )
             {
                 // compute pressure accelerations
-                Utilitys.ForEach(parallel, noBoundaryParticles, IISPHComponents.ComputePressureAcceleration);
+                Utilitys.ForEach(parallel, noBoundaryParticles, p => SPHComponents.ComputePressureAccelerationWithReflection(p, gamma2));
 
                 // compute aij * pj
                 Utilitys.ForEach(parallel, noBoundaryParticles, particle => IISPHComponents.ComputeLaplacian(particle, timeStep));
@@ -104,8 +109,13 @@ namespace FlowLab.Logic.SphComponents
         {
             var timeStep = simulationSettings.TimeStep;
             var fluidViscosity = simulationSettings.FluidViscosity;
+            var boundaryViscosity = simulationSettings.BoundaryViscosity;
             var fluidStiffness = simulationSettings.FluidStiffness;
             var gravitation = simulationSettings.Gravitation;
+
+            var gamma1 = simulationSettings.Gamma1;
+            var gamma2 = simulationSettings.Gamma2;
+            var gamma3 = simulationSettings.Gamma3;
 
             Utilitys.ForEach(true, _particles, particle => particle.Initialize(spatialHashing, SphKernel.CubicSpline, SphKernel.NablaCubicSpline));
             var noBoundaryParticles = _particles.Where((p) => !p.IsBoundary);
@@ -113,7 +123,7 @@ namespace FlowLab.Logic.SphComponents
             // Compute density
             Utilitys.ForEach(true, _particles, particle =>
             {
-                SPHComponents.ComputeLocalDensity(particle);
+                SPHComponents.ComputeLocalDensity(particle, gamma1);
                 particle.Density = particle.Neighbors.Count <= 1 ? FluidDensity : particle.Density;
                 particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
             });
@@ -125,9 +135,9 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(true, noBoundaryParticles, fluidParticle =>
             {
                 // Non-pressure accelerations
-                SPHComponents.ComputeViscosityAcceleration(h, fluidViscosity, fluidParticle);
+                SPHComponents.ComputeViscosityAcceleration(h, boundaryViscosity, fluidViscosity, fluidParticle);
                 // Pressure acceleration
-                fluidParticle.PressureAcceleration = SPHComponents.ComputePressureAcceleration(fluidParticle);
+                SPHComponents.ComputePressureAccelerationWithReflection(fluidParticle, gamma2);
                 // Gravitational acceleration
                 fluidParticle.GravitationAcceleration = new(0, gravitation);
             });
