@@ -35,7 +35,6 @@ namespace FlowLab.Core.ContentHandling
             {
                 try
                 {
-                    LoadBuildContentIntoManager("sfx", SoundEffectManager.Instance.LoadBuildContent);
                     LoadBuildContentIntoManager("textures", TextureManager.Instance.LoadBuildTextureContent);
                     ProcessMessage = "Ready";
                 }
