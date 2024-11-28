@@ -110,7 +110,7 @@ public class LayerManager
     {
         foreach (Layer layer in _layerStack)
             layer.Dispose();
-        _game1.Exit();
+        _layerStack.Clear();
     }
 
     // fullScreen stuff

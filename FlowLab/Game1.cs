@@ -10,18 +10,19 @@ using FlowLab.Engine.LayerManagement;
 using FlowLab.Game.Objects.Layers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace FlowLab
 {
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        public const string Title = "Flow Lab";
+
         private bool _active;
         private bool _safeToStart;
 
         public LayerManager LayerManager { get; private set; }
         public readonly GraphicsDeviceManager GraphicsManager;
-        public readonly PersistenceManager PersistenceManager = new();
+        public readonly PersistenceManager PersistenceManager = new(Title);
         public readonly ConfigsManager ConfigsManager = new();
         private SpriteBatch _spriteBatch;
         private readonly ContentLoader _contentLoader;
@@ -42,7 +43,7 @@ namespace FlowLab
             // Window properties
             IsMouseVisible = true;
             Window.AllowUserResizing = true;
-            Window.Title = "Flow Lab";
+            Window.Title = Title;
             Window.ClientSizeChanged += delegate { _ResolutionWasResized = true; };
         }
 
@@ -93,6 +94,7 @@ namespace FlowLab
 
             InputState inputState = _active ? _inputManager.Update(gameTime) : new([], "", Vector2.Zero);
             LayerManager.Update(gameTime, inputState);
+            Exiting += delegate { LayerManager.Exit(); };
         }
 
         protected override void Draw(GameTime gameTime)

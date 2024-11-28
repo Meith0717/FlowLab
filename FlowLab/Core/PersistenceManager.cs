@@ -17,9 +17,9 @@ namespace FlowLab.Core
         public static string GameSaveFilePath => Path.Combine(GameSaveDirectory, "game.json");
         public static string SettingsSaveFilePath => Path.Combine(DataSaveDirectory, "settings.json");
 
-        public PersistenceManager()
+        public PersistenceManager(string rootFolder)
         {
-            mSerializer = new("Stellar Lieberation");
+            mSerializer = new(rootFolder);
             mSerializer.CreateFolder(GameSaveDirectory);
             mSerializer.CreateFolder(DataSaveDirectory);
         }
@@ -31,6 +31,17 @@ namespace FlowLab.Core
                 Object @object = new();
                 @object = (Object)mSerializer.PopulateObject(@object, path);
                 onLoadComplete?.Invoke(@object);
+            }
+            catch (Exception e) { onError?.Invoke(e); }
+        }
+
+        public void Save(string path, object @object, Action onSaveComplete, Action<Exception> onError)
+        {
+            try
+            {
+                if (@object is null) throw new Exception();
+                mSerializer.SerializeObject(@object, path);
+                onSaveComplete?.Invoke();
             }
             catch (Exception e) { onError?.Invoke(e); }
         }

@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using FlowLab.Core;
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
@@ -31,7 +32,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ParticlePlacer _particlePlacer;
         private readonly ParticelDebugger _debugger;
         private readonly ParticleRenderer _particleRenderer;
-        private readonly SimulationSettings _simulationSettings;
+        private SimulationSettings _simulationSettings;
         private readonly FrameCounter _frameCounter;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
@@ -43,7 +44,8 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _debugger = new();
             _particleRenderer = new();
-            _simulationSettings = new();
+            var settingsPath = PersistenceManager.SettingsSaveFilePath;
+            game1.PersistenceManager.Load<SimulationSettings>(settingsPath, s => _simulationSettings = s, (_) => _simulationSettings = new());
             _frameCounter = frameCounter;
             _scenarioManager.NextScene();
             BuildUi();
@@ -116,6 +118,13 @@ namespace FlowLab.Game.Objects.Layers
             _debugger.DrawParticleInfo(spriteBatch, GraphicsDevice.Viewport.Bounds.GetCorners()[3].ToVector2());
             _scenarioManager.Draw(spriteBatch, _camera.TransformationMatrix, ParticleDiameter);
             base.Draw(spriteBatch);
+        }
+
+        public override void Dispose()
+        {
+            var settingsPath = PersistenceManager.SettingsSaveFilePath;
+            Game1.PersistenceManager.Save(settingsPath, _simulationSettings, null, null);
+            base.Dispose();
         }
     }
 }
