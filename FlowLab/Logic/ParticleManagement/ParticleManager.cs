@@ -18,6 +18,7 @@ namespace FlowLab.Logic.ParticleManagement
 {
     internal class ParticleManager
     {
+        public double SimulationStepTime { get; private set; }
         public double SimulationTime { get; private set; }
         public int SolverIterations { get; private set; }
 
@@ -105,23 +106,26 @@ namespace FlowLab.Logic.ParticleManagement
 
         public float CflCondition => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
 
-        public void Update(SimulationSettings simulationSettings)
+        public void Update(GameTime gameTime, SimulationSettings simulationSettings)
         {
             // ____Update____
             SolverIterations = 0;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            switch (simulationSettings.SimulationMethod)
-            {
-                case SimulationMethod.IISPH:
-                    SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings, out var solverIterations);
-                    SolverIterations = solverIterations;
-                    break;
-                case SimulationMethod.SESPH:
-                    SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
-                    break;
-            }
+            if (_fluidParticles.Count > 0)
+                switch (simulationSettings.SimulationMethod)
+                {
+                    case SimulationMethod.IISPH:
+                        SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings, out var solverIterations);
+                        SolverIterations = solverIterations;
+                        break;
+                    case SimulationMethod.SESPH:
+                        SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings);
+                        break;
+                }
             watch.Stop();
-            SimulationTime = watch.Elapsed.TotalMilliseconds;
+            SimulationStepTime = watch.Elapsed.TotalMilliseconds;
+            SimulationTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (_fluidParticles.Count <= 0) SimulationTime = 0;
         }
 
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)
@@ -132,7 +136,7 @@ namespace FlowLab.Logic.ParticleManagement
             {
                 switch (colorMode) {
                     case ColorMode.None:
-                        p.Color = !p.IsBoundary ? new(75, 200, 255) : Color.DarkGray;
+                        p.Color = !p.IsBoundary ? new(20, 100, 255) : Color.DarkGray;
                         break;
                     case ColorMode.Velocity:
                         p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl) : Color.DarkGray;
@@ -143,7 +147,7 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
                         break;
                     case ColorMode.Error:
-                        p.Color = ColorSpectrum.ValueToColor(p.DensityError);
+                        p.Color = ColorSpectrum.ValueToColor(p.DensityError / 100);
                         break;
                 }
             });

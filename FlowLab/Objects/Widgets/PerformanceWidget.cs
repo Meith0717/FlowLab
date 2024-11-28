@@ -5,6 +5,7 @@
 using FlowLab.Engine.Debugging;
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Engine.UserInterface.Components;
+using FlowLab.Game.Objects.Layers;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 
@@ -29,10 +30,16 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "GLOBAL",
-                Scale = .19f,
+                Text = "Sim. Time:",
+                Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 30);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 30);
+            new UiText(this, "consola", self => self.Text = double.Round(particleManager.SimulationTime / 1000).ToString() + "s")
+            {
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 30);
+
 
             new UiText(this, "consola")
             {
@@ -52,7 +59,7 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 90);
-            new UiText(this, "consola", self => self.Text = double.Round(_particleManager.SimulationTime, 2).ToString())
+            new UiText(this, "consola", self => self.Text = double.Round(_particleManager.SimulationStepTime, 2).ToString() + "ms")
             {
                 Scale = .17f,
                 Color = Color.White
@@ -72,22 +79,15 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "IISPH",
-                Scale = .19f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 150);
-
-            new UiText(this, "consola")
-            {
                 Text = "Iterations:",
                 Scale = .15f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 180);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 150);
             new UiText(this, "consola", self => self.Text = float.Round(_particleManager.SolverIterations, 2).ToString())
             {
                 Scale = .15f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 180);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 150);
         }
     }
 }

@@ -90,7 +90,6 @@ namespace FlowLab.Core.InputManagement
         }
 
 
-
         public readonly bool ContainAction(ActionType action) => Actions.Contains(action);
 
         public readonly bool HasAction(ActionType action) => Actions.Remove(action);

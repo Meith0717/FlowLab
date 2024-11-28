@@ -22,7 +22,8 @@ namespace FlowLab.Game.Objects.Layers
     {
         private const int ParticleDiameter = 11;
         private const float FluidDensity = 0.3f;
-        public bool Paused = true;
+
+        public bool Paused { get; set; } = true;
 
         private readonly Camera2D _camera;
         private readonly ParticleManager _particleManager;
@@ -56,7 +57,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.NW, width: 250, height: 200, hSpace: 10, vSpace: 10);
+            }.Place(anchor: Anchor.NW, width: 250, height: 180, hSpace: 10, vSpace: 10);
 
             new StateWidget(UiRoot, _particleManager)
             {
@@ -64,8 +65,7 @@ namespace FlowLab.Game.Objects.Layers
                 BorderColor = new(75, 75, 75),
                 BorderSize = 5,
                 Alpha = .75f
-            }.Place(anchor: Anchor.Left, y: 215, width: 250, height: 85, hSpace: 10, vSpace: 10);
-
+            }.Place(anchor: Anchor.SW, y: 215, width: 200, height: 85, hSpace: 10, vSpace: 10);
 
             new SettingsWidget(UiRoot, _simulationSettings)
             {
@@ -82,7 +82,6 @@ namespace FlowLab.Game.Objects.Layers
                 BorderSize = 5,
                 Alpha = .75f,
             }.Place(anchor: Anchor.N, width: 420, height: 50, hSpace: 10, vSpace: 10);
-
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
@@ -97,7 +96,8 @@ namespace FlowLab.Game.Objects.Layers
             inputState.DoAction(ActionType.Reload, () => { UiRoot.Clear(); BuildUi(); ApplyResolution(gameTime); });
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
-                _particleManager.Update(_simulationSettings);
+                _particleManager.Update(gameTime, _simulationSettings);
+
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
             var worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
             _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePosition, ParticleDiameter);

@@ -36,14 +36,13 @@ namespace FlowLab
             _contentLoader = new(Content);
 
             // Manage if Window is selected or not
-            Activated += (object _, EventArgs _) => _active = true;
-            Deactivated += (object _, EventArgs _) => _active = false; ;
+            Activated += delegate { _active = true; };
+            Deactivated += delegate { _active = false; };
 
             // Window properties
             IsMouseVisible = true;
             Window.AllowUserResizing = true;
-            Window.Title = "FlowLab";
-
+            Window.Title = "Flow Lab";
             Window.ClientSizeChanged += delegate { _ResolutionWasResized = true; };
         }
 
@@ -78,7 +77,7 @@ namespace FlowLab
 
         protected override void Update(GameTime gameTime)
         {
-            if (!_active) return;
+            // if (!_active) return;
             if (_safeToStart)
                 StartMainMenu();
 
@@ -89,13 +88,11 @@ namespace FlowLab
                 LayerManager.OnResolutionChanged(gameTime);
             }
 
-            if (_active)
-            {
-                _frameCounter.Update(gameTime);
-                InputState inputState = _inputManager.Update(gameTime);
-                LayerManager.Update(gameTime, inputState);
-            }
+            _frameCounter.Update(gameTime);
             base.Update(gameTime);
+
+            InputState inputState = _active ? _inputManager.Update(gameTime) : new([], "", Vector2.Zero);
+            LayerManager.Update(gameTime, inputState);
         }
 
         protected override void Draw(GameTime gameTime)
