@@ -25,24 +25,6 @@
     <None Remove="Content\guiSfx\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraHull.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraLight.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraShadow.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraTexture.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraHull.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraLight.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraShadow.xnb" />
-    <Content Remove="C:\Users\meith\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraTexture.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraHull.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraLight.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraShadow.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.DesktopGL\PenumbraTexture.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraHull.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraLight.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraShadow.xnb" />
-    <Content Remove="C:\Users\Thierry\.nuget\packages\monogame.penumbra.desktopgl\3.0.0\contentFiles\any\net6.0\Content\bin\DesktopGL\Content.WindowsDX\PenumbraTexture.xnb" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Icon.bmp">
       <LogicalName>Icon.bmp</LogicalName>
     </EmbeddedResource>
