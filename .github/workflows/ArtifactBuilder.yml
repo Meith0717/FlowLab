@@ -1,0 +1,28 @@
+name: Build Artifact (x86)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  
+  Build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Set up Git
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Build
+      run: dotnet build --configuration Release FlowLab/FlowLab.sln #Set Path to solution
+  
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: x86
+        path: ./FlowLab/bin/Release/net8.0-windows/ #Set Path to Project
