@@ -33,7 +33,7 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, _particles, particle =>
             {
                 // neighborhood search & reset the accelerations of the particles
-                particle.Initialize(spatialHashing, gamma1, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
+                particle.FindNeighbors(spatialHashing, gamma1, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
                 // Compute densities
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
                 particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
@@ -122,7 +122,7 @@ namespace FlowLab.Logic.SphComponents
             // Compute density
             Utilitys.ForEach(true, _particles, particle =>
             {
-                particle.Initialize(spatialHashing, gamma1, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
+                particle.FindNeighbors(spatialHashing, gamma1, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
                 particle.Density = particle.Neighbors.Count <= 1 ? FluidDensity : particle.Density;
                 particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);

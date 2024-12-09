@@ -67,7 +67,7 @@ namespace FlowLab.Logic.ParticleManagement
         /// <param name="spatialHashing"></param>
         /// <param name="kernel"></param>
         /// <param name="kernelDerivativ"></param>
-        public void Initialize(SpatialHashing spatialHashing, float gamma, Func<Vector2, Vector2, float, float> kernel, Func<Vector2, Vector2, float, Vector2> kernelDerivativ)
+        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<Vector2, Vector2, float, float> kernel, Func<Vector2, Vector2, float, Vector2> kernelDerivativ)
         {
             _neighbors.Clear();
             _neighborKernels.Clear();
