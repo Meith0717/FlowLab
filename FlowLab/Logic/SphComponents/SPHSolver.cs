@@ -53,6 +53,8 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, noBoundaryParticles, particle =>{ 
                 IISPHComponents.ComputeSourceTerm(timeStep, particle);
                 IISPHComponents.ComputeDiagonalElement(particle, timeStep);
+                // warm start with factor 0.5
+                particle.Pressure *= .5f;
             });
 
             // perform pressure solve using IISPH
@@ -102,9 +104,6 @@ namespace FlowLab.Logic.SphComponents
                 spatialHashing.InsertObject(fluidParticle);
 
                 fluidParticle.Cfl = timeStep * (fluidParticle.Velocity.Length() / h);
-
-                // warm start with factor 0.5
-                fluidParticle.Pressure *= .5f;
             }
         }
 
