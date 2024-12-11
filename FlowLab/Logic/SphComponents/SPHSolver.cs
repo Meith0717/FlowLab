@@ -53,8 +53,10 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, noBoundaryParticles, particle =>{ 
                 IISPHComponents.ComputeSourceTerm(timeStep, particle);
                 IISPHComponents.ComputeDiagonalElement(particle, timeStep);
-                // warm start with factor 0.5
-                particle.Pressure *= .5f;
+
+                particle.Pressure = 0;
+                if (float.Abs(particle.AII) > 1e-6)
+                    particle.Pressure = omega / particle.AII * particle.St;
             });
 
             // perform pressure solve using IISPH
@@ -66,12 +68,14 @@ namespace FlowLab.Logic.SphComponents
 
                 Utilitys.ForEach(parallel, noBoundaryParticles, pI =>
                 {
-                    // compute aij * pj
-                    IISPHComponents.ComputeLaplacian(pI, timeStep);
-
-                    // update pressure values
                     if (float.Abs(pI.AII) > 1e-6)
+                    {
+                        // compute aij * pj
+                        IISPHComponents.ComputeLaplacian(pI, timeStep);
+
+                        // update pressure values
                         pI.Pressure += omega / pI.AII * (pI.St - pI.Ap);
+                    }
                     else
                         pI.Pressure = 0;
 
