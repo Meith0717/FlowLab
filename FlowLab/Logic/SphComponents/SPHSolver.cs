@@ -36,7 +36,8 @@ namespace FlowLab.Logic.SphComponents
                 particle.FindNeighbors(spatialHashing, gamma1, SphKernel.CubicSpline, SphKernel.NablaCubicSpline);
                 // Compute densities
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
-                particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
+                var particleDensity = particle.Density < FluidDensity ? FluidDensity : particle.Density;
+                particle.DensityError = 100 * ((particleDensity - FluidDensity) / FluidDensity);
             });
 
             // compute non-pressure forces
@@ -54,7 +55,7 @@ namespace FlowLab.Logic.SphComponents
                 IISPHComponents.ComputeSourceTerm(timeStep, particle);
                 IISPHComponents.ComputeDiagonalElement(particle, timeStep);
 
-                particle.Pressure = 0;
+                particle.Pressure *= .5f;
                 if (float.Abs(particle.AII) > 1e-6)
                     particle.Pressure = omega / particle.AII * particle.St;
             });

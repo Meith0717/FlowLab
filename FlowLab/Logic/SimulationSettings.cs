@@ -5,7 +5,7 @@
 namespace FlowLab.Logic
 {
     public enum SimulationMethod { SESPH, IISPH }
-    public enum ColorMode { None, Velocity, Pressure, Error }
+    public enum ColorMode { None, Velocity, Pressure, PosError, NegError }
 
     internal class SimulationSettings
     {

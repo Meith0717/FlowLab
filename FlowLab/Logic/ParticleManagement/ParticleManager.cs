@@ -146,9 +146,13 @@ namespace FlowLab.Logic.ParticleManagement
                         relPressure = float.IsNaN(relPressure) ? 0 : relPressure;
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
                         break;
-                    case ColorMode.Error:
+                    case ColorMode.PosError:
                         p.Color = ColorSpectrum.ValueToColor(p.DensityError / 100);
                         break;
+                    case ColorMode.NegError:
+                        p.Color = ColorSpectrum.ValueToColor(-p.DensityError / 100);
+                        break;
+
                 }
             });
 
