@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FlowLab.Logic
+namespace FlowLab.Logic.ScenarioManagement
 {
     internal class ScenarioManager
     {

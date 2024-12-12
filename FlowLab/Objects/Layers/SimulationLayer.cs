@@ -11,6 +11,7 @@ using FlowLab.Engine.Rendering;
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
+using FlowLab.Logic.ScenarioManagement;
 using FlowLab.Objects.Widgets;
 using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
