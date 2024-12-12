@@ -20,6 +20,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
         {
             mActionOnMultiplePressed = new()
             {
+                { Hash(Keys.LeftAlt, Keys.Enter), ActionType.ToggleFullscreen },
                 { Hash(Keys.LeftControl, Keys.W), ActionType.FastIncreaseHeight },
                 { Hash(Keys.LeftControl, Keys.A), ActionType.FastDecreaseWidthAndRadius },
                 { Hash(Keys.LeftControl, Keys.S), ActionType.FastDecreaseHeight },

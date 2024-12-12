@@ -93,8 +93,20 @@ namespace FlowLab
             base.Update(gameTime);
 
             InputState inputState = _active ? _inputManager.Update(gameTime) : new([], "", Vector2.Zero);
+            inputState.DoAction(ActionType.ToggleFullscreen, ToggleFullScreen);
             LayerManager.Update(gameTime, inputState);
             Exiting += delegate { LayerManager.Exit(); };
+        }
+
+        private void ToggleFullScreen()
+        {
+            var scale = GraphicsManager.IsFullScreen ? .5f : 1;
+
+            GraphicsManager.PreferredBackBufferHeight = (int)(scale * GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            GraphicsManager.PreferredBackBufferWidth = (int)(scale * GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width);
+            GraphicsManager.ToggleFullScreen();
+
+            _ResolutionWasResized = true;
         }
 
         protected override void Draw(GameTime gameTime)
