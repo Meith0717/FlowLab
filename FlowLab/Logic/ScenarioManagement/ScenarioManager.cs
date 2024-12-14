@@ -6,9 +6,6 @@ using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
-using MonoGame.Extended.Shapes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,23 +13,18 @@ namespace FlowLab.Logic.ScenarioManagement
 {
     internal class ScenarioManager
     {
-        private readonly Dictionary<Polygon, Action> _scenes;
+        private readonly Dictionary<string, Scenario> _scenes;
         private readonly ParticleManager _particleManager;
         private int _activeSceneIndex;
 
         public ScenarioManager(ParticleManager particleManager)
         {
             _activeSceneIndex -= 1;
+            var particleSize = particleManager.ParticleDiameter;
             _scenes = new()
             {
-                { PolygonFactory.CreateRectangle(40, 40), null },
-                { PolygonFactory.CreateRectangle(5, 50), null },
-                { PolygonFactory.CreateRectangle(170, 130), null },
-                { PolygonFactory.CreateRectangle(170, 170), null },
-                { PolygonFactory.CreateRectangle(250, 150), null },
-                { PolygonFactory.CreateRectangle(250, 250), null },
-                { PolygonFactory.CreateCircle(70, 50), null },
-                { PolygonFactory.CreateCircle(120, 60), null },
+                { "1", new([new(PolygonFactory.CreateRectangle((int)(particleSize * 100), (int)(particleSize * 100)))]) },
+                { "2", new([new(PolygonFactory.CreateCircle((int)(particleSize * 100), 10))]) },
             };
             _particleManager = particleManager;
         }
@@ -47,11 +39,10 @@ namespace FlowLab.Logic.ScenarioManagement
         private void ApplyScene(int index)
         {
             var keyValue = _scenes.ElementAt(index);
-            var polygone = keyValue.Key;
-            var action = keyValue.Value;
+            var key = keyValue.Key;
+            var scene = keyValue.Value;
             _particleManager.ClearAll();
-            _particleManager.AddPolygon(polygone);
-            action?.Invoke();
+            scene.Load(_particleManager);
         }
 
         public void Draw(SpriteBatch spriteBatch, Matrix transformationMatrix, float particleDiameter)

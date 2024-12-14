@@ -27,7 +27,7 @@ namespace FlowLab.Engine
 
         public static Polygon CreateRectangle(int widthCount, int heightCount)
         {
-            var rectangle = new RectangleF(0, 0, widthCount + 1, heightCount + 1);
+            var rectangle = new RectangleF(0, 0, widthCount, heightCount);
             var corners = rectangle.GetCorners();
             return new(corners);
         }

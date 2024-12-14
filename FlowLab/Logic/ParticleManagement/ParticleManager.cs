@@ -39,6 +39,7 @@ namespace FlowLab.Logic.ParticleManagement
             FluidDensity = fluidDensity;
         }
 
+        [Obsolete]
         public void AddPolygon(Polygon polygon)
         {
             var width = polygon.Right * ParticleDiameter;
@@ -100,6 +101,18 @@ namespace FlowLab.Logic.ParticleManagement
             SpatialHashing.InsertObject(particle);
         }
 
+        public void AddParticle(Particle particle)
+        {
+            var isBoundary = particle.IsBoundary;
+            Particles.Add(particle);
+            if (isBoundary)
+                _boundaryParticles.Add(particle);
+            else
+                _fluidParticles.Add(particle);
+            SpatialHashing.InsertObject(particle);
+        }
+
+
         public int Count => Particles.Where(p => !p.IsBoundary).Count();
 
         public float RelativeDensityError => _fluidParticles.Count <= 0 ? 0 : float.Abs(_fluidParticles.Average(p => p.DensityError));
@@ -131,6 +144,7 @@ namespace FlowLab.Logic.ParticleManagement
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)
         {
             // ____Manage Color____
+            if (Particles.Count <= 0) return;
             var maxPressure = Particles.Max(p => p.Pressure);
             Utilitys.ForEach(true, Particles, (p) =>
             {
