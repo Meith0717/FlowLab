@@ -10,9 +10,8 @@ namespace FlowLab.Core.Extensions
 {
     public static class CircleFExtensions
     {
-        public static Vector2[] GetPolygone(this CircleF circle)
+        public static Vector2[] GetPolygone(this CircleF circle, Vector2 center, int sides)
         {
-            var sides = 20;
             var radius = circle.Radius;
 
             Vector2[] array = new Vector2[sides];
@@ -20,7 +19,7 @@ namespace FlowLab.Core.Extensions
             double num2 = 0.0;
             for (int i = 0; i < sides; i++)
             {
-                array[i] = new Vector2((float)(radius * Math.Cos(num2)), (float)(radius * Math.Sin(num2)));
+                array[i] = center + new Vector2((float)(radius * Math.Cos(num2)), (float)(radius * Math.Sin(num2)));
                 num2 += num;
             }
 

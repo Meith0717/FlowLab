@@ -12,17 +12,19 @@ using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
+using FlowLab.Objects.Layers;
 using FlowLab.Objects.Widgets;
 using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System;
 
 namespace FlowLab.Game.Objects.Layers
 {
     internal class SimulationLayer : Layer
     {
-        private const int ParticleDiameter = 11;
+        private const int ParticleDiameter = 10;
         private const float FluidDensity = 0.3f;
 
         public bool Paused { get; set; } = true;
@@ -35,6 +37,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly ParticleRenderer _particleRenderer;
         private SimulationSettings _simulationSettings;
         private readonly FrameCounter _frameCounter;
+        private readonly Grid _grid;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -48,11 +51,11 @@ namespace FlowLab.Game.Objects.Layers
             var settingsPath = PersistenceManager.SettingsSaveFilePath;
             game1.PersistenceManager.Load<SimulationSettings>(settingsPath, s => _simulationSettings = s, (_) => _simulationSettings = new());
             _frameCounter = frameCounter;
-            _scenarioManager.NextScene();
-            BuildUi();
+            _scenarioManager.NextScenario();
+            _grid = new(ParticleDiameter);
         }
 
-        private void BuildUi()
+        public override void Initialize()
         {
             new PerformanceWidget(UiRoot, _particleManager, _frameCounter)
             {
@@ -85,25 +88,28 @@ namespace FlowLab.Game.Objects.Layers
                 BorderSize = 5,
                 Alpha = .75f,
             }.Place(anchor: Anchor.N, width: 420, height: 50, hSpace: 10, vSpace: 10);
+
         }
+
 
         public override void Update(GameTime gameTime, InputState inputState)
         {
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
-            inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScene(); _particlePlacer.Clear(); });
+            inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScenario(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.DeleteParticles, _particleManager.Clear);
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = Vector2.Zero);
-            inputState.DoAction(ActionType.Reload, () => { UiRoot.Clear(); BuildUi(); ApplyResolution(gameTime); });
+            inputState.DoAction(ActionType.Reload, () => { UiRoot.Clear(); Initialize(); ApplyResolution(gameTime); });
+            inputState.DoAction(ActionType.Build, () => LayerManager.AddLayer(new ScenarioBuildLayer(Game1, _scenarioManager, ParticleDiameter, FluidDensity)));
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
                 _particleManager.Update(gameTime, _simulationSettings);
 
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
-            var worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
-            _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePosition, ParticleDiameter);
+            var worldMousePos = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
+            _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePos, ParticleDiameter);
             if (_debugger.IsSelected) _camera.Position = _debugger.SelectedParticle.Position;
             base.Update(gameTime, inputState);
         }
@@ -112,8 +118,8 @@ namespace FlowLab.Game.Objects.Layers
         {
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
-            _particleRenderer.Render(spriteBatch, GraphicsDevice, _particleManager.Particles, _debugger, _camera.TransformationMatrix, particleTexture, ParticleDiameter);
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
+            _particleRenderer.Render(spriteBatch, _particleManager.Particles, _debugger, particleTexture, _grid);
             _particlePlacer.Draw(spriteBatch, particleTexture, Color.White);
             spriteBatch.End();
             _debugger.DrawParticleInfo(spriteBatch, GraphicsDevice.Viewport.Bounds.GetCorners()[3].ToVector2());

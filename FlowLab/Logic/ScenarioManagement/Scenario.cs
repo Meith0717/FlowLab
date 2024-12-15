@@ -11,9 +11,12 @@ namespace FlowLab.Logic.ScenarioManagement
     /// <summary>
     /// A scenario is construct out of Bodys containing border Particles
     /// </summary>
-    internal class Scenario(List<Body> bodys)
+    internal class Scenario(string name, List<Body> bodys)
     {
+        public string Name = name;
         private readonly List<Body> _bodys = bodys;
+
+        public bool IsEmpty => _bodys.Count == 0;
 
         public void AddBody(Body body) 
             => _bodys.Add(body);
@@ -23,13 +26,8 @@ namespace FlowLab.Logic.ScenarioManagement
 
         public void Load(ParticleManager particleManager)
         {
-            var fluidDensity = particleManager.FluidDensity;
-            var particleSize = particleManager.ParticleDiameter;
             foreach (Body body in _bodys)
-            {
-                body.Construct(particleSize, fluidDensity);
                 body.Load(particleManager);
-            }
         }
 
         public void Update()

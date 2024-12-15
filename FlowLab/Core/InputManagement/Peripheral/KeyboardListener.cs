@@ -29,7 +29,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
 
             mActionOnPressed = new()
             {
-                { Keys.Escape, ActionType.Exit },
+                { Keys.Escape, ActionType.Esc },
                 { Keys.F1, ActionType.SaveData },
                 { Keys.F2, ActionType.ToggleData },
                 { Keys.F12, ActionType.ScreenShot },
@@ -39,6 +39,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.Space, ActionType.TogglePause },
 
                 { Keys.R, ActionType.Reload },
+                { Keys.B, ActionType.Build },
                 { Keys.Q, ActionType.NextPlaceMode },
                 { Keys.W, ActionType.IncreaseHeight },
                 { Keys.A, ActionType.DecreaseWidthAndRadius },

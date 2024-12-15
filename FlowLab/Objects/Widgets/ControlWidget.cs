@@ -30,7 +30,7 @@ namespace FlowLab.Objects.Widgets
                 TextScale = .15f
             }.Place(anchor: Anchor.Center);
 
-            new UiButton(this, "consola", "Next Scene", "button", scenarioManager.NextScene)
+            new UiButton(this, "consola", "Next Scene", "button", scenarioManager.NextScenario)
             {
                 TextureScale = .75f,
                 TextScale = .15f

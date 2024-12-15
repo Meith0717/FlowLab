@@ -58,7 +58,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             if (_disabled) return;
 
             _hover = Canvas.GetGlobalBounds().Contains(transformedMousePosition);
-            _clicked = _hover && inputState.HasAction(ActionType.LeftWasClicked);
+            _clicked = _hover && inputState.HasAction(ActionType.LeftClicked);
             _disabled = _onClickAction is null;
 
             if (_clicked)

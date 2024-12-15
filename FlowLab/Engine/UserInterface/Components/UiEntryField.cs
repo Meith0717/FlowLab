@@ -41,12 +41,12 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         {
             if (Canvas.GetGlobalBounds().Contains(mousePosition))
             {
-                if (inputState.ContainAction(ActionType.LeftWasClicked))
+                if (inputState.ContainAction(ActionType.LeftClicked))
                     _isActive = !_isActive;
                 if (_isActive)
                     return;
             }
-            if (!inputState.ContainAction(ActionType.LeftWasClicked))
+            if (!inputState.ContainAction(ActionType.LeftClicked))
                 return;
             _isActive = false;
             OnClose?.Invoke(this);

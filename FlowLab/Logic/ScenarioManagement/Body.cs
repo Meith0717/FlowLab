@@ -6,43 +6,41 @@ using FlowLab.Logic.ParticleManagement;
 using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Shapes;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FlowLab.Logic.ScenarioManagement
 {
     /// <summary>
     /// A Body can be moved ore rotated and is composed of a set of movable bounday Particles
     /// </summary>
-    internal class Body(Polygon polygon)
+    internal class Body
     {
-        private readonly HashSet<Particle> _boundaryParticles = new();
-        private readonly Polygon _polygon = polygon;
+        private readonly HashSet<Particle> _boundaryParticles;
 
-        public Vector2 Positon { get; private set; } = polygon.BoundingRectangle.Center;
-        public float Rotation { get; private set; }
-
-        public void Construct(float particleSize, float fluidDensity)
+        public Body(HashSet<Particle> _particle, Action<Body> updater)
         {
-            var verticesCount = _polygon.Vertices.Length;
-            for (var i = 0; i < verticesCount; i++)
-            {
-                var start = _polygon.Vertices[i];
-                var end = _polygon.Vertices[(i + 1) % verticesCount];
-                ConstructEdge(particleSize, fluidDensity, new BodyEdge(start, end));
-            }
+            if (_particle.Count > 0)
+                if (_particle.Where(p => !p.IsBoundary).Any()) 
+                    throw new Exception("Body Particles has to be boundary particles");
+            _boundaryParticles = _particle;
         }
 
-        private void ConstructEdge(float particleSize, float fluidDensity, BodyEdge edge)
+        public Vector2 Positon { get; private set; } = Vector2.Zero; // TODO 
+
+        public float Rotation { get; private set; }
+
+        public bool IsHovered(Vector2 position)
         {
-            if (!edge.TryGetParticleSpaceCount(particleSize, out var particleCount)) 
-                return;
-            for (var i = 0; i <= particleCount; i++) 
+            foreach (var particle in _boundaryParticles)
             {
-                var particlePosition = edge.GetParticlePosition(i, particleSize);
-                _boundaryParticles.Add(new Particle(particlePosition, particleSize, fluidDensity, true));
+                if (!particle.BoundBox.Contains(position)) 
+                    continue;
+                return true;
             }
+            return false;
         }
 
         public void Load(ParticleManager particleManager)
@@ -71,7 +69,8 @@ namespace FlowLab.Logic.ScenarioManagement
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            throw new NotImplementedException();
+            foreach (var particle in _boundaryParticles)
+                spriteBatch.DrawCircle(particle.Position, particle.Diameter / 2, 10, Color.Blue);
         }
     }
 }

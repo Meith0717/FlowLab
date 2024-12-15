@@ -25,7 +25,7 @@ namespace FlowLab.Logic
         {
             _particles.Clear();
             spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
-            if (!inputState.ContainAction(ActionType.LeftWasClicked)) return;
+            if (!inputState.ContainAction(ActionType.LeftClicked)) return;
             foreach (var particle in _particles)
             {
                 if (!particle.BoundBox.Contains(mousePosition)) continue;

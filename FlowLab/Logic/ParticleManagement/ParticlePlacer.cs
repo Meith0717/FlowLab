@@ -70,7 +70,7 @@ namespace FlowLab.Logic.ParticleManagement
                     return;
             }
 
-            inputState.DoAction(ActionType.LeftWasClicked, Place);
+            inputState.DoAction(ActionType.LeftClicked, Place);
         }
 
         public void Place()

@@ -14,23 +14,23 @@ namespace FlowLab.Core.InputManagement.Peripheral
         private MouseState mCurrentState, mPreviousState;
         private double mLeftCounter, mRightCounter;
 
-        private bool LeftMouseButtonPressed => mCurrentState.LeftButton == ButtonState.Pressed;
-        private bool RightMouseButtonPressed => mCurrentState.RightButton == ButtonState.Pressed;
-        private bool MidMouseButtonPressed => mCurrentState.MiddleButton == ButtonState.Pressed;
+        private bool LeftMouseButtonHold => mCurrentState.LeftButton == ButtonState.Pressed && mPreviousState.LeftButton == ButtonState.Pressed;
+        private bool RightMouseButtonHold => mCurrentState.RightButton == ButtonState.Pressed && mPreviousState.RightButton == ButtonState.Pressed;
+        private bool MidMouseButtonHold => mCurrentState.MiddleButton == ButtonState.Pressed && mPreviousState.MiddleButton == ButtonState.Pressed;
 
-        private bool LeftMouseButtonReleased => mCurrentState.LeftButton == ButtonState.Released;
-        private bool RightMouseButtonReleased => mCurrentState.RightButton == ButtonState.Released;
-        private bool MidMouseButtonReleased => mCurrentState.MiddleButton == ButtonState.Released;
+        private bool LeftMouseButtonReleased => mCurrentState.LeftButton == ButtonState.Released && mPreviousState.LeftButton == ButtonState.Pressed;
+        private bool RightMouseButtonReleased => mCurrentState.RightButton == ButtonState.Released && mPreviousState.RightButton == ButtonState.Pressed;
+        private bool MidMouseButtonReleased => mCurrentState.MiddleButton == ButtonState.Released && mPreviousState.MiddleButton == ButtonState.Pressed;
 
-        private bool LeftMouseButtonJustReleased => mCurrentState.LeftButton == ButtonState.Released && mPreviousState.LeftButton == ButtonState.Pressed;
-        private bool RightMouseButtonJustReleased => mCurrentState.RightButton == ButtonState.Released && mPreviousState.RightButton == ButtonState.Pressed;
-        private bool MidMouseButtonJustReleased => mCurrentState.MiddleButton == ButtonState.Released && mPreviousState.MiddleButton == ButtonState.Pressed;
+        private bool LeftMouseButtonPressed => mCurrentState.LeftButton == ButtonState.Pressed && mPreviousState.LeftButton == ButtonState.Released;
+        private bool RightMouseButtonPressed => mCurrentState.RightButton == ButtonState.Pressed && mPreviousState.RightButton == ButtonState.Released;
+        private bool MidMouseButtonPressed => mCurrentState.MiddleButton == ButtonState.Pressed && mPreviousState.MiddleButton == ButtonState.Released;
 
         private readonly Dictionary<ActionType, ActionType> mKeyBindingsMouse = new()
             {
                 { ActionType.MouseWheelBackward, ActionType.CameraZoomOut },
                 { ActionType.MouseWheelForward, ActionType.CameraZoomIn },
-                { ActionType.MidJustClicked, ActionType.CameraReset }
+                { ActionType.MidClicked, ActionType.CameraReset }
             };
 
         public void Listen(GameTime gameTime, ref List<ActionType> actions, out Vector2 mousePosition)
@@ -40,35 +40,35 @@ namespace FlowLab.Core.InputManagement.Peripheral
             mousePosition = mCurrentState.Position.ToVector2();
 
             // Track the time the Keys are Pressed
-            if (LeftMouseButtonPressed)
+            if (LeftMouseButtonHold)
                 mLeftCounter += gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            if (RightMouseButtonPressed)
+            if (RightMouseButtonHold)
                 mRightCounter += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             // Check if Mouse Key was Hold or Clicked
-            if (mLeftCounter > mClickHoldTeshholld && !LeftMouseButtonJustReleased)
+            if (mLeftCounter > mClickHoldTeshholld)
                 actions.Add(ActionType.LeftClickHold);
 
-            if (mRightCounter > mClickHoldTeshholld && !RightMouseButtonJustReleased)
+            if (mRightCounter > mClickHoldTeshholld)
                 actions.Add(ActionType.RightClickHold);
 
             // Check for Mouse Key Pressed
-            if (LeftMouseButtonJustReleased)
+            if (LeftMouseButtonReleased)
                 actions.Add(ActionType.LeftReleased);
 
-            if (RightMouseButtonJustReleased)
+            if (RightMouseButtonReleased)
                 actions.Add(ActionType.RightReleased);
 
             // Check for Mouse Key Release
-            if (LeftMouseButtonJustReleased)
-                actions.Add(ActionType.LeftWasClicked);
+            if (LeftMouseButtonPressed)
+                actions.Add(ActionType.LeftClicked);
 
-            if (RightMouseButtonJustReleased)
-                actions.Add(ActionType.RightWasClicked);
+            if (RightMouseButtonPressed)
+                actions.Add(ActionType.RightClicked);
 
-            if (MidMouseButtonJustReleased)
-                actions.Add(ActionType.MidJustClicked);
+            if (MidMouseButtonPressed)
+                actions.Add(ActionType.MidClicked);
 
             // Recet counters
             if (LeftMouseButtonReleased)
