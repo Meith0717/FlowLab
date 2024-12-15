@@ -30,8 +30,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 30);
-            new UiText(this, "consola", self => { self.Text = $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; })
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => { self.Text = $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; },
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 30);
@@ -42,8 +43,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 60);
-            new UiText(this, "consola", self => { self.Text = $"{double.Round(_particleManager.CflCondition * 100).ToString()}%"; })
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => { self.Text = $"{double.Round(_particleManager.CflCondition * 100).ToString()}%"; },
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 60);

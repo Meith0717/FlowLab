@@ -10,17 +10,16 @@ using System;
 
 namespace FlowLab.Game.Engine.UserInterface.Components
 {
-    internal class UiText(UiLayer root, string spriteFont, Action<UiText> updateTraker = null) : UiElement(root)
+    internal class UiText(UiLayer root, string spriteFont) : UiElement(root)
     {
         private readonly SpriteFont _font = TextureManager.Instance.GetFont(spriteFont);
         private Point _textDimension = new();
-        private readonly Action<UiText> _updateTracker = updateTraker;
 
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             base.Update(inputState, transformedMousePosition, gameTime);
 
-            _updateTracker?.Invoke(this);
+            UpdateTracker?.Invoke(this);
             var textSize = _font.MeasureString(Text) * Scale * new Vector2(1, .75f);
             textSize.Ceiling();
             _textDimension = textSize.ToPoint();
@@ -36,6 +35,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             base.Draw(spriteBatch);
         }
 
+        public Action<UiText> UpdateTracker { private get; set; }
         public string Text { get; set; } = "";
         public float Scale { private get; set; } = 1;
         public Color Color { private get; set; } = Color.Black;

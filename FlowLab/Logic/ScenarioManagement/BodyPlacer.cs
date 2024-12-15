@@ -4,15 +4,15 @@
 
 using FlowLab.Core.Extensions;
 using FlowLab.Core.InputManagement;
-using FlowLab.Logic.ScenarioManagement;
+using FlowLab.Logic.ParticleManagement;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using MonoGame.Extended.Particles;
+using System.Collections;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
-namespace FlowLab.Logic.ParticleManagement
+namespace FlowLab.Logic.ScenarioManagement
 {
     internal class BodyPlacer(Grid grid, float particleDiameter, float fluidDensity)
     {
@@ -20,7 +20,7 @@ namespace FlowLab.Logic.ParticleManagement
         private readonly Grid _grid = grid;
         private readonly float _particleDiameter = particleDiameter;
         private readonly float _fluidDensity = fluidDensity;
-        private EllipseF _elypse = new();
+        private EllipseF _elypse = new(Vector2.Zero, 10 * particleDiameter, 10 * particleDiameter);
         private int _mode;
 
         private readonly Dictionary<int, string> PlacerModes = new()
@@ -34,9 +34,14 @@ namespace FlowLab.Logic.ParticleManagement
         public void Update(InputState inputState, Vector2 worldMousePosition, Scenario scenario)
         {
             inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
-            inputState.DoAction(ActionType.LeftClicked, () => { AddBody(scenario); _elypse.RadiusX = _elypse.RadiusY = 0;});
-
+            if (_mode == 0)
+            {
+                _grids.Clear();
+                return;
+            };
+            inputState.DoAction(ActionType.LeftClicked, () => AddBody(scenario));
             _grids.Clear();
+
             worldMousePosition = _grid.GetCellCenter(worldMousePosition);
             _elypse.Position = worldMousePosition;
 
@@ -50,52 +55,45 @@ namespace FlowLab.Logic.ParticleManagement
             inputState.DoAction(ActionType.FastIncreaseHeight, () => _elypse.RadiusY += _particleDiameter * 5);
             inputState.DoAction(ActionType.FastDecreaseHeight, () => _elypse.RadiusY -= _particleDiameter * 5);
 
-            _elypse.RadiusX = float.Max(_elypse.RadiusX, 1);
-            _elypse.RadiusY = float.Max(_elypse.RadiusY, 1);
+            _elypse.RadiusX = float.Max(_elypse.RadiusX, 0);
+            _elypse.RadiusY = float.Max(_elypse.RadiusY, 0);
 
             switch (_mode)
             {
                 case 1:
-                    GetBodyParticles(_elypse.GetPolygon(5 * (int)float.Max(_elypse.RadiusX, _elypse.RadiusY)));
+                    GetBodyParticles(_elypse.GetPolygon((int)(float.Max(_elypse.RadiusX, _elypse.RadiusY) / 1.5f)));
                     break;
                 case 2:
                     GetBodyParticles(_elypse.BoundingRectangle.GetPolygon());
                     break;
-                case 0:
+                case 3:
                     _grids.Add(_grid.GetCellCenter(worldMousePosition));
                     return;
             }
-
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 worldMousePosition)
+        public void Draw(SpriteBatch spriteBatch)
         {
             foreach (var grid in _grids)
-                spriteBatch.DrawPoint(grid, Color.Red, 5);
+                spriteBatch.DrawCircle(grid, _particleDiameter / 2, 10, Color.White);
         }
 
         private void GetBodyParticles(Vector2[] vertices)
         {
-            var length = vertices.Length;
+            var vertexCount = vertices.Length;
 
-            for (var i = 0; i < length; i++)
+            for (var i = 0; i < vertexCount; i++)
             {
-                var vertex = vertices[i];
-                _grids.Add(_grid.GetCellCenter(vertex));
-                var nextVertex = vertices[(i + 1) % length];
-                var lineLength = Vector2.Distance(vertex, nextVertex);
+                var start = vertices[i];
+                var end = vertices[(i + 1) % vertexCount];
+                _grids.Add(start);
+                var lineLength = Vector2.Distance(start, end);
                 if (lineLength < _particleDiameter) continue;
-                SplitLine(vertex, nextVertex);
+                var dir = Vector2.Normalize(end - start);
+                var steps = float.Floor(lineLength / _particleDiameter);
+                for (var j = 0f; j < steps; j++)
+                    _grids.Add(start + dir * (j * _particleDiameter));
             }
-        }
-
-        private void SplitLine(Vector2 start, Vector2 end)
-        {
-            var dir = Vector2.Normalize(end - start);
-            var length = Vector2.Distance(start, end);
-            var steps = float.Floor(length / _particleDiameter);
-            for (var i = 0f; i < steps; i++)
-                _grids.Add(_grid.GetCellCenter(start + (dir * (i * _particleDiameter))));
         }
 
         private void AddBody(Scenario scenario)
@@ -103,7 +101,7 @@ namespace FlowLab.Logic.ParticleManagement
             var lst = new HashSet<Particle>();
             foreach (var grid in _grids)
                 lst.Add(new(grid, _particleDiameter, _fluidDensity, true));
-            scenario.AddBody(new(lst, null));
+            scenario.AddBody(new(_elypse.Position, lst, null));
         }
     }
 }

@@ -123,18 +123,17 @@ namespace FlowLab.Logic.ParticleManagement
         {
             // ____Update____
             SolverIterations = 0;
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            if (_fluidParticles.Count > 0)
-                switch (simulationSettings.SimulationMethod)
-                {
-                    case SimulationMethod.IISPH:
-                        SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings, out var solverIterations);
-                        SolverIterations = solverIterations;
-                        break;
-                    case SimulationMethod.SESPH:
-                        SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings);
-                        break;
-                }
+            var watch = Stopwatch.StartNew();
+            switch (simulationSettings.SimulationMethod)
+            {
+                case SimulationMethod.IISPH:
+                    SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings, out var solverIterations);
+                    SolverIterations = solverIterations;
+                    break;
+                case SimulationMethod.SESPH:
+                    SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings);
+                    break;
+            }
             watch.Stop();
             SimulationStepTime = watch.Elapsed.TotalMilliseconds;
             SimulationTime += gameTime.ElapsedGameTime.TotalMilliseconds;

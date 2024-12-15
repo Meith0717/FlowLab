@@ -16,7 +16,8 @@ namespace FlowLab.Logic.ParticleManagement
             foreach (var particle in particles)
             {
                 var position = particle.Position;
-                spriteBatch.Draw(particleTexture, position, null, particle.Color, 0, new Vector2(particleTexture.Width * .5f), 1.1f*(particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
+                //grid.DrawCell(spriteBatch, particle.Position, particle.Color);
+                spriteBatch.Draw(particleTexture, position, null, particle.Color, 0, new Vector2(particleTexture.Width * .5f), 1.1f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
             }
             if (!debugger.IsSelected) return;
             var debugParticle = debugger.SelectedParticle;

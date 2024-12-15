@@ -98,17 +98,20 @@ namespace FlowLab.Logic.SphComponents
             iterations = i;
 
             // update velocities using pressure forces
-            foreach (var fluidParticle in noBoundaryParticles)
+            foreach (var particle in _particles)
             {
                 // integrate velocity considering pressure forces 
-                fluidParticle.Velocity += timeStep * fluidParticle.PressureAcceleration;
+                particle.Velocity += timeStep * particle.PressureAcceleration;
 
                 // integrate position
-                spatialHashing.RemoveObject(fluidParticle);
-                fluidParticle.Position += timeStep * fluidParticle.Velocity;
-                spatialHashing.InsertObject(fluidParticle);
+                spatialHashing.RemoveObject(particle);
+                if (particle.IsBoundary)
+                    particle.Position += particle.Velocity;
+                else
+                    particle.Position += timeStep * particle.Velocity;
+                spatialHashing.InsertObject(particle);
 
-                fluidParticle.Cfl = timeStep * (fluidParticle.Velocity.Length() / h);
+                particle.Cfl = timeStep * (particle.Velocity.Length() / h);
             }
         }
 
@@ -149,16 +152,19 @@ namespace FlowLab.Logic.SphComponents
             });
 
             // Update Velocities
-            foreach (var fluidParticle in noBoundaryParticles)
+            foreach (var particle in _particles)
             {
                 // Update Velocity
-                fluidParticle.Velocity += timeStep * fluidParticle.Acceleration;
+                particle.Velocity += timeStep * particle.Acceleration;
                 // Update Position
-                spatialHashing.RemoveObject(fluidParticle);
-                fluidParticle.Position += timeStep * fluidParticle.Velocity;
-                spatialHashing.InsertObject(fluidParticle);
+                spatialHashing.RemoveObject(particle);
+                if (particle.IsBoundary)
+                    particle.Position += particle.Velocity;
+                else
+                    particle.Position += timeStep * particle.Velocity;
+                spatialHashing.InsertObject(particle);
 
-                fluidParticle.Cfl = timeStep * (fluidParticle.Velocity.Length() / h);
+                particle.Cfl = timeStep * (particle.Velocity.Length() / h);
             }
         }
     }

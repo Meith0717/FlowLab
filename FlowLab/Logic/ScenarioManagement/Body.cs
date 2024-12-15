@@ -2,8 +2,8 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using FlowLab.Core.ContentHandling;
 using FlowLab.Logic.ParticleManagement;
-using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -18,17 +18,19 @@ namespace FlowLab.Logic.ScenarioManagement
     /// </summary>
     internal class Body
     {
+        public float RotationUpdate = .001f;
         private readonly HashSet<Particle> _boundaryParticles;
 
-        public Body(HashSet<Particle> _particle, Action<Body> updater)
+        public Body(Vector2 position, HashSet<Particle> _particle, Action<Body> updater)
         {
+            Position = position;
             if (_particle.Count > 0)
                 if (_particle.Where(p => !p.IsBoundary).Any()) 
                     throw new Exception("Body Particles has to be boundary particles");
             _boundaryParticles = _particle;
         }
 
-        public Vector2 Positon { get; private set; } = Vector2.Zero; // TODO 
+        public Vector2 Position { get; private set; } = Vector2.Zero; // TODO 
 
         public float Rotation { get; private set; }
 
@@ -49,28 +51,38 @@ namespace FlowLab.Logic.ScenarioManagement
                 particleManager.AddParticle(particle);
         }
 
-        public void Move(Vector2 step)
+        public void Rotate(float angleStep) 
         {
-            Positon += step;
-            foreach (var particle in _boundaryParticles)
-                particle.Position += step;
-        }
-
-        public void Rotate(float angle) 
-        {
-            Rotation += angle;
+            Rotation += angleStep;
             foreach (var particle in _boundaryParticles)
             {
-                var radius = Vector2.Distance(particle.Position, Positon);
-                var rotatePosition = Geometry.GetPointOnCircle(Positon,radius, angle);
-                Positon = rotatePosition;
+                // Calculate the relative position to the center
+                var relativePosition = particle.Position - Position;
+
+                // Get the current angle and radius
+                var radius = relativePosition.Length();
+                var currentAngle = MathF.Atan2(relativePosition.Y, relativePosition.X);
+
+                // Calculate the new angle
+                var newAngle = currentAngle + angleStep;
+
+                // Calculate the new position using polar-to-cartesian conversion
+                var newX = Position.X + radius * MathF.Cos(newAngle);
+                var newY = Position.Y + radius * MathF.Sin(newAngle);
+
+                // Update the particle's velocity
+                particle.Velocity = new Vector2(newX, newY) - particle.Position;
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Update() => Rotate(RotationUpdate);
+
+        public void Draw(SpriteBatch spriteBatch, Color color)
         {
-            foreach (var particle in _boundaryParticles)
-                spriteBatch.DrawCircle(particle.Position, particle.Diameter / 2, 10, Color.Blue);
+            var particleTexture = TextureManager.Instance.GetTexture("particle");
+
+            foreach (var particle in _boundaryParticles) 
+                spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f), 1.1f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
         }
     }
 }

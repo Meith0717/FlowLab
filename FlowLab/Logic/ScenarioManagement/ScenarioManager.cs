@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,6 +29,11 @@ namespace FlowLab.Logic.ScenarioManagement
 
         public void Remove(Scenario scenario)
             => _scenarios.Remove(scenario);
+
+        public void Update()
+        {
+            CurrentScenario()?.Update();
+        }
 
         public Scenario CurrentScenario()
         {

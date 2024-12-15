@@ -29,13 +29,13 @@ namespace FlowLab.Game.Objects.Layers
 
         public bool Paused { get; set; } = true;
 
+        private SimulationSettings _simulationSettings;
         private readonly Camera2D _camera;
         private readonly ParticleManager _particleManager;
         private readonly ScenarioManager _scenarioManager;
         private readonly ParticlePlacer _particlePlacer;
         private readonly ParticelDebugger _debugger;
         private readonly ParticleRenderer _particleRenderer;
-        private SimulationSettings _simulationSettings;
         private readonly FrameCounter _frameCounter;
         private readonly Grid _grid;
 
@@ -91,7 +91,6 @@ namespace FlowLab.Game.Objects.Layers
 
         }
 
-
         public override void Update(GameTime gameTime, InputState inputState)
         {
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
@@ -100,12 +99,15 @@ namespace FlowLab.Game.Objects.Layers
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.NextScenario(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.DeleteParticles, _particleManager.Clear);
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
-            inputState.DoAction(ActionType.CameraReset, () => _camera.Position = Vector2.Zero);
+            inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
             inputState.DoAction(ActionType.Reload, () => { UiRoot.Clear(); Initialize(); ApplyResolution(gameTime); });
-            inputState.DoAction(ActionType.Build, () => LayerManager.AddLayer(new ScenarioBuildLayer(Game1, _scenarioManager, ParticleDiameter, FluidDensity)));
+            inputState.DoAction(ActionType.Build, () => LayerManager.AddLayer(new ScenarioBuildLayer(Game1, _scenarioManager, ParticleDiameter, FluidDensity, _camera.Zoom)));
             _particlePlacer.Update(inputState, _camera);
             if (!Paused)
+            {
+                _scenarioManager.Update();
                 _particleManager.Update(gameTime, _simulationSettings);
+            }
 
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
             var worldMousePos = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);

@@ -34,8 +34,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 30);
-            new UiText(this, "consola", self => self.Text = double.Round(particleManager.SimulationTime / 1000).ToString() + "s")
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => self.Text = double.Round(particleManager.SimulationTime / 1000).ToString() + "s",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 30);
@@ -47,8 +48,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 60);
-            new UiText(this, "consola", self => self.Text = float.Round(_frameCounter.CurrentFramesPerSecond).ToString())
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => self.Text = float.Round(_frameCounter.CurrentFramesPerSecond).ToString(),
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 60);
@@ -59,8 +61,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 90);
-            new UiText(this, "consola", self => self.Text = double.Round(_particleManager.SimulationStepTime, 2).ToString() + "ms")
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => self.Text = double.Round(_particleManager.SimulationStepTime, 2).ToString() + "ms",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 90);
@@ -71,8 +74,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 120);
-            new UiText(this, "consola", self => self.Text = _particleManager.Count.ToString())
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => self.Text = _particleManager.Count.ToString(),
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 120);
@@ -83,8 +87,9 @@ namespace FlowLab.Objects.Widgets
                 Scale = .15f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 150);
-            new UiText(this, "consola", self => self.Text = float.Round(_particleManager.SolverIterations, 2).ToString())
+            new UiText(this, "consola")
             {
+                UpdateTracker = self => self.Text = float.Round(_particleManager.SolverIterations, 2).ToString(),
                 Scale = .15f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 150);
