@@ -18,7 +18,7 @@ namespace FlowLab.Logic.ScenarioManagement
     /// </summary>
     internal class Body
     {
-        public float RotationUpdate = .001f;
+        public float RotationUpdate;
         private readonly HashSet<Particle> _boundaryParticles;
 
         public Body(Vector2 position, HashSet<Particle> _particle, Action<Body> updater)

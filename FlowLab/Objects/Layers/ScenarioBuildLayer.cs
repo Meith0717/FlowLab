@@ -44,7 +44,12 @@ namespace FlowLab.Objects.Layers
         {
             if (_scenario is null)
                 _scenario = new("New Scenario", new());
+            BuildUi();
+        }
 
+        private void BuildUi()
+        {
+            UiRoot.Clear();
             new BodyOverviewWidget(UiRoot, _scenario, _bodySelector)
             {
                 InnerColor = new(30, 30, 30),
@@ -64,7 +69,7 @@ namespace FlowLab.Objects.Layers
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
             _worldMousePos = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
-            _bodyPlacer.Update(inputState, _worldMousePos, _scenario);
+            _bodyPlacer.Update(inputState, _worldMousePos, _scenario, () => { BuildUi(); ApplyResolution(gameTime); });
             _bodySelector.Select(inputState, _scenario, _worldMousePos);
             _bodySelector.Update(inputState, _scenario);
         }
@@ -87,6 +92,7 @@ namespace FlowLab.Objects.Layers
             if (_scenario == null) return;
             if (_scenario.IsEmpty) return;
             _scenarioManager.Add(_scenario);
+            _scenarioManager.LoadCurrentScenario();
         }
     }
 }

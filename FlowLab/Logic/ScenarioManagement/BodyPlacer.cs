@@ -9,6 +9,7 @@ using MathNet.Numerics.LinearAlgebra.Factorization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -31,7 +32,7 @@ namespace FlowLab.Logic.ScenarioManagement
             {3, "Particle"},
         };
 
-        public void Update(InputState inputState, Vector2 worldMousePosition, Scenario scenario)
+        public void Update(InputState inputState, Vector2 worldMousePosition, Scenario scenario, Action uiUpdater)
         {
             inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
             if (_mode == 0)
@@ -39,7 +40,7 @@ namespace FlowLab.Logic.ScenarioManagement
                 _grids.Clear();
                 return;
             };
-            inputState.DoAction(ActionType.LeftClicked, () => AddBody(scenario));
+            inputState.DoAction(ActionType.LeftClicked, () => { AddBody(scenario); uiUpdater?.Invoke(); });
             _grids.Clear();
 
             worldMousePosition = _grid.GetCellCenter(worldMousePosition);
