@@ -8,16 +8,16 @@ using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
-using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
 using FlowLab.Objects.Layers;
-using FlowLab.Objects.Widgets;
 using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System.IO;
+using System;
 
 namespace FlowLab.Game.Objects.Layers
 {
@@ -60,7 +60,7 @@ namespace FlowLab.Game.Objects.Layers
 
         public override void Initialize()
         {
-            BuildUi();
+            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, this));
             if (_scenarioManager.TryLoadCurrentScenario())
                 return;
             LayerManager.AddLayer(new DialogBoxLayer(Game1, "New scenario", "No scenarios where found.", () =>
@@ -68,41 +68,6 @@ namespace FlowLab.Game.Objects.Layers
                 var scenario = new Scenario(new());
                 _scenarioManager.Add(scenario);
             }));
-        }
-
-        private void BuildUi()
-        {
-            new PerformanceWidget(UiRoot, _particleManager, _frameCounter)
-            {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
-                Alpha = .75f
-            }.Place(anchor: Anchor.NW, width: 250, height: 180, hSpace: 10, vSpace: 10);
-
-            new StateWidget(UiRoot, _particleManager)
-            {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
-                Alpha = .75f
-            }.Place(anchor: Anchor.Left, y: 210, width: 200, height: 85, hSpace: 10, vSpace: 10);
-
-            new SettingsWidget(UiRoot, _simulationSettings)
-            {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
-                Alpha = .75f,
-            }.Place(anchor: Anchor.NE, width: 250, relHeight: 1, hSpace: 10, vSpace: 10);
-
-            new ControlWidget(UiRoot, this, _particleManager, _scenarioManager)
-            {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
-                Alpha = .75f,
-            }.Place(anchor: Anchor.N, width: 420, height: 50, hSpace: 10, vSpace: 10);
         }
 
         public bool Paused { get; set; } = true;
@@ -113,8 +78,8 @@ namespace FlowLab.Game.Objects.Layers
 
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.LoadNextScenario(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
+            inputState.DoAction(ActionType.ScreenShot, TakeScreenShot);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
-            inputState.DoAction(ActionType.Reload, () => ReloadUi(gameTime));
             inputState.DoAction(ActionType.SwitchMode, () => _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle);
 
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
@@ -183,11 +148,11 @@ namespace FlowLab.Game.Objects.Layers
             base.Dispose();
         }
 
-        public void ReloadUi(GameTime gameTime)
+        private void TakeScreenShot()
         {
-            UiRoot.Clear();
-            BuildUi();
-            ApplyResolution(gameTime);
+            //var date = DateTime.Now.ToString("yyyyMMddHHmmss");
+            //FileStream fs = new($"{PersistenceManager.GameSaveFilePath}/{date}.png", FileMode.OpenOrCreate);
+            //RenderTarget2D.SaveAsPng(fs, RenderTarget2D.Width, RenderTarget2D.Height);
         }
     }
 }

@@ -36,6 +36,7 @@ namespace FlowLab.Core.InputManagement
         BackSpace,
         Reload,
         Test,
+        HideHud,
 
         // Mouse
         LeftReleased,

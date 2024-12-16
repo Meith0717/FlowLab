@@ -32,6 +32,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.Escape, ActionType.Esc },
                 { Keys.F1, ActionType.SaveData },
                 { Keys.F2, ActionType.ToggleData },
+                { Keys.F11, ActionType.HideHud },
                 { Keys.F12, ActionType.ScreenShot },
                 { Keys.Delete, ActionType.DeleteParticles },
                 { Keys.Back, ActionType.BackSpace },
