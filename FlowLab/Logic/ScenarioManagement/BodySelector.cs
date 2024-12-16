@@ -25,10 +25,15 @@ namespace FlowLab.Logic.ScenarioManagement
             Body = null;
         }
 
-        public void Update(InputState inputState, Scenario scenario)
+        public void Update(InputState inputState, ScenarioManager scenarioManager)
         {
             if (Body is null) return;
-            inputState.DoAction(ActionType.DeleteParticles, () => { scenario.RemoveBody(Body); Body = null; });
+            inputState.DoAction(ActionType.DeleteParticles, () =>
+            { 
+                scenarioManager.CurrentScenario.RemoveBody(Body);
+                scenarioManager.TryLoadCurrentScenario();
+                Body = null; }
+            );
         }
         
         public void Draw(SpriteBatch spriteBatch) 

@@ -20,7 +20,7 @@ namespace FlowLab.Core.InputManagement
         Esc,
         ScreenShot,
         NextScene,
-        Build,
+        SwitchMode,
         NextPlaceMode,
         IncreaseWidthAndRadius,
         DecreaseWidthAndRadius,
@@ -35,6 +35,7 @@ namespace FlowLab.Core.InputManagement
         Help,
         BackSpace,
         Reload,
+        Test,
 
         // Mouse
         LeftReleased,

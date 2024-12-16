@@ -40,6 +40,7 @@ namespace FlowLab.Logic.ParticleManagement
         {
             _particles.Clear();
             var worldMousePosition = Transformations.ScreenToWorld(camera.TransformationMatrix, inputState.MousePosition);
+            inputState.DoAction(ActionType.DeleteParticles, _particleManager.ClearFluid);
             inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
 
             inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);
@@ -86,10 +87,10 @@ namespace FlowLab.Logic.ParticleManagement
             _particles.Clear();
         }
 
-        public void Draw(SpriteBatch spriteBatch, Texture2D particleTexture, Color color)
+        public void Draw(SpriteBatch spriteBatch, Color color)
         {
             foreach (var particle in _particles)
-                spriteBatch.Draw(particleTexture, particle, null, color, 0, new Vector2(particleTexture.Width * .5f), _particleDiameter / particleTexture.Width, SpriteEffects.None, 0);
+                spriteBatch.DrawCircle(particle, _particleDiameter / 2, 10, Color.White);
         }
 
         public void GetBlock(Vector2 position, int xAmount, int yAmount)

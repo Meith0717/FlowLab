@@ -8,7 +8,6 @@ using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Game.Objects.Layers;
-using FlowLab.Objects.Layers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

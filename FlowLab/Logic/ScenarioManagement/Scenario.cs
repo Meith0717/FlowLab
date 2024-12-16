@@ -13,9 +13,8 @@ namespace FlowLab.Logic.ScenarioManagement
     /// <summary>
     /// A scenario is construct out of Bodys containing border Particles
     /// </summary>
-    internal class Scenario(string name, List<Body> bodys)
+    internal class Scenario(List<Body> bodys)
     {
-        public string Name = name;
         public readonly List<Body> Bodys = bodys;
 
         public bool IsEmpty => Bodys.Count == 0;

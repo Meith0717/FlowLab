@@ -29,18 +29,18 @@ namespace FlowLab.Logic
             spriteBatch.DrawLine(Vector2.Zero, new(0, 20), Color.Green);
             spriteBatch.DrawLine(Vector2.Zero, new(20, 0), Color.Red);
 
-            //var color = Color.White * .1f;
-            //for (var x = 0f; x < cameraBounds.Right; x += _particleSize)
-            //    spriteBatch.DrawLine(new(x, cameraBounds.Top), new(x, cameraBounds.Bottom), color, 1 );
+            var color = Color.White * .05f;
+            for (var x = 0f; x < cameraBounds.Right; x += _particleSize)
+                spriteBatch.DrawLine(new(x, cameraBounds.Top), new(x, cameraBounds.Bottom), color, 1);
 
-            //for (var y = 0f; y < cameraBounds.Bottom; y += _particleSize)
-            //    spriteBatch.DrawLine(new(cameraBounds.Left, y), new(cameraBounds.Right, y), color, 1);
+            for (var y = 0f; y < cameraBounds.Bottom; y += _particleSize)
+                spriteBatch.DrawLine(new(cameraBounds.Left, y), new(cameraBounds.Right, y), color, 1);
 
-            //for (var x = -_particleSize; x > cameraBounds.Left; x -= _particleSize)
-            //    spriteBatch.DrawLine(new(x, cameraBounds.Bottom), new(x, cameraBounds.Top), color, 1);
+            for (var x = -_particleSize; x > cameraBounds.Left; x -= _particleSize)
+                spriteBatch.DrawLine(new(x, cameraBounds.Bottom), new(x, cameraBounds.Top), color, 1);
 
-            //for (var y = -_particleSize; y > cameraBounds.Top; y -= _particleSize)
-            //    spriteBatch.DrawLine(new(cameraBounds.Right, y), new(cameraBounds.Left, y), color, 1);
+            for (var y = -_particleSize; y > cameraBounds.Top; y -= _particleSize)
+                spriteBatch.DrawLine(new(cameraBounds.Right, y), new(cameraBounds.Left, y), color, 1);
 
             if (debugPosition is null) return;
             DrawCell(spriteBatch, debugPosition.Value, Color.Red);

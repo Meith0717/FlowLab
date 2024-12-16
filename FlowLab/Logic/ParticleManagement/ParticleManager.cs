@@ -66,11 +66,18 @@ namespace FlowLab.Logic.ParticleManagement
             }
         }
 
-        public void Clear()
+        public void ClearFluid()
         {
-            foreach (var particle in Particles.Where(particle => !particle.IsBoundary).ToList())
+            foreach (var particle in _fluidParticles.ToList())
                 RemoveParticle(particle);
         }
+
+        public void ClearBoundary()
+        {
+            foreach (var particle in _boundaryParticles.ToList())
+                RemoveParticle(particle);
+        }
+
 
         public void ClearAll()
         {

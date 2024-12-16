@@ -39,12 +39,13 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.Space, ActionType.TogglePause },
 
                 { Keys.R, ActionType.Reload },
-                { Keys.B, ActionType.Build },
+                { Keys.B, ActionType.SwitchMode },
                 { Keys.Q, ActionType.NextPlaceMode },
                 { Keys.W, ActionType.IncreaseHeight },
                 { Keys.A, ActionType.DecreaseWidthAndRadius },
                 { Keys.S, ActionType.DecreaseHeight },
                 { Keys.D, ActionType.IncreaseWidthAndRadius},
+                { Keys.T, ActionType.Test },
 
                 { Keys.V, ActionType.NextScene },
                 { Keys.C, ActionType.ChangeColor },

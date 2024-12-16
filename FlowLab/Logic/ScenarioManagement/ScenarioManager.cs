@@ -2,7 +2,6 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,6 +23,12 @@ namespace FlowLab.Logic.ScenarioManagement
             _particleManager = particleManager;
         }
 
+        public bool Empty 
+            => _scenarios.Count == 0;
+
+        public Scenario CurrentScenario
+            => _scenarios[_activeSceneIndex];
+
         public void Add(Scenario scenario) 
             => _scenarios.Add(scenario);
 
@@ -31,25 +36,22 @@ namespace FlowLab.Logic.ScenarioManagement
             => _scenarios.Remove(scenario);
 
         public void Update()
-        {
-            CurrentScenario()?.Update();
-        }
+            => CurrentScenario?.Update();
 
-        public Scenario CurrentScenario()
-        {
-            if (_scenarios.Count == 0) return null;
-            return _scenarios[_activeSceneIndex];
-        }
-
-        public void NextScenario()
+        public void LoadNextScenario()
         {
             if (_scenarios.Count <= 0) return;
-            _activeSceneIndex = (_activeSceneIndex + 1) % _scenarios.Count;
+            _activeSceneIndex++;
+            _activeSceneIndex %= _scenarios.Count;
             ApplyScenario(_activeSceneIndex);
         }
 
-        public void LoadCurrentScenario() 
-            => ApplyScenario(_activeSceneIndex);
+        public bool TryLoadCurrentScenario()
+        {
+            if (Empty) return false;
+            ApplyScenario(_activeSceneIndex);
+            return true;
+        }
 
         private void ApplyScenario(int index)
         {

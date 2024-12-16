@@ -23,14 +23,14 @@ namespace FlowLab.Objects.Widgets
                 TextScale = .15f
             }.Place(anchor: Anchor.W, hSpace: 5);
 
-            new UiButton(this, "consola", "Clear", "button", particleManager.Clear)
+            new UiButton(this, "consola", "Clear", "button", particleManager.ClearFluid)
             {
                 UpdatTracker = self => self.Disable = particleManager.Count == 0,
                 TextureScale = .75f,
                 TextScale = .15f
             }.Place(anchor: Anchor.Center);
 
-            new UiButton(this, "consola", "Next Scene", "button", scenarioManager.NextScenario)
+            new UiButton(this, "consola", "Next Scene", "button", scenarioManager.LoadNextScenario)
             {
                 TextureScale = .75f,
                 TextScale = .15f
