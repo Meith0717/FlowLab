@@ -2,7 +2,6 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Engine;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,7 +18,7 @@ namespace FlowLab.Logic.ScenarioManagement
 
         public bool IsEmpty => Bodys.Count == 0;
 
-        public void AddBody(Body body) 
+        public void AddBody(Body body)
             => Bodys.Add(body);
 
         public void RemoveBody(Body body)
@@ -33,7 +32,7 @@ namespace FlowLab.Logic.ScenarioManagement
 
         public void Update()
         {
-            foreach (var body in Bodys) 
+            foreach (var body in Bodys)
                 body.Update();
         }
 

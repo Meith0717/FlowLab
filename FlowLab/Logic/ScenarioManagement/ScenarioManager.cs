@@ -23,13 +23,13 @@ namespace FlowLab.Logic.ScenarioManagement
             _particleManager = particleManager;
         }
 
-        public bool Empty 
+        public bool Empty
             => _scenarios.Count == 0;
 
         public Scenario CurrentScenario
             => _scenarios[_activeSceneIndex];
 
-        public void Add(Scenario scenario) 
+        public void Add(Scenario scenario)
             => _scenarios.Add(scenario);
 
         public void Remove(Scenario scenario)

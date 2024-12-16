@@ -1,12 +1,10 @@
-﻿// PerformanceWidget.cs 
+﻿// BodyOverviewWidget.cs 
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
 using FlowLab.Engine.Debugging;
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Engine.UserInterface.Components;
-using FlowLab.Game.Objects.Layers;
-using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
 using Microsoft.Xna.Framework;
 
@@ -29,7 +27,7 @@ namespace FlowLab.Objects.Widgets
             }.Place(anchor: Anchor.Left, hSpace: 5, y: 2);
 
             var i = 0;
-            foreach (var body in scenario.Bodys) 
+            foreach (var body in scenario.Bodys)
             {
                 new UiText(this, "consola")
                 {

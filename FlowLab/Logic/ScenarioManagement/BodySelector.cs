@@ -29,14 +29,15 @@ namespace FlowLab.Logic.ScenarioManagement
         {
             if (Body is null) return;
             inputState.DoAction(ActionType.DeleteParticles, () =>
-            { 
+            {
                 scenarioManager.CurrentScenario.RemoveBody(Body);
                 scenarioManager.TryLoadCurrentScenario();
-                Body = null; }
+                Body = null;
+            }
             );
         }
-        
-        public void Draw(SpriteBatch spriteBatch) 
+
+        public void Draw(SpriteBatch spriteBatch)
             => Body?.Draw(spriteBatch, Color.Green);
     }
 }

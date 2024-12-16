@@ -21,7 +21,7 @@ namespace FlowLab.Logic.SphComponents
             var sum2 = Utilitys.Sum(particle.Neighbors, n => n.Mass * KernelDerivativ(n));
             sum1 += sum2.SquaredNorm();
 
-            particle.AII = - timeStep / (particle.Density * particle.Density) * sum1;
+            particle.AII = -timeStep / (particle.Density * particle.Density) * sum1;
             if (float.IsNaN(particle.AII)) throw new System.Exception();
         }
 

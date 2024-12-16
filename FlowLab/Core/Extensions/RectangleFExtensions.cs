@@ -4,8 +4,6 @@
 
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using MonoGame.Extended.Shapes;
-using System.Data.SqlTypes;
 
 namespace FlowLab.Core.Extensions
 {

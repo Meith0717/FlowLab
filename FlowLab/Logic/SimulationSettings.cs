@@ -10,7 +10,7 @@ namespace FlowLab.Logic
     internal class SimulationSettings
     {
         public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
-        public ColorMode ColorMode = ColorMode.Velocity; 
+        public ColorMode ColorMode = ColorMode.Velocity;
 
         // Global
         public float TimeStep = .1f;

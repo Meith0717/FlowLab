@@ -61,7 +61,7 @@ namespace FlowLab.Game.Objects.Layers
         public override void Initialize()
         {
             BuildUi();
-            if (_scenarioManager.TryLoadCurrentScenario()) 
+            if (_scenarioManager.TryLoadCurrentScenario())
                 return;
             LayerManager.AddLayer(new DialogBoxLayer(Game1, "New scenario", "No scenarios where found.", () =>
             {
@@ -147,7 +147,7 @@ namespace FlowLab.Game.Objects.Layers
 
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
             _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePos, ParticleDiameter);
-            if (_debugger.IsSelected) 
+            if (_debugger.IsSelected)
                 _camera.Position = _debugger.SelectedParticle.Position;
         }
 

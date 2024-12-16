@@ -2,12 +2,10 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Core.InputManagement;
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Engine.UserInterface.Components;
 using FlowLab.Logic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Linq;
 
@@ -180,7 +178,7 @@ namespace FlowLab.Objects.Widgets
                 Text = "Viscosity:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y:  320, hSpace: 5);
+            }.Place(anchor: Anchor.Left, y: 320, hSpace: 5);
             new UiEntryField(this, "consola")
             {
                 TextScale = .17f,

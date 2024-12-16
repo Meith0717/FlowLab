@@ -87,11 +87,15 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         public bool Disabled { get; set; }
         public float TextScale { set { _uiText.Scale = value; } }
         public Color TextColor { set { _uiText.Color = value; } }
-        public string Text { get { return _uiText.Text; } 
-            set {
+        public string Text
+        {
+            get { return _uiText.Text; }
+            set
+            {
                 if (value is null) return;
                 foreach (var c in value) _chars.AddLast(c.ToString());
-            } }
+            }
+        }
         public Action<UiEntryField> OnClose { get; set; }
     }
 }

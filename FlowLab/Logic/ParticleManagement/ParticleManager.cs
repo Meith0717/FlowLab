@@ -7,7 +7,6 @@ using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using MonoGame.Extended.Particles;
 using MonoGame.Extended.Shapes;
 using System;
 using System.Collections.Generic;
@@ -134,11 +133,11 @@ namespace FlowLab.Logic.ParticleManagement
             switch (simulationSettings.SimulationMethod)
             {
                 case SimulationMethod.IISPH:
-                    SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings, out var solverIterations);
+                    SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings, out var solverIterations);
                     SolverIterations = solverIterations;
                     break;
                 case SimulationMethod.SESPH:
-                    SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity,  simulationSettings);
+                    SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
                     break;
             }
             watch.Stop();
@@ -154,7 +153,8 @@ namespace FlowLab.Logic.ParticleManagement
             var maxPressure = Particles.Max(p => p.Pressure);
             Utilitys.ForEach(true, Particles, (p) =>
             {
-                switch (colorMode) {
+                switch (colorMode)
+                {
                     case ColorMode.None:
                         p.Color = !p.IsBoundary ? new(20, 100, 255) : Color.DarkGray;
                         break;

@@ -5,7 +5,6 @@
 using FlowLab.Engine.Debugging;
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Engine.UserInterface.Components;
-using FlowLab.Game.Objects.Layers;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 

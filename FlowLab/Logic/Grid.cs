@@ -1,4 +1,4 @@
-﻿// SceneGrid.cs 
+﻿// Grid.cs 
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
@@ -14,7 +14,7 @@ namespace FlowLab.Logic
 
         public Point GetCell(Vector2 position)
         {
-            return Vector2.Floor((position ) / _particleSize).ToPoint();
+            return Vector2.Floor((position) / _particleSize).ToPoint();
         }
 
         public Vector2 GetCellPosition(Vector2 position)
@@ -23,7 +23,7 @@ namespace FlowLab.Logic
         public Vector2 GetCellCenter(Vector2 position)
             => GetCellPosition(position);
 
-        public void DrawCell(SpriteBatch spriteBatch, Vector2 position, Color color) 
+        public void DrawCell(SpriteBatch spriteBatch, Vector2 position, Color color)
             => spriteBatch.FillRectangle(GetCellPosition(position), new(_particleSize, _particleSize), color);
 
         public void Draw(SpriteBatch spriteBatch, RectangleF cameraBounds, Vector2? debugPosition)

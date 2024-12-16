@@ -6,7 +6,6 @@ using FlowLab.Core.ContentHandling;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +24,7 @@ namespace FlowLab.Logic.ScenarioManagement
         {
             Position = position;
             if (_particle.Count > 0)
-                if (_particle.Where(p => !p.IsBoundary).Any()) 
+                if (_particle.Where(p => !p.IsBoundary).Any())
                     throw new Exception("Body Particles has to be boundary particles");
             _boundaryParticles = _particle;
         }
@@ -38,7 +37,7 @@ namespace FlowLab.Logic.ScenarioManagement
         {
             foreach (var particle in _boundaryParticles)
             {
-                if (!particle.BoundBox.Contains(position)) 
+                if (!particle.BoundBox.Contains(position))
                     continue;
                 return true;
             }
@@ -51,7 +50,7 @@ namespace FlowLab.Logic.ScenarioManagement
                 particleManager.AddParticle(particle);
         }
 
-        public void Rotate(float angleStep) 
+        public void Rotate(float angleStep)
         {
             Rotation += angleStep;
             foreach (var particle in _boundaryParticles)
@@ -81,7 +80,7 @@ namespace FlowLab.Logic.ScenarioManagement
         {
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
-            foreach (var particle in _boundaryParticles) 
+            foreach (var particle in _boundaryParticles)
                 spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f), 1.1f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
         }
     }

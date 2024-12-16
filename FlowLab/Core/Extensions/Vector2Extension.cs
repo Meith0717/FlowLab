@@ -27,7 +27,7 @@ namespace FlowLab.Core.Extensions
             return (float)Math.Acos(cosAngle);
         }
 
-        public static float SquaredNorm(this Vector2 vec) 
+        public static float SquaredNorm(this Vector2 vec)
             => (vec.X * vec.X) + (vec.Y * vec.Y);
 
         public static Vector2 Sum<T>(IEnumerable<T> scource, Func<T, Vector2> body)

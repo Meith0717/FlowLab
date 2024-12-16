@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace FlowLab.Logic.ParticleManagement
 {
@@ -99,7 +98,7 @@ namespace FlowLab.Logic.ParticleManagement
             position.Y -= yAmount * _particleDiameter / 2f;
             for (int i = 0; i < xAmount; i++)
             {
-                for (int j = 0; j < yAmount; j++) 
+                for (int j = 0; j < yAmount; j++)
                 {
                     var particlePosition = position + new Vector2(i, j) * _particleDiameter;
                     if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;

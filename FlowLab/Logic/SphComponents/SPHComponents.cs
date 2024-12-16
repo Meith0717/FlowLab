@@ -11,16 +11,16 @@ namespace FlowLab.Logic.SphComponents
     {
         public static void ComputeLocalDensity(Particle particle, float gamma)
         {
-            particle.Density = Utilitys.Sum(particle.Neighbors, neighbor => 
+            particle.Density = Utilitys.Sum(particle.Neighbors, neighbor =>
             {
                 var density = neighbor.Mass * particle.Kernel(neighbor);
                 if (neighbor.IsBoundary) density *= gamma;
                 return density;
             });
 
-            if (float.IsNaN(particle.Density)) 
+            if (float.IsNaN(particle.Density))
                 throw new System.Exception();
-            if (particle.Density == 0) 
+            if (particle.Density == 0)
                 throw new System.Exception();
         }
 
@@ -28,14 +28,14 @@ namespace FlowLab.Logic.SphComponents
         {
             var KernelDerivativ = particle.KernelDerivativ;
             var particlePressureOverDensity2 = particle.Pressure / (particle.Density * particle.Density);
-            particle.PressureAcceleration = - Utilitys.Sum(particle.Neighbors, neighbor =>
+            particle.PressureAcceleration = -Utilitys.Sum(particle.Neighbors, neighbor =>
             {
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 if (neighbor.IsBoundary)
                     return gamma * neighbor.Mass * 2f * particlePressureOverDensity2 * KernelDerivativ(neighbor);
                 return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
             });
-            if (float.IsNaN(particle.PressureAcceleration.X) || float.IsNaN(particle.PressureAcceleration.Y)) 
+            if (float.IsNaN(particle.PressureAcceleration.X) || float.IsNaN(particle.PressureAcceleration.Y))
                 throw new System.Exception();
         }
 

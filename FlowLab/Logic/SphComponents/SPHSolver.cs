@@ -51,7 +51,8 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, noBoundaryParticles, particle => particle.Velocity += timeStep * particle.NonPAcceleration);
 
             // Compute diagonal matrix elements & source term
-            Utilitys.ForEach(parallel, noBoundaryParticles, particle =>{ 
+            Utilitys.ForEach(parallel, noBoundaryParticles, particle =>
+            {
                 IISPHComponents.ComputeSourceTerm(timeStep, particle);
                 IISPHComponents.ComputeDiagonalElement(particle, timeStep);
 

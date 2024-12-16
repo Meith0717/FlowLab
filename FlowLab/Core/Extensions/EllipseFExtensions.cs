@@ -1,12 +1,10 @@
-﻿// PolygonExtensions.cs 
+﻿// EllipseFExtensions.cs 
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using MonoGame.Extended.Shapes;
 using System;
-using System.Linq;
 
 namespace FlowLab.Core.Extensions
 {
