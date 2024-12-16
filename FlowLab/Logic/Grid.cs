@@ -12,22 +12,25 @@ namespace FlowLab.Logic
     {
         private readonly float _particleSize = particleSize;
 
-        public Point GetCell(Vector2 position) 
-            => Vector2.Floor(position / _particleSize).ToPoint();
+        public Point GetCell(Vector2 position)
+        {
+            return Vector2.Floor((position ) / _particleSize).ToPoint();
+        }
 
         public Vector2 GetCellPosition(Vector2 position)
-            => GetCell(position).ToVector2() * _particleSize;
+            => (GetCell(position).ToVector2() + new Vector2(.5f)) * _particleSize;
 
         public Vector2 GetCellCenter(Vector2 position)
-            => GetCellPosition(position) + new Vector2(_particleSize) / 2f;
+            => GetCellPosition(position);
 
         public void DrawCell(SpriteBatch spriteBatch, Vector2 position, Color color) 
             => spriteBatch.FillRectangle(GetCellPosition(position), new(_particleSize, _particleSize), color);
 
         public void Draw(SpriteBatch spriteBatch, RectangleF cameraBounds, Vector2? debugPosition)
         {
-            spriteBatch.DrawLine(Vector2.Zero, new(0, 20), Color.Green);
-            spriteBatch.DrawLine(Vector2.Zero, new(20, 0), Color.Red);
+            var zero = GetCellCenter(Vector2.Zero);
+            spriteBatch.DrawLine(zero, GetCellCenter(new(0, 20)), Color.Green);
+            spriteBatch.DrawLine(zero, GetCellCenter(new(20, 0)), Color.Red);
 
             var color = Color.White * .05f;
             for (var x = 0f; x < cameraBounds.Right; x += _particleSize)

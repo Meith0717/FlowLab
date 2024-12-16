@@ -35,6 +35,8 @@ namespace FlowLab.Logic
             _selectedParticle = null;
         }
 
+        public void Clear() => _selectedParticle = null;
+
         public void DrawParticleInfo(SpriteBatch spriteBatch, Vector2 position)
         {
             if (!IsSelected) return;

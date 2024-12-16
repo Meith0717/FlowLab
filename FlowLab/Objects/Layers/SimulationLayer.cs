@@ -125,11 +125,14 @@ namespace FlowLab.Game.Objects.Layers
             switch (_placeMode)
             {
                 case PlaceMode.Particle:
+                    Game1.IsFixedTimeStep = false;
                     _particlePlacer.Update(inputState, _camera);
                     break;
                 case PlaceMode.Body:
                     Paused = true;
+                    Game1.IsFixedTimeStep = true;
                     _particleManager.ClearFluid();
+                    _debugger.Clear();
                     _bodyPlacer.Update(inputState, worldMousePos, _scenarioManager.CurrentScenario, () => _scenarioManager.TryLoadCurrentScenario());
                     _bodySelector.Select(inputState, _scenarioManager.CurrentScenario, worldMousePos);
                     _bodySelector.Update(inputState, _scenarioManager);

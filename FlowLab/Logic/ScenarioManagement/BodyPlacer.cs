@@ -5,7 +5,6 @@
 using FlowLab.Core.Extensions;
 using FlowLab.Core.InputManagement;
 using FlowLab.Logic.ParticleManagement;
-using MathNet.Numerics.LinearAlgebra.Factorization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
