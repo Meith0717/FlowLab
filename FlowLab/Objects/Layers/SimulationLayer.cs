@@ -75,8 +75,9 @@ namespace FlowLab.Game.Objects.Layers
             base.Update(gameTime, inputState);
 
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.LoadNextScenario(); _particlePlacer.Clear(); });
-            inputState.DoAction(ActionType.TogglePause, () => Paused = !Paused);
+            inputState.DoAction(ActionType.TogglePause, Pause);
             inputState.DoAction(ActionType.ScreenShot, TakeScreenShot);
+            inputState.DoAction(ActionType.Reload, ReloadUi);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
             inputState.DoAction(ActionType.SwitchMode, () => _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle);
 
@@ -143,6 +144,17 @@ namespace FlowLab.Game.Objects.Layers
             var settingsPath = PersistenceManager.SettingsSaveFilePath;
             Game1.PersistenceManager.Save(settingsPath, _simulationSettings, null, null);
             base.Dispose();
+        }
+
+        public void Pause()
+        {
+            Paused = !Paused;
+        }
+
+        public void ReloadUi()
+        {
+            LayerManager.PopLayer();
+            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, this));
         }
 
         private void TakeScreenShot()

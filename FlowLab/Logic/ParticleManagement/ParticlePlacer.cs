@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace FlowLab.Logic.ParticleManagement
 {
-    internal class ParticlePlacer
+    internal class ParticlePlacer(ParticleManager particleManager, float particleDiameter)
     {
         private readonly Dictionary<int, string> PlacerModes = new()
         {
@@ -22,18 +22,11 @@ namespace FlowLab.Logic.ParticleManagement
             {3, "Particle"}
         };
 
-        private readonly ParticleManager _particleManager;
-        private readonly float _particleDiameter;
+        private readonly ParticleManager _particleManager = particleManager;
+        private readonly float _particleDiameter = particleDiameter;
         private readonly List<Vector2> _particles = new();
         private int _mode;
-        private Point _rectangleSize;
-
-        public ParticlePlacer(ParticleManager particleManager, float particleDiameter)
-        {
-            _particleManager = particleManager;
-            _particleDiameter = particleDiameter;
-            _rectangleSize = new(11);
-        }
+        private Point _rectangleSize = new(11);
 
         public void Update(InputState inputState, Camera2D camera)
         {

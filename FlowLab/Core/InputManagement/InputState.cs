@@ -37,6 +37,7 @@ namespace FlowLab.Core.InputManagement
         Reload,
         Test,
         HideHud,
+        Enter,
 
         // Mouse
         LeftReleased,
@@ -91,7 +92,6 @@ namespace FlowLab.Core.InputManagement
             TypedString = typedString;
             MousePosition = mousePosition;
         }
-
 
         public readonly bool ContainAction(ActionType action) => Actions.Contains(action);
 

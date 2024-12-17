@@ -38,6 +38,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.Back, ActionType.BackSpace },
 
                 { Keys.Space, ActionType.TogglePause },
+                { Keys.Enter, ActionType.Enter },
 
                 { Keys.R, ActionType.Reload },
                 { Keys.B, ActionType.SwitchMode },
