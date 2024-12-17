@@ -46,7 +46,7 @@ namespace FlowLab.Game.Objects.Layers
             _particleManager = new(ParticleDiameter, FluidDensity);
             _scenarioManager = new(_particleManager);
             _particlePlacer = new(_particleManager, ParticleDiameter);
-            _debugger = new();
+            _debugger = new(_particleManager.SpatialHashing);
             _particleRenderer = new();
             var settingsPath = PersistenceManager.SettingsSaveFilePath;
             game1.PersistenceManager.Load<SimulationSettings>(settingsPath, s => _simulationSettings = s, (_) => _simulationSettings = new());
@@ -76,7 +76,7 @@ namespace FlowLab.Game.Objects.Layers
 
             inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.LoadNextScenario(); _particlePlacer.Clear(); });
             inputState.DoAction(ActionType.TogglePause, Pause);
-            inputState.DoAction(ActionType.ScreenShot, TakeScreenShot);
+            inputState.DoAction(ActionType.Test, TakeScreenShot);
             inputState.DoAction(ActionType.Reload, ReloadUi);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
             inputState.DoAction(ActionType.SwitchMode, () => _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle);
@@ -110,7 +110,7 @@ namespace FlowLab.Game.Objects.Layers
             }
 
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
-            _debugger.Update(inputState, _particleManager.SpatialHashing, worldMousePos, ParticleDiameter);
+            _debugger.Update(inputState, worldMousePos, ParticleDiameter);
             if (_debugger.IsSelected)
                 _camera.Position = _debugger.SelectedParticle.Position;
         }
@@ -121,6 +121,7 @@ namespace FlowLab.Game.Objects.Layers
 
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
             _particleRenderer.Render(spriteBatch, _particleManager, _debugger, particleTexture, _grid);
+            _debugger.Draw(spriteBatch);
             switch (_placeMode)
             {
                 case PlaceMode.Particle:

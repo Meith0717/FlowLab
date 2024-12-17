@@ -99,7 +99,7 @@ namespace FlowLab.Logic.SphComponents
             iterations = i;
 
             // update velocities using pressure forces
-            Utilitys.ForEach(parallel, _particles, (particle) =>
+            Utilitys.ForEach(true, _particles, (particle) =>
             {
                 // integrate velocity considering pressure forces 
                 particle.Velocity += timeStep * particle.PressureAcceleration;
@@ -113,7 +113,6 @@ namespace FlowLab.Logic.SphComponents
                 spatialHashing.InsertObject(particle);
 
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
-
             });
         }
 

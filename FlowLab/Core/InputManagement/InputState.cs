@@ -18,7 +18,7 @@ namespace FlowLab.Core.InputManagement
         TogglePause,
         ToggleData,
         Esc,
-        ScreenShot,
+        Debugg,
         NextScene,
         SwitchMode,
         NextPlaceMode,

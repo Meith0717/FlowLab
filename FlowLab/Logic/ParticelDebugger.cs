@@ -8,23 +8,28 @@ using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace FlowLab.Logic
 {
-    internal class ParticelDebugger
+    internal class ParticelDebugger(SpatialHashing spatialHashing)
     {
+        private readonly SpatialHashing _spatialHashing = spatialHashing;
         private Particle _selectedParticle;
         private List<Particle> _particles = new();
+        private bool _active = false;
 
         public Particle SelectedParticle => _selectedParticle;
         public bool IsSelected => _selectedParticle != null;
 
-        public void Update(InputState inputState, SpatialHashing spatialHashing, Vector2 mousePosition, float particleSize)
+        public void Update(InputState inputState, Vector2 mousePosition, float particleSize)
         {
+            inputState.DoAction(ActionType.Debugg, () => { _active = !_active; Clear(); });
             _particles.Clear();
-            spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
+            if (!_active) return; 
+            _spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
             if (!inputState.ContainAction(ActionType.LeftClicked)) return;
             foreach (var particle in _particles)
             {
@@ -52,6 +57,14 @@ namespace FlowLab.Logic
                 spriteBatch.DrawString(font, $"{prop.Name}: {value}", position, Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
             }
             spriteBatch.End();
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            if (!_active) return;
+            _spatialHashing.Draw(spriteBatch);
+            if (!IsSelected) return;
+            spriteBatch.DrawCircle(SelectedParticle.Position, SelectedParticle.Diameter * 2, 30, Color.Red);
         }
     }
 }

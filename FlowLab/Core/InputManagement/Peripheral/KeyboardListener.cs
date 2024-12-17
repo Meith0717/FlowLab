@@ -33,7 +33,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.F1, ActionType.SaveData },
                 { Keys.F2, ActionType.ToggleData },
                 { Keys.F11, ActionType.HideHud },
-                { Keys.F12, ActionType.ScreenShot },
+                { Keys.F12, ActionType.Debugg },
                 { Keys.Delete, ActionType.DeleteParticles },
                 { Keys.Back, ActionType.BackSpace },
 
