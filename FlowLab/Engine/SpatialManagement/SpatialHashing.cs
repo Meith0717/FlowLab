@@ -32,7 +32,7 @@ namespace FlowLab.Engine.SpatialManagement
             var hash = Hash(particle.Position);
             if (!_grids.TryGetValue(hash, out var grid)) return;
             grid.Remove(particle);
-            if (grid.IsEmpty) 
+            if (grid.IsEmpty)
                 _grids.Remove(hash, out _);
             Count--;
         }
@@ -59,7 +59,7 @@ namespace FlowLab.Engine.SpatialManagement
             }
         }
 
-        private Point Hash(Vector2 vector) 
+        private Point Hash(Vector2 vector)
             => Vector2.Floor(vector / CellSize).ToPoint();
 
         public void Draw(SpriteBatch spriteBatch)

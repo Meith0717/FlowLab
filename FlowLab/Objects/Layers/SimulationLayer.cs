@@ -16,8 +16,6 @@ using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using System.IO;
-using System;
 
 namespace FlowLab.Game.Objects.Layers
 {

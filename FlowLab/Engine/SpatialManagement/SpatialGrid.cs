@@ -11,18 +11,18 @@ using System.Collections.Generic;
 
 namespace FlowLab.Engine.SpatialManagement
 {
-    internal class  SpatialGrid<T>(Vector2 position, int size) where T : Particle
+    internal class SpatialGrid<T>(Vector2 position, int size) where T : Particle
     {
         public readonly RectangleF Bounds = new(position, new(size, size));
         private readonly ConcurrentDictionary<int, T> Objects = new();
 
-        public bool IsEmpty 
+        public bool IsEmpty
             => Objects.Count == 0;
 
-        public void Add(T item) 
+        public void Add(T item)
             => Objects.AddOrUpdate(item.GetHashCode(), key => item, (key, item) => item);
 
-        public void Remove(T item) 
+        public void Remove(T item)
             => Objects.Remove(item.GetHashCode(), out _);
 
         public void AddObjectsInRadius(Vector2 position, float radius, ref List<T> values)
