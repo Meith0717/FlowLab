@@ -14,8 +14,8 @@ namespace FlowLab.Core
 
         public Serializer(string gameName)
         {
-            string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            RootPath = Path.Combine(AppDataPath, gameName);
+            string documentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            RootPath = Path.Combine(documentPath, gameName);
             CreateFolder(RootPath);
         }
 
@@ -26,7 +26,8 @@ namespace FlowLab.Core
             createFDirectoryInfo.Create();
         }
 
-        public bool FileExist(string relativePath) => File.Exists(Path.Combine(RootPath, relativePath));
+        public bool FileExist(string relativePath) 
+            => File.Exists(Path.Combine(RootPath, relativePath));
 
         public bool DeleteFile(string relativePath)
         {
@@ -36,10 +37,11 @@ namespace FlowLab.Core
             return true;
         }
 
-        public StreamWriter GetStreamWriter(string relativePath)
-        {
-            return new StreamWriter(Path.Combine(RootPath, relativePath));
-        }
+        public StreamWriter GetStreamWriter(string relativePath) 
+            => new StreamWriter(Path.Combine(RootPath, relativePath));
+
+        public FileStream GetFileStream(string relativePath, FileMode mode)
+            => new FileStream(Path.Combine(RootPath, relativePath), mode);
 
         public void SerializeObject(object obj, string relativePath)
         {

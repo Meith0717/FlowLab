@@ -8,6 +8,7 @@ using Fluid_Simulator.Core.ColorManagement;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.Shapes;
+using MonoGame.Extended.Timers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,55 +16,14 @@ using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
 {
-    internal class ParticleManager
+    internal class ParticleManager(int particleDiameter, float fluidDensity)
     {
-        public double SimulationStepTime { get; private set; }
-        public double SimulationTime { get; private set; }
-        public int SolverIterations { get; private set; }
-
-        public readonly List<Particle> Particles;
-        private readonly List<Particle> _fluidParticles;
-        private readonly List<Particle> _boundaryParticles;
-        public readonly SpatialHashing SpatialHashing;
-        public readonly float ParticleDiameter;
-        public readonly float FluidDensity;
-
-        public ParticleManager(int particleDiameter, float fluidDensity)
-        {
-            Particles = new();
-            _fluidParticles = new();
-            _boundaryParticles = new();
-            SpatialHashing = new(particleDiameter * 2);
-            ParticleDiameter = particleDiameter;
-            FluidDensity = fluidDensity;
-        }
-
-        [Obsolete]
-        public void AddPolygon(Polygon polygon)
-        {
-            var width = polygon.Right * ParticleDiameter;
-            var height = polygon.Bottom * ParticleDiameter;
-            var position = new Vector2(-width / 2, -height / 2);
-
-
-            var vertex = polygon.Vertices.First();
-            var offsetCircle = new CircleF(Vector2.Zero, ParticleDiameter);
-            for (int i = 1; i <= polygon.Vertices.Length; i++)
-            {
-                var nextVertex = i == polygon.Vertices.Length ? polygon.Vertices.First() : polygon.Vertices[i];
-                var stepDirection = Vector2.Subtract(nextVertex, vertex).NormalizedCopy();
-                var particlePosition = vertex * ParticleDiameter;
-
-                for (int _ = 0; _ < Vector2.Distance(nextVertex, vertex); _++)
-                {
-                    offsetCircle.Position = particlePosition;
-                    AddNewParticle(particlePosition + position, true);
-                    particlePosition += stepDirection * ParticleDiameter;
-                }
-
-                vertex = nextVertex;
-            }
-        }
+        public readonly List<Particle> Particles = new();
+        private readonly List<Particle> _fluidParticles = new();
+        private readonly List<Particle> _boundaryParticles = new();
+        public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
+        public readonly float ParticleDiameter = particleDiameter;
+        public readonly float FluidDensity = fluidDensity;
 
         public void ClearFluid()
         {
@@ -76,7 +36,6 @@ namespace FlowLab.Logic.ParticleManagement
             foreach (var particle in _boundaryParticles.ToList())
                 RemoveParticle(particle);
         }
-
 
         public void ClearAll()
         {
@@ -119,11 +78,14 @@ namespace FlowLab.Logic.ParticleManagement
         }
 
 
-        public int Count => Particles.Where(p => !p.IsBoundary).Count();
+        public int FluidParticlesCount 
+            => Particles.Where(p => !p.IsBoundary).Count();
 
-        public float RelativeDensityError => _fluidParticles.Count <= 0 ? 0 : float.Abs(_fluidParticles.Average(p => p.DensityError));
+        public float RelativeDensityError 
+            => _fluidParticles.Count <= 0 ? 0 : float.Abs(_fluidParticles.Average(p => p.DensityError));
 
-        public float CflCondition => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
+        public float CflCondition 
+            => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
 
         public void Update(GameTime gameTime, SimulationSettings simulationSettings)
         {
@@ -141,10 +103,14 @@ namespace FlowLab.Logic.ParticleManagement
                     break;
             }
             watch.Stop();
-            SimulationStepTime = watch.Elapsed.TotalMilliseconds;
-            SimulationTime += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_fluidParticles.Count <= 0) SimulationTime = 0;
-        }
+            TimeSteps += simulationSettings.TimeStep;
+            SimStepsCount++;
+            TotalTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            SimStepTime = watch.Elapsed.TotalMilliseconds;
+            if (_fluidParticles.Count > 0) return;
+            TimeSteps = SimStepsCount = 0;
+            TotalTime = SimStepTime = 0;
+        } 
 
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)
         {
@@ -181,5 +147,11 @@ namespace FlowLab.Logic.ParticleManagement
             Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Color.DarkOrchid);
             debugParticle.Color = Color.DarkMagenta;
         }
+
+        public double SimStepTime { get; private set; }     // Time for a sim step
+        public double TotalTime { get; private set; }       // Total sim time
+        public float TimeSteps { get; private set; }       // Time step sum
+        public int SimStepsCount { get; private set; }   // Sim steps Count
+        public int SolverIterations { get; private set; }   // IISPH iterations
     }
 }

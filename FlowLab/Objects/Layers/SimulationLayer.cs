@@ -16,6 +16,7 @@ using FlowLab.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System.IO;
 
 namespace FlowLab.Game.Objects.Layers
 {
@@ -38,6 +39,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly Grid _grid;
         private readonly BodyPlacer _bodyPlacer;
         private readonly BodySelector _bodySelector;
+        private readonly Recorder _recorder;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -48,17 +50,18 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _debugger = new(_particleManager.SpatialHashing);
             _particleRenderer = new();
-            var settingsPath = PersistenceManager.SettingsSaveFilePath;
+            var settingsPath = PersistenceManager.SettingsFilePath;
             game1.PersistenceManager.Load<SimulationSettings>(settingsPath, s => _simulationSettings = s, (_) => _simulationSettings = new());
             _frameCounter = frameCounter;
             _grid = new(ParticleDiameter);
             _bodySelector = new();
             _bodyPlacer = new(_grid, ParticleDiameter, FluidDensity);
+            _recorder = new(PersistenceManager, 3); 
         }
 
         public override void Initialize()
         {
-            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, this));
+            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, _recorder, this));
             if (_scenarioManager.TryLoadCurrentScenario())
                 return;
             LayerManager.AddLayer(new DialogBoxLayer(Game1, "New scenario", "No scenarios where found.", () =>
@@ -74,12 +77,17 @@ namespace FlowLab.Game.Objects.Layers
         {
             base.Update(gameTime, inputState);
 
-            inputState.DoAction(ActionType.NextScene, () => { _scenarioManager.LoadNextScenario(); _particlePlacer.Clear(); });
+            inputState.DoAction(ActionType.NextScene, () => 
+            {
+                if (!Paused) return;
+                _scenarioManager.LoadNextScenario();
+                _particlePlacer.Clear(); 
+            });
             inputState.DoAction(ActionType.TogglePause, Pause);
             inputState.DoAction(ActionType.Test, TakeScreenShot);
             inputState.DoAction(ActionType.Reload, ReloadUi);
+            inputState.DoAction(ActionType.SwitchMode, ToggleMode);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
-            inputState.DoAction(ActionType.SwitchMode, () => _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle);
 
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
@@ -90,7 +98,7 @@ namespace FlowLab.Game.Objects.Layers
             {
                 case PlaceMode.Particle:
                     Game1.IsFixedTimeStep = false;
-                    _particlePlacer.Update(inputState, _camera);
+                    _particlePlacer.Update(inputState, _camera, Paused);
                     break;
                 case PlaceMode.Body:
                     Paused = true;
@@ -108,11 +116,11 @@ namespace FlowLab.Game.Objects.Layers
                 _scenarioManager.Update();
                 _particleManager.Update(gameTime, _simulationSettings);
             }
+            Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
 
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
-            _debugger.Update(inputState, worldMousePos, ParticleDiameter);
-            if (_debugger.IsSelected)
-                _camera.Position = _debugger.SelectedParticle.Position;
+            _debugger.Update(inputState, worldMousePos, ParticleDiameter, _camera);
+            _recorder.TakeFrame(RenderTarget2D, _particleManager.TimeSteps);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -142,9 +150,15 @@ namespace FlowLab.Game.Objects.Layers
 
         public override void Dispose()
         {
-            var settingsPath = PersistenceManager.SettingsSaveFilePath;
+            var settingsPath = PersistenceManager.SettingsFilePath;
             Game1.PersistenceManager.Save(settingsPath, _simulationSettings, null, null);
             base.Dispose();
+        }
+
+        public void ToggleMode()
+        {
+            if (!Paused) return;
+            _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle;
         }
 
         public void Pause()
@@ -155,14 +169,13 @@ namespace FlowLab.Game.Objects.Layers
         public void ReloadUi()
         {
             LayerManager.PopLayer();
-            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, this));
+            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, _recorder, this));
         }
 
         private void TakeScreenShot()
         {
-            //var date = DateTime.Now.ToString("yyyyMMddHHmmss");
-            //FileStream fs = new($"{PersistenceManager.GameSaveFilePath}/{date}.png", FileMode.OpenOrCreate);
-            //RenderTarget2D.SaveAsPng(fs, RenderTarget2D.Width, RenderTarget2D.Height);
+            using FileStream fs = PersistenceManager.Serializer.GetFileStream(PersistenceManager.ScreenshotFilePath, FileMode.Create);
+            RenderTarget2D.SaveAsPng(fs, RenderTarget2D.Width, RenderTarget2D.Height);
         }
     }
 }

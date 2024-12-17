@@ -4,12 +4,14 @@
 
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
+using FlowLab.Engine.Rendering;
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace FlowLab.Logic
@@ -24,10 +26,12 @@ namespace FlowLab.Logic
         public Particle SelectedParticle => _selectedParticle;
         public bool IsSelected => _selectedParticle != null;
 
-        public void Update(InputState inputState, Vector2 mousePosition, float particleSize)
+        public void Update(InputState inputState, Vector2 mousePosition, float particleSize, Camera2D camera)
         {
             inputState.DoAction(ActionType.Debugg, () => { _active = !_active; Clear(); });
             _particles.Clear();
+            if (IsSelected) 
+                camera.Position = SelectedParticle.Position;
             if (!_active) return; 
             _spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
             if (!inputState.ContainAction(ActionType.LeftClicked)) return;

@@ -22,91 +22,131 @@ namespace FlowLab.Objects.Widgets
                 Text = "PERFORMANCE",
                 Scale = .2f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 2);
+            }.Place(anchor: Anchor.Left, hSpace: 0, y: 2);
 
             new UiText(this, "consola")
             {
-                Text = "Time:",
+                Text = "Run Time:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 30);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 40);
             new UiText(this, "consola")
             {
                 UpdateTracker = self =>
                 {
-                    var timeSpan = TimeSpan.FromMilliseconds(particleManager.SimulationTime);
-                    self.Text = timeSpan.ToString(@"hh\:mm\:ss\.fff");
+                    var timeSpan = TimeSpan.FromMilliseconds(particleManager.TotalTime);
+                    self.Text = timeSpan.ToString(@"hh\:mm\:ss");
                 },
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 30);
-
-
-            new UiText(this, "consola")
-            {
-                Text = "Fps:",
-                Scale = .17f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 60);
-            new UiText(this, "consola")
-            {
-                UpdateTracker = self => self.Text = float.Round(frameCounter.CurrentFramesPerSecond).ToString(),
-                Scale = .17f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 60);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 40);
 
             new UiText(this, "consola")
             {
                 Text = "Sim.Time:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 90);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 70);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = double.Round(particleManager.SimulationStepTime, 2).ToString() + "ms",
+                UpdateTracker = self => self.Text = double.Round(particleManager.SimStepTime).ToString() + "ms",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 90);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 70);
+
+            new UiText(this, "consola")
+            {
+                Text = "Frame Time:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 100);
+            new UiText(this, "consola")
+            {
+                UpdateTracker = self => self.Text = frameCounter.FrameDuration.ToString() + "ms",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 100);
+
+            new UiText(this, "consola")
+            {
+                Text = "Fps:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 130);
+            new UiText(this, "consola")
+            {
+                UpdateTracker = self => self.Text = float.Round(frameCounter.CurrentFramesPerSecond).ToString(),
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 130);
+
+
+            new UiText(this, "consola")
+            {
+                Text = "Sim.Steps:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 160);
+            new UiText(this, "consola")
+            {
+                UpdateTracker = self => self.Text = particleManager.SimStepsCount.ToString(),
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 160);
+
+
+            new UiText(this, "consola")
+            {
+                Text = "Time Steps:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 190);
+            new UiText(this, "consola")
+            {
+                UpdateTracker = self => self.Text = float.Round(particleManager.TimeSteps).ToString(),
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 190);
 
             new UiText(this, "consola")
             {
                 Text = "Iterations:",
-                Scale = .15f,
+                Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 120);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 220);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = float.Round(particleManager.SolverIterations, 2).ToString(),
-                Scale = .15f,
+                UpdateTracker = self => self.Text = particleManager.SolverIterations.ToString(),
+                Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 120);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 220);
 
             new UiText(this, "consola")
             {
                 Text = "Particles:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 150);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 250);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = particleManager.Count.ToString(),
+                UpdateTracker = self => self.Text = particleManager.FluidParticlesCount.ToString(),
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 150);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 250);
 
-            new UiButton(this, "consola", "Pause", "button", () => simulationLayer.Paused = !simulationLayer.Paused)
-            {
-                UpdatTracker = self => self.Text = simulationLayer.Paused ? "Resume" : "Pause",
-                TextureScale = .6f,
-                TextScale = .12f
-            }.Place(anchor: Anchor.SW, hSpace: 5, vSpace: 5);
+            //new UiButton(this, "consola", "Pause", "button", () => simulationLayer.Paused = !simulationLayer.Paused)
+            //{
+            //    UpdatTracker = self => self.Text = simulationLayer.Paused ? "Resume" : "Pause",
+            //    TextureScale = .6f,
+            //    TextScale = .12f
+            //}.Place(anchor: Anchor.SW, hSpace: 5, vSpace: 5);
 
-            new UiButton(this, "consola", "Clear", "button", particleManager.ClearFluid)
-            {
-                UpdatTracker = self => self.Disable = particleManager.Count == 0,
-                TextureScale = .6f,
-                TextScale = .12f
-            }.Place(anchor: Anchor.SE, hSpace: 5, vSpace: 5);
+            //new UiButton(this, "consola", "Clear", "button", particleManager.ClearFluid)
+            //{
+            //    UpdatTracker = self => self.Disable = particleManager.Count == 0,
+            //    TextureScale = .6f,
+            //    TextScale = .12f
+            //}.Place(anchor: Anchor.SE, hSpace: 5, vSpace: 5);
         }
     }
 }

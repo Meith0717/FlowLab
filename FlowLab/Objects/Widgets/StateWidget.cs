@@ -22,33 +22,33 @@ namespace FlowLab.Objects.Widgets
                 Text = "STATE",
                 Scale = .2f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 5, y: 2);
+            }.Place(anchor: Anchor.Left, hSpace: 0, y: 2);
 
             new UiText(this, "consola")
             {
                 Text = "Error:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 30);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 40);
             new UiText(this, "consola")
             {
                 UpdateTracker = self => { self.Text = $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; },
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 30);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 40);
 
             new UiText(this, "consola")
             {
                 Text = "CFL:",
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, hSpace: 10, y: 60);
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 70);
             new UiText(this, "consola")
             {
                 UpdateTracker = self => { self.Text = $"{double.Round(_particleManager.CflCondition * 100).ToString()}%"; },
                 Scale = .17f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Right, hSpace: 10, y: 60);
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 70);
         }
     }
 }

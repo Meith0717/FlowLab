@@ -28,11 +28,15 @@ namespace FlowLab.Logic.ParticleManagement
         private int _mode;
         private Point _rectangleSize = new(11);
 
-        public void Update(InputState inputState, Camera2D camera)
+        public void Update(InputState inputState, Camera2D camera, bool paused)
         {
             _particles.Clear();
             var worldMousePosition = Transformations.ScreenToWorld(camera.TransformationMatrix, inputState.MousePosition);
-            inputState.DoAction(ActionType.DeleteParticles, _particleManager.ClearFluid);
+            inputState.DoAction(ActionType.DeleteParticles, () =>
+            {
+                if (paused)
+                    _particleManager.ClearFluid();
+            });
             inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
 
             inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);

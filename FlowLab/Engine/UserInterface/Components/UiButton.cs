@@ -55,11 +55,11 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
         {
             UpdatTracker?.Invoke(this);
+            _disabled = Disable || _onClickAction is null;
             if (_disabled) return;
 
             _hover = Canvas.GetGlobalBounds().Contains(transformedMousePosition);
             _clicked = _hover && inputState.HasAction(ActionType.LeftClicked);
-            _disabled = _onClickAction is null;
 
             if (_clicked)
             {

@@ -9,37 +9,42 @@ using FlowLab.Game.Objects.Layers;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Objects.Widgets;
+using Microsoft.Xna.Framework;
 
 namespace FlowLab.Objects.Layers
 {
     internal class HudLayer : Layer
     {
-        public HudLayer(Game1 game1, ParticleManager particleManager, FrameCounter frameCounter, SimulationSettings simulationSettings, SimulationLayer simulationLayer) : base(game1, true, true)
+        public HudLayer(Game1 game1, ParticleManager particleManager, FrameCounter frameCounter, SimulationSettings simulationSettings, Recorder recorder, SimulationLayer simulationLayer) : base(game1, true, true)
         {
-            new PerformanceWidget(UiRoot, particleManager, frameCounter, simulationLayer)
+            var layer = new UiLayer(UiRoot)
             {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
-                Alpha = .75f
-            }.Place(anchor: Anchor.NW, width: 260, height: 210, hSpace: 10, vSpace: 10);
+                InnerColor = Color.Transparent
+            };
+            layer.Place(anchor: Anchor.E, width: 280, relHeight: 1, hSpace: 10, vSpace: 10);
 
-            new StateWidget(UiRoot, particleManager)
+            new PerformanceWidget(layer, particleManager, frameCounter, simulationLayer)
             {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
+                InnerColor = Color.Transparent,
                 Alpha = .75f
-            }.Place(anchor: Anchor.Left, y: 235, width: 200, height: 85, hSpace: 10, vSpace: 10);
+            }.Place(anchor: Anchor.N, relWidth: 1, height: 310, vSpace: 5, hSpace: 5);
 
-            new SettingsWidget(UiRoot, simulationSettings)
+            new StateWidget(layer, particleManager)
             {
-                InnerColor = new(30, 30, 30),
-                BorderColor = new(75, 75, 75),
-                BorderSize = 5,
+                InnerColor = Color.Transparent,
+                Alpha = .75f
+            }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 310, vSpace: 5, hSpace: 5, y: 295);
+
+            new SettingsWidget(layer, simulationSettings)
+            {
+                InnerColor = Color.Transparent,
                 Alpha = .75f,
-            }.Place(anchor: Anchor.NE, width: 250, relHeight: 1, hSpace: 10, vSpace: 10);
+            }.Place(anchor: Anchor.CenterV , relWidth: 1, height: 600, vSpace: 5, hSpace: 5, y: 405);
 
+            new ControlWidget(UiRoot, particleManager, recorder, simulationLayer)
+            {
+                InnerColor = Color.Transparent // new(30, 30, 30)
+            }.Place(anchor: Anchor.NW, y: 330, width: 232, height: 40, hSpace: 5, vSpace: 5);
         }
     }
 }
