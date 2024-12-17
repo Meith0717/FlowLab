@@ -4,7 +4,7 @@
 
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
-using FlowLab.Engine;
+using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

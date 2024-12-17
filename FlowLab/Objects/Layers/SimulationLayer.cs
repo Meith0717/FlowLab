@@ -121,8 +121,7 @@ namespace FlowLab.Game.Objects.Layers
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
-            _particleRenderer.Render(spriteBatch, _particleManager.Particles, _debugger, particleTexture, _grid);
-
+            _particleRenderer.Render(spriteBatch, _particleManager, _debugger, particleTexture, _grid);
             switch (_placeMode)
             {
                 case PlaceMode.Particle:

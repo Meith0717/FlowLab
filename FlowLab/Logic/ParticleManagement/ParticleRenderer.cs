@@ -11,15 +11,16 @@ namespace FlowLab.Logic.ParticleManagement
 {
     internal class ParticleRenderer
     {
-        public void Render(SpriteBatch spriteBatch, List<Particle> particles, ParticelDebugger debugger, Texture2D particleTexture, Grid grid)
+        public void Render(SpriteBatch spriteBatch, ParticleManager particleManager, ParticelDebugger debugger, Texture2D particleTexture, Grid grid)
         {
-            foreach (var particle in particles)
+            foreach (var particle in particleManager.Particles)
             {
                 var position = particle.Position;
                 //grid.DrawCell(spriteBatch, particle.Position, particle.Color);
                 spriteBatch.Draw(particleTexture, position, null, particle.Color, 0, new Vector2(particleTexture.Width * .5f), 1.1f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
             }
             if (!debugger.IsSelected) return;
+            particleManager.SpatialHashing.Draw(spriteBatch);
             var debugParticle = debugger.SelectedParticle;
             spriteBatch.DrawCircle(debugParticle.Position, debugParticle.Diameter * 2, 30, Color.Red);
         }

@@ -2,10 +2,12 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Engine;
+using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -99,7 +101,7 @@ namespace FlowLab.Logic.SphComponents
             iterations = i;
 
             // update velocities using pressure forces
-            foreach (var particle in _particles)
+            Utilitys.ForEach(parallel, _particles, (particle) =>
             {
                 // integrate velocity considering pressure forces 
                 particle.Velocity += timeStep * particle.PressureAcceleration;
@@ -113,7 +115,8 @@ namespace FlowLab.Logic.SphComponents
                 spatialHashing.InsertObject(particle);
 
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
-            }
+
+            });
         }
 
         public static void SESPH(List<Particle> _particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings simulationSettings)
@@ -152,12 +155,13 @@ namespace FlowLab.Logic.SphComponents
                 fluidParticle.GravitationAcceleration = new(0, gravitation);
             });
 
-            // Update Velocities
-            foreach (var particle in _particles)
+            // update velocities
+            Utilitys.ForEach(true, _particles, (particle) =>
             {
-                // Update Velocity
+                // integrate velocity considering pressure forces 
                 particle.Velocity += timeStep * particle.Acceleration;
-                // Update Position
+
+                // integrate position
                 spatialHashing.RemoveObject(particle);
                 if (particle.IsBoundary)
                     particle.Position += particle.Velocity;
@@ -166,7 +170,9 @@ namespace FlowLab.Logic.SphComponents
                 spatialHashing.InsertObject(particle);
 
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
-            }
+
+            });
+
         }
     }
 }
