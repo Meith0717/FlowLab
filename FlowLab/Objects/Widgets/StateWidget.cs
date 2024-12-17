@@ -39,7 +39,7 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "CLF:",
+                Text = "CFL:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 60);
