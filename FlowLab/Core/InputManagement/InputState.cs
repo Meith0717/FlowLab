@@ -102,5 +102,7 @@ namespace FlowLab.Core.InputManagement
             if (function is null) return;
             if (HasAction(action)) function();
         }
+
+        public void Clear() => Actions.Clear();
     }
 }

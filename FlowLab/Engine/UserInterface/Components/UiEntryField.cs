@@ -41,8 +41,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         {
             if (Canvas.GetGlobalBounds().Contains(mousePosition))
             {
-                if (inputState.ContainAction(ActionType.LeftClicked))
-                    _isActive = !_isActive;
+                inputState.DoAction(ActionType.LeftClicked, () => _isActive = !_isActive);
                 if (_isActive)
                     return;
             }
@@ -58,6 +57,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             if (_chars.Count > 0)
                 inputState.DoAction(ActionType.BackSpace, () => { _caretCoolDown = 0; _chars.RemoveLast(); });
             var typedString = inputState.TypedString;
+            inputState.Clear();
             if (string.IsNullOrEmpty(typedString)) return;
             _caretCoolDown = 0;
             _chars.AddLast(inputState.TypedString);
