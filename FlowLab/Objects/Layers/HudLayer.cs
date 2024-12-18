@@ -43,8 +43,8 @@ namespace FlowLab.Objects.Layers
 
             new ControlWidget(UiRoot, particleManager, recorder, simulationLayer)
             {
-                InnerColor = Color.Transparent // new(30, 30, 30)
-            }.Place(anchor: Anchor.NW, y: 330, width: 232, height: 40, hSpace: 5, vSpace: 5);
+                InnerColor = Color.Transparent// new(30, 30, 30)
+            }.Place(anchor: Anchor.NW, y: 330, width: 400, height: 40, hSpace: 5, vSpace: 5);
         }
     }
 }

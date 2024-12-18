@@ -32,7 +32,7 @@ namespace FlowLab.Logic.ScenarioManagement
 
         public void Update(InputState inputState, Vector2 worldMousePosition, Scenario scenario, Action uiUpdater)
         {
-            inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
+            inputState.DoAction(ActionType.NextShape, () => { _mode = (_mode + 1) % PlacerModes.Count; });
             if (_mode == 0)
             {
                 _grids.Clear();

@@ -13,15 +13,12 @@ namespace FlowLab.Core.InputManagement
         CameraZoomIn,
         CameraZoomOut,
         CameraReset,
-        SaveData,
         DeleteParticles,
         TogglePause,
-        ToggleData,
-        Esc,
         Debugg,
         NextScene,
         SwitchMode,
-        NextPlaceMode,
+        NextShape,
         IncreaseWidthAndRadius,
         DecreaseWidthAndRadius,
         IncreaseHeight,
@@ -31,12 +28,10 @@ namespace FlowLab.Core.InputManagement
         FastIncreaseHeight,
         FastDecreaseHeight,
         ToggleFullscreen,
-        ChangeColor,
         Help,
         BackSpace,
         Reload,
         Test,
-        HideHud,
         Enter,
 
         // Mouse
@@ -54,30 +49,10 @@ namespace FlowLab.Core.InputManagement
         MoveButtonDown,
     }
 
-
-    public enum GamePadActionType
-    {
-        None,
-        LeftThumbStickUp,
-        LeftThumbStickDown,
-        RightThumbStickUp,
-        RightThumbStickDown,
-    }
-
     public enum KeyEventType
     {
         OnButtonDown,
         OnButtonPressed
-    }
-
-    public struct ThumbSticksState
-    {
-        public Vector2 LeftThumbSticks = Vector2.Zero;
-        public Vector2 RightThumbSticks = Vector2.Zero;
-        public float LeftTrigger = new();
-        public float RightTrigger = new();
-
-        public ThumbSticksState() {; }
     }
 
     public struct InputState

@@ -20,6 +20,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
         {
             mActionOnMultiplePressed = new()
             {
+                { Hash(Keys.LeftAlt, Keys.F12), ActionType.Debugg },
                 { Hash(Keys.LeftAlt, Keys.Enter), ActionType.ToggleFullscreen },
                 { Hash(Keys.LeftControl, Keys.W), ActionType.FastIncreaseHeight },
                 { Hash(Keys.LeftControl, Keys.A), ActionType.FastDecreaseWidthAndRadius },
@@ -29,28 +30,19 @@ namespace FlowLab.Core.InputManagement.Peripheral
 
             mActionOnPressed = new()
             {
-                { Keys.Escape, ActionType.Esc },
-                { Keys.F1, ActionType.SaveData },
-                { Keys.F2, ActionType.ToggleData },
-                { Keys.F11, ActionType.HideHud },
-                { Keys.F12, ActionType.Debugg },
                 { Keys.Delete, ActionType.DeleteParticles },
                 { Keys.Back, ActionType.BackSpace },
-
                 { Keys.Space, ActionType.TogglePause },
                 { Keys.Enter, ActionType.Enter },
-
                 { Keys.R, ActionType.Reload },
                 { Keys.B, ActionType.SwitchMode },
-                { Keys.Q, ActionType.NextPlaceMode },
+                { Keys.Q, ActionType.NextShape },
                 { Keys.W, ActionType.IncreaseHeight },
                 { Keys.A, ActionType.DecreaseWidthAndRadius },
                 { Keys.S, ActionType.DecreaseHeight },
                 { Keys.D, ActionType.IncreaseWidthAndRadius},
                 { Keys.T, ActionType.Test },
-
                 { Keys.V, ActionType.NextScene },
-                { Keys.C, ActionType.ChangeColor },
                 { Keys.H, ActionType.Help},
             };
 

@@ -43,7 +43,7 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "Sim.Time:",
+                Text = "Sim.Step Time:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 70);
@@ -83,7 +83,7 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "Sim.Steps:",
+                Text = "Steps Count:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 160);

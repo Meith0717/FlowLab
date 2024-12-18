@@ -1,43 +1,41 @@
 ﻿// DataSaver.cs 
-// Copyright (c) 2023-2025 Thierry Meiers 
+// Copyright (c) 2023-2024 Thierry Meiers 
 // All rights reserved.
 
 using FlowLab.Core;
-using FlowLab.Engine.Debugging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
-namespace FlowLab.Engine.Profiling
+namespace Fluid_Simulator.Core.Profiling
 {
-    internal class DataSaver
+    internal class DataSaver(string folderPath)
     {
-        private static readonly string BenchmatksSaveDirectory = "benchmarks";
+        private readonly string DataSaveDirectory = folderPath;
 
-        public static void SaveToCsv(Serializer serializer, DataCollector dataCollector, FrameCounter frameCounter, int cellSize)
+        public void SaveToCsv(Serializer serializer, params DataCollector[] dataCollectors)
         {
-            serializer.CreateFolder(BenchmatksSaveDirectory);
-            DateTime currentDateTime = DateTime.Now;
-            var directoryName = $"{currentDateTime.ToString("yyyyMMdd_HHmmss")}";
-            var directoryPath = Path.Combine(BenchmatksSaveDirectory, directoryName);
+            var directoryName = $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
+            var directoryPath = Path.Combine(DataSaveDirectory, directoryName);
             serializer.CreateFolder(directoryPath);
-            var dataPath = Path.Combine(directoryPath, "benchmark_data.csv");
 
-            using StreamWriter dataWriter = serializer.GetStreamWriter(dataPath);
-            dataWriter.WriteLine("step," + string.Join(",", dataCollector.Lables));
-            var counter = 0;
-            foreach (var entry in dataCollector.Data)
+            foreach (var dataCollector in dataCollectors)
             {
-                dataWriter.WriteLine($"{counter}," + string.Join(",", entry));
-                counter++;
+                if (dataCollector.Count == 0) continue;
+                var dataPath = Path.Combine(directoryPath, $"{dataCollector.Name}.csv");
+                using StreamWriter dataWriter = serializer.GetStreamWriter(dataPath);
+                dataWriter.WriteLine("sample," + string.Join(",", dataCollector.Data.Keys));
+                for (int i = 0; i < dataCollector.Count; i++)
+                {
+                    var line = new List<object>();
+                    foreach (var entry in dataCollector.Data.Keys)
+                        line.Add(dataCollector.Data[entry][i]);
+                    dataWriter.WriteLine($"{i}," + string.Join(",", line));
+                }
             }
 
-            var summaryPath = Path.Combine(directoryPath, "benchmark_summary.txt");
-            using StreamWriter summaryWriter = serializer.GetStreamWriter(summaryPath);
-            summaryWriter.WriteLine($"Min fps: {frameCounter.MinFramesPerSecond}\n" +
-                $"Max fps: {frameCounter.MaxFramesPerSecond}\n" +
-                $"Avg fps: {frameCounter.AverageFramesPerSecond}\n" +
-                $"Cell Size: {cellSize}");
-
+            if (serializer.GetFilesInFolder(directoryPath).Length > 0) return;
+            serializer.DeleteFolder(directoryPath);
         }
     }
 }

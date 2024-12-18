@@ -1,29 +1,42 @@
 ﻿// DataCollector.cs 
-// Copyright (c) 2023-2025 Thierry Meiers 
+// Copyright (c) 2023-2024 Thierry Meiers 
 // All rights reserved.
 
+using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 
-namespace FlowLab.Engine.Profiling
+namespace Fluid_Simulator.Core.Profiling
 {
     internal class DataCollector
     {
-        public readonly List<string> Lables;
-        public readonly List<List<float>> Data;
-        private readonly int mDataSetCount;
+        public readonly string Name;
+        private int _count = 0;
+        public Dictionary<string, List<object>> Data = new();
 
-        public DataCollector(int recordCount, List<string> lables)
+        public DataCollector(string name, List<string> variables)
         {
-            if (lables.Count != recordCount) throw new System.ArgumentException();
-            mDataSetCount = recordCount;
-            Lables = lables;
-            Data = new();
+            Name = name;
+            foreach (var variable in variables)
+                Data.Add(variable, new List<object>());
         }
 
-        public void AddData(List<float> frameData)
+        public void Clear()
         {
-            if (frameData.Count != mDataSetCount) throw new System.ArgumentException();
-            Data.Add(frameData);
+            _count = 0;
+            foreach (var list in Data.Values) list.Clear();
+        }
+
+        public int Count => _count / Data.Keys.Count;
+        public void AddData<T>(string variable, T value)
+        {
+            if (value is int || value is float || value is double || value is decimal || value is long || value is short || value is Vector2)
+            {
+                Data[variable].Add(value);
+                _count++;
+            }
+            else
+                throw new ArgumentException("Value must be a numerical type");
         }
     }
 }

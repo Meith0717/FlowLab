@@ -14,7 +14,7 @@ namespace FlowLab.Core
         public readonly Serializer Serializer;
         private static readonly string _settingsDirectory = "settings";
         private static readonly string _screenShotDirectory = "screenshots";
-        public static readonly string TempDirectory = "tmp";
+        public static readonly string DataDirectory = "experiments";
         public static readonly string VideoDirectory = "videos";
 
         public static string SettingsFilePath => Path.Combine(_settingsDirectory, "settings.json");
@@ -26,7 +26,7 @@ namespace FlowLab.Core
             Serializer = new(rootFolder);
             Serializer.CreateFolder(_settingsDirectory);
             Serializer.CreateFolder(_screenShotDirectory);
-            Serializer.CreateFolder(TempDirectory);
+            Serializer.CreateFolder(DataDirectory);
             Serializer.CreateFolder(VideoDirectory);
         }
 

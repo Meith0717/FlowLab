@@ -13,6 +13,7 @@ using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
 using FlowLab.Objects.Layers;
 using FlowLab.Utilities;
+using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -40,6 +41,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly BodyPlacer _bodyPlacer;
         private readonly BodySelector _bodySelector;
         private readonly Recorder _recorder;
+        private readonly DataSaver _dataSaver;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -56,7 +58,8 @@ namespace FlowLab.Game.Objects.Layers
             _grid = new(ParticleDiameter);
             _bodySelector = new();
             _bodyPlacer = new(_grid, ParticleDiameter, FluidDensity);
-            _recorder = new(PersistenceManager, 2); 
+            _recorder = new(PersistenceManager, 2);
+            _dataSaver = new(PersistenceManager.DataDirectory);
         }
 
         public override void Initialize()
@@ -172,10 +175,15 @@ namespace FlowLab.Game.Objects.Layers
             LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, _recorder, this));
         }
 
-        private void TakeScreenShot()
+        public void TakeScreenShot()
         {
             using FileStream fs = PersistenceManager.Serializer.GetFileStream(PersistenceManager.ScreenshotFilePath, FileMode.Create);
             RenderTarget2D.SaveAsPng(fs, RenderTarget2D.Width, RenderTarget2D.Height);
+        }
+
+        public void SaveData()
+        {
+            _dataSaver.SaveToCsv(PersistenceManager.Serializer, _particleManager.DataCollector);
         }
     }
 }

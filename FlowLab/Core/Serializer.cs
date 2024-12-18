@@ -44,6 +44,13 @@ namespace FlowLab.Core
         public bool FileExist(string relativePath) 
             => File.Exists(Path.Combine(RootPath, relativePath));
 
+        public bool DeleteFolder(string relativePath)
+        {
+            var filePath = Path.Combine(RootPath, relativePath);
+            if (!Directory.Exists(filePath)) return false;
+            Directory.Delete(filePath);
+            return true;
+        }
         public bool DeleteFile(string relativePath)
         {
             var filePath = Path.Combine(RootPath, relativePath);

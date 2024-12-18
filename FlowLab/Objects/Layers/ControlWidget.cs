@@ -21,33 +21,43 @@ namespace FlowLab.Objects.Layers
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 0);
 
-            new UiButton(this, "record", () => { recorder.Toggle(particleManager.TimeSteps); simulationLayer.Pause(); })
-            {
-                UpdatTracker = self => self.TextureIdleColor = recorder.IsActive ? Color.Red : Color.White,
-                TextureScale = .5f,
-            }.Place(anchor: Anchor.CenterH, x: 40);
-
             new UiButton(this, "trash", particleManager.ClearFluid)
             {
                 UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
-            }.Place(anchor: Anchor.CenterH, x: 80);
+            }.Place(anchor: Anchor.CenterH, x: 40);
 
             new UiButton(this, "build", simulationLayer.ToggleMode)
             {
                 UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
-            }.Place(anchor: Anchor.CenterH, x: 120);
+            }.Place(anchor: Anchor.CenterH, x: 100);
 
             new UiButton(this, "new", null)
             {
                 TextureScale = .5f,
-            }.Place(anchor: Anchor.CenterH, x: 160);
+            }.Place(anchor: Anchor.CenterH, x: 140);
 
             new UiButton(this, "next", null)
             {
                 TextureScale = .5f,
-            }.Place(anchor: Anchor.CenterH, x: 200);
+            }.Place(anchor: Anchor.CenterH, x: 180);
+
+            new UiButton(this, "screenshot", simulationLayer.TakeScreenShot)
+            {
+                TextureScale = .5f,
+            }.Place(anchor: Anchor.CenterH, x: 240);
+
+            new UiButton(this, "record", () => { recorder.Toggle(particleManager.TimeSteps); simulationLayer.Pause(); })
+            {
+                UpdatTracker = self => self.TextureIdleColor = recorder.IsActive ? Color.Red : Color.White,
+                TextureScale = .5f,
+            }.Place(anchor: Anchor.CenterH, x: 280);
+
+            new UiButton(this, "save", simulationLayer.SaveData)
+            {
+                TextureScale = .5f,
+            }.Place(anchor: Anchor.CenterH, x: 320);
         }
     }
 }

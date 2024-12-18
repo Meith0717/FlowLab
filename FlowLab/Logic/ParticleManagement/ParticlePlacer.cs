@@ -37,7 +37,7 @@ namespace FlowLab.Logic.ParticleManagement
                 if (paused)
                     _particleManager.ClearFluid();
             });
-            inputState.DoAction(ActionType.NextPlaceMode, () => { _mode = (_mode + 1) % PlacerModes.Count; });
+            inputState.DoAction(ActionType.NextShape, () => { _mode = (_mode + 1) % PlacerModes.Count; });
 
             inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);
             inputState.DoAction(ActionType.DecreaseWidthAndRadius, () => _rectangleSize.X -= 1);

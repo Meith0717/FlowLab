@@ -5,6 +5,7 @@
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
+using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -19,25 +20,29 @@ namespace FlowLab.Logic.ParticleManagement
         private readonly List<Particle> _fluidParticles = new();
         private readonly List<Particle> _boundaryParticles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
+        public readonly DataCollector DataCollector = new("simulation", ["simSteps", "timeSteps", "simStepsTime", "iterations", "particles", "gamma1", "gamma2", "gamma3", "timeStep", "densityError", "cfl"]);
         public readonly float ParticleDiameter = particleDiameter;
         public readonly float FluidDensity = fluidDensity;
 
         public void ClearFluid()
         {
+            DataCollector.Clear();
             foreach (var particle in _fluidParticles.ToList())
                 RemoveParticle(particle);
-            TimeSteps = SimStepsCount = 0;
+            TimeSteps = SimStepsCount = _lastTimeSteps = 0;
             TotalTime = SimStepTime = 0;
         }
 
         public void ClearBoundary()
         {
+            DataCollector.Clear();
             foreach (var particle in _boundaryParticles.ToList())
                 RemoveParticle(particle);
         }
 
         public void ClearAll()
         {
+            DataCollector.Clear();
             Particles.Clear();
             _fluidParticles.Clear();
             _boundaryParticles.Clear();
@@ -86,6 +91,7 @@ namespace FlowLab.Logic.ParticleManagement
         public float CflCondition 
             => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
 
+        private int _lastTimeSteps;
         public void Update(GameTime gameTime, SimulationSettings simulationSettings)
         {
             // ____Update____
@@ -102,11 +108,29 @@ namespace FlowLab.Logic.ParticleManagement
                     break;
             }
             watch.Stop();
+
+            // ___Track some stuff___
             TimeSteps += simulationSettings.TimeStep;
             SimStepsCount++;
             TotalTime += gameTime.ElapsedGameTime.TotalMilliseconds;
             SimStepTime = watch.Elapsed.TotalMilliseconds;
-        } 
+
+
+            // ____Collect data____
+            if (_lastTimeSteps >= (int)float.Floor(TimeSteps)) return;
+            _lastTimeSteps = (int)float.Floor(TimeSteps);
+            DataCollector.AddData("simSteps", SimStepsCount);
+            DataCollector.AddData("timeSteps", _lastTimeSteps);
+            DataCollector.AddData("simStepsTime", SimStepTime);
+            DataCollector.AddData("iterations", SolverIterations);
+            DataCollector.AddData("particles", Particles.Count);
+            DataCollector.AddData("gamma1",simulationSettings.Gamma1);
+            DataCollector.AddData("gamma2", simulationSettings.Gamma2);
+            DataCollector.AddData("gamma3", simulationSettings.Gamma3);
+            DataCollector.AddData("timeStep", simulationSettings.TimeStep);
+            DataCollector.AddData("densityError", RelativeDensityError);
+            DataCollector.AddData("cfl", CflCondition);
+        }
 
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)
         {
