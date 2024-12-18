@@ -26,7 +26,7 @@ namespace FlowLab.Objects.Layers
             new UiButton(this, "trash", particleManager.ClearFluid)
             {
                 Action = Core.InputManagement.ActionType.DeleteParticles,
-                UpdatTracker = self => self.Disable = !simulationLayer.Paused,
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused || particleManager.FluidParticlesCount == 0,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 40);
 
@@ -63,13 +63,13 @@ namespace FlowLab.Objects.Layers
 
             new UiButton(this, "delete", scenarioManager.DeleteCurrentScenario)
             {
-                UpdatTracker = self => self.Disable = !simulationLayer.Paused,
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused ,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 320);
 
             new UiButton(this, "save", simulationLayer.SaveData)
             {
-                UpdatTracker = self => self.Disable = particleManager.DataCollector.Empty || simulationLayer.Paused,
+                UpdatTracker = self => self.Disable = particleManager.DataCollector.Empty || !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 380);
         }
