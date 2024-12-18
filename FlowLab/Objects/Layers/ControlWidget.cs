@@ -18,12 +18,14 @@ namespace FlowLab.Objects.Layers
         {
             new UiButton(this, "play", () => simulationLayer.Paused = !simulationLayer.Paused)
             {
+                Action = Core.InputManagement.ActionType.TogglePause,
                 UpdatTracker = self => self.Texture = simulationLayer.Paused ? "play" : "pause",
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 0);
 
             new UiButton(this, "trash", particleManager.ClearFluid)
             {
+                Action = Core.InputManagement.ActionType.DeleteParticles,
                 UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 40);
@@ -41,28 +43,33 @@ namespace FlowLab.Objects.Layers
 
             new UiButton(this, "build", simulationLayer.ToggleMode)
             {
+                Action = Core.InputManagement.ActionType.SwitchMode,
                 UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 200);
 
             new UiButton(this, "next", scenarioManager.LoadNextScenario)
             {
+                Action = Core.InputManagement.ActionType.NextScene,
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 240);
 
             new UiButton(this, "new", simulationLayer.NewScenario)
             {
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 280);
 
             new UiButton(this, "delete", scenarioManager.DeleteCurrentScenario)
             {
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 320);
 
             new UiButton(this, "save", simulationLayer.SaveData)
             {
-                UpdatTracker = self => self.Disable = particleManager.DataCollector.Empty,
+                UpdatTracker = self => self.Disable = particleManager.DataCollector.Empty || simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 380);
         }

@@ -60,6 +60,8 @@ namespace FlowLab.Game.Engine.UserInterface.Components
 
             _hover = Canvas.GetGlobalBounds().Contains(transformedMousePosition);
             _clicked = _hover && inputState.HasAction(ActionType.LeftClicked);
+            if (Action is not null)
+                _clicked = inputState.HasAction(Action.Value) || _clicked;
 
             if (_clicked)
             {
@@ -102,6 +104,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         }
 
         public Action<UiButton> UpdatTracker { get; set; }
+        public ActionType? Action { get; set; } = null;
         public TextAlign TextAlign { private get; set; } = TextAlign.Center;
         public float TextScale { private get; set; } = 1;
         public string Text { private get; set; } = "";

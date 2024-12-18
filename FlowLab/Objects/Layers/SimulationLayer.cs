@@ -86,10 +86,8 @@ namespace FlowLab.Game.Objects.Layers
                 _scenarioManager.LoadNextScenario();
                 _particlePlacer.Clear(); 
             });
-            inputState.DoAction(ActionType.TogglePause, () => Pause());
             inputState.DoAction(ActionType.Test, TakeScreenShot);
             inputState.DoAction(ActionType.Reload, ReloadUi);
-            inputState.DoAction(ActionType.SwitchMode, ToggleMode);
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
 
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
