@@ -16,6 +16,7 @@ namespace FlowLab.Core
         private static readonly string _screenShotDirectory = "screenshots";
         public static readonly string DataDirectory = "experiments";
         public static readonly string VideoDirectory = "videos";
+        public static readonly string ScenariosDirectory = "scenarios";
 
         public static string SettingsFilePath => Path.Combine(_settingsDirectory, "settings.json");
         public static string VideoFilePath => Path.Combine(VideoDirectory, $"{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.mp4");
@@ -28,6 +29,7 @@ namespace FlowLab.Core
             Serializer.CreateFolder(_screenShotDirectory);
             Serializer.CreateFolder(DataDirectory);
             Serializer.CreateFolder(VideoDirectory);
+            Serializer.CreateFolder(ScenariosDirectory);
         }
 
         public void Load<Object>(string path, Action<Object> onLoadComplete, Action<Exception> onError) where Object : new()

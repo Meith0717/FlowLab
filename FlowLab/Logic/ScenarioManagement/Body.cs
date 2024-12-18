@@ -6,30 +6,23 @@ using FlowLab.Core.ContentHandling;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FlowLab.Logic.ScenarioManagement
 {
-    /// <summary>
-    /// A Body can be moved ore rotated and is composed of a set of movable bounday Particles
-    /// </summary>
-    internal class Body
+    [Serializable]
+    internal class Body(Vector2 position)
     {
-        public float RotationUpdate;
-        private readonly HashSet<Particle> _boundaryParticles;
+        [JsonProperty] public float RotationUpdate;
+        [JsonProperty] private Vector2 _position = position;
+        [JsonProperty] private HashSet<Particle> _boundaryParticles = new();
 
-        public Body(Vector2 position, HashSet<Particle> _particle, Action<Body> updater)
+        public HashSet<Particle> Particles
         {
-            Position = position;
-            if (_particle.Count > 0)
-                if (_particle.Where(p => !p.IsBoundary).Any())
-                    throw new Exception("Body Particles has to be boundary particles");
-            _boundaryParticles = _particle;
-        }
-
-        public Vector2 Position { get; private set; }
+            set { _boundaryParticles = value; }
+        } 
 
         public bool IsHovered(Vector2 position)
         {
@@ -52,26 +45,18 @@ namespace FlowLab.Logic.ScenarioManagement
         {
             foreach (var particle in _boundaryParticles)
             {
-                // Calculate the relative position to the center
-                var relativePosition = particle.Position - Position;
-
-                // Get the current angle and radius
+                var relativePosition = particle.Position - _position;
                 var radius = relativePosition.Length();
                 var currentAngle = MathF.Atan2(relativePosition.Y, relativePosition.X);
-
-                // Calculate the new angle
                 var newAngle = currentAngle + RotationUpdate;
-
-                // Calculate the new position using polar-to-cartesian conversion
-                var newX = Position.X + radius * MathF.Cos(newAngle);
-                var newY = Position.Y + radius * MathF.Sin(newAngle);
-
-                // Update the particle's velocity
+                var newX = _position.X + radius * MathF.Cos(newAngle);
+                var newY = _position.Y + radius * MathF.Sin(newAngle);
                 particle.Velocity = new Vector2(newX, newY) - particle.Position;
             }
         }
 
-        public void Update() => Rotate();
+        public void Update() 
+            => Rotate();
 
         public void Draw(SpriteBatch spriteBatch, Color color)
         {

@@ -5,41 +5,42 @@
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace FlowLab.Logic.ScenarioManagement
 {
-    /// <summary>
-    /// A scenario is construct out of Bodys containing border Particles
-    /// </summary>
-    internal class Scenario(List<Body> bodys)
+    [Serializable]
+    internal class Scenario()
     {
-        public readonly List<Body> Bodys = bodys;
+        [JsonProperty] public string Name;
+        [JsonProperty] public readonly List<Body> Bodies = [];
 
-        public bool IsEmpty => Bodys.Count == 0;
+        [JsonIgnore] public bool Saved { get; set; } = true;
+
+        [JsonIgnore] public bool IsEmpty 
+            => Bodies.Count == 0;
 
         public void AddBody(Body body)
-            => Bodys.Add(body);
-
-        public void RemoveBody(Body body)
-            => Bodys.Remove(body);
-
-        public void Load(ParticleManager particleManager)
         {
-            foreach (Body body in Bodys)
-                body.Load(particleManager);
+            Bodies.Add(body);
+            Saved = false;
         }
 
-        public void Update()
+        public void RemoveBody(Body body) 
         {
-            foreach (var body in Bodys)
-                body.Update();
+            Bodies.Remove(body);
+            Saved = false;
         }
+
+        public void Load(ParticleManager particleManager) 
+            => Utilitys.ForEach(false, Bodies, body => body.Load(particleManager));
+
+        public void Update() 
+            => Utilitys.ForEach(false, Bodies, body => body.Update());
 
         public void Draw(SpriteBatch spriteBatch)
-        {
-            foreach (var body in Bodys)
-                body.Draw(spriteBatch, Color.White);
-        }
+            => Utilitys.ForEach(false, Bodies, body => body.Draw(spriteBatch, Color.White));
     }
 }

@@ -5,6 +5,7 @@
 using FlowLab.Engine.SpatialManagement;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -12,54 +13,57 @@ using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
 {
+    [Serializable]
     public class Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
-        public float Diameter { get; private set; } = diameter;
-        public float Density0 { get; private set; } = fluidDensity;
-        public bool IsBoundary { get; private set; } = isBoundary;
-        public float Volume { get; private set; } = diameter * diameter;
-        public float Mass { get; private set; } = (diameter * diameter) * fluidDensity;
-        public float Density { get; set; }
-        public float Pressure { get; set; }
-        public float AII { get; set; }
-        public float St { get; set; }
-        public float Ap { get; set; }
-        public float Cfl { get; set; }
-        public float EstimatedDensityError { get; set; }
-        public float DensityError { get; set; }
-        [NotNull] public Vector2 Position { get; set; } = position;
-        [NotNull] public Vector2 Velocity { get; set; }
-        [NotNull] public Vector2 PressureAcceleration { get; set; }
-        [NotNull] public Vector2 GravitationAcceleration { get; set; }
-        [NotNull] public Vector2 ViscosityAcceleration { get; set; }
-        [NotNull] public Color Color { get; set; }
+
+        [JsonProperty] public float Diameter { get; private set; } = diameter;
+        [JsonProperty] public float Density0 { get; private set; } = fluidDensity;
+        [JsonProperty] public bool IsBoundary { get; private set; } = isBoundary;
+        [JsonIgnore] public float Volume { get; private set; } = diameter * diameter;
+        [JsonIgnore] public float Mass { get; private set; } = (diameter * diameter) * fluidDensity;
+        [JsonIgnore] public float Density { get; set; }
+        [JsonIgnore] public float Pressure { get; set; }
+        [JsonIgnore] public float AII { get; set; }
+        [JsonIgnore] public float St { get; set; }
+        [JsonIgnore] public float Ap { get; set; }
+        [JsonIgnore] public float Cfl { get; set; }
+        [JsonIgnore] public float EstimatedDensityError { get; set; }
+        [JsonIgnore] public float DensityError { get; set; }
+        [JsonProperty] [NotNull] public Vector2 Position { get; set; } = position;
+        [JsonIgnore] [NotNull] public Vector2 Velocity { get; set; }
+        [JsonIgnore] [NotNull] public Vector2 PressureAcceleration { get; set; }
+        [JsonIgnore] [NotNull] public Vector2 GravitationAcceleration { get; set; }
+        [JsonIgnore] [NotNull] public Vector2 ViscosityAcceleration { get; set; }
+        [JsonIgnore] [NotNull] public Color Color { get; set; }
 
         /// <summary>
         /// Current particle neighbors.
         /// </summary>
-        [NotNull] public List<Particle> Neighbors => _neighbors;
+        [JsonIgnore] [NotNull]
+        public List<Particle> Neighbors => _neighbors;
 
         /// <summary>
         /// Current bound box of Particle.
         /// </summary>
-        [NotNull]
+        [JsonIgnore] [NotNull]
         public CircleF BoundBox => new(Position, Diameter / 2);
 
         /// <summary>
         /// Sum of all accelerations.
         /// </summary>
-        [NotNull]
+        [JsonIgnore] [NotNull] 
         public Vector2 Acceleration => PressureAcceleration + ViscosityAcceleration + GravitationAcceleration;
 
         /// <summary>
         /// Sum of all non Pressure accelerations.
         /// </summary>
-        [NotNull]
+        [JsonIgnore] [NotNull]
         public Vector2 NonPAcceleration => ViscosityAcceleration + GravitationAcceleration;
 
-        [NotNull] private List<Particle> _neighbors = [];
-        [NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
-        [NotNull] private readonly Dictionary<Particle, Vector2> _neighborKernelDerivatives = [];
+        [JsonIgnore] [NotNull] private List<Particle> _neighbors = [];
+        [JsonIgnore] [NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
+        [JsonIgnore] [NotNull] private readonly Dictionary<Particle, Vector2> _neighborKernelDerivatives = [];
 
         /// <summary>
         /// This Method search for neighbors around and calculates the Kernel and Kernel derivative of these.

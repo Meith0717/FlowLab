@@ -100,7 +100,7 @@ namespace FlowLab.Logic.ScenarioManagement
             var lst = new HashSet<Particle>();
             foreach (var grid in _grids)
                 lst.Add(new(grid, _particleDiameter, _fluidDensity, true));
-            scenario.AddBody(new(_elypse.Position, lst, null));
+            scenario.AddBody(new(_elypse.Position) { Particles = lst });
         }
     }
 }

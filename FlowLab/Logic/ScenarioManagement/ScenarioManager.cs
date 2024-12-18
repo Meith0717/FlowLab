@@ -2,68 +2,61 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using FlowLab.Core;
 using FlowLab.Logic.ParticleManagement;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.IO;
 
 namespace FlowLab.Logic.ScenarioManagement
 {
     internal class ScenarioManager
     {
-        private readonly List<Scenario> _scenarios;
-        private readonly ParticleManager _particleManager;
+        public readonly List<Scenario> Scenarios = [];
+        private ParticleManager _particleManager;
         private int _activeSceneIndex;
 
-        public ScenarioManager(ParticleManager particleManager)
-        {
-            _activeSceneIndex = 0;
-            var particleSize = particleManager.ParticleDiameter;
-            _scenarios = new();
-            _particleManager = particleManager;
-        }
+        public void SetParticleManager(ParticleManager particleManager)
+            => _particleManager = particleManager;
 
         public bool Empty
-            => _scenarios.Count == 0;
+            => Scenarios.Count == 0;
 
         public Scenario CurrentScenario
-            => _scenarios[_activeSceneIndex];
+            => Scenarios[_activeSceneIndex];
 
         public void Add(Scenario scenario)
-            => _scenarios.Add(scenario);
+            => Scenarios.Add(scenario);
 
         public void Remove(Scenario scenario)
-            => _scenarios.Remove(scenario);
+            => Scenarios.Remove(scenario);
 
         public void Update()
             => CurrentScenario?.Update();
 
+        public void DeleteCurrentScenario()
+        {
+            Remove(CurrentScenario);
+            LoadNextScenario();
+        }
+
         public void LoadNextScenario()
         {
-            if (_scenarios.Count <= 0) return;
             _activeSceneIndex++;
-            _activeSceneIndex %= _scenarios.Count;
-            ApplyScenario(_activeSceneIndex);
+            _activeSceneIndex %= Scenarios.Count;
+            LoadCurrentScenario();
         }
 
-        public bool TryLoadCurrentScenario()
+        public void LoadNewScenario()
         {
-            if (Empty) return false;
-            ApplyScenario(_activeSceneIndex);
-            return true;
+            _activeSceneIndex = Scenarios.Count - 1;
+            LoadCurrentScenario();
         }
 
-        private void ApplyScenario(int index)
+        public void LoadCurrentScenario()
         {
-            var scenario = _scenarios[index];
             _particleManager.ClearAll();
+            var scenario = Scenarios[_activeSceneIndex];
             scenario.Load(_particleManager);
-        }
-
-        public void Draw(SpriteBatch spriteBatch, Matrix transformationMatrix, float particleDiameter)
-        {
-            spriteBatch.Begin(transformMatrix: transformationMatrix);
-            spriteBatch.End();
         }
     }
 }

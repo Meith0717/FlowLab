@@ -16,7 +16,7 @@ namespace FlowLab.Logic.ScenarioManagement
         public void Select(InputState inputState, Scenario scenario, Vector2 mousePOsition)
         {
             if (!inputState.HasAction(ActionType.LeftClicked)) return;
-            foreach (var body in scenario.Bodys)
+            foreach (var body in scenario.Bodies)
             {
                 if (!body.IsHovered(mousePOsition))
                     continue;
@@ -32,14 +32,16 @@ namespace FlowLab.Logic.ScenarioManagement
             inputState.DoAction(ActionType.DeleteParticles, () =>
             {
                 scenarioManager.CurrentScenario.RemoveBody(Body);
-                scenarioManager.TryLoadCurrentScenario();
+                scenarioManager.LoadCurrentScenario();
                 Body = null;
+                return;
             });
+            if (Body is null) return;
             inputState.DoAction(ActionType.IncreaseRotation, () => Body.RotationUpdate += 0.0001f);
             inputState.DoAction(ActionType.FastIncreaseRotation, () => Body.RotationUpdate += 0.001f);
             inputState.DoAction(ActionType.DecreaseRotation, () => Body.RotationUpdate -= 0.0001f);
             inputState.DoAction(ActionType.FastDecreaseRotation, () => Body.RotationUpdate -= 0.001f);
-            Body.RotationUpdate = float.Max(0, Body.RotationUpdate);
+            Body.RotationUpdate = float.Max(0, float.Round(Body.RotationUpdate, 4));
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 mousePosition)

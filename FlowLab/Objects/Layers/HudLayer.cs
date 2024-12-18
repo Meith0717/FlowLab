@@ -8,6 +8,7 @@ using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Objects.Layers;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
+using FlowLab.Logic.ScenarioManagement;
 using FlowLab.Objects.Widgets;
 using Microsoft.Xna.Framework;
 
@@ -15,7 +16,7 @@ namespace FlowLab.Objects.Layers
 {
     internal class HudLayer : Layer
     {
-        public HudLayer(Game1 game1, ParticleManager particleManager, FrameCounter frameCounter, SimulationSettings simulationSettings, Recorder recorder, SimulationLayer simulationLayer) : base(game1, true, true)
+        public HudLayer(Game1 game1, ParticleManager particleManager, FrameCounter frameCounter, SimulationSettings simulationSettings, Recorder recorder, SimulationLayer simulationLayer, ScenarioManager scenarioManager) : base(game1, true, true)
         {
             var layer = new UiLayer(UiRoot)
             {
@@ -41,10 +42,10 @@ namespace FlowLab.Objects.Layers
                 Alpha = .75f,
             }.Place(anchor: Anchor.CenterV , relWidth: 1, height: 600, vSpace: 5, hSpace: 5, y: 405);
 
-            new ControlWidget(UiRoot, particleManager, recorder, simulationLayer)
+            new ControlWidget(UiRoot, particleManager, recorder, simulationLayer, scenarioManager)
             {
                 InnerColor = Color.Transparent// new(30, 30, 30)
-            }.Place(anchor: Anchor.NW, y: 330, width: 400, height: 40, hSpace: 5, vSpace: 5);
+            }.Place(anchor: Anchor.NW, y: 330, width: 450, height: 40, hSpace: 5, vSpace: 5);
         }
     }
 }
