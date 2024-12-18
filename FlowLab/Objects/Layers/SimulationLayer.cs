@@ -42,6 +42,7 @@ namespace FlowLab.Game.Objects.Layers
         private readonly BodySelector _bodySelector;
         private readonly Recorder _recorder;
         private readonly DataSaver _dataSaver;
+        private Vector2 _worldMousePosition;
 
         public SimulationLayer(Game1 game1, FrameCounter frameCounter)
             : base(game1, false, false)
@@ -58,7 +59,7 @@ namespace FlowLab.Game.Objects.Layers
             _grid = new(ParticleDiameter);
             _bodySelector = new();
             _bodyPlacer = new(_grid, ParticleDiameter, FluidDensity);
-            _recorder = new(PersistenceManager, 2);
+            _recorder = new(PersistenceManager, GraphicsDevice, 2);
             _dataSaver = new(PersistenceManager.DataDirectory);
         }
 
@@ -86,7 +87,7 @@ namespace FlowLab.Game.Objects.Layers
                 _scenarioManager.LoadNextScenario();
                 _particlePlacer.Clear(); 
             });
-            inputState.DoAction(ActionType.TogglePause, Pause);
+            inputState.DoAction(ActionType.TogglePause, () => Pause());
             inputState.DoAction(ActionType.Test, TakeScreenShot);
             inputState.DoAction(ActionType.Reload, ReloadUi);
             inputState.DoAction(ActionType.SwitchMode, ToggleMode);
@@ -95,7 +96,7 @@ namespace FlowLab.Game.Objects.Layers
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
-            var worldMousePos = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
+            _worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
 
             switch (_placeMode)
             {
@@ -108,8 +109,8 @@ namespace FlowLab.Game.Objects.Layers
                     Game1.IsFixedTimeStep = true;
                     _particleManager.ClearFluid();
                     _debugger.Clear();
-                    _bodyPlacer.Update(inputState, worldMousePos, _scenarioManager.CurrentScenario, () => _scenarioManager.TryLoadCurrentScenario());
-                    _bodySelector.Select(inputState, _scenarioManager.CurrentScenario, worldMousePos);
+                    _bodyPlacer.Update(inputState, _worldMousePosition, _scenarioManager.CurrentScenario, () => _scenarioManager.TryLoadCurrentScenario());
+                    _bodySelector.Select(inputState, _scenarioManager.CurrentScenario, _worldMousePosition);
                     _bodySelector.Update(inputState, _scenarioManager);
                     break;
             }
@@ -122,7 +123,7 @@ namespace FlowLab.Game.Objects.Layers
             Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
 
             _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
-            _debugger.Update(inputState, worldMousePos, ParticleDiameter, _camera);
+            _debugger.Update(inputState, _worldMousePosition, ParticleDiameter, _camera);
             _recorder.TakeFrame(RenderTarget2D, _particleManager.TimeSteps);
         }
 
@@ -141,7 +142,7 @@ namespace FlowLab.Game.Objects.Layers
                 case PlaceMode.Body:
                     _grid.Draw(spriteBatch, _camera.Bounds, null);
                     _bodyPlacer.Draw(spriteBatch);
-                    _bodySelector.Draw(spriteBatch);
+                    _bodySelector.Draw(spriteBatch, _worldMousePosition);
                     break;
             }
 
@@ -164,9 +165,11 @@ namespace FlowLab.Game.Objects.Layers
             _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle;
         }
 
-        public void Pause()
+        public void Pause(bool? pause = null)
         {
             Paused = !Paused;
+            if (pause != null)
+                Paused = pause.Value;
         }
 
         public void ReloadUi()
@@ -183,6 +186,7 @@ namespace FlowLab.Game.Objects.Layers
 
         public void SaveData()
         {
+            if (_particleManager.DataCollector.Empty) return;
             _dataSaver.SaveToCsv(PersistenceManager.Serializer, _particleManager.DataCollector);
         }
     }

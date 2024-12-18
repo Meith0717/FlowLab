@@ -27,6 +27,9 @@ namespace Fluid_Simulator.Core.Profiling
             foreach (var list in Data.Values) list.Clear();
         }
 
+        public bool Empty
+            => Count <= 0;
+
         public int Count => _count / Data.Keys.Count;
         public void AddData<T>(string variable, T value)
         {

@@ -44,13 +44,13 @@ namespace FlowLab.Logic.ScenarioManagement
             worldMousePosition = _grid.GetCellCenter(worldMousePosition);
             _elypse.Position = worldMousePosition;
 
-            inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _elypse.RadiusX += _particleDiameter);
-            inputState.DoAction(ActionType.DecreaseWidthAndRadius, () => _elypse.RadiusX -= _particleDiameter);
+            inputState.DoAction(ActionType.IncreaseWidth, () => _elypse.RadiusX += _particleDiameter);
+            inputState.DoAction(ActionType.DecreaseWidth, () => _elypse.RadiusX -= _particleDiameter);
             inputState.DoAction(ActionType.IncreaseHeight, () => _elypse.RadiusY += _particleDiameter);
             inputState.DoAction(ActionType.DecreaseHeight, () => _elypse.RadiusY -= _particleDiameter);
 
-            inputState.DoAction(ActionType.FastIncreaseWidthAndRadius, () => _elypse.RadiusX += _particleDiameter * 5);
-            inputState.DoAction(ActionType.FastDecreaseWidthAndRadius, () => _elypse.RadiusX -= _particleDiameter * 5);
+            inputState.DoAction(ActionType.FastIncreaseWidth, () => _elypse.RadiusX += _particleDiameter * 5);
+            inputState.DoAction(ActionType.FastDecreaseWidth, () => _elypse.RadiusX -= _particleDiameter * 5);
             inputState.DoAction(ActionType.FastIncreaseHeight, () => _elypse.RadiusY += _particleDiameter * 5);
             inputState.DoAction(ActionType.FastDecreaseHeight, () => _elypse.RadiusY -= _particleDiameter * 5);
 

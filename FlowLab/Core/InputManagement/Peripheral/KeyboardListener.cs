@@ -23,9 +23,11 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Hash(Keys.LeftAlt, Keys.F12), ActionType.Debugg },
                 { Hash(Keys.LeftAlt, Keys.Enter), ActionType.ToggleFullscreen },
                 { Hash(Keys.LeftControl, Keys.W), ActionType.FastIncreaseHeight },
-                { Hash(Keys.LeftControl, Keys.A), ActionType.FastDecreaseWidthAndRadius },
+                { Hash(Keys.LeftControl, Keys.A), ActionType.FastDecreaseWidth },
                 { Hash(Keys.LeftControl, Keys.S), ActionType.FastDecreaseHeight },
-                { Hash(Keys.LeftControl, Keys.D), ActionType.FastIncreaseWidthAndRadius},
+                { Hash(Keys.LeftControl, Keys.D), ActionType.FastIncreaseWidth},
+                { Hash(Keys.LeftControl, Keys.X), ActionType.FastIncreaseRotation },
+                { Hash(Keys.LeftControl, Keys.Y), ActionType.FastDecreaseRotation},
             };
 
             mActionOnPressed = new()
@@ -38,12 +40,14 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.B, ActionType.SwitchMode },
                 { Keys.Q, ActionType.NextShape },
                 { Keys.W, ActionType.IncreaseHeight },
-                { Keys.A, ActionType.DecreaseWidthAndRadius },
+                { Keys.A, ActionType.DecreaseWidth },
                 { Keys.S, ActionType.DecreaseHeight },
-                { Keys.D, ActionType.IncreaseWidthAndRadius},
+                { Keys.D, ActionType.IncreaseWidth},
                 { Keys.T, ActionType.Test },
                 { Keys.V, ActionType.NextScene },
                 { Keys.H, ActionType.Help},
+                { Keys.X, ActionType.IncreaseRotation },
+                { Keys.Y, ActionType.DecreaseRotation},
             };
 
 

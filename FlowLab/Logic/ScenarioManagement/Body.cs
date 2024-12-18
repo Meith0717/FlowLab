@@ -29,9 +29,7 @@ namespace FlowLab.Logic.ScenarioManagement
             _boundaryParticles = _particle;
         }
 
-        public Vector2 Position { get; private set; } = Vector2.Zero; // TODO 
-
-        public float Rotation { get; private set; }
+        public Vector2 Position { get; private set; }
 
         public bool IsHovered(Vector2 position)
         {
@@ -50,9 +48,8 @@ namespace FlowLab.Logic.ScenarioManagement
                 particleManager.AddParticle(particle);
         }
 
-        public void Rotate(float angleStep)
+        public void Rotate()
         {
-            Rotation += angleStep;
             foreach (var particle in _boundaryParticles)
             {
                 // Calculate the relative position to the center
@@ -63,7 +60,7 @@ namespace FlowLab.Logic.ScenarioManagement
                 var currentAngle = MathF.Atan2(relativePosition.Y, relativePosition.X);
 
                 // Calculate the new angle
-                var newAngle = currentAngle + angleStep;
+                var newAngle = currentAngle + RotationUpdate;
 
                 // Calculate the new position using polar-to-cartesian conversion
                 var newX = Position.X + radius * MathF.Cos(newAngle);
@@ -74,7 +71,7 @@ namespace FlowLab.Logic.ScenarioManagement
             }
         }
 
-        public void Update() => Rotate(RotationUpdate);
+        public void Update() => Rotate();
 
         public void Draw(SpriteBatch spriteBatch, Color color)
         {

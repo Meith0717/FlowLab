@@ -39,13 +39,13 @@ namespace FlowLab.Logic.ParticleManagement
             });
             inputState.DoAction(ActionType.NextShape, () => { _mode = (_mode + 1) % PlacerModes.Count; });
 
-            inputState.DoAction(ActionType.IncreaseWidthAndRadius, () => _rectangleSize.X += 1);
-            inputState.DoAction(ActionType.DecreaseWidthAndRadius, () => _rectangleSize.X -= 1);
+            inputState.DoAction(ActionType.IncreaseWidth, () => _rectangleSize.X += 1);
+            inputState.DoAction(ActionType.DecreaseWidth, () => _rectangleSize.X -= 1);
             inputState.DoAction(ActionType.IncreaseHeight, () => _rectangleSize.Y += 1);
             inputState.DoAction(ActionType.DecreaseHeight, () => _rectangleSize.Y -= 1);
 
-            inputState.DoAction(ActionType.FastIncreaseWidthAndRadius, () => _rectangleSize.X += 10);
-            inputState.DoAction(ActionType.FastDecreaseWidthAndRadius, () => _rectangleSize.X -= 10);
+            inputState.DoAction(ActionType.FastIncreaseWidth, () => _rectangleSize.X += 10);
+            inputState.DoAction(ActionType.FastDecreaseWidth, () => _rectangleSize.X -= 10);
             inputState.DoAction(ActionType.FastIncreaseHeight, () => _rectangleSize.Y += 10);
             inputState.DoAction(ActionType.FastDecreaseHeight, () => _rectangleSize.Y -= 10);
 
@@ -58,7 +58,7 @@ namespace FlowLab.Logic.ParticleManagement
                     GetBlock(worldMousePosition, _rectangleSize.X, _rectangleSize.Y);
                     break;
                 case 2:
-                    GetCircle(worldMousePosition, _rectangleSize.X);
+                    GetCircle(worldMousePosition, _rectangleSize.X, _rectangleSize.Y);
                     break;
                 case 3:
                     _particles.Add(worldMousePosition);
@@ -104,16 +104,14 @@ namespace FlowLab.Logic.ParticleManagement
             }
         }
 
-        public void GetCircle(Vector2 position, int diameterAmount)
+        public void GetCircle(Vector2 position, int xAmount, int yAmount)
         {
-            position.X -= diameterAmount * _particleDiameter / 2f;
-            position.Y -= diameterAmount * _particleDiameter / 2f;
-            var circle = new CircleF(position + new Vector2(diameterAmount * _particleDiameter / 2), diameterAmount / 2 * _particleDiameter);
-            position.X -= diameterAmount * _particleDiameter / 2f;
-            position.Y -= diameterAmount * _particleDiameter / 2f;
-            for (int i = 0; i < diameterAmount; i++)
+            position.X -= xAmount * _particleDiameter / 2f;
+            position.Y -= yAmount * _particleDiameter / 2f;
+            var circle = new EllipseF(position + new Vector2(xAmount * _particleDiameter / 2, yAmount * _particleDiameter / 2), xAmount / 2 * _particleDiameter, yAmount / 2 * _particleDiameter);
+            for (int i = 0; i < xAmount * 2; i++)
             {
-                for (int j = 0; j < diameterAmount; j++)
+                for (int j = 0; j < yAmount * 2; j++)
                 {
                     var particlePosition = position + new Vector2(i, j) * _particleDiameter;
                     if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;

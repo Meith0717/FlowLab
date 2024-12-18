@@ -7,9 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FlowLab.Logic
 {
-    internal class Recorder(PersistenceManager persistenceManager, float interval)
+    internal class Recorder(PersistenceManager persistenceManager, GraphicsDevice graphicsDevice, float interval)
     {
         private readonly PersistenceManager _persistenceManager = persistenceManager;
+        private readonly GraphicsDevice _graphicsDevice = graphicsDevice;
         private readonly float _interval = interval;
         private FFmpeg _ffmpeg;
         private bool _isActive = false;
@@ -30,7 +31,7 @@ namespace FlowLab.Logic
                 _ffmpeg = null;
                 return;
             }
-            _ffmpeg = new(1920, 1080, 30, _persistenceManager.Serializer.GetFullPath(PersistenceManager.VideoFilePath));
+            _ffmpeg = new(_graphicsDevice.Viewport.Width, _graphicsDevice.Viewport.Height, 30, _persistenceManager.Serializer.GetFullPath(PersistenceManager.VideoFilePath));
         }
 
         public void TakeFrame(RenderTarget2D renderTarget2D, float timeSteps)
