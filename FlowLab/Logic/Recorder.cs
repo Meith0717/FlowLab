@@ -2,10 +2,8 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-
 using FlowLab.Core;
 using Microsoft.Xna.Framework.Graphics;
-using System.IO;
 
 namespace FlowLab.Logic
 {
@@ -13,39 +11,36 @@ namespace FlowLab.Logic
     {
         private readonly PersistenceManager _persistenceManager = persistenceManager;
         private readonly float _interval = interval;
+        private FFmpeg _ffmpeg;
         private bool _isActive = false;
-        private int _frame;
-        private float _intervals;
+        private float _totalIntervals;
+        private float _initialTimesteps;
 
         public bool IsActive => _isActive;
 
-        public void Toggle()
+        public void Toggle(float initialTimesteps)
         {
+            _initialTimesteps = initialTimesteps;
             _isActive = !_isActive;
             if (!_isActive)
             {
-                // Save Video
+                _ffmpeg.Finish();
+                _ffmpeg.Dispose();
+                _ffmpeg = null;
                 return;
             }
-            _frame = 0;
-            // TODO Clear Directory
+            _totalIntervals = 0;
+            _ffmpeg = new(1920, 1080, 30, _persistenceManager.Serializer.GetFullPath(PersistenceManager.VideoFilePath));
         }
 
         public void TakeFrame(RenderTarget2D renderTarget2D, float timeSteps)
         {
-            if (!_isActive || timeSteps == 0) return;
-            if (_intervals > timeSteps) return;
-            _frame++;
-            _intervals += _interval;
-            System.Diagnostics.Debug.WriteLine($"{timeSteps} Took Screenshot");
-            var path = Path.Combine(PersistenceManager.TempDirectory, $"{_frame}.png");
-            using FileStream fs = _persistenceManager.Serializer.GetFileStream(path, FileMode.Create);
-            renderTarget2D.SaveAsPng(fs, renderTarget2D.Width, renderTarget2D.Height);
-        }
+            if (!_isActive || timeSteps == 0 || _totalIntervals > timeSteps - _initialTimesteps)
+                return;
 
-        public void Save()
-        {
-            if (_frame == 0) return;
+            _totalIntervals += _interval;
+            _ffmpeg.WriteFrame(renderTarget2D);
+            System.Diagnostics.Debug.WriteLine($"Schnips at {timeSteps}");
         }
     }
 }

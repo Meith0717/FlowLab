@@ -6,9 +6,6 @@ using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
-using MonoGame.Extended.Shapes;
-using MonoGame.Extended.Timers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,6 +26,8 @@ namespace FlowLab.Logic.ParticleManagement
         {
             foreach (var particle in _fluidParticles.ToList())
                 RemoveParticle(particle);
+            TimeSteps = SimStepsCount = 0;
+            TotalTime = SimStepTime = 0;
         }
 
         public void ClearBoundary()
@@ -107,9 +106,6 @@ namespace FlowLab.Logic.ParticleManagement
             SimStepsCount++;
             TotalTime += gameTime.ElapsedGameTime.TotalMilliseconds;
             SimStepTime = watch.Elapsed.TotalMilliseconds;
-            if (_fluidParticles.Count > 0) return;
-            TimeSteps = SimStepsCount = 0;
-            TotalTime = SimStepTime = 0;
         } 
 
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger)

@@ -18,9 +18,8 @@ namespace FlowLab.Core
         public static readonly string VideoDirectory = "videos";
 
         public static string SettingsFilePath => Path.Combine(_settingsDirectory, "settings.json");
-
-        public static string ScreenshotFilePath => Path.Combine(_screenShotDirectory,
-            $"{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.png");
+        public static string VideoFilePath => Path.Combine(VideoDirectory, $"{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.mp4");
+        public static string ScreenshotFilePath => Path.Combine(_screenShotDirectory, $"{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.png");
 
         public PersistenceManager(string rootFolder)
         {

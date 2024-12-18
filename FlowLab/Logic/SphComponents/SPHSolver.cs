@@ -153,7 +153,7 @@ namespace FlowLab.Logic.SphComponents
             });
 
             // update velocities
-            Utilitys.ForEach(true, _particles, (particle) =>
+            Utilitys.ForEach(false, _particles, (particle) =>
             {
                 // integrate velocity considering pressure forces 
                 particle.Velocity += timeStep * particle.Acceleration;

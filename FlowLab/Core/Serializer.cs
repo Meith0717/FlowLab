@@ -19,11 +19,26 @@ namespace FlowLab.Core
             CreateFolder(RootPath);
         }
 
+        public string GetFullPath(string relativePath)
+            => Path.Combine(RootPath, relativePath);
+
         public void CreateFolder(string relativePath)
         {
-            DirectoryInfo createFDirectoryInfo = new(Path.Combine(RootPath, relativePath));
-            if (createFDirectoryInfo.Exists) return;
-            createFDirectoryInfo.Create();
+            DirectoryInfo directoryInfo = new(GetFullPath(relativePath));
+            if (directoryInfo.Exists) return;
+            directoryInfo.Create();
+        }
+
+        public FileInfo[] GetFilesInFolder(string folderPath)
+        {
+            DirectoryInfo directoryInfo = new(GetFullPath(folderPath));
+            return directoryInfo.GetFiles();
+        }
+
+        public void ClearFolder(string relativePath)
+        {
+            Directory.Delete(Path.Combine(RootPath, relativePath), true);
+            CreateFolder(relativePath);
         }
 
         public bool FileExist(string relativePath) 

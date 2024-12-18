@@ -21,7 +21,7 @@ namespace FlowLab.Objects.Layers
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 0);
 
-            new UiButton(this, "record", recorder.Toggle)
+            new UiButton(this, "record", ()=>recorder.Toggle(particleManager.TimeSteps))
             {
                 UpdatTracker = self => self.TextureIdleColor = recorder.IsActive ? Color.Red : Color.White,
                 TextureScale = .5f,

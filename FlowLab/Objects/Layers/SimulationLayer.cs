@@ -56,7 +56,7 @@ namespace FlowLab.Game.Objects.Layers
             _grid = new(ParticleDiameter);
             _bodySelector = new();
             _bodyPlacer = new(_grid, ParticleDiameter, FluidDensity);
-            _recorder = new(PersistenceManager, 3); 
+            _recorder = new(PersistenceManager, 2); 
         }
 
         public override void Initialize()

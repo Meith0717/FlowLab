@@ -15,7 +15,7 @@ namespace FlowLab
 {
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        public const string Title = "Flow Lab";
+        public const string Title = "FlowLab";
 
         private bool _active;
         private bool _safeToStart;
