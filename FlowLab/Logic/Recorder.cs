@@ -21,6 +21,7 @@ namespace FlowLab.Logic
         public void Toggle(float initialTimesteps)
         {
             _initialTimesteps = initialTimesteps;
+            _totalIntervals = 0;
             _isActive = !_isActive;
             if (!_isActive)
             {
@@ -29,7 +30,6 @@ namespace FlowLab.Logic
                 _ffmpeg = null;
                 return;
             }
-            _totalIntervals = 0;
             _ffmpeg = new(1920, 1080, 30, _persistenceManager.Serializer.GetFullPath(PersistenceManager.VideoFilePath));
         }
 
