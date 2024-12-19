@@ -8,11 +8,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace FlowLab.Logic
 {
     internal static class Utilitys
     {
+        public static Matrix<float> Sum<T>(IEnumerable<T> scource, Func<T, Matrix<float>> body)
+        {
+            var sum = Matrix<float>.Build.DenseDiagonal(2, 2, 0);
+            foreach (var item in scource)
+                sum += body(item);
+            return sum;
+        }
+
         public static float Sum<T>(IEnumerable<T> scource, Func<T, float> body)
         {
             var sum = 0f;

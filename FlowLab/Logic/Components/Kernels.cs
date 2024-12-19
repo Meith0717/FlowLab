@@ -8,7 +8,7 @@ using System;
 
 namespace FlowLab.Logic.SphComponents
 {
-    internal static class SphKernel
+    internal static class Kernels
     {
         private const float kernelCorrection = 0.04f / 0.0400344729f;
 
