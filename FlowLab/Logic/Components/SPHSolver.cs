@@ -67,10 +67,7 @@ namespace FlowLab.Logic.SphComponents
             while (true)
             {
                 // Compute pressures
-                foreach (var particle in boundaryParticles)
-                {
-                    MLSComponents.PressureExtrapolation(particle);
-                }
+                Utilitys.ForEach(true, boundaryParticles, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
 
                 // compute pressure accelerations
                 Utilitys.ForEach(parallel, fluidParticles, p => SPHComponents.ComputePressureAcceleration(p, gamma3));
@@ -149,7 +146,7 @@ namespace FlowLab.Logic.SphComponents
 
             // Compute pressures
             Utilitys.ForEach(true, noBoundaryParticles, particle => SESPHComponents.ComputeLocalPressure(particle, fluidStiffness));
-            Utilitys.ForEach(true, boundaryParticles, particle => MLSComponents.PressureExtrapolation(particle));
+            Utilitys.ForEach(true, boundaryParticles, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
 
             // Compute accelerations
             Utilitys.ForEach(true, noBoundaryParticles, fluidParticle =>

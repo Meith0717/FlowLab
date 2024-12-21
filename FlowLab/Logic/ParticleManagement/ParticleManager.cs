@@ -145,10 +145,10 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = !p.IsBoundary ? new(20, 100, 255) : Color.DarkGray;
                         break;
                     case ColorMode.Velocity:
-                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl) : Color.DarkGray;
+                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl/0.2f) : Color.DarkGray;
                         break;
                     case ColorMode.Pressure:
-                        var relPressure = p.Pressure / maxPressure;
+                        var relPressure = p.Pressure / 70;
                         relPressure = float.IsNaN(relPressure) ? 0 : relPressure;
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
                         break;

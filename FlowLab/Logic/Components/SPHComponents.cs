@@ -28,9 +28,9 @@ namespace FlowLab.Logic.SphComponents
 
         public static void PressureExtrapolation(Particle bParticle, float gravitation)
         {
-            var s1 = Utilitys.Sum(bParticle.Neighbors.Where(n => !n.IsBoundary), (fNeighbor) => fNeighbor.Pressure * fNeighbor.Kernel(fNeighbor));
-            var s2 = Utilitys.Sum(bParticle.Neighbors, (fNeighbor) => fNeighbor.Density * (bParticle.Position - fNeighbor.Position) * fNeighbor.Kernel(fNeighbor));
-            var s3 = Utilitys.Sum(bParticle.Neighbors, (fNeighbor) => fNeighbor.Kernel(fNeighbor));
+            var s1 = Utilitys.Sum(bParticle.FluidNeighbors, fNeighbor => fNeighbor.Pressure * fNeighbor.Kernel(fNeighbor));
+            var s2 = Utilitys.Sum(bParticle.FluidNeighbors, fNeighbor => fNeighbor.Density * (bParticle.Position - fNeighbor.Position) * fNeighbor.Kernel(fNeighbor));
+            var s3 = Utilitys.Sum(bParticle.FluidNeighbors, fNeighbor => fNeighbor.Kernel(fNeighbor));
 
             bParticle.Pressure = (s1 + new Vector2(0, -gravitation).Dot(s2)) / s3;
         }
