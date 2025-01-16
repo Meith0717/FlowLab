@@ -5,7 +5,6 @@
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using System.Linq;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -60,6 +59,7 @@ namespace FlowLab.Logic.SphComponents
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 var acceleration = neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
                 if (neighbor.IsBoundary) return gamma * acceleration;
+                if (float.IsNaN(acceleration.X) || float.IsNaN(acceleration.Y)) throw new System.Exception();
                 return acceleration;
             });
             if (float.IsNaN(fParticle.PressureAcceleration.X) || float.IsNaN(fParticle.PressureAcceleration.Y)) throw new System.Exception();

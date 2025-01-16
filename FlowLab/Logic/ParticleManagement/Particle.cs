@@ -29,7 +29,8 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore] public float EstimatedDensityError { get; set; }
         [JsonIgnore] public float DensityError { get; set; }
         [JsonProperty] [NotNull] public Vector2 Position { get; set; } = position;
-        [JsonIgnore] [NotNull] public Vector2 Velocity { get; set; }
+        [JsonIgnore][NotNull] public Vector2 Velocity { get; set; }
+        [JsonIgnore][NotNull] public Vector2 IntermediateVelocity { get; set; }
         [JsonIgnore] [NotNull] public Vector2 PressureAcceleration { get; set; }
         [JsonIgnore] [NotNull] public Vector2 GravitationAcceleration { get; set; }
         [JsonIgnore] [NotNull] public Vector2 ViscosityAcceleration { get; set; }

@@ -12,7 +12,7 @@ namespace FlowLab.Logic.ParticleManagement
     {
         public void Render(SpriteBatch spriteBatch, ParticleManager particleManager, ParticelDebugger debugger, Texture2D particleTexture, Grid grid)
         {
-            foreach (var particle in particleManager.Particles)
+            foreach (var particle in particleManager.Particles.All)
             {
                 var position = particle.Position;
                 //grid.DrawCell(spriteBatch, particle.Position, particle.Color);

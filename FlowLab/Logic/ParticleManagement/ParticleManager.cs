@@ -7,8 +7,6 @@ using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -16,9 +14,7 @@ namespace FlowLab.Logic.ParticleManagement
 {
     internal class ParticleManager(int particleDiameter, float fluidDensity)
     {
-        public readonly List<Particle> Particles = new();
-        private readonly List<Particle> _fluidParticles = new();
-        private readonly List<Particle> _boundaryParticles = new();
+        public readonly FluidDomain Particles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
         public readonly DataCollector DataCollector = new("simulation", ["simSteps", "timeSteps", "simStepsTime", "iterations", "particles", "gamma1", "gamma2", "gamma3", "timeStep", "densityError", "cfl"]);
         public readonly float ParticleDiameter = particleDiameter;
@@ -27,8 +23,9 @@ namespace FlowLab.Logic.ParticleManagement
         public void ClearFluid()
         {
             DataCollector.Clear();
-            foreach (var particle in _fluidParticles.ToList())
-                RemoveParticle(particle);
+            foreach (var particle in Particles.Fluid)
+                SpatialHashing.RemoveObject(particle);
+            Particles.ClearFluid();
             TimeSteps = SimStepsCount = _lastTimeSteps = 0;
             TotalTime = SimStepTime = 0;
         }
@@ -36,60 +33,39 @@ namespace FlowLab.Logic.ParticleManagement
         public void ClearBoundary()
         {
             DataCollector.Clear();
-            foreach (var particle in _boundaryParticles.ToList())
-                RemoveParticle(particle);
+            foreach (var particle in Particles.Boundary)
+                SpatialHashing.RemoveObject(particle);
+            Particles.ClearBoundary();
         }
 
         public void ClearAll()
         {
             DataCollector.Clear();
             Particles.Clear();
-            _fluidParticles.Clear();
-            _boundaryParticles.Clear();
             SpatialHashing.Clear();
-        }
-
-        public void RemoveParticle(Particle particle)
-        {
-            Particles.Remove(particle);
-            if (particle.IsBoundary)
-                _boundaryParticles.Remove(particle);
-            else
-                _fluidParticles.Remove(particle);
-            SpatialHashing.RemoveObject(particle);
         }
 
         public void AddNewParticle(Vector2 position, bool isBoundary = false)
         {
             var particle = new Particle(position, ParticleDiameter, FluidDensity, isBoundary);
             Particles.Add(particle);
-            if (isBoundary)
-                _boundaryParticles.Add(particle);
-            else
-                _fluidParticles.Add(particle);
             SpatialHashing.InsertObject(particle);
         }
 
         public void AddParticle(Particle particle)
         {
-            var isBoundary = particle.IsBoundary;
             Particles.Add(particle);
-            if (isBoundary)
-                _boundaryParticles.Add(particle);
-            else
-                _fluidParticles.Add(particle);
             SpatialHashing.InsertObject(particle);
         }
 
-
         public int FluidParticlesCount 
-            => Particles.Where(p => !p.IsBoundary).Count();
+            => Particles.CountFluid;
 
         public float RelativeDensityError 
-            => _fluidParticles.Count <= 0 ? 0 : float.Abs(_fluidParticles.Average(p => p.DensityError));
+            => Particles.CountFluid <= 0 ? 0 : float.Abs(Particles.Fluid.Average(p => p.DensityError));
 
         public float CflCondition 
-            => _fluidParticles.Count == 0 ? 0 : _fluidParticles.Max(p => p.Cfl);
+            => Particles.CountFluid == 0 ? 0 : Particles.Fluid.Max(p => p.Cfl);
 
         private int _lastTimeSteps;
         public void Update(GameTime gameTime, SimulationSettings simulationSettings)
@@ -97,11 +73,12 @@ namespace FlowLab.Logic.ParticleManagement
             // ____Update____
             SolverIterations = 0;
             var watch = Stopwatch.StartNew();
+            SimulationState simulationState;
             switch (simulationSettings.SimulationMethod)
             {
                 case SimulationMethod.IISPH:
-                    SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings, out var solverIterations);
-                    SolverIterations = solverIterations;
+                    simulationState = SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
+                    SolverIterations = simulationState.SolverIterations;
                     break;
                 case SimulationMethod.SESPH:
                     SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
@@ -136,8 +113,8 @@ namespace FlowLab.Logic.ParticleManagement
         {
             // ____Manage Color____
             if (Particles.Count <= 0) return;
-            var maxPressure = Particles.Max(p => p.Pressure);
-            Utilitys.ForEach(true, Particles, (p) =>
+            var maxPressure = Particles.All.Max(p => p.Pressure);
+            Utilitys.ForEach(true, Particles.All, (p) =>
             {
                 switch (colorMode)
                 {

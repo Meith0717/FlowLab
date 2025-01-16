@@ -11,6 +11,7 @@ namespace FlowLab.Logic
     {
         public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
         public ColorMode ColorMode = ColorMode.Velocity;
+        public bool ParallelProcessing = true;
 
         // Global
         public float TimeStep = .1f;

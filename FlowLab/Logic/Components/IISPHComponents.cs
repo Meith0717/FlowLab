@@ -5,6 +5,7 @@
 using FlowLab.Core.Extensions;
 using FlowLab.Logic.ParticleManagement;
 using MonoGame.Extended;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FlowLab.Logic.SphComponents
@@ -14,7 +15,7 @@ namespace FlowLab.Logic.SphComponents
     /// </summary>
     internal static class IISPHComponents
     {
-        public static void ComputeDiagonalElement(Particle particle, float timeStep)
+        private static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;
             var sum1 = Utilitys.Sum(particle.Neighbors.Where(p => !p.IsBoundary), n => (n.Mass * KernelDerivativ(n)).SquaredNorm());
@@ -25,13 +26,13 @@ namespace FlowLab.Logic.SphComponents
             if (float.IsNaN(particle.AII)) throw new System.Exception();
         }
 
-        public static void ComputeSourceTerm(float timeStep, Particle particle)
+        private static void ComputeSourceTerm(float timeStep, Particle particle)
         {
             var KernelDerivativ = particle.KernelDerivativ;
 
             var predDensityOfNonPVel = Utilitys.Sum(particle.Neighbors, neighbor =>
             {
-                var velDif = particle.Velocity - neighbor.Velocity;
+                var velDif = particle.IntermediateVelocity - neighbor.IntermediateVelocity;
                 return (neighbor.Mass * velDif).Dot(KernelDerivativ(neighbor));
             });
             var predDensity = particle.Density + (timeStep * predDensityOfNonPVel);
@@ -39,11 +40,71 @@ namespace FlowLab.Logic.SphComponents
             if (float.IsNaN(particle.St)) throw new System.Exception();
         }
 
-        public static void ComputeLaplacian(Particle particle, float timeStep)
+        private static void ComputeLaplacian(Particle particle, float timeStep)
         {
             var KernelDerivativ = particle.KernelDerivativ;
             particle.Ap = timeStep * Utilitys.Sum(particle.Neighbors, neighbor => (neighbor.Mass * (particle.Acceleration - neighbor.Acceleration)).Dot(KernelDerivativ(neighbor)));
             if (float.IsNaN(particle.Ap)) throw new System.Exception();
+        }
+
+        public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings simulationSettings)
+        {
+            var parallel = simulationSettings.ParallelProcessing;
+            var timeStep = simulationSettings.TimeStep;
+            var gravitation = simulationSettings.Gravitation;
+            var omega = simulationSettings.RelaxationCoefficient;
+            var minError = simulationSettings.MinError;
+            var maxIterations = simulationSettings.MaxIterations;
+            var gamma3 = simulationSettings.Gamma3;
+
+            Utilitys.ForEach(parallel, particles.Fluid, particle =>
+            {
+                ComputeSourceTerm(timeStep, particle);
+                ComputeDiagonalElement(particle, timeStep);
+
+                particle.Pressure *= .5f;
+                if (float.Abs(particle.AII) > 1e-6)
+                    particle.Pressure = omega / particle.AII * particle.St;
+            });
+
+            // perform pressure solve using IISPH
+            var i = -1;
+            while (true)
+            {
+                var estimatedDensityErrorSum = 0f;
+                i++;
+
+                Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
+
+                Utilitys.ForEach(parallel, particles.Fluid, p => SPHComponents.ComputePressureAcceleration(p, gamma3));
+
+                Utilitys.ForEach(parallel, particles.Fluid, p =>
+                {
+                    if (float.Abs(p.AII) > 1e-6)
+                    {
+                        // compute aij * pj
+                        ComputeLaplacian(p, timeStep);
+
+                        // update pressure values
+                        p.Pressure += omega / p.AII * (p.St - p.Ap);
+                    }
+                    else
+                        p.Pressure = 0;
+
+                    if (float.IsNaN(p.Pressure)) throw new System.Exception();
+
+                    // pressure clamping
+                    p.Pressure = float.Max(p.Pressure, 0);
+                    p.EstimatedDensityError = 100 * ((p.Ap - p.St) / fluidDensity);
+                    estimatedDensityErrorSum += float.Max(p.EstimatedDensityError, 0);
+                });
+
+                // Break condition
+                var avgDensityError = estimatedDensityErrorSum / particles.CountFluid;
+                if ((avgDensityError <= minError) && (i > 2) || (i >= maxIterations))
+                    break;
+            }
+            return i;
         }
     }
 }
