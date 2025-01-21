@@ -128,10 +128,10 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
                         break;
                     case ColorMode.PosError:
-                        p.Color = ColorSpectrum.ValueToColor(p.DensityError / 100);
+                        p.Color = ColorSpectrum.ValueToColor(p.DensityError / 10);
                         break;
                     case ColorMode.NegError:
-                        p.Color = ColorSpectrum.ValueToColor(-p.DensityError / 100);
+                        p.Color = ColorSpectrum.ValueToColor(-p.DensityError / 10);
                         break;
 
                 }

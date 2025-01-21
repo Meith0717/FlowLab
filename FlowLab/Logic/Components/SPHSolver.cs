@@ -31,9 +31,8 @@ namespace FlowLab.Logic.SphComponents
             {
                 particle.FindNeighbors(spatialHashing, gamma1, Kernels.CubicSpline, Kernels.NablaCubicSpline);
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
-                var particleDensity = particle.Density < FluidDensity ? FluidDensity : particle.Density;
-                particle.DensityError = 100 * ((particleDensity - FluidDensity) / FluidDensity);
-                densityErrorSum += particle.DensityError;
+                particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
+                densityErrorSum += particle.DensityError > 0 ? particle.DensityError : 0;
             });
 
             // compute non-pressure forces & update intermediate velocities using non-pressure forces
