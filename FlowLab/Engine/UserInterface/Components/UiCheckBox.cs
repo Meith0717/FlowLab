@@ -2,6 +2,8 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using System;
+
 namespace FlowLab.Game.Engine.UserInterface.Components
 {
     internal class UiCheckBox : UiButton
@@ -30,5 +32,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
                 Texture = State ? "toggle_on" : "toggle_off";
             };
         }
+
+        public new Action<UiCheckBox> UpdatTracker { get; set; }
     }
 }

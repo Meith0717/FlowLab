@@ -6,11 +6,13 @@ namespace FlowLab.Logic
 {
     public enum SimulationMethod { SESPH, IISPH }
     public enum ColorMode { None, Velocity, Pressure, PosError, NegError }
+    public enum BoundaryHandling { Extrapolation, Mirroring, Zero }
 
     internal class SimulationSettings
     {
         public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
         public ColorMode ColorMode = ColorMode.Velocity;
+        public BoundaryHandling BoundaryHandling = BoundaryHandling.Zero;
         public bool ParallelProcessing = true;
 
         // Global
