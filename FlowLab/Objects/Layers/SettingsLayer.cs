@@ -26,7 +26,7 @@ namespace FlowLab.Objects.Layers
                 BorderColor = Color.Gray,
                 BorderSize = 5,
             };
-            layer.Place(anchor: Anchor.Center, width: 480, height: 850);
+            layer.Place(anchor: Anchor.Center, width: 520, height: 850);
 
             int y = 10; // Starting Y value
             int blockOffset = 45; // Offset between blocks
@@ -80,7 +80,7 @@ namespace FlowLab.Objects.Layers
             {
                 State = settings.ParallelProcessing,
                 UpdatTracker = self => settings.ParallelProcessing = self.State,
-                TextureScale = .4f
+                TextureScale = .5f
             }.Place(height: 25, width: 150, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
@@ -103,7 +103,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FixTimeStep = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -116,7 +116,7 @@ namespace FlowLab.Objects.Layers
             {
                 State = settings.DynamicTimeStep,
                 UpdatTracker = self => settings.DynamicTimeStep = self.State,
-                TextureScale = .4f
+                TextureScale = .5f
             }.Place(height: 25, width: 150, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
@@ -139,7 +139,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxTimeStep = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -161,7 +161,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.CFLScale = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -183,7 +183,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MinError = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -205,7 +205,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxIterations = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -227,7 +227,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.RelaxationCoefficient = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -279,7 +279,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gravitation = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -300,7 +300,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FluidViscosity = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -322,7 +322,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FluidStiffness = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -374,7 +374,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.BoundaryViscosity = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -395,7 +395,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma1 = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -416,7 +416,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma2 = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -437,7 +437,84 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma3 = f;
                 }
-            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "RECORDER",
+                Scale = .21f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 10);
+            y += overLineOffset;
+
+            new UiLine(layer, 2)
+            {
+                Color = Color.Gray
+            }.Place(relWidth: 1, y: y, hSpace: 5);
+            y += underLineOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Frame Rate:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                TextScale = .18f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.FrameRate.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!int.TryParse(self.Text, out var f))
+                        return;
+                    settings.FrameRate = f;
+                }
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Time Steps/Frame:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                TextScale = .18f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.TimeStepPerFrame.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!int.TryParse(self.Text, out var f))
+                        return;
+                    settings.TimeStepPerFrame = f;
+                }
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Max Recording Seconds:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                TextScale = .18f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.MaxRecordingSeconds.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!int.TryParse(self.Text, out var f))
+                        return;
+                    settings.MaxRecordingSeconds = f;
+                }
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
         }
 
         public override void Update(GameTime gameTime, InputState inputState)

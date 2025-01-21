@@ -34,5 +34,10 @@ namespace FlowLab.Logic
         public float MinError = .1f;
         public float MaxIterations = 100;
         public float RelaxationCoefficient = .5f;
+
+        // Record
+        public int FrameRate = 30;
+        public int TimeStepPerFrame = 1;
+        public int MaxRecordingSeconds = 600;
     }
 }

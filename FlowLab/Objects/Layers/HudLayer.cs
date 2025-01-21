@@ -27,16 +27,16 @@ namespace FlowLab.Objects.Layers
 
             new ControlWidget(UiRoot, particleManager, recorder, simulationLayer, scenarioManager)
             {
-                InnerColor = Color.Transparent// new(30, 30, 30)
-            }.Place(anchor: Anchor.NW, y: 330, width: 450, height: 40, hSpace: 5, vSpace: 5);
+                InnerColor = Color.Transparent
+            }.Place(anchor: Anchor.N, y: 330, width: 415, height: 40, hSpace: 5, vSpace: 5);
 
             var layer = new UiLayer(UiRoot)
             { 
-                InnerColor = Color.Transparent,
+                InnerColor = new(5, 5, 5),
                 BorderSize = 5, 
                 BorderColor = Color.Gray 
             };
-            layer.Place(anchor: Anchor.NE, width: 280, height: 500, hSpace: 10, vSpace: 10);
+            layer.Place(anchor: Anchor.NE, width: 240, height: 580, hSpace: 10, vSpace: 10);
 
             new UiButton(layer, "settings", OpenSettings)
             {
@@ -55,11 +55,11 @@ namespace FlowLab.Objects.Layers
                 Alpha = .75f
             }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 190, vSpace: 5, hSpace: 5, y: 295);
 
-            //new SettingsWidget(layer, simulationSettings)
-            //{
-            //    InnerColor = Color.Transparent,
-            //    Alpha = .75f,
-            //}.Place(anchor: Anchor.CenterV , relWidth: 1, height: 600, vSpace: 5, hSpace: 5, y: 405);
+            new RecordingWidget(layer, simulationSettings, recorder)
+            {
+                InnerColor = Color.Transparent,
+            }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 120, vSpace: 5, hSpace: 5, y: 440);
+
         }
 
         private void OpenSettings()

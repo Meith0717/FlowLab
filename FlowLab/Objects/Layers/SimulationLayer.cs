@@ -30,7 +30,7 @@ namespace FlowLab.Game.Objects.Layers
         private const int ParticleDiameter = 10;
         private const float FluidDensity = 0.3f;
 
-        private SimulationSettings _simulationSettings;
+        private SimulationSettings _settings;
         private readonly Camera2D _camera;
         private readonly ParticleManager _particleManager;
         private readonly ScenarioManager _scenarioManager;
@@ -46,7 +46,7 @@ namespace FlowLab.Game.Objects.Layers
         private Vector2 _worldMousePosition;
         public bool Paused = true;
 
-        public SimulationLayer(Game1 game1, ScenarioManager scenarioManager, SimulationSettings simulationSettings, FrameCounter frameCounter)
+        public SimulationLayer(Game1 game1, ScenarioManager scenarioManager, SimulationSettings settings, FrameCounter frameCounter)
             : base(game1, false, false, false)
         {
             _camera = new();
@@ -56,18 +56,18 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _debugger = new(_particleManager.SpatialHashing);
             _particleRenderer = new();
-            _simulationSettings = simulationSettings;            
+            _settings = settings;            
             _frameCounter = frameCounter;
             _grid = new(ParticleDiameter);
             _bodySelector = new();
             _bodyPlacer = new(_grid, ParticleDiameter, FluidDensity);
-            _recorder = new(PersistenceManager, GraphicsDevice, 2);
+            _recorder = new(PersistenceManager, GraphicsDevice, settings);
             _dataSaver = new(PersistenceManager.DataDirectory);
         }
 
         public override void Initialize()
         {
-            var hud = new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, _recorder, this, _scenarioManager);
+            var hud = new HudLayer(Game1, _particleManager, _frameCounter, _settings, _recorder, this, _scenarioManager);
             LayerManager.AddLayer(hud);
             if (_scenarioManager.Empty)
             {
@@ -116,11 +116,14 @@ namespace FlowLab.Game.Objects.Layers
             if (!Paused)
             {
                 _scenarioManager.Update();
-                _particleManager.Update(gameTime, _simulationSettings);
+                _particleManager.Update(gameTime, _settings);
             }
             Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
 
-            _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger, _simulationSettings);
+            if (_recorder.IsActive && (_recorder.FrameCount >= _settings.MaxRecordingSeconds * _settings.FrameRate))
+                _recorder.Toggle(0, null);
+
+            _particleManager.ApplyColors(_settings.ColorMode, _debugger, _settings);
             _debugger.Update(inputState, _worldMousePosition, ParticleDiameter, _camera);
             _recorder.TakeFrame(RenderTarget2D, _particleManager.TimeSteps);
         }
@@ -165,7 +168,7 @@ namespace FlowLab.Game.Objects.Layers
         public void ReloadUi()
         {
             LayerManager.PopLayer();
-            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _simulationSettings, _recorder, this, _scenarioManager));
+            LayerManager.AddLayer(new HudLayer(Game1, _particleManager, _frameCounter, _settings, _recorder, this, _scenarioManager));
         }
 
         public void TakeScreenShot()
