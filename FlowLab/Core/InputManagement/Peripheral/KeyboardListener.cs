@@ -32,6 +32,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
 
             mActionOnPressed = new()
             {
+                { Keys.Escape, ActionType.Exit },
                 { Keys.Delete, ActionType.DeleteParticles },
                 { Keys.Back, ActionType.BackSpace },
                 { Keys.Space, ActionType.TogglePause },

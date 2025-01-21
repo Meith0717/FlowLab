@@ -12,14 +12,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace FlowLab.Objects.Layers
+namespace FlowLab.Engine.UserInterface.Components
 {
     internal class EntryBox : Layer
     {
         private readonly UiEntryField _entryField;
 
         public EntryBox(Game1 game1, string title, string text, Action<string> yesAction)
-            : base(game1, false, true)
+            : base(game1, false, true, true)
         {
             game1.IsFixedTimeStep = true;
             var box = new UiLayer(UiRoot)

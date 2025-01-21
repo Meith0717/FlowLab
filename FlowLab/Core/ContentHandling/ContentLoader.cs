@@ -25,6 +25,7 @@ namespace FlowLab.Core.ContentHandling
         public void LoadEssenzialContentSerial()
         {
             TextureManager.Instance.LoadBuildTextureContent(_content, "missingContent", "missingContent");
+            LoadBuildContentIntoManager("shaders", ShaderManager.Instance.LoadBuildContent);
             LoadBuildContentIntoManager("fonts", TextureManager.Instance.LoadBuildFontContent);
             LoadBuildContentIntoManager("gui", TextureManager.Instance.LoadBuildTextureContent);
         }

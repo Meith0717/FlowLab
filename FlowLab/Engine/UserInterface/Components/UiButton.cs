@@ -114,9 +114,9 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         public Color TextDisableColor { private get; set; } = Color.DarkRed;
         public float TextureScale { private get; set; } = 1;
         public float TextureAlpha { get; set; } = 1;
-        public Color TextureIdleColor { private get; set; } = Color.White;
-        public Color TextureHoverColor { private get; set; } = Color.Cyan;
-        public Color TextureDisableColor { private get; set; } = Color.DarkGray;
+        public Color TextureIdleColor { private get; set; } = Color.SkyBlue;
+        public Color TextureHoverColor { private get; set; } = Color.DeepSkyBlue;
+        public Color TextureDisableColor { private get; set; } = new(20, 20, 20);
         public bool Disable { private get; set; } = false;
     }
 }

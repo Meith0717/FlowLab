@@ -37,6 +37,7 @@ namespace FlowLab.Core.InputManagement
         Reload,
         Test,
         Enter,
+        Exit,
 
         // Mouse
         LeftReleased,

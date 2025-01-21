@@ -10,7 +10,7 @@ using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
 using Microsoft.Xna.Framework;
 
-namespace FlowLab.Objects.Layers
+namespace FlowLab.Objects.Widgets
 {
     internal class ControlWidget : UiLayer
     {
@@ -63,7 +63,7 @@ namespace FlowLab.Objects.Layers
 
             new UiButton(this, "delete", scenarioManager.DeleteCurrentScenario)
             {
-                UpdatTracker = self => self.Disable = !simulationLayer.Paused ,
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 320);
 

@@ -8,6 +8,7 @@ using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
 using FlowLab.Engine.Rendering;
+using FlowLab.Engine.UserInterface.Components;
 using FlowLab.Logic;
 using FlowLab.Logic.ParticleManagement;
 using FlowLab.Logic.ScenarioManagement;
@@ -46,7 +47,7 @@ namespace FlowLab.Game.Objects.Layers
         public bool Paused = true;
 
         public SimulationLayer(Game1 game1, ScenarioManager scenarioManager, SimulationSettings simulationSettings, FrameCounter frameCounter)
-            : base(game1, false, false)
+            : base(game1, false, false, false)
         {
             _camera = new();
             _particleManager = new(ParticleDiameter, FluidDensity);
@@ -155,7 +156,7 @@ namespace FlowLab.Game.Objects.Layers
             _placeMode = (_placeMode != PlaceMode.Body) ? PlaceMode.Body : PlaceMode.Particle;
         }
 
-        public void Pause(bool? pause = null)
+        public void TogglePause(bool? pause = null)
         {
             Paused = !Paused;
             if (pause != null)

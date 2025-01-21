@@ -13,7 +13,7 @@ namespace FlowLab.Objects.Layers
     internal class DialogBoxLayer : Layer
     {
         public DialogBoxLayer(Game1 game1, string title, string text, Action yesAction)
-            : base(game1, false, true)
+            : base(game1, false, true, true)
         {
             game1.IsFixedTimeStep = true;
             var box = new UiLayer(UiRoot)
