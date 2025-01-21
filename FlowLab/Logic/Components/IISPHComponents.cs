@@ -47,15 +47,15 @@ namespace FlowLab.Logic.SphComponents
             if (float.IsNaN(particle.Ap)) throw new System.Exception();
         }
 
-        public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings simulationSettings)
+        public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings settings)
         {
-            var parallel = simulationSettings.ParallelProcessing;
-            var timeStep = simulationSettings.TimeStep;
-            var gravitation = simulationSettings.Gravitation;
-            var omega = simulationSettings.RelaxationCoefficient;
-            var minError = simulationSettings.MinError;
-            var maxIterations = simulationSettings.MaxIterations;
-            var gamma3 = simulationSettings.Gamma3;
+            var parallel = settings.ParallelProcessing;
+            var timeStep = settings.TimeStep;
+            var gravitation = settings.Gravitation;
+            var omega = settings.RelaxationCoefficient;
+            var minError = settings.MinError;
+            var maxIterations = settings.MaxIterations;
+            var gamma3 = settings.Gamma3;
 
             Utilitys.ForEach(parallel, particles.Fluid, particle =>
             {
@@ -74,9 +74,19 @@ namespace FlowLab.Logic.SphComponents
                 var estimatedDensityErrorSum = 0f;
                 i++;
 
-                Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
-
-                Utilitys.ForEach(parallel, particles.Fluid, p => SPHComponents.ComputePressureAcceleration(p, gamma3));
+                switch (settings.BoundaryHandling)
+                {
+                    case BoundaryHandling.Zero:
+                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3));
+                        break;
+                    case BoundaryHandling.Mirroring:
+                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAccelerationWithReflection(particle, gamma3));
+                        break;
+                    case BoundaryHandling.Extrapolation:
+                        Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
+                        Utilitys.ForEach(parallel, particles.Fluid, p => SPHComponents.ComputePressureAcceleration(p, gamma3));
+                        break;
+                }
 
                 Utilitys.ForEach(parallel, particles.Fluid, p =>
                 {

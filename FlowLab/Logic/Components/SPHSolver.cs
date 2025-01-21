@@ -24,6 +24,7 @@ namespace FlowLab.Logic.SphComponents
 
             var densityErrorSum = 0f;
             var maxCfl = 0f;
+            var iterations = 0;
 
             // Compute density
             Utilitys.ForEach(parallel, particles.All, particle =>
@@ -44,7 +45,7 @@ namespace FlowLab.Logic.SphComponents
             });
 
             // Compute pressures
-            pressureSolver.Invoke(particles);
+            iterations = pressureSolver.Invoke(particles);
 
             // Compute accelerations
             if (boundaryPressureReflection)
@@ -68,22 +69,41 @@ namespace FlowLab.Logic.SphComponents
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
                 maxCfl = float.Max(maxCfl, particle.Cfl);
             });
-            return new(0, maxCfl, densityErrorSum / particles.Count);
+            return new(iterations, maxCfl, densityErrorSum / particles.Count);
         }
 
         public static SimulationState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
-            return BaseSph(particles, spatialHashing, h, FluidDensity, settings, p =>  IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), false);
+            return settings.BoundaryHandling switch
+            {
+                BoundaryHandling.Extrapolation => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p => IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), false),
+                BoundaryHandling.Mirroring => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p => IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), true),
+                BoundaryHandling.Zero => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p => IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), false),
+            };
         }
 
         public static SimulationState SESPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
-            return BaseSph(particles, spatialHashing, h, FluidDensity, settings, p =>
+            return settings.BoundaryHandling switch
             {
-                Utilitys.ForEach(true, particles.Fluid, particle => SESPHComponents.ComputeLocalPressure(particle, settings.FluidStiffness));
-                Utilitys.ForEach(true, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, settings.Gravitation));
-                return 0;
-            }, false);
+                BoundaryHandling.Extrapolation => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p =>
+                {
+                    Utilitys.ForEach(true, particles.Fluid, particle => SESPHComponents.ComputeLocalPressure(particle, settings.FluidStiffness));
+                    Utilitys.ForEach(true, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, settings.Gravitation));
+                    return 0;
+                }, false),
+                BoundaryHandling.Mirroring => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p =>
+                {
+                    Utilitys.ForEach(true, particles.Fluid, particle => SESPHComponents.ComputeLocalPressure(particle, settings.FluidStiffness));
+                    return 0;
+                }, true),
+                BoundaryHandling.Zero => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p =>
+                {
+                    Utilitys.ForEach(true, particles.Fluid, particle => SESPHComponents.ComputeLocalPressure(particle, settings.FluidStiffness));
+                    return 0;
+                }, false),
+                _ => throw new NotImplementedException()
+            };
         }
     }
 }

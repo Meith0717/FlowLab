@@ -19,6 +19,7 @@ namespace FlowLab.Logic.ParticleManagement
         public readonly DataCollector DataCollector = new("simulation", ["simSteps", "timeSteps", "simStepsTime", "iterations", "particles", "gamma1", "gamma2", "gamma3", "timeStep", "densityError", "cfl"]);
         public readonly float ParticleDiameter = particleDiameter;
         public readonly float FluidDensity = fluidDensity;
+        public SimulationState SimulationState { get; private set; }
 
         public void ClearFluid()
         {
@@ -62,26 +63,23 @@ namespace FlowLab.Logic.ParticleManagement
             => Particles.CountFluid;
 
         public float RelativeDensityError 
-            => Particles.CountFluid <= 0 ? 0 : float.Abs(Particles.Fluid.Average(p => p.DensityError));
+            => SimulationState.DensityError;
 
         public float CflCondition 
-            => Particles.CountFluid == 0 ? 0 : Particles.Fluid.Max(p => p.Cfl);
+            => SimulationState.CFL;
 
         private int _lastTimeSteps;
         public void Update(GameTime gameTime, SimulationSettings simulationSettings)
         {
             // ____Update____
-            SolverIterations = 0;
             var watch = Stopwatch.StartNew();
-            SimulationState simulationState;
             switch (simulationSettings.SimulationMethod)
             {
                 case SimulationMethod.IISPH:
-                    simulationState = SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
-                    SolverIterations = simulationState.SolverIterations;
+                    SimulationState = SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
                     break;
                 case SimulationMethod.SESPH:
-                    SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
+                    SimulationState = SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, simulationSettings);
                     break;
             }
             watch.Stop();
@@ -99,7 +97,7 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("simSteps", SimStepsCount);
             DataCollector.AddData("timeSteps", _lastTimeSteps);
             DataCollector.AddData("simStepsTime", SimStepTime);
-            DataCollector.AddData("iterations", SolverIterations);
+            DataCollector.AddData("iterations", SimulationState.SolverIterations);
             DataCollector.AddData("particles", Particles.Count);
             DataCollector.AddData("gamma1",simulationSettings.Gamma1);
             DataCollector.AddData("gamma2", simulationSettings.Gamma2);
@@ -149,6 +147,5 @@ namespace FlowLab.Logic.ParticleManagement
         public double TotalTime { get; private set; }       // Total sim time
         public float TimeSteps { get; private set; }       // Time step sum
         public int SimStepsCount { get; private set; }   // Sim steps Count
-        public int SolverIterations { get; private set; }   // IISPH iterations
     }
 }

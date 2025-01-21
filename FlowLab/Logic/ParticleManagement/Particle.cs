@@ -101,6 +101,7 @@ namespace FlowLab.Logic.ParticleManagement
             PressureAcceleration = Vector2.Zero;
             ViscosityAcceleration = Vector2.Zero;
             GravitationAcceleration = Vector2.Zero;
+            Pressure = 0;
 
             if (!IsBoundary) return;
             var sum = Utilitys.Sum(_boundaryNeighbors, Kernel);

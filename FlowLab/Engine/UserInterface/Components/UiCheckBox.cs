@@ -2,6 +2,8 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using FlowLab.Core.InputManagement;
+using Microsoft.Xna.Framework;
 using System;
 
 namespace FlowLab.Game.Engine.UserInterface.Components
@@ -31,6 +33,12 @@ namespace FlowLab.Game.Engine.UserInterface.Components
                 State = !State;
                 Texture = State ? "toggle_on" : "toggle_off";
             };
+        }
+
+        public override void Update(InputState inputState, Vector2 transformedMousePosition, GameTime gameTime)
+        {
+            base.Update(inputState, transformedMousePosition, gameTime);
+            UpdatTracker?.Invoke(this);
         }
 
         public new Action<UiCheckBox> UpdatTracker { get; set; }
