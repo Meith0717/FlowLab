@@ -61,10 +61,7 @@ namespace FlowLab.Logic.SphComponents
                     particle.Velocity = particle.IntermediateVelocity + (timeStep * particle.PressureAcceleration);
 
                 spatialHashing.RemoveObject(particle);
-                if (particle.IsBoundary)
-                    particle.Position += particle.Velocity;
-                else
-                    particle.Position += timeStep * particle.Velocity;
+                particle.Position += timeStep * particle.Velocity;
                 spatialHashing.InsertObject(particle);
 
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
