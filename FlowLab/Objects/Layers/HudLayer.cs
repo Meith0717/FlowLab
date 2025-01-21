@@ -49,7 +49,7 @@ namespace FlowLab.Objects.Layers
                 Alpha = .75f
             }.Place(anchor: Anchor.N, relWidth: 1, height: 310, vSpace: 5, hSpace: 5);
 
-            new StateWidget(layer, particleManager)
+            new StateWidget(layer, particleManager, simulationSettings)
             {
                 InnerColor = Color.Transparent,
                 Alpha = .75f

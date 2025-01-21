@@ -103,7 +103,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FixTimeStep = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -139,7 +139,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxTimeStep = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -161,7 +161,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.CFLScale = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -183,7 +183,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MinError = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -205,7 +205,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxIterations = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -227,7 +227,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.RelaxationCoefficient = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -279,7 +279,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gravitation = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -300,7 +300,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FluidViscosity = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -322,7 +322,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FluidStiffness = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -374,7 +374,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.BoundaryViscosity = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -395,7 +395,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma1 = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -416,7 +416,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma2 = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -437,7 +437,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma3 = f;
                 }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 120, anchor: Anchor.Right, y: y, hSpace: 20);
         }
 
         public override void Update(GameTime gameTime, InputState inputState)
