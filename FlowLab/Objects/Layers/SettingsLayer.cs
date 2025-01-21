@@ -26,7 +26,7 @@ namespace FlowLab.Objects.Layers
                 BorderColor = Color.Gray,
                 BorderSize = 5,
             };
-            layer.Place(anchor: Anchor.Center, width: 520, height: 850);
+            layer.Place(anchor: Anchor.Center, width: 550, height: 980);
 
             int y = 10; // Starting Y value
             int blockOffset = 45; // Offset between blocks
