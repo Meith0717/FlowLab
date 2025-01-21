@@ -120,7 +120,7 @@ namespace FlowLab.Game.Objects.Layers
             }
             Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
 
-            _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger);
+            _particleManager.ApplyColors(_simulationSettings.ColorMode, _debugger, _simulationSettings);
             _debugger.Update(inputState, _worldMousePosition, ParticleDiameter, _camera);
             _recorder.TakeFrame(RenderTarget2D, _particleManager.TimeSteps);
         }
@@ -149,7 +149,6 @@ namespace FlowLab.Game.Objects.Layers
             base.Draw(spriteBatch);
         }
 
-        // __________________________________________________
         public void ToggleMode()
         {
             if (!Paused) return;

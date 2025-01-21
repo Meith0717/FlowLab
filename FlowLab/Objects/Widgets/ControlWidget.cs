@@ -19,7 +19,10 @@ namespace FlowLab.Objects.Widgets
             new UiButton(this, "play", () => simulationLayer.Paused = !simulationLayer.Paused)
             {
                 Action = Core.InputManagement.ActionType.TogglePause,
-                UpdatTracker = self => self.Texture = simulationLayer.Paused ? "play" : "pause",
+                UpdatTracker = self => { 
+                    self.Texture = simulationLayer.Paused ? "play" : "pause";
+                    self.TextureIdleColor = simulationLayer.Paused ? Color.Red : Color.LightGreen;
+                },
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 0);
 
@@ -37,7 +40,7 @@ namespace FlowLab.Objects.Widgets
 
             new UiButton(this, "record", () => { recorder.Toggle(particleManager.TimeSteps); })
             {
-                UpdatTracker = self => self.TextureIdleColor = recorder.IsActive ? Color.Red : Color.White,
+                UpdatTracker = self => self.TextureIdleColor = recorder.IsActive ? Color.Red : Color.SkyBlue,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 140);
 

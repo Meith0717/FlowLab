@@ -4,6 +4,7 @@
 
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
+using MonoGame.Extended.Particles;
 using System;
 
 namespace FlowLab.Logic.SphComponents
@@ -23,7 +24,7 @@ namespace FlowLab.Logic.SphComponents
             var gamma3 = settings.Gamma3;
 
             var densityErrorSum = 0f;
-            var maxCfl = 0f;
+            var maxVelocity = 0f;
             var iterations = 0;
 
             // Compute density
@@ -66,9 +67,9 @@ namespace FlowLab.Logic.SphComponents
                 spatialHashing.InsertObject(particle);
 
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
-                maxCfl = float.Max(maxCfl, particle.Cfl);
+                maxVelocity = particle.Velocity.Length();
             });
-            return new(iterations, maxCfl, densityErrorSum / particles.Count);
+            return new(iterations, maxVelocity, timeStep * (maxVelocity / h), densityErrorSum / particles.Count);
         }
 
         public static SimulationState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
@@ -78,6 +79,7 @@ namespace FlowLab.Logic.SphComponents
                 BoundaryHandling.Extrapolation => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p => IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), false),
                 BoundaryHandling.Mirroring => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p => IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), true),
                 BoundaryHandling.Zero => BaseSph(particles, spatialHashing, h, FluidDensity, settings, p => IISPHComponents.RelaxedJacobiSolver(p, FluidDensity, settings), false),
+                _ => throw new NotImplementedException()
             };
         }
 

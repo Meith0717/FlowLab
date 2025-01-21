@@ -116,7 +116,7 @@ namespace FlowLab.Objects.Widgets
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 220);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = particleManager.SimulationState.SolverIterations.ToString(),
+                UpdateTracker = self => self.Text = particleManager.State.SolverIterations.ToString(),
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 220);

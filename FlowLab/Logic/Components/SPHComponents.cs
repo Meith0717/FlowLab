@@ -8,8 +8,18 @@ using MonoGame.Extended;
 
 namespace FlowLab.Logic.SphComponents
 {
-    public static class SPHComponents
+    internal static class SPHComponents
     {
+        public static float ComputeDynamicTimeStep(SimulationSettings settings, SimulationState state, float particleDiameter) 
+        {
+            float ts;
+            if (state.MaxVelocity == 0)
+                ts = float.PositiveInfinity;
+            else
+                ts = settings.CFLScale * (particleDiameter / state.MaxVelocity);
+            return float.Min(settings.MaxTimeStep, ts);
+        }
+
         public static void ComputeLocalDensity(Particle particle, float gamma)
         {
             particle.Density = Utilitys.Sum(particle.Neighbors, neighbor =>

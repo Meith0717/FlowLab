@@ -25,7 +25,6 @@ namespace FlowLab.Engine.LayerManagement
         {
             _game1 = game1;
             _blurEffect = ShaderManager.Instance.GetEffect("Blur");
-            var screenSize = _game1.GraphicsDevice.Viewport.Bounds.Size;
             _blurEffect.Parameters["texelSize"].SetValue(new Vector2(1.0f / _game1.GraphicsDevice.Viewport.Width, 1.0f / _game1.GraphicsDevice.Viewport.Height));
             _blurRenderTarget = new(game1.GraphicsDevice, game1.GraphicsManager.PreferredBackBufferWidth, game1.GraphicsManager.PreferredBackBufferHeight);
         }

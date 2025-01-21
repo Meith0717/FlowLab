@@ -4,6 +4,7 @@
 
 using FlowLab.Core.InputManagement;
 using FlowLab.Engine.LayerManagement;
+using FlowLab.Engine.UserInterface.Components;
 using FlowLab.Game.Engine.UserInterface;
 using FlowLab.Game.Engine.UserInterface.Components;
 using FlowLab.Logic;
@@ -25,19 +26,20 @@ namespace FlowLab.Objects.Layers
                 BorderColor = Color.Gray,
                 BorderSize = 5,
             };
-            layer.Place(anchor: Anchor.Center, width: 400, height: 800);
+            layer.Place(anchor: Anchor.Center, width: 480, height: 850);
 
             int y = 10; // Starting Y value
             int blockOffset = 45; // Offset between blocks
             int elementOffset = 35; // Offset within a block
+            int overLineOffset = 25; // Offset within a block
+            int underLineOffset = 10; // Offset within a block
 
             new UiText(layer, "consola")
             {
                 Text = "SETTINGS",
-                Scale = .21f,
+                Scale = .25f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 10, vSpace:10);
-
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -46,12 +48,14 @@ namespace FlowLab.Objects.Layers
                 Scale = .21f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 10);
+            y += overLineOffset;
 
-            y += elementOffset;
+            new UiLine(layer, 2) { Color = Color.Gray }.Place(relWidth: 1, y: y, hSpace: 5);
+            y += underLineOffset;
 
             new UiText(layer, "consola")
             {
-                Text = "Method",
+                Text = "Solver:",
                 Scale = .18f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
@@ -61,15 +65,14 @@ namespace FlowLab.Objects.Layers
                 Value = settings.SimulationMethod,
                 UpdatTracker = self => settings.SimulationMethod = self.Value,
                 TextScale = .17f,
-                ButtonScale = .5f,
+                ButtonScale = .7f,
                 TextColor = Color.White
             }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
             {
-                Text = "Parallel",
+                Text = "Parallel:",
                 Scale = .18f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
@@ -77,14 +80,173 @@ namespace FlowLab.Objects.Layers
             {
                 State = settings.ParallelProcessing,
                 UpdatTracker = self => settings.ParallelProcessing = self.State,
-                TextureScale = .3f
+                TextureScale = .4f
             }.Place(height: 25, width: 150, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += blockOffset;
 
+            new UiText(layer, "consola")
+            {
+                Text = "Fix Time step:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                TextScale = .18f,
+                UpdateTracker = self => self.Disabled = settings.DynamicTimeStep,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.FixTimeStep.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.FixTimeStep = f;
+                }
+            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
             {
-                Text = "Color",
+                Text = "Dynamic Time step:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiCheckBox(layer)
+            {
+                State = settings.DynamicTimeStep,
+                UpdatTracker = self => settings.DynamicTimeStep = self.State,
+                TextureScale = .4f
+            }.Place(height: 25, width: 150, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Max Time step:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                TextScale = .18f,
+                UpdateTracker = self => self.Disabled = !settings.DynamicTimeStep,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.MaxTimeStep.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.MaxTimeStep = f;
+                }
+            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "CFL Scale:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                TextScale = .18f,
+                UpdateTracker = self => self.Disabled = !settings.DynamicTimeStep,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.CFLScale.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.CFLScale = f;
+                }
+            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += blockOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Min Density Error:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                UpdateTracker = self => self.Disabled = settings.SimulationMethod == SimulationMethod.SESPH,
+                TextScale = .18f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.MinError.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.MinError = f;
+                }
+            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Max Iterations:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                UpdateTracker = self => self.Disabled = settings.SimulationMethod == SimulationMethod.SESPH,
+                TextScale = .18f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.MaxIterations.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.MaxIterations = f;
+                }
+            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Relaxation:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiEntryField(layer, "consola")
+            {
+                UpdateTracker = self => self.Disabled = settings.SimulationMethod == SimulationMethod.SESPH,
+                TextScale = .18f,
+                InnerColor = new(50, 50, 50),
+                TextColor = Color.White,
+                Text = settings.RelaxationCoefficient.ToString(),
+                OnClose = (self) =>
+                {
+                    if (!float.TryParse(self.Text, out var f))
+                        return;
+                    settings.RelaxationCoefficient = f;
+                }
+            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += blockOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "FLUID",
+                Scale = .21f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 10);
+            y += overLineOffset;
+
+            new UiLine(layer, 2) 
+            { 
+                Color = Color.Gray 
+            }.Place(relWidth: 1, y: y, hSpace: 5);
+            y += underLineOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Color:",
                 Scale = .18f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
@@ -94,32 +256,9 @@ namespace FlowLab.Objects.Layers
                 Value = settings.ColorMode,
                 UpdatTracker = self => settings.ColorMode = self.Value,
                 TextScale = .17f,
-                ButtonScale = .5f,
+                ButtonScale = .7f,
                 TextColor = Color.White
             }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
-
-            y += elementOffset;
-
-            new UiText(layer, "consola")
-            {
-                Text = "Time step:",
-                Scale = .18f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
-            new UiEntryField(layer, "consola")
-            {
-                TextScale = .18f,
-                InnerColor = new(50, 50, 50),
-                TextColor = Color.White,
-                Text = settings.TimeStep.ToString(),
-                OnClose = (self) =>
-                {
-                    if (!float.TryParse(self.Text, out var f))
-                        return;
-                    settings.TimeStep = f;
-                }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -141,85 +280,6 @@ namespace FlowLab.Objects.Layers
                     settings.Gravitation = f;
                 }
             }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
-            y += elementOffset;
-
-            new UiText(layer, "consola")
-            {
-                Text = "Min.Error:",
-                Scale = .18f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
-            new UiEntryField(layer, "consola")
-            {
-                UpdateTracker = self => self.Disabled = settings.SimulationMethod == SimulationMethod.SESPH,
-                TextScale = .18f,
-                InnerColor = new(50, 50, 50),
-                TextColor = Color.White,
-                Text = settings.MinError.ToString(),
-                OnClose = (self) =>
-                {
-                    if (!float.TryParse(self.Text, out var f))
-                        return;
-                    settings.MinError = f;
-                }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
-            y += elementOffset;
-
-            new UiText(layer, "consola")
-            {
-                Text = "Max.Iter.:",
-                Scale = .18f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
-            new UiEntryField(layer, "consola")
-            {
-                UpdateTracker = self => self.Disabled = settings.SimulationMethod == SimulationMethod.SESPH,
-                TextScale = .18f,
-                InnerColor = new(50, 50, 50),
-                TextColor = Color.White,
-                Text = settings.MaxIterations.ToString(),
-                OnClose = (self) =>
-                {
-                    if (!float.TryParse(self.Text, out var f))
-                        return;
-                    settings.MaxIterations = f;
-                }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
-            y += elementOffset;
-
-            new UiText(layer, "consola")
-            {
-                Text = "Rel.Coef.:",
-                Scale = .18f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
-            new UiEntryField(layer, "consola")
-            {
-                UpdateTracker = self => self.Disabled = settings.SimulationMethod == SimulationMethod.SESPH,
-                TextScale = .18f,
-                InnerColor = new(50, 50, 50),
-                TextColor = Color.White,
-                Text = settings.RelaxationCoefficient.ToString(),
-                OnClose = (self) =>
-                {
-                    if (!float.TryParse(self.Text, out var f))
-                        return;
-                    settings.RelaxationCoefficient = f;
-                }
-            }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
-            y += blockOffset;
-
-            new UiText(layer, "consola")
-            {
-                Text = "FLUID",
-                Scale = .21f,
-                Color = Color.White
-            }.Place(anchor: Anchor.Left, y: y, hSpace: 10);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -241,7 +301,6 @@ namespace FlowLab.Objects.Layers
                     settings.FluidViscosity = f;
                 }
             }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -264,22 +323,25 @@ namespace FlowLab.Objects.Layers
                     settings.FluidStiffness = f;
                 }
             }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += blockOffset;
 
-            // Fourth block: BOUNDARY
             new UiText(layer, "consola")
             {
                 Text = "BOUNDARY",
                 Scale = .21f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 10);
+            y += overLineOffset;
 
-            y += elementOffset;
+            new UiLine(layer, 2)
+            {
+                Color = Color.Gray
+            }.Place(relWidth: 1, y: y, hSpace: 5);
+            y += underLineOffset;
 
             new UiText(layer, "consola")
             {
-                Text = "Handling",
+                Text = "Handling:",
                 Scale = .18f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
@@ -289,10 +351,9 @@ namespace FlowLab.Objects.Layers
                 Value = settings.BoundaryHandling,
                 UpdatTracker = self => settings.BoundaryHandling = self.Value,
                 TextScale = .17f,
-                ButtonScale = .5f,
+                ButtonScale = .7f,
                 TextColor = Color.White
             }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -314,7 +375,6 @@ namespace FlowLab.Objects.Layers
                     settings.BoundaryViscosity = f;
                 }
             }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -336,7 +396,6 @@ namespace FlowLab.Objects.Layers
                     settings.Gamma1 = f;
                 }
             }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -358,7 +417,6 @@ namespace FlowLab.Objects.Layers
                     settings.Gamma2 = f;
                 }
             }.Place(height: 25, width: 90, anchor: Anchor.Right, y: y, hSpace: 20);
-
             y += elementOffset;
 
             new UiText(layer, "consola")
