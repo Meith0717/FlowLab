@@ -10,18 +10,18 @@ namespace FlowLab.Logic
 
     internal class SimulationSettings
     {
-        public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
-        public ColorMode ColorMode = ColorMode.Velocity;
-        public BoundaryHandling BoundaryHandling = BoundaryHandling.Zero;
-        public bool ParallelProcessing = true;
 
         // Global
+        public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
+        public bool ParallelProcessing = true;
+        public ColorMode ColorMode = ColorMode.Velocity;
         public float TimeStep = .1f;
         public float Gravitation = .3f;
         public float FluidViscosity = 15f;
         public float FluidStiffness = 2000f;
 
         // Boundary handling
+        public BoundaryHandling BoundaryHandling = BoundaryHandling.Zero;
         public float Gamma1 = 1f;
         public float Gamma2 = 1f;
         public float Gamma3 = 1f;
