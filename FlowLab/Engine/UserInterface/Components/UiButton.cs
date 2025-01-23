@@ -103,7 +103,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             base.Draw(spriteBatch);
         }
 
-        public Action<UiButton> UpdatTracker { get; set; }
+        public Action<UiButton> UpdatTracker;
         public ActionType? Action { get; set; } = null;
         public TextAlign TextAlign { private get; set; } = TextAlign.Center;
         public float TextScale { private get; set; } = 1;

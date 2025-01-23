@@ -5,7 +5,6 @@
 using FlowLab.Core.Extensions;
 using FlowLab.Logic.ParticleManagement;
 using MonoGame.Extended;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace FlowLab.Logic.SphComponents
@@ -77,14 +76,14 @@ namespace FlowLab.Logic.SphComponents
                 switch (settings.BoundaryHandling)
                 {
                     case BoundaryHandling.Zero:
-                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3));
+                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, false));
                         break;
                     case BoundaryHandling.Mirroring:
-                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAccelerationWithReflection(particle, gamma3));
+                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, true));
                         break;
                     case BoundaryHandling.Extrapolation:
                         Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
-                        Utilitys.ForEach(parallel, particles.Fluid, p => SPHComponents.ComputePressureAcceleration(p, gamma3));
+                        Utilitys.ForEach(parallel, particles.Fluid, p => SPHComponents.ComputePressureAcceleration(p, gamma3, false));
                         break;
                 }
 

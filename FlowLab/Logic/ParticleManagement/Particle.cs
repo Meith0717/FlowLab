@@ -3,38 +3,39 @@
 // All rights reserved.
 
 using FlowLab.Engine.SpatialManagement;
-using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace FlowLab.Logic.ParticleManagement
 {
     [Serializable]
     public class Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
-        [JsonProperty] public float Diameter { get; private set; } = diameter;
-        [JsonProperty] public float Density0 { get; private set; } = fluidDensity;
-        [JsonProperty] public bool IsBoundary { get; private set; } = isBoundary;
-        [JsonIgnore] public float Mass { get; private set; } = (diameter * diameter) * fluidDensity;
-        [JsonIgnore] public float Density { get; set; }
-        [JsonIgnore] public float Pressure { get; set; }
-        [JsonIgnore] public float AII { get; set; }
-        [JsonIgnore] public float St { get; set; }
-        [JsonIgnore] public float Ap { get; set; }
-        [JsonIgnore] public float Cfl { get; set; }
-        [JsonIgnore] public float EstimatedDensityError { get; set; }
-        [JsonIgnore] public float DensityError { get; set; }
-        [JsonProperty] [NotNull] public Vector2 Position { get; set; } = position;
-        [JsonIgnore][NotNull] public Vector2 Velocity { get; set; }
-        [JsonIgnore][NotNull] public Vector2 IntermediateVelocity { get; set; }
-        [JsonIgnore] [NotNull] public Vector2 PressureAcceleration { get; set; }
-        [JsonIgnore] [NotNull] public Vector2 GravitationAcceleration { get; set; }
-        [JsonIgnore] [NotNull] public Vector2 ViscosityAcceleration { get; set; }
-        [JsonIgnore] [NotNull] public Color Color { get; set; }
+        [JsonProperty] public float Diameter = diameter;
+        [JsonProperty] public float Density0 = fluidDensity;
+        [JsonProperty] public bool IsBoundary = isBoundary;
+
+        [JsonIgnore] public float Mass = (diameter * diameter) * fluidDensity;
+        [JsonIgnore] public float Density;
+        [JsonIgnore] public float Pressure;
+        [JsonIgnore] public float AII;
+        [JsonIgnore] public float St;
+        [JsonIgnore] public float Ap;
+        [JsonIgnore] public float Cfl;
+        [JsonIgnore] public float EstimatedDensityError;
+        [JsonIgnore] public float DensityError;
+
+        [JsonProperty] [NotNull] public Vector2 Position = position;
+        [JsonIgnore][NotNull] public Vector2 Velocity;
+        [JsonIgnore][NotNull] public Vector2 IntermediateVelocity;
+        [JsonIgnore] [NotNull] public Vector2 PressureAcceleration;
+        [JsonIgnore] [NotNull] public Vector2 GravitationAcceleration;
+        [JsonIgnore] [NotNull] public Vector2 ViscosityAcceleration;
+        [JsonIgnore] [NotNull] public Color Color;
 
         /// <summary>
         /// Current particle neighbors.
@@ -79,7 +80,7 @@ namespace FlowLab.Logic.ParticleManagement
         /// <param name="spatialHashing"></param>
         /// <param name="kernel"></param>
         /// <param name="kernelDerivativ"></param>
-        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<Vector2, Vector2, float, float> kernel, Func<Vector2, Vector2, float, Vector2> kernelDerivativ)
+        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<Vector2, Vector2, float> kernel, Func<Vector2, Vector2, Vector2> kernelDerivativ)
         {
             _neighbors.Clear();
             _fluidNeighbors.Clear();
@@ -93,8 +94,8 @@ namespace FlowLab.Logic.ParticleManagement
             {
                 if (!neighbor.IsBoundary) _fluidNeighbors.Add(neighbor);
                 if (neighbor.IsBoundary) _boundaryNeighbors.Add(neighbor);
-                var k = kernel.Invoke(Position, neighbor.Position, Diameter);
-                var kD = kernelDerivativ.Invoke(Position, neighbor.Position, Diameter);
+                var k = kernel.Invoke(Position, neighbor.Position);
+                var kD = kernelDerivativ.Invoke(Position, neighbor.Position);
                 _neighborKernels[neighbor] = k;
                 _neighborKernelDerivatives[neighbor] = kD;
             }
@@ -110,17 +111,9 @@ namespace FlowLab.Logic.ParticleManagement
         }
 
         public float Kernel(Particle neighbor)
-        {
-            if (!_neighborKernels.TryGetValue(neighbor, out var k))
-                throw new KeyNotFoundException();
-            return k;
-        }
+            => _neighborKernels[neighbor];
 
         public Vector2 KernelDerivativ(Particle neighbor)
-        {
-            if (!_neighborKernelDerivatives.TryGetValue(neighbor, out var kD))
-                throw new KeyNotFoundException();
-            return kD;
-        }
+            => _neighborKernelDerivatives[neighbor];
     }
 }

@@ -14,22 +14,23 @@ namespace FlowLab.Engine.SpatialManagement
     internal class SpatialGrid<T>(Vector2 position, int size) where T : Particle
     {
         public readonly RectangleF Bounds = new(position, new(size, size));
-        private readonly ConcurrentDictionary<int, T> Objects = new();
+        private readonly List<T> Objects = new();
 
         public bool IsEmpty
             => Objects.Count == 0;
 
         public void Add(T item)
-            => Objects.AddOrUpdate(item.GetHashCode(), key => item, (key, item) => item);
+            => Objects.Add(item);
 
         public void Remove(T item)
-            => Objects.Remove(item.GetHashCode(), out _);
+            => Objects.Remove(item);
 
         public void AddObjectsInRadius(Vector2 position, float radius, ref List<T> values)
         {
-            foreach (T obj in Objects.Values)
+            var radiusSquared = radius * radius;
+            foreach (T obj in Objects)
             {
-                if (Vector2.Distance(obj.Position, position) > radius)
+                if ( Vector2.Subtract(obj.Position, position).LengthSquared() > radiusSquared)
                     continue;
                 values.Add(obj);
             }

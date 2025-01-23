@@ -4,14 +4,13 @@
 
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
-using MonoGame.Extended.Particles;
 using System;
 
 namespace FlowLab.Logic.SphComponents
 {
-    internal static class SPHSolver
+    internal class SPHSolver(Kernels kernels)
     {
-        private static SimulationState BaseSph(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings,  Func<FluidDomain, int> pressureSolver, bool boundaryPressureReflection)
+        private SimulationState BaseSph(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings,  Func<FluidDomain, int> pressureSolver, bool pressureMirroring)
         {
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
@@ -30,7 +29,7 @@ namespace FlowLab.Logic.SphComponents
             // Compute density
             Utilitys.ForEach(parallel, particles.All, particle =>
             {
-                particle.FindNeighbors(spatialHashing, gamma1, Kernels.CubicSpline, Kernels.NablaCubicSpline);
+                particle.FindNeighbors(spatialHashing, gamma1, kernels.CubicSpline, kernels.NablaCubicSpline);
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
                 particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
                 if (particle.IsBoundary) return;
@@ -49,10 +48,7 @@ namespace FlowLab.Logic.SphComponents
             iterations = pressureSolver.Invoke(particles);
 
             // Compute accelerations
-            if (boundaryPressureReflection)
-                Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAccelerationWithReflection(particle, gamma3));
-            else
-                Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3));
+            Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, pressureMirroring));
 
             // update velocities
             Utilitys.ForEach(false, particles.All, (particle) =>
@@ -70,7 +66,7 @@ namespace FlowLab.Logic.SphComponents
             return new(iterations, maxVelocity, timeStep * (maxVelocity / h), densityErrorSum / particles.Count);
         }
 
-        public static SimulationState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
+        public SimulationState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
             return settings.BoundaryHandling switch
             {
@@ -81,7 +77,7 @@ namespace FlowLab.Logic.SphComponents
             };
         }
 
-        public static SimulationState SESPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
+        public SimulationState SESPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
             return settings.BoundaryHandling switch
             {

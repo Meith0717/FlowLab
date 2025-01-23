@@ -7,7 +7,6 @@ using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Particles;
 using System.Diagnostics;
 using System.Linq;
 
@@ -15,6 +14,8 @@ namespace FlowLab.Logic.ParticleManagement
 {
     internal class ParticleManager(int particleDiameter, float fluidDensity)
     {
+        private readonly SPHSolver SPHSolver = new(new(particleDiameter));
+
         public readonly FluidDomain Particles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
         public readonly DataCollector DataCollector = new("simulation", ["simSteps", "timeSteps", "simStepsTime", "iterations", "particles", "gamma1", "gamma2", "gamma3", "timeStep", "densityError", "cfl"]);
@@ -69,7 +70,7 @@ namespace FlowLab.Logic.ParticleManagement
             => State.MaxCFL;
 
         private int _lastTimeSteps;
-        public void Update(GameTime gameTime, SimulationSettings settings)
+        public void Update(Microsoft.Xna.Framework.GameTime gameTime, SimulationSettings settings)
         {
             // ____Update____
             var watch = Stopwatch.StartNew();
@@ -121,10 +122,10 @@ namespace FlowLab.Logic.ParticleManagement
                 switch (colorMode)
                 {
                     case ColorMode.None:
-                        p.Color = !p.IsBoundary ? new(20, 100, 255) : Color.DarkGray;
+                        p.Color = !p.IsBoundary ? new(20, 100, 255) : Microsoft.Xna.Framework.Color.DarkGray;
                         break;
                     case ColorMode.Velocity:
-                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl/settings.CFLScale) : Color.DarkGray;
+                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl/settings.CFLScale) : Microsoft.Xna.Framework.Color.DarkGray;
                         break;
                     case ColorMode.Pressure:
                         var relPressure = p.Pressure / 70;
@@ -143,8 +144,8 @@ namespace FlowLab.Logic.ParticleManagement
 
             if (!particelDebugger.IsSelected) return;
             var debugParticle = particelDebugger.SelectedParticle;
-            Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Color.DarkOrchid);
-            debugParticle.Color = Color.DarkMagenta;
+            Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Microsoft.Xna.Framework.Color.DarkOrchid);
+            debugParticle.Color = Microsoft.Xna.Framework.Color.DarkMagenta;
         }
 
         public double SimStepTime { get; private set; }     // Time for a sim step

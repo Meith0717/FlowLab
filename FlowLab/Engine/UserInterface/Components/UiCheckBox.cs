@@ -41,6 +41,6 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             UpdatTracker?.Invoke(this);
         }
 
-        public new Action<UiCheckBox> UpdatTracker { get; set; }
+        public new Action<UiCheckBox> UpdatTracker;
     }
 }

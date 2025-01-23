@@ -11,7 +11,7 @@ namespace FlowLab.Logic.ScenarioManagement
 {
     internal class BodySelector
     {
-        public Body Body { get; set; }
+        public Body Body;
 
         public void Select(InputState inputState, Scenario scenario, Vector2 mousePOsition)
         {

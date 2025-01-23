@@ -2,12 +2,12 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace FlowLab.Logic

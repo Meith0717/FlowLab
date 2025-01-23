@@ -63,7 +63,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         public float ButtonScale { set { _leftButton.TextureScale = _rightButton.TextureScale = value; } }
         public Color TextColor { set { _text.Color = value; } }
         public float TextAlpha { set { _text.Alpha = value; } }
-        public Action<UiVariableSelector<T>> UpdatTracker { get; set; }
+        public Action<UiVariableSelector<T>> UpdatTracker;
 
         public IEnumerable<T> Values
         {

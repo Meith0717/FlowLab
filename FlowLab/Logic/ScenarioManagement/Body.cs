@@ -4,9 +4,9 @@
 
 using FlowLab.Core.ContentHandling;
 using FlowLab.Logic.ParticleManagement;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -58,7 +58,7 @@ namespace FlowLab.Logic.ScenarioManagement
         public void Update() 
             => Rotate();
 
-        public void Draw(SpriteBatch spriteBatch, Color color)
+        public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.Color color)
         {
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 

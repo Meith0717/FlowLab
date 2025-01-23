@@ -86,7 +86,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
         }
 
         public Action<UiEntryField> UpdateTracker { private get; set; }
-        public bool Disabled { get; set; }
+        public bool Disabled;
         public float TextScale { set { _uiText.Scale = value; } }
         public Color TextColor { set { _uiText.Color = value; } }
         public string Text
@@ -98,6 +98,6 @@ namespace FlowLab.Game.Engine.UserInterface.Components
                 foreach (var c in value) _chars.AddLast(c.ToString());
             }
         }
-        public Action<UiEntryField> OnClose { get; set; }
+        public Action<UiEntryField> OnClose;
     }
 }

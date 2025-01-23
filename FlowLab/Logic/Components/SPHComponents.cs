@@ -4,7 +4,6 @@
 
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -22,76 +21,66 @@ namespace FlowLab.Logic.SphComponents
 
         public static void ComputeLocalDensity(Particle particle, float gamma)
         {
-            particle.Density = Utilitys.Sum(particle.Neighbors, neighbor =>
+            particle.Density = 0;
+            foreach (var neighbor in particle.Neighbors)
             {
                 var density = neighbor.Mass * particle.Kernel(neighbor);
-                if (neighbor.IsBoundary) density *= gamma;
-                return density;
-            });
-
-            if (float.IsNaN(particle.Density))
-                throw new System.Exception();
-            if (particle.Density == 0)
-                throw new System.Exception();
+                particle.Density += neighbor.IsBoundary ? gamma * density : density;
+            }
         }
 
-        public static void PressureExtrapolation(Particle bParticle, float gravitation)
+        public static void PressureExtrapolation(Particle particle, float gravitation)
         {
-            var s1 = Utilitys.Sum(bParticle.FluidNeighbors, fNeighbor => fNeighbor.Pressure * fNeighbor.Kernel(fNeighbor));
-            var s2 = Utilitys.Sum(bParticle.FluidNeighbors, fNeighbor => fNeighbor.Density * (bParticle.Position - fNeighbor.Position) * fNeighbor.Kernel(fNeighbor));
-            var s3 = Utilitys.Sum(bParticle.FluidNeighbors, fNeighbor => fNeighbor.Kernel(fNeighbor));
+            var s1 = 0f;
+            foreach (var neighbor in particle.FluidNeighbors)
+                s1 += neighbor.Pressure * particle.Kernel(neighbor);
 
-            bParticle.Pressure = (s1 + new Vector2(0, -gravitation).Dot(s2)) / s3;
+            var s2 = Vector2.Zero;
+            foreach (var neighbor in particle.FluidNeighbors)
+                s2 += neighbor.Density * (particle.Position - neighbor.Position) * particle.Kernel(neighbor);
+
+            var s3 = 0f;
+            foreach (var neighbor in particle.FluidNeighbors)
+                s3 += particle.Kernel(neighbor);
+
+            particle.Pressure = (s1 + Vector2.Dot(new Vector2(0, -gravitation), s2)) / s3;
         }
 
-        public static void ComputePressureAccelerationWithReflection(Particle fParticle, float gamma)
+        public static void ComputePressureAcceleration(Particle fParticle, float gamma, bool mirroring)
         {
-            var KernelDerivativ = fParticle.KernelDerivativ;
-            var particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
-            gamma *= 2;
-            fParticle.PressureAcceleration = -Utilitys.Sum(fParticle.Neighbors, neighbor =>
+            float particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
+            gamma *= mirroring ? 2 : 1;
+
+            foreach (var neighbor in fParticle.Neighbors)
             {
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
-                if (neighbor.IsBoundary)
-                    return gamma * neighbor.Mass * particlePressureOverDensity2 * KernelDerivativ(neighbor);
-                return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
-            });
-            if (float.IsNaN(fParticle.PressureAcceleration.X) || float.IsNaN(fParticle.PressureAcceleration.Y))
-                throw new System.Exception();
-        }
+                var kernelDerivative = fParticle.KernelDerivativ(neighbor);
+                var combinedPressure = particlePressureOverDensity2 + neighborPressureOverDensity2;
 
-        public static void ComputePressureAcceleration(Particle fParticle, float gamma)
-        {
-            var KernelDerivativ = fParticle.KernelDerivativ;
+                var acceleration = neighbor.Mass * combinedPressure * kernelDerivative;
 
-            var particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
-            fParticle.PressureAcceleration = -Utilitys.Sum(fParticle.Neighbors, neighbor =>
-            {
-                var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
-                var acceleration = neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
-                if (neighbor.IsBoundary) return gamma * acceleration;
-                if (float.IsNaN(acceleration.X) || float.IsNaN(acceleration.Y)) throw new System.Exception();
-                return acceleration;
-            });
-            if (float.IsNaN(fParticle.PressureAcceleration.X) || float.IsNaN(fParticle.PressureAcceleration.Y)) throw new System.Exception();
+                fParticle.PressureAcceleration -= neighbor.IsBoundary ? gamma * acceleration : acceleration;
+            }
         }
 
         public static void ComputeViscosityAcceleration(float h, float boundaryViscosity, float fluidViscosity, Particle fParticle)
         {
-            fParticle.ViscosityAcceleration = Utilitys.Sum(fParticle.Neighbors, neighbor =>
+            float scaledParticleDiameter2 = 0.01f * (h * h);
+            foreach (var neighbor in fParticle.Neighbors)
             {
-                var v_ij = fParticle.Velocity - neighbor.Velocity;
                 var x_ij = fParticle.Position - neighbor.Position;
-                var massOverDensity = neighbor.Mass / neighbor.Density;
+                var dotPositionPosition = Vector2.Dot(x_ij, x_ij) + scaledParticleDiameter2;
+
+                var v_ij = fParticle.Velocity - neighbor.Velocity;
                 var dotVelocityPosition = Vector2.Dot(v_ij, x_ij);
-                var dotPositionPosition = Vector2.Dot(x_ij, x_ij);
-                var scaledParticleDiameter2 = 0.01f * (h * h);
+
+                var massOverDensity = neighbor.Mass / neighbor.Density;
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
-                var res = massOverDensity * (dotVelocityPosition / (dotPositionPosition + scaledParticleDiameter2)) * kernelDerivative;
-                if (neighbor.IsBoundary)
-                    return 2 * boundaryViscosity * res;
-                return 2 * fluidViscosity * res;
-            });
+                var res = massOverDensity * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
+
+                var viscosity = neighbor.IsBoundary ? boundaryViscosity : fluidViscosity;
+                fParticle.ViscosityAcceleration += 2f * viscosity * res;
+            }
         }
     }
 }
