@@ -92,7 +92,7 @@ namespace FlowLab.Game.Objects.Layers
             inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
 
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
-            Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 5);
+            Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 10);
             _camera.Update(GraphicsDevice.Viewport.Bounds);
             _worldMousePosition = Transformations.ScreenToWorld(_camera.TransformationMatrix, inputState.MousePosition);
 
@@ -134,7 +134,7 @@ namespace FlowLab.Game.Objects.Layers
 
             spriteBatch.Begin(transformMatrix: _camera.TransformationMatrix);
             _particleRenderer.Render(spriteBatch, _particleManager, _debugger, particleTexture, _grid);
-            _debugger.Draw(spriteBatch);
+            _debugger.Draw(spriteBatch, _camera.Zoom);
             switch (_placeMode)
             {
                 case PlaceMode.Particle:

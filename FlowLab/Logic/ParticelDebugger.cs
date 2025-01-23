@@ -22,17 +22,19 @@ namespace FlowLab.Logic
         private Particle _selectedParticle;
         private List<Particle> _particles = new();
         private bool _active = false;
+        private bool _drawSpatialHashing = false;
 
         public Particle SelectedParticle => _selectedParticle;
         public bool IsSelected => _selectedParticle != null;
 
         public void Update(InputState inputState, Vector2 mousePosition, float particleSize, Camera2D camera)
         {
-            inputState.DoAction(ActionType.Debugg, () => { _active = !_active; Clear(); });
+            inputState.DoAction(ActionType.ToggleDebugg, () => { _active = !_active; Clear(); });
             _particles.Clear();
             if (IsSelected) 
                 camera.Position = SelectedParticle.Position;
             if (!_active) return; 
+            inputState.DoAction(ActionType.NeighborSearchDebugg, () => _drawSpatialHashing = !_drawSpatialHashing);
             _spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
             if (!inputState.ContainAction(ActionType.LeftClicked)) return;
             foreach (var particle in _particles)
@@ -63,12 +65,13 @@ namespace FlowLab.Logic
             spriteBatch.End();
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, float cameraZoom)
         {
             if (!_active) return;
-            _spatialHashing.Draw(spriteBatch);
-            if (!IsSelected) return;
-            spriteBatch.DrawCircle(SelectedParticle.Position, SelectedParticle.Diameter * 2, 30, Color.Red);
+            if (IsSelected)
+                spriteBatch.DrawCircle(SelectedParticle.Position, SelectedParticle.Diameter * 2, 50, Color.Gray, 4 / cameraZoom);
+            if (_drawSpatialHashing)
+                _spatialHashing.Draw(spriteBatch, cameraZoom);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace FlowLab.Engine.SpatialManagement
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
-            => spriteBatch.DrawRectangle(Bounds, Color.Red);
+        public void Draw(SpriteBatch spriteBatch, float cameraZoom)
+            => spriteBatch.DrawRectangle(Bounds, Color.Gray, 2 / cameraZoom);
     }
 }

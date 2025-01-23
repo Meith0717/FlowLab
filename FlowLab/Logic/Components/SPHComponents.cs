@@ -48,11 +48,12 @@ namespace FlowLab.Logic.SphComponents
         {
             var KernelDerivativ = fParticle.KernelDerivativ;
             var particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
+            gamma *= 2;
             fParticle.PressureAcceleration = -Utilitys.Sum(fParticle.Neighbors, neighbor =>
             {
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 if (neighbor.IsBoundary)
-                    return gamma * neighbor.Mass * 2f * particlePressureOverDensity2 * KernelDerivativ(neighbor);
+                    return gamma * neighbor.Mass * particlePressureOverDensity2 * KernelDerivativ(neighbor);
                 return neighbor.Mass * (particlePressureOverDensity2 + neighborPressureOverDensity2) * KernelDerivativ(neighbor);
             });
             if (float.IsNaN(fParticle.PressureAcceleration.X) || float.IsNaN(fParticle.PressureAcceleration.Y))

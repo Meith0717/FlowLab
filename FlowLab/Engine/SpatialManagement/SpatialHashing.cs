@@ -62,10 +62,10 @@ namespace FlowLab.Engine.SpatialManagement
         private Point Hash(Vector2 vector)
             => Vector2.Floor(vector / CellSize).ToPoint();
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, float cameraZoom)
         {
             foreach (var grid in _grids.Values)
-                grid.Draw(spriteBatch);
+                grid.Draw(spriteBatch, cameraZoom);
         }
     }
 }
