@@ -24,7 +24,7 @@ namespace FlowLab.Logic.ParticleManagement
 
         private readonly ParticleManager _particleManager = particleManager;
         private readonly float _particleDiameter = particleDiameter;
-        private readonly List<Vector2> _particles = new();
+        private readonly List<System.Numerics.Vector2> _particles = new();
         private int _mode;
         private Point _rectangleSize = new(11);
 
@@ -55,13 +55,13 @@ namespace FlowLab.Logic.ParticleManagement
             switch (_mode)
             {
                 case 1:
-                    GetBlock(worldMousePosition, _rectangleSize.X, _rectangleSize.Y);
+                    GetBlock(new(worldMousePosition.X, worldMousePosition.Y), _rectangleSize.X, _rectangleSize.Y);
                     break;
                 case 2:
-                    GetCircle(worldMousePosition, _rectangleSize.X, _rectangleSize.Y);
+                    GetCircle(new(worldMousePosition.X, worldMousePosition.Y), _rectangleSize.X, _rectangleSize.Y);
                     break;
                 case 3:
-                    _particles.Add(worldMousePosition);
+                    _particles.Add(new(worldMousePosition.X, worldMousePosition.Y));
                     break;
                 case 0:
                     return;
@@ -89,7 +89,7 @@ namespace FlowLab.Logic.ParticleManagement
                 spriteBatch.DrawCircle(particle, _particleDiameter / 2, 10, Color.White);
         }
 
-        public void GetBlock(Vector2 position, int xAmount, int yAmount)
+        public void GetBlock(System.Numerics.Vector2 position, int xAmount, int yAmount)
         {
             position.X -= xAmount * _particleDiameter / 2f;
             position.Y -= yAmount * _particleDiameter / 2f;
@@ -97,23 +97,23 @@ namespace FlowLab.Logic.ParticleManagement
             {
                 for (int j = 0; j < yAmount; j++)
                 {
-                    var particlePosition = position + new Vector2(i, j) * _particleDiameter;
+                    var particlePosition = position + new System.Numerics.Vector2(i, j) * _particleDiameter;
                     if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;
                     _particles.Add(particlePosition);
                 }
             }
         }
 
-        public void GetCircle(Vector2 position, int xAmount, int yAmount)
+        public void GetCircle(System.Numerics.Vector2 position, int xAmount, int yAmount)
         {
             position.X -= xAmount * _particleDiameter / 2f;
             position.Y -= yAmount * _particleDiameter / 2f;
-            var circle = new EllipseF(position + new Vector2(xAmount * _particleDiameter / 2, yAmount * _particleDiameter / 2), xAmount / 2 * _particleDiameter, yAmount / 2 * _particleDiameter);
+            var circle = new EllipseF(position + new System.Numerics.Vector2(xAmount * _particleDiameter / 2, yAmount * _particleDiameter / 2), xAmount / 2 * _particleDiameter, yAmount / 2 * _particleDiameter);
             for (int i = 0; i < xAmount * 2; i++)
             {
                 for (int j = 0; j < yAmount * 2; j++)
                 {
-                    var particlePosition = position + new Vector2(i, j) * _particleDiameter;
+                    var particlePosition = position + new System.Numerics.Vector2(i, j) * _particleDiameter;
                     if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;
                     if (!circle.Contains(particlePosition)) continue;
                     _particles.Add(particlePosition);

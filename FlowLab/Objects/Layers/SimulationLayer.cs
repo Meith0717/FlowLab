@@ -89,7 +89,7 @@ namespace FlowLab.Game.Objects.Layers
             });
             inputState.DoAction(ActionType.Test, TakeScreenShot);
             inputState.DoAction(ActionType.Reload, ReloadUi);
-            inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(Vector2.Zero));
+            inputState.DoAction(ActionType.CameraReset, () => _camera.Position = _grid.GetCellCenter(System.Numerics.Vector2.Zero));
 
             Camera2DMover.UpdateCameraByMouseDrag(inputState, _camera);
             Camera2DMover.ControllZoom(gameTime, inputState, _camera, .1f, 10);
@@ -107,8 +107,8 @@ namespace FlowLab.Game.Objects.Layers
                     Game1.IsFixedTimeStep = true;
                     _particleManager.ClearFluid();
                     _debugger.Clear();
-                    _bodyPlacer.Update(inputState, _worldMousePosition, _scenarioManager.CurrentScenario, () => _scenarioManager.LoadCurrentScenario());
-                    _bodySelector.Select(inputState, _scenarioManager.CurrentScenario, _worldMousePosition);
+                    _bodyPlacer.Update(inputState, new(_worldMousePosition.X, _worldMousePosition.Y), _scenarioManager.CurrentScenario, () => _scenarioManager.LoadCurrentScenario());
+                    _bodySelector.Select(inputState, _scenarioManager.CurrentScenario, new(_worldMousePosition.X, _worldMousePosition.Y));
                     _bodySelector.Update(inputState, _scenarioManager);
                     break;
             }
@@ -124,7 +124,7 @@ namespace FlowLab.Game.Objects.Layers
                 _recorder.Toggle(0, null);
 
             _particleManager.ApplyColors(_settings.ColorMode, _debugger, _settings);
-            _debugger.Update(inputState, _worldMousePosition, ParticleDiameter, _camera);
+            _debugger.Update(inputState, new(_worldMousePosition.X, _worldMousePosition.Y), ParticleDiameter, _camera);
             _recorder.TakeFrame(RenderTarget2D, _particleManager.TimeSteps);
         }
 
@@ -143,7 +143,7 @@ namespace FlowLab.Game.Objects.Layers
                 case PlaceMode.Body:
                     _grid.Draw(spriteBatch, _camera.Bounds, null);
                     _bodyPlacer.Draw(spriteBatch);
-                    _bodySelector.Draw(spriteBatch, _worldMousePosition);
+                    _bodySelector.Draw(spriteBatch, new(_worldMousePosition.X, _worldMousePosition.Y));
                     break;
             }
 

@@ -30,9 +30,9 @@ namespace FlowLab.Logic
             return sum;
         }
 
-        public static Vector2 Sum<T>(IEnumerable<T> scource, Func<T, Vector2> body)
+        public static System.Numerics.Vector2 Sum<T>(IEnumerable<T> scource, Func<T, System.Numerics.Vector2> body)
         {
-            var sum = Vector2.Zero;
+            var sum = System.Numerics.Vector2.Zero;
             foreach (var item in scource)
                 sum += body(item);
             return sum;

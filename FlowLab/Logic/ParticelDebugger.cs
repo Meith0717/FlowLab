@@ -27,7 +27,7 @@ namespace FlowLab.Logic
         public Particle SelectedParticle => _selectedParticle;
         public bool IsSelected => _selectedParticle != null;
 
-        public void Update(InputState inputState, Vector2 mousePosition, float particleSize, Camera2D camera)
+        public void Update(InputState inputState, System.Numerics.Vector2 mousePosition, float particleSize, Camera2D camera)
         {
             inputState.DoAction(ActionType.ToggleDebugg, () => { _active = !_active; Clear(); });
             _particles.Clear();
@@ -60,7 +60,7 @@ namespace FlowLab.Logic
                 if (value is List<Particle> lst)
                     value = lst.Count();
                 position.Y -= 20;
-                spriteBatch.DrawString(font, $"{prop.Name}: {value}", position, Color.White, 0, Vector2.Zero, .15f, SpriteEffects.None, 1);
+                spriteBatch.DrawString(font, $"{prop.Name}: {value}", position, Color.White, 0, System.Numerics.Vector2.Zero, .15f, SpriteEffects.None, 1);
             }
             spriteBatch.End();
         }

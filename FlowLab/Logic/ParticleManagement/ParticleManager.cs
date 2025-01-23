@@ -48,7 +48,7 @@ namespace FlowLab.Logic.ParticleManagement
             SpatialHashing.Clear();
         }
 
-        public void AddNewParticle(Vector2 position, bool isBoundary = false)
+        public void AddNewParticle(System.Numerics.Vector2 position, bool isBoundary = false)
         {
             var particle = new Particle(position, ParticleDiameter, FluidDensity, isBoundary);
             Particles.Add(particle);

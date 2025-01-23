@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework;
 namespace FlowLab.Logic.ParticleManagement
 {
     [Serializable]
-    public class Particle(Vector2 position, float diameter, float fluidDensity, bool isBoundary)
+    public class Particle(System.Numerics.Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
         [JsonProperty] public float Diameter = diameter;
         [JsonProperty] public float Density0 = fluidDensity;
@@ -29,12 +29,12 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore] public float EstimatedDensityError;
         [JsonIgnore] public float DensityError;
 
-        [JsonProperty] [NotNull] public Vector2 Position = position;
-        [JsonIgnore][NotNull] public Vector2 Velocity;
-        [JsonIgnore][NotNull] public Vector2 IntermediateVelocity;
-        [JsonIgnore] [NotNull] public Vector2 PressureAcceleration;
-        [JsonIgnore] [NotNull] public Vector2 GravitationAcceleration;
-        [JsonIgnore] [NotNull] public Vector2 ViscosityAcceleration;
+        [JsonProperty] [NotNull] public System.Numerics.Vector2 Position = position;
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 Velocity;
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 IntermediateVelocity;
+        [JsonIgnore] [NotNull] public System.Numerics.Vector2 PressureAcceleration;
+        [JsonIgnore] [NotNull] public System.Numerics.Vector2 GravitationAcceleration;
+        [JsonIgnore] [NotNull] public System.Numerics.Vector2 ViscosityAcceleration;
         [JsonIgnore] [NotNull] public Color Color;
 
         /// <summary>
@@ -60,19 +60,19 @@ namespace FlowLab.Logic.ParticleManagement
         /// Sum of all accelerations.
         /// </summary>
         [JsonIgnore] [NotNull] 
-        public Vector2 Acceleration => PressureAcceleration + ViscosityAcceleration + GravitationAcceleration;
+        public System.Numerics.Vector2 Acceleration => PressureAcceleration + ViscosityAcceleration + GravitationAcceleration;
 
         /// <summary>
         /// Sum of all non Pressure accelerations.
         /// </summary>
         [JsonIgnore] [NotNull]
-        public Vector2 NonPAcceleration => ViscosityAcceleration + GravitationAcceleration;
+        public System.Numerics.Vector2 NonPAcceleration => ViscosityAcceleration + GravitationAcceleration;
 
         [JsonIgnore][NotNull] private List<Particle> _neighbors = [];
         [JsonIgnore][NotNull] private List<Particle> _fluidNeighbors = [];
         [JsonIgnore][NotNull] private List<Particle> _boundaryNeighbors = [];
         [JsonIgnore] [NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
-        [JsonIgnore] [NotNull] private readonly Dictionary<Particle, Vector2> _neighborKernelDerivatives = [];
+        [JsonIgnore] [NotNull] private readonly Dictionary<Particle, System.Numerics.Vector2> _neighborKernelDerivatives = [];
 
         /// <summary>
         /// This Method search for neighbors around and calculates the Kernel and Kernel derivative of these.
@@ -80,7 +80,7 @@ namespace FlowLab.Logic.ParticleManagement
         /// <param name="spatialHashing"></param>
         /// <param name="kernel"></param>
         /// <param name="kernelDerivativ"></param>
-        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<Vector2, Vector2, float> kernel, Func<Vector2, Vector2, Vector2> kernelDerivativ)
+        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<System.Numerics.Vector2, System.Numerics.Vector2, float> kernel, Func<System.Numerics.Vector2, System.Numerics.Vector2, System.Numerics.Vector2> kernelDerivativ)
         {
             _neighbors.Clear();
             _fluidNeighbors.Clear();
@@ -99,9 +99,9 @@ namespace FlowLab.Logic.ParticleManagement
                 _neighborKernels[neighbor] = k;
                 _neighborKernelDerivatives[neighbor] = kD;
             }
-            PressureAcceleration = Vector2.Zero;
-            ViscosityAcceleration = Vector2.Zero;
-            GravitationAcceleration = Vector2.Zero;
+            PressureAcceleration = System.Numerics.Vector2.Zero;
+            ViscosityAcceleration = System.Numerics.Vector2.Zero;
+            GravitationAcceleration = System.Numerics.Vector2.Zero;
             Pressure = 0;
 
             if (!IsBoundary) return;
@@ -113,7 +113,7 @@ namespace FlowLab.Logic.ParticleManagement
         public float Kernel(Particle neighbor)
             => _neighborKernels[neighbor];
 
-        public Vector2 KernelDerivativ(Particle neighbor)
+        public System.Numerics.Vector2 KernelDerivativ(Particle neighbor)
             => _neighborKernelDerivatives[neighbor];
     }
 }

@@ -15,11 +15,11 @@ namespace FlowLab.Logic.ScenarioManagement
 {
     internal class BodyPlacer(Grid grid, float particleDiameter, float fluidDensity)
     {
-        private readonly HashSet<Vector2> _grids = new();
+        private readonly HashSet<System.Numerics.Vector2> _grids = new();
         private readonly Grid _grid = grid;
         private readonly float _particleDiameter = particleDiameter;
         private readonly float _fluidDensity = fluidDensity;
-        private EllipseF _elypse = new(Vector2.Zero, 10 * particleDiameter, 10 * particleDiameter);
+        private EllipseF _elypse = new(System.Numerics.Vector2.Zero, 10 * particleDiameter, 10 * particleDiameter);
         private int _mode;
 
         private readonly Dictionary<int, string> PlacerModes = new()
@@ -30,7 +30,7 @@ namespace FlowLab.Logic.ScenarioManagement
             {3, "Particle"},
         };
 
-        public void Update(InputState inputState, Vector2 worldMousePosition, Scenario scenario, Action uiUpdater)
+        public void Update(InputState inputState, System.Numerics.Vector2 worldMousePosition, Scenario scenario, Action uiUpdater)
         {
             inputState.DoAction(ActionType.NextShape, () => { _mode = (_mode + 1) % PlacerModes.Count; });
             if (_mode == 0)
@@ -83,12 +83,12 @@ namespace FlowLab.Logic.ScenarioManagement
 
             for (var i = 0; i < vertexCount; i++)
             {
-                var start = vertices[i];
-                var end = vertices[(i + 1) % vertexCount];
+                var start = new System.Numerics.Vector2(vertices[i].X, vertices[i].Y);
+                var end = new System.Numerics.Vector2(vertices[(i + 1) % vertexCount].X, vertices[(i + 1) % vertexCount].Y);
                 _grids.Add(start);
-                var lineLength = Vector2.Distance(start, end);
+                var lineLength = System.Numerics.Vector2.Distance(start, end);
                 if (lineLength < _particleDiameter) continue;
-                var dir = Vector2.Normalize(end - start);
+                var dir = System.Numerics.Vector2.Normalize(end - start);
                 var steps = float.Floor(lineLength / _particleDiameter);
                 for (var j = 0f; j < steps; j++)
                     _grids.Add(start + dir * (j * _particleDiameter));
@@ -100,7 +100,7 @@ namespace FlowLab.Logic.ScenarioManagement
             var lst = new HashSet<Particle>();
             foreach (var grid in _grids)
                 lst.Add(new(grid, _particleDiameter, _fluidDensity, true));
-            scenario.AddBody(new(_elypse.Position) { Particles = lst });
+            scenario.AddBody(new(new(_elypse.Position.X, _elypse.Position.Y)) { Particles = lst });
         }
     }
 }

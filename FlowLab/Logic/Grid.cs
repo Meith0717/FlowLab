@@ -12,23 +12,25 @@ namespace FlowLab.Logic
     {
         private readonly float _particleSize = particleSize;
 
-        public Point GetCell(Vector2 position)
+        public System.Numerics.Vector2 GetCell(System.Numerics.Vector2 position)
         {
-            return Vector2.Floor((position) / _particleSize).ToPoint();
+            var floorX = float.Floor(position.X / _particleSize);
+            var floorY = float.Floor(position.Y / _particleSize);
+            return new(floorX, floorY);
         }
 
-        public Vector2 GetCellPosition(Vector2 position)
-            => (GetCell(position).ToVector2() + new Vector2(.5f)) * _particleSize;
+        public System.Numerics.Vector2 GetCellPosition(System.Numerics.Vector2 position)
+            => ( GetCell(position) + new System.Numerics.Vector2(.5f)) * _particleSize;
 
-        public Vector2 GetCellCenter(Vector2 position)
+        public System.Numerics.Vector2 GetCellCenter(System.Numerics.Vector2 position)
             => GetCellPosition(position);
 
-        public void DrawCell(SpriteBatch spriteBatch, Vector2 position, Color color)
+        public void DrawCell(SpriteBatch spriteBatch, System.Numerics.Vector2 position, Color color)
             => spriteBatch.FillRectangle(GetCellPosition(position), new(_particleSize, _particleSize), color);
 
-        public void Draw(SpriteBatch spriteBatch, RectangleF cameraBounds, Vector2? debugPosition)
+        public void Draw(SpriteBatch spriteBatch, RectangleF cameraBounds, System.Numerics.Vector2? debugPosition)
         {
-            var zero = GetCellCenter(Vector2.Zero);
+            var zero = GetCellCenter(System.Numerics.Vector2.Zero);
             spriteBatch.DrawLine(zero, GetCellCenter(new(0, 20)), Color.Green);
             spriteBatch.DrawLine(zero, GetCellCenter(new(20, 0)), Color.Red);
 

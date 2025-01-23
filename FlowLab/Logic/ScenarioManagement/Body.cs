@@ -13,10 +13,10 @@ using System.Collections.Generic;
 namespace FlowLab.Logic.ScenarioManagement
 {
     [Serializable]
-    internal class Body(Vector2 position)
+    internal class Body(System.Numerics.Vector2 position)
     {
         [JsonProperty] public float RotationUpdate;
-        [JsonProperty] private Vector2 _position = position;
+        [JsonProperty] private System.Numerics.Vector2 _position = position;
         [JsonProperty] private HashSet<Particle> _boundaryParticles = new();
 
         public HashSet<Particle> Particles
@@ -24,7 +24,7 @@ namespace FlowLab.Logic.ScenarioManagement
             set { _boundaryParticles = value; }
         } 
 
-        public bool IsHovered(Vector2 position)
+        public bool IsHovered(System.Numerics.Vector2 position)
         {
             foreach (var particle in _boundaryParticles)
             {
@@ -51,7 +51,7 @@ namespace FlowLab.Logic.ScenarioManagement
                 var newAngle = currentAngle + RotationUpdate;
                 var newX = _position.X + radius * MathF.Cos(newAngle);
                 var newY = _position.Y + radius * MathF.Sin(newAngle);
-                particle.Velocity = new Vector2(newX, newY) - particle.Position;
+                particle.Velocity = new System.Numerics.Vector2(newX, newY) - particle.Position;
             }
         }
 
@@ -63,7 +63,7 @@ namespace FlowLab.Logic.ScenarioManagement
             var particleTexture = TextureManager.Instance.GetTexture("particle");
 
             foreach (var particle in _boundaryParticles)
-                spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new Vector2(particleTexture.Width * .5f), 1.1f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, particle.Position, null, color, 0, new System.Numerics.Vector2(particleTexture.Width * .5f), 1.1f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
         }
     }
 }

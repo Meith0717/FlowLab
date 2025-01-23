@@ -35,7 +35,7 @@ namespace FlowLab.Logic.SphComponents
             foreach (var neighbor in particle.FluidNeighbors)
                 s1 += neighbor.Pressure * particle.Kernel(neighbor);
 
-            var s2 = Vector2.Zero;
+            var s2 = System.Numerics.Vector2.Zero;
             foreach (var neighbor in particle.FluidNeighbors)
                 s2 += neighbor.Density * (particle.Position - neighbor.Position) * particle.Kernel(neighbor);
 
@@ -43,7 +43,7 @@ namespace FlowLab.Logic.SphComponents
             foreach (var neighbor in particle.FluidNeighbors)
                 s3 += particle.Kernel(neighbor);
 
-            particle.Pressure = (s1 + Vector2.Dot(new Vector2(0, -gravitation), s2)) / s3;
+            particle.Pressure = (s1 + System.Numerics.Vector2.Dot(new System.Numerics.Vector2(0, -gravitation), s2)) / s3;
         }
 
         public static void ComputePressureAcceleration(Particle fParticle, float gamma, bool mirroring)
@@ -69,10 +69,10 @@ namespace FlowLab.Logic.SphComponents
             foreach (var neighbor in fParticle.Neighbors)
             {
                 var x_ij = fParticle.Position - neighbor.Position;
-                var dotPositionPosition = Vector2.Dot(x_ij, x_ij) + scaledParticleDiameter2;
+                var dotPositionPosition = System.Numerics.Vector2.Dot(x_ij, x_ij) + scaledParticleDiameter2;
 
                 var v_ij = fParticle.Velocity - neighbor.Velocity;
-                var dotVelocityPosition = Vector2.Dot(v_ij, x_ij);
+                var dotVelocityPosition = System.Numerics.Vector2.Dot(v_ij, x_ij);
 
                 var massOverDensity = neighbor.Mass / neighbor.Density;
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);

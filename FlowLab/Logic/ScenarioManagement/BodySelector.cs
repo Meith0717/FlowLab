@@ -13,7 +13,7 @@ namespace FlowLab.Logic.ScenarioManagement
     {
         public Body Body;
 
-        public void Select(InputState inputState, Scenario scenario, Vector2 mousePOsition)
+        public void Select(InputState inputState, Scenario scenario, System.Numerics.Vector2 mousePOsition)
         {
             if (!inputState.HasAction(ActionType.LeftClicked)) return;
             foreach (var body in scenario.Bodies)
@@ -44,11 +44,11 @@ namespace FlowLab.Logic.ScenarioManagement
             Body.RotationUpdate = float.Max(0, float.Round(Body.RotationUpdate, 4));
         }
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 mousePosition)
+        public void Draw(SpriteBatch spriteBatch, System.Numerics.Vector2 mousePosition)
         {
             if (Body is null) return;
             var font = TextureManager.Instance.GetFont("consola");
-            spriteBatch.DrawString(font, $"Rotation: {Body.RotationUpdate}", mousePosition, Color.White, 0, Vector2.Zero, .1f, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font, $"Rotation: {Body.RotationUpdate}", mousePosition, Color.White, 0, System.Numerics.Vector2.Zero, .1f, SpriteEffects.None, 1);
             Body.Draw(spriteBatch, Color.Green);
         }
     }
