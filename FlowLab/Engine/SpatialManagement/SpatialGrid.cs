@@ -51,8 +51,7 @@ namespace FlowLab.Engine.SpatialManagement
                 for (int i = 0; i < _objects.Count; i++)
                 {
                     T obj = _objects[i];
-                    var dx = obj.Position.X - position.X;
-                    var dy = obj.Position.Y - position.Y;
+                    var dx = obj.Position.X - position.X;                   var dy = obj.Position.Y - position.Y;
                     var distanceSquared = dx * dx + dy * dy;
 
                     if (distanceSquared <= radiusSquared)
