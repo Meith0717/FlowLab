@@ -2,9 +2,7 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 
 namespace FlowLab.Logic.ParticleManagement
 {
@@ -16,7 +14,7 @@ namespace FlowLab.Logic.ParticleManagement
             {
                 var position = particle.Position;
                 //grid.DrawCell(spriteBatch, particle.Position, particle.Color);
-                spriteBatch.Draw(particleTexture, position, null, particle.Color, 0, new System.Numerics.Vector2(particleTexture.Width * .5f), .8f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
+                spriteBatch.Draw(particleTexture, position, null, particle.Color, 0, new System.Numerics.Vector2(particleTexture.Width * .5f), 1.3f * (particle.Diameter / particleTexture.Width), SpriteEffects.None, 0);
             }
         }
 

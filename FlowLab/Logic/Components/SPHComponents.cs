@@ -3,7 +3,6 @@
 // All rights reserved.
 
 using FlowLab.Logic.ParticleManagement;
-using Microsoft.Xna.Framework;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -50,6 +49,7 @@ namespace FlowLab.Logic.SphComponents
         {
             float particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
             gamma *= mirroring ? 2 : 1;
+            fParticle.PressureAcceleration = System.Numerics.Vector2.Zero;
 
             foreach (var neighbor in fParticle.Neighbors)
             {
