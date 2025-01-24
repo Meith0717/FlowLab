@@ -51,18 +51,17 @@ namespace FlowLab.Logic.SphComponents
             Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, pressureMirroring));
 
             // update velocities
-            Utilitys.ForEach(false, particles.All, (particle) =>
+            Utilitys.ForEach(parallel, particles.All, (particle) =>
             {
                 if (!particle.IsBoundary)
                     particle.Velocity = particle.IntermediateVelocity + (timeStep * particle.PressureAcceleration);
 
-                spatialHashing.RemoveObject(particle);
                 particle.Position += timeStep * particle.Velocity;
-                spatialHashing.InsertObject(particle);
 
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
                 maxVelocity = particle.Velocity.Length();
             });
+            spatialHashing.Rearrange(parallel);
             return new(iterations, maxVelocity, timeStep * (maxVelocity / h), densityErrorSum / particles.Count);
         }
 

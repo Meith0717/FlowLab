@@ -2,7 +2,6 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using Microsoft.Xna.Framework;
 using System;
 
 namespace FlowLab.Logic.SphComponents
@@ -10,6 +9,7 @@ namespace FlowLab.Logic.SphComponents
     internal class Kernels(float particleDiameter)
     {
         private const float kernelCorrection = 0.04f / 0.0400344729f;
+        private readonly float particleDiameterInverse = 1 / particleDiameter; 
         public readonly float CubicSplineAlpha = 5 / (14 * MathF.PI * (particleDiameter * particleDiameter));
 
         private float DistanceOverH(System.Numerics.Vector2 pos1, System.Numerics.Vector2 pos2)
@@ -17,8 +17,7 @@ namespace FlowLab.Logic.SphComponents
             float dx = pos1.X - pos2.X;
             float dy = pos1.Y - pos2.Y;
 
-            // Compute distance squared and divide by particleDiameter directly
-            return MathF.Sqrt(dx * dx + dy * dy) / particleDiameter;
+            return MathF.Sqrt(dx * dx + dy * dy) * particleDiameterInverse;
         }
 
         public float CubicSpline(System.Numerics.Vector2 position1, System.Numerics.Vector2 position2)

@@ -6,37 +6,66 @@ using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace FlowLab.Engine.SpatialManagement
 {
-    internal class SpatialGrid<T>(Vector2 position, int size) where T : Particle
+    internal class SpatialGrid<T> where T : Particle
     {
-        public readonly RectangleF Bounds = new(position, new(size, size));
-        private readonly List<T> Objects = new();
+        public readonly RectangleF Bounds;
+        private readonly List<T> _objects = new();
+        private readonly object _lock = new(); // Lock for thread-safety
+
+        public SpatialGrid((float, float) position, int size)
+        {
+            Bounds = new RectangleF(position.Item1 * size, position.Item2 * size, size, size);
+        }
 
         public bool IsEmpty
-            => Objects.Count == 0;
-
-        public void Add(T item)
-            => Objects.Add(item);
-
-        public void Remove(T item)
-            => Objects.Remove(item);
-
-        public void AddObjectsInRadius(Vector2 position, float radius, ref List<T> values)
         {
-            var radiusSquared = radius * radius;
-            foreach (T obj in Objects)
+            get
             {
-                if ( Vector2.Subtract(obj.Position, position).LengthSquared() > radiusSquared)
-                    continue;
-                values.Add(obj);
+                lock (_lock)
+                    return _objects.Count == 0;
             }
         }
 
+        public void Add(T item)
+        {
+            lock (_lock)
+                _objects.Add(item); // Add particle to the grid
+        }
+
+        public void Remove(T item)
+        {
+            lock (_lock)
+                _objects.Remove(item); // Remove particle from the grid
+        }
+
+        public void AddObjectsInRadius(System.Numerics.Vector2 position, float radius, ref List<T> values)
+        {
+            var radiusSquared = radius * radius;
+
+            lock (_lock) // Ensure thread-safe access during iteration
+            {
+                for (int i = 0; i < _objects.Count; i++)
+                {
+                    T obj = _objects[i];
+                    var dx = obj.Position.X - position.X;
+                    var dy = obj.Position.Y - position.Y;
+                    var distanceSquared = dx * dx + dy * dy;
+
+                    if (distanceSquared <= radiusSquared)
+                        values.Add(obj);
+                }
+            }
+        }
+
+
+
         public void Draw(SpriteBatch spriteBatch, float cameraZoom)
-            => spriteBatch.DrawRectangle(Bounds, Color.Gray, 2 / cameraZoom);
+        {
+            spriteBatch.DrawRectangle(Bounds, Color.Gray, 2 / cameraZoom);
+        }
     }
 }
