@@ -47,19 +47,32 @@ namespace FlowLab.Logic.SphComponents
 
         public static void ComputePressureAcceleration(Particle fParticle, float gamma, bool mirroring)
         {
-            float particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
-            gamma *= mirroring ? 2 : 1;
             fParticle.PressureAcceleration = System.Numerics.Vector2.Zero;
+            float particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
 
+            var sum1 = System.Numerics.Vector2.Zero;
             foreach (var neighbor in fParticle.Neighbors)
             {
+                if (neighbor.IsBoundary) continue;
+
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var combinedPressure = particlePressureOverDensity2 + neighborPressureOverDensity2;
-                var acceleration = neighbor.Mass * combinedPressure * kernelDerivative;
-
-                fParticle.PressureAcceleration -= neighbor.IsBoundary ? gamma * acceleration : acceleration;
+                sum1 += neighbor.Mass * combinedPressure * kernelDerivative;
             }
+
+            var sum2 = System.Numerics.Vector2.Zero;
+            foreach (var neighbor in fParticle.Neighbors)
+            {
+                if (!neighbor.IsBoundary) continue;
+
+                var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
+                var kernelDerivative = fParticle.KernelDerivativ(neighbor);
+                var combinedPressure = mirroring ? 2 * particlePressureOverDensity2 : particlePressureOverDensity2 + neighborPressureOverDensity2;
+                sum2 += neighbor.Mass * combinedPressure * kernelDerivative;
+            }
+
+            fParticle.PressureAcceleration = - sum1 - (gamma * sum2);
         }
 
         public static void ComputeViscosityAcceleration(float h, float boundaryViscosity, float fluidViscosity, Particle fParticle)
