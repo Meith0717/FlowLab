@@ -49,6 +49,8 @@ namespace FlowLab.Logic.SphComponents
             particle.Ap *= timeStep;
         }
 
+        private static readonly object _lockObject = new();
+
         public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings settings)
         {
             var parallel = settings.ParallelProcessing;
@@ -106,7 +108,9 @@ namespace FlowLab.Logic.SphComponents
                     // pressure clamping
                     p.Pressure = float.Max(p.Pressure, 0);
                     p.EstimatedDensityError = 100 * ((p.Ap - p.St) / fluidDensity);
-                    estimatedDensityErrorSum += float.Max(p.EstimatedDensityError, 0);
+
+                    lock (_lockObject)
+                        estimatedDensityErrorSum += float.Max(p.EstimatedDensityError, 0);
                 });
 
                 // Break condition

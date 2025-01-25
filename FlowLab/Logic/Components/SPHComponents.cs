@@ -56,7 +56,6 @@ namespace FlowLab.Logic.SphComponents
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var combinedPressure = particlePressureOverDensity2 + neighborPressureOverDensity2;
-
                 var acceleration = neighbor.Mass * combinedPressure * kernelDerivative;
 
                 fParticle.PressureAcceleration -= neighbor.IsBoundary ? gamma * acceleration : acceleration;
