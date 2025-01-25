@@ -16,34 +16,37 @@ namespace FlowLab.Logic.SphComponents
     {
         private static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
-            var KernelDerivativ = particle.KernelDerivativ;
-            var sum1 = Utilitys.Sum(particle.Neighbors.Where(p => !p.IsBoundary), n => (n.Mass * KernelDerivativ(n)).SquaredNorm());
-            var sum2 = Utilitys.Sum(particle.Neighbors, n => n.Mass * KernelDerivativ(n));
+            var sum1 = 0f;
+            foreach (var neighbor in particle.Neighbors.Where(p => !p.IsBoundary))
+                sum1 += (neighbor.Mass * particle.KernelDerivativ(neighbor)).SquaredNorm();
+
+            var sum2 = System.Numerics.Vector2.Zero;
+            foreach (var neighbor in particle.Neighbors)
+                sum2 += neighbor.Mass * particle.KernelDerivativ(neighbor);
+
             sum1 += sum2.SquaredNorm();
 
-            particle.AII = -timeStep / (particle.Density * particle.Density) * sum1;
-            if (float.IsNaN(particle.AII)) throw new System.Exception();
+            particle.AII = - timeStep / (particle.Density * particle.Density) * sum1;
         }
 
         private static void ComputeSourceTerm(float timeStep, Particle particle)
         {
-            var KernelDerivativ = particle.KernelDerivativ;
-
-            var predDensityOfNonPVel = Utilitys.Sum(particle.Neighbors, neighbor =>
+            var predDensityOfNonPVel = 0f;
+            foreach (var neighbor in particle.Neighbors)
             {
                 var velDif = particle.IntermediateVelocity - neighbor.IntermediateVelocity;
-                return (neighbor.Mass * velDif).Dot(KernelDerivativ(neighbor));
-            });
+                predDensityOfNonPVel += (neighbor.Mass * velDif).Dot(particle.KernelDerivativ(neighbor));
+            }
             var predDensity = particle.Density + (timeStep * predDensityOfNonPVel);
             particle.St = (particle.Density0 - predDensity) / timeStep;
-            if (float.IsNaN(particle.St)) throw new System.Exception();
         }
 
         private static void ComputeLaplacian(Particle particle, float timeStep)
         {
-            var KernelDerivativ = particle.KernelDerivativ;
-            particle.Ap = timeStep * Utilitys.Sum(particle.Neighbors, neighbor => (neighbor.Mass * (particle.Acceleration - neighbor.Acceleration)).Dot(KernelDerivativ(neighbor)));
-            if (float.IsNaN(particle.Ap)) throw new System.Exception();
+            particle.Ap = 0;
+            foreach (var neighbor in particle.Neighbors)
+                particle.Ap += (neighbor.Mass * (particle.Acceleration - neighbor.Acceleration)).Dot(particle.KernelDerivativ(neighbor));
+            particle.Ap *= timeStep;
         }
 
         public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings settings)
@@ -99,8 +102,6 @@ namespace FlowLab.Logic.SphComponents
                     }
                     else
                         p.Pressure = 0;
-
-                    if (float.IsNaN(p.Pressure)) throw new System.Exception();
 
                     // pressure clamping
                     p.Pressure = float.Max(p.Pressure, 0);

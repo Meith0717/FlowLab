@@ -105,7 +105,9 @@ namespace FlowLab.Logic.ParticleManagement
             Pressure = 0;
 
             if (!IsBoundary) return;
-            var sum = Utilitys.Sum(_boundaryNeighbors, Kernel);
+            var sum = 0f;
+            foreach (var neighbor in _boundaryNeighbors)
+                sum += Kernel(neighbor);
             var volume = gamma / sum;
             Mass = Density0 * volume;
         }

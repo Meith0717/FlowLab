@@ -144,7 +144,7 @@ namespace FlowLab.Objects.Layers
 
             new UiText(layer, "consola")
             {
-                Text = "CFL Scale:",
+                Text = "Max CFL:",
                 Scale = .18f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
@@ -154,12 +154,12 @@ namespace FlowLab.Objects.Layers
                 UpdateTracker = self => self.Disabled = !settings.DynamicTimeStep,
                 InnerColor = new(50, 50, 50),
                 TextColor = Color.White,
-                Text = settings.CFLScale.ToString(),
+                Text = settings.MaxCfl.ToString(),
                 OnClose = (self) =>
                 {
                     if (!float.TryParse(self.Text, out var f))
                         return;
-                    settings.CFLScale = f;
+                    settings.MaxCfl = f;
                 }
             }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;

@@ -14,7 +14,7 @@ namespace FlowLab.Logic.SphComponents
             if (state.MaxVelocity == 0)
                 ts = float.PositiveInfinity;
             else
-                ts = settings.CFLScale * (particleDiameter / state.MaxVelocity);
+                ts = settings.MaxCfl * (particleDiameter / state.MaxVelocity);
             return float.Min(settings.MaxTimeStep, ts);
         }
 

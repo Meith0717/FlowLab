@@ -61,7 +61,7 @@ namespace FlowLab.Logic.SphComponents
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
                 maxVelocity = particle.Velocity.Length();
             });
-            spatialHashing.Rearrange(parallel);
+            spatialHashing.Rearrange(false);
             return new(iterations, maxVelocity, timeStep * (maxVelocity / h), densityErrorSum / particles.Count);
         }
 

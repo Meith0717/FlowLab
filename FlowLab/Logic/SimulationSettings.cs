@@ -14,7 +14,7 @@ namespace FlowLab.Logic
         public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
         public bool ParallelProcessing = true;
         public ColorMode ColorMode = ColorMode.Velocity;
-        public float CFLScale = .4f;
+        public float MaxCfl = .4f;
         public float FixTimeStep = .1f;
         public float TimeStep = .1f;
         public float MaxTimeStep = .5f;
