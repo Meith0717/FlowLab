@@ -70,9 +70,11 @@ namespace FlowLab.Objects.Widgets
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 320);
 
-            new UiButton(this, "save", simulationLayer.SaveData)
+            new UiButton(this, "save", simulationLayer.ToggleDataSaver)
             {
-                UpdatTracker = self => self.Disable = particleManager.DataCollector.Empty || !simulationLayer.Paused,
+                UpdatTracker = self => {
+                    self.TextureIdleColor = particleManager.DataCollector.IsActive ? Color.Red : Color.SkyBlue;
+                },
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 380);
         }

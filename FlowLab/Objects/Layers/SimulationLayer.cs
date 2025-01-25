@@ -177,9 +177,16 @@ namespace FlowLab.Game.Objects.Layers
             RenderTarget2D.SaveAsPng(fs, RenderTarget2D.Width, RenderTarget2D.Height);
         }
 
+        public void ToggleDataSaver()
+        {
+            if (_particleManager.DataCollector.IsActive && !_particleManager.DataCollector.Empty)
+                SaveData();
+            _particleManager.DataCollector.IsActive = !_particleManager.DataCollector.IsActive;
+            _particleManager.DataCollector.Clear();
+        }
+
         public void SaveData()
         {
-            if (_particleManager.DataCollector.Empty) return;
             _dataSaver.SaveToCsv(PersistenceManager.Serializer, _particleManager.DataCollector);
         }
 

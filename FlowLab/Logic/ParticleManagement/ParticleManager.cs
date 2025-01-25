@@ -18,7 +18,7 @@ namespace FlowLab.Logic.ParticleManagement
 
         public readonly FluidDomain Particles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
-        public readonly DataCollector DataCollector = new("simulation", ["simSteps", "timeSteps", "simStepsTime", "iterations", "particles", "gamma1", "gamma2", "gamma3", "timeStep", "densityError", "cfl"]);
+        public readonly DataCollector DataCollector = new("simulation", ["simulationStep", "simulationStepsTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "densityError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
         public readonly float ParticleDiameter = particleDiameter;
         public readonly float FluidDensity = fluidDensity;
         public SimulationState State { get; private set; }
@@ -99,9 +99,11 @@ namespace FlowLab.Logic.ParticleManagement
             // ____Collect data____
             if (_lastTimeSteps >= (int)float.Floor(TimeSteps)) return;
             _lastTimeSteps = (int)float.Floor(TimeSteps);
-            DataCollector.AddData("simSteps", SimStepsCount);
+            DataCollector.AddData("simulationStep", SimStepsCount);
             DataCollector.AddData("timeSteps", _lastTimeSteps);
-            DataCollector.AddData("simStepsTime", SimStepTime);
+            DataCollector.AddData("simulationStepsTime", SimStepTime);
+            DataCollector.AddData("solver", settings.SimulationMethod);
+            DataCollector.AddData("boundary", settings.BoundaryHandling);
             DataCollector.AddData("iterations", State.SolverIterations);
             DataCollector.AddData("particles", Particles.Count);
             DataCollector.AddData("gamma1",settings.Gamma1);
@@ -110,6 +112,9 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("timeStep", settings.TimeStep);
             DataCollector.AddData("densityError", RelativeDensityError);
             DataCollector.AddData("cfl", CflCondition);
+            DataCollector.AddData("bViscosity", settings.BoundaryViscosity);
+            DataCollector.AddData("fViscosity", settings.FluidViscosity);
+            DataCollector.AddData("stiffness", settings.FluidStiffness);
         }
 
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger, SimulationSettings settings)

@@ -13,6 +13,7 @@ namespace Fluid_Simulator.Core.Profiling
         public readonly string Name;
         private int _count = 0;
         public Dictionary<string, List<object>> Data = new();
+        public bool IsActive;
 
         public DataCollector(string name, List<string> variables)
         {
@@ -33,13 +34,15 @@ namespace Fluid_Simulator.Core.Profiling
         public int Count => _count / Data.Keys.Count;
         public void AddData<T>(string variable, T value)
         {
-            if (value is int || value is float || value is double || value is decimal || value is long || value is short || value is Vector2)
-            {
+            if (!IsActive)
+                return;
+            _count++;
+            if (value is int || value is float || value is double 
+                || value is decimal || value is long || value is short 
+                || value is Vector2)
                 Data[variable].Add(value);
-                _count++;
-            }
             else
-                throw new ArgumentException("Value must be a numerical type");
+                Data[variable].Add(value);
         }
     }
 }
