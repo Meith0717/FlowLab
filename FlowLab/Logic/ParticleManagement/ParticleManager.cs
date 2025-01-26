@@ -6,7 +6,6 @@ using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Fluid_Simulator.Core.Profiling;
-using Microsoft.Xna.Framework;
 using System.Diagnostics;
 using System.Linq;
 
@@ -61,12 +60,12 @@ namespace FlowLab.Logic.ParticleManagement
             SpatialHashing.InsertObject(particle);
         }
 
-        public int FluidParticlesCount 
+        public int FluidParticlesCount
             => Particles.CountFluid;
 
-        public float RelativeDensityError 
+        public float RelativeDensityError
             => State.DensityError;
-        public float CflCondition 
+        public float CflCondition
             => State.MaxCFL;
 
         private int _lastTimeSteps;
@@ -106,7 +105,7 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("boundary", settings.BoundaryHandling);
             DataCollector.AddData("iterations", State.SolverIterations);
             DataCollector.AddData("particles", Particles.Count);
-            DataCollector.AddData("gamma1",settings.Gamma1);
+            DataCollector.AddData("gamma1", settings.Gamma1);
             DataCollector.AddData("gamma2", settings.Gamma2);
             DataCollector.AddData("gamma3", settings.Gamma3);
             DataCollector.AddData("timeStep", settings.TimeStep);
@@ -130,7 +129,7 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = !p.IsBoundary ? new(20, 100, 255) : Microsoft.Xna.Framework.Color.DarkGray;
                         break;
                     case ColorMode.Velocity:
-                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl/settings.MaxCfl) : Microsoft.Xna.Framework.Color.DarkGray;
+                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl / settings.MaxCfl) : Microsoft.Xna.Framework.Color.DarkGray;
                         break;
                     case ColorMode.Pressure:
                         var relPressure = p.Pressure / 70;

@@ -1,9 +1,8 @@
 ﻿// DataCollector.cs 
-// Copyright (c) 2023-2024 Thierry Meiers 
+// Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 
 namespace Fluid_Simulator.Core.Profiling
@@ -37,8 +36,8 @@ namespace Fluid_Simulator.Core.Profiling
             if (!IsActive)
                 return;
             _count++;
-            if (value is int || value is float || value is double 
-                || value is decimal || value is long || value is short 
+            if (value is int || value is float || value is double
+                || value is decimal || value is long || value is short
                 || value is Vector2)
                 Data[variable].Add(value);
             else

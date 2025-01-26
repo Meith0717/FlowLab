@@ -11,7 +11,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace FlowLab.Logic
@@ -31,9 +30,9 @@ namespace FlowLab.Logic
         {
             inputState.DoAction(ActionType.ToggleDebugg, () => { _active = !_active; Clear(); });
             _particles.Clear();
-            if (IsSelected) 
+            if (IsSelected)
                 camera.Position = SelectedParticle.Position;
-            if (!_active) return; 
+            if (!_active) return;
             inputState.DoAction(ActionType.NeighborSearchDebugg, () => _drawSpatialHashing = !_drawSpatialHashing);
             _spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
             if (!inputState.ContainAction(ActionType.LeftClicked)) return;

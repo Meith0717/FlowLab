@@ -56,7 +56,7 @@ namespace FlowLab.Game.Objects.Layers
             _particlePlacer = new(_particleManager, ParticleDiameter);
             _debugger = new(_particleManager.SpatialHashing);
             _particleRenderer = new();
-            _settings = settings;            
+            _settings = settings;
             _frameCounter = frameCounter;
             _grid = new(ParticleDiameter);
             _bodySelector = new();
@@ -81,11 +81,11 @@ namespace FlowLab.Game.Objects.Layers
         {
             base.Update(gameTime, inputState);
 
-            inputState.DoAction(ActionType.NextScene, () => 
+            inputState.DoAction(ActionType.NextScene, () =>
             {
                 if (!Paused) return;
                 _scenarioManager.LoadNextScenario();
-                _particlePlacer.Clear(); 
+                _particlePlacer.Clear();
             });
             inputState.DoAction(ActionType.Test, TakeScreenShot);
             inputState.DoAction(ActionType.Reload, ReloadUi);

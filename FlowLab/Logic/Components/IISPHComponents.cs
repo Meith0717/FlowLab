@@ -26,7 +26,7 @@ namespace FlowLab.Logic.SphComponents
 
             sum1 += sum2.SquaredNorm();
 
-            particle.AII = - timeStep / (particle.Density * particle.Density) * sum1;
+            particle.AII = -timeStep / (particle.Density * particle.Density) * sum1;
         }
 
         private static void ComputeSourceTerm(float timeStep, Particle particle)
@@ -75,7 +75,6 @@ namespace FlowLab.Logic.SphComponents
             var i = -1;
             while (true)
             {
-                var estimatedDensityErrorSum = 0f;
                 i++;
 
                 switch (settings.BoundaryHandling)
@@ -108,12 +107,10 @@ namespace FlowLab.Logic.SphComponents
                     // pressure clamping
                     p.Pressure = float.Max(p.Pressure, 0);
                     p.EstimatedDensityError = 100 * ((p.Ap - p.St) / fluidDensity);
-
-                    lock (_lockObject)
-                        estimatedDensityErrorSum += float.Max(p.EstimatedDensityError, 0);
                 });
 
                 // Break condition
+                var estimatedDensityErrorSum = particles.Fluid.AsParallel().Sum(p => float.Max(p.EstimatedDensityError, 0));
                 var avgDensityError = estimatedDensityErrorSum / particles.CountFluid;
                 if ((avgDensityError <= minError) && (i > 2) || (i >= maxIterations))
                     break;

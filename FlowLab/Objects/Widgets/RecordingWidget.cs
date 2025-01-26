@@ -29,9 +29,9 @@ namespace FlowLab.Objects.Widgets
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 40);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => 
+                UpdateTracker = self =>
                 {
-                    var timeSpan = TimeSpan.FromSeconds((float)recorder.FrameCount/(float)settings.FrameRate);
+                    var timeSpan = TimeSpan.FromSeconds((float)recorder.FrameCount / (float)settings.FrameRate);
                     self.Text = timeSpan.ToString(@"mm\:ss");
                 },
                 Scale = .17f,

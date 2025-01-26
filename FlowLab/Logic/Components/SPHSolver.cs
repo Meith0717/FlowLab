@@ -5,7 +5,7 @@
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
 using System;
-using System.Threading;
+using System.Linq;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -13,7 +13,7 @@ namespace FlowLab.Logic.SphComponents
     {
         private static readonly object _lockObject = new();
 
-        private SimulationState BaseSph(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings,  Func<FluidDomain, int> pressureSolver, bool pressureMirroring)
+        private SimulationState BaseSph(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings, Func<FluidDomain, int> pressureSolver, bool pressureMirroring)
         {
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
@@ -25,20 +25,16 @@ namespace FlowLab.Logic.SphComponents
             var gamma2 = settings.Gamma2;
             var gamma3 = settings.Gamma3;
 
-            var densityErrorSum = 0f;
-            var maxVelocity = 0f;
             var iterations = 0;
 
             // Compute density
             Utilitys.ForEach(parallel, particles.All, particle =>
             {
-                particle.FindNeighbors(spatialHashing, gamma1, kernels.CubicSpline, kernels.NablaCubicSpline);
+                particle.FindNeighbors(spatialHashing, gamma1, kernels);
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
                 particle.DensityError = 100 * ((particle.Density - FluidDensity) / FluidDensity);
-                if (particle.IsBoundary) return;
-                lock (_lockObject)
-                    densityErrorSum += float.Max(particle.DensityError, 0);
             });
+            var densityErrorSum = particles.Fluid.AsParallel().Sum(p => float.Max(p.DensityError, 0));
 
             // compute non-pressure forces & update intermediate velocities using non-pressure forces
             Utilitys.ForEach(parallel, particles.Fluid, particle =>
@@ -59,13 +55,10 @@ namespace FlowLab.Logic.SphComponents
             {
                 if (!particle.IsBoundary)
                     particle.Velocity = particle.IntermediateVelocity + (timeStep * particle.PressureAcceleration);
-
                 particle.Position += timeStep * particle.Velocity;
-
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
-                lock (_lockObject)
-                    maxVelocity = float.Max(maxVelocity, particle.Velocity.Length());
             });
+            var maxVelocity = particles.Fluid.AsParallel().Max(p => p.Velocity.Length());
             spatialHashing.Rearrange(false);
             return new(iterations, maxVelocity, timeStep * (maxVelocity / h), densityErrorSum / particles.CountFluid);
         }

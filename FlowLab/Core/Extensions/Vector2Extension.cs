@@ -2,16 +2,19 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using System.Numerics;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace FlowLab.Core.Extensions
 {
     internal static class Vector2Extension
     {
-        public static float Dot(this Vector2 vector, Vector2 target) 
-            => Vector2.Dot(vector, target);
+        public static float Dot(this Vector2 vector, Vector2 target)
+        {
+            return (vector.X * target.X)
+            + (vector.Y * target.Y);
+        }
 
         public static Vector2 DirectionToVector2(this Vector2 vector, Vector2 target) => Vector2.Normalize(Vector2.Subtract(target, vector));
 

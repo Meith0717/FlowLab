@@ -3,14 +3,10 @@
 // All rights reserved.
 
 using FlowLab.Engine.LayerManagement;
-using FlowLab.Game.Engine.UserInterface.Components;
 using FlowLab.Game.Engine.UserInterface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FlowLab.Game.Engine.UserInterface.Components;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace FlowLab.Engine.UserInterface.Components
 {

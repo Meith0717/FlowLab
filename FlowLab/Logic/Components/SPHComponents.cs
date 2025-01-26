@@ -8,7 +8,7 @@ namespace FlowLab.Logic.SphComponents
 {
     internal static class SPHComponents
     {
-        public static float ComputeDynamicTimeStep(SimulationSettings settings, SimulationState state, float particleDiameter) 
+        public static float ComputeDynamicTimeStep(SimulationSettings settings, SimulationState state, float particleDiameter)
         {
             float ts;
             if (state.MaxVelocity == 0)
@@ -72,7 +72,7 @@ namespace FlowLab.Logic.SphComponents
                 sum2 += neighbor.Mass * combinedPressure * kernelDerivative;
             }
 
-            fParticle.PressureAcceleration = - sum1 - (gamma * sum2);
+            fParticle.PressureAcceleration = -sum1 - (gamma * sum2);
         }
 
         public static void ComputeViscosityAcceleration(float h, float boundaryViscosity, float fluidViscosity, Particle fParticle)

@@ -41,7 +41,7 @@ namespace FlowLab.Core
             CreateFolder(relativePath);
         }
 
-        public bool FileExist(string relativePath) 
+        public bool FileExist(string relativePath)
             => File.Exists(Path.Combine(RootPath, relativePath));
 
         public bool DeleteFolder(string relativePath)
@@ -59,7 +59,7 @@ namespace FlowLab.Core
             return true;
         }
 
-        public StreamWriter GetStreamWriter(string relativePath) 
+        public StreamWriter GetStreamWriter(string relativePath)
             => new StreamWriter(Path.Combine(RootPath, relativePath));
 
         public FileStream GetFileStream(string relativePath, FileMode mode)

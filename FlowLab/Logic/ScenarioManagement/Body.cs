@@ -6,7 +6,6 @@ using FlowLab.Core.ContentHandling;
 using FlowLab.Logic.ParticleManagement;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -22,7 +21,7 @@ namespace FlowLab.Logic.ScenarioManagement
         public HashSet<Particle> Particles
         {
             set { _boundaryParticles = value; }
-        } 
+        }
 
         public bool IsHovered(System.Numerics.Vector2 position)
         {
@@ -55,7 +54,7 @@ namespace FlowLab.Logic.ScenarioManagement
             }
         }
 
-        public void Update() 
+        public void Update()
             => Rotate();
 
         public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.Color color)

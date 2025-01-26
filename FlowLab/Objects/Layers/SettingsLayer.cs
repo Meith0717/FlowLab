@@ -16,7 +16,7 @@ namespace FlowLab.Objects.Layers
 {
     internal class SettingsLayer : Layer
     {
-        public SettingsLayer(Game1 game1, SimulationSettings settings) 
+        public SettingsLayer(Game1 game1, SimulationSettings settings)
             : base(game1, false, true, true)
         {
 
@@ -39,7 +39,7 @@ namespace FlowLab.Objects.Layers
                 Text = "SETTINGS",
                 Scale = .25f,
                 Color = Color.White
-            }.Place(anchor: Anchor.Left, y: y, hSpace: 10, vSpace:10);
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 10, vSpace: 10);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -103,7 +103,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FixTimeStep = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -139,7 +139,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxTimeStep = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -161,7 +161,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxCfl = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -183,7 +183,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MinError = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -205,7 +205,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.MaxIterations = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -227,7 +227,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.RelaxationCoefficient = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -238,9 +238,9 @@ namespace FlowLab.Objects.Layers
             }.Place(anchor: Anchor.Left, y: y, hSpace: 10);
             y += overLineOffset;
 
-            new UiLine(layer, 2) 
-            { 
-                Color = Color.Gray 
+            new UiLine(layer, 2)
+            {
+                Color = Color.Gray
             }.Place(relWidth: 1, y: y, hSpace: 5);
             y += underLineOffset;
 
@@ -279,7 +279,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gravitation = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -300,7 +300,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FluidViscosity = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -322,7 +322,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.FluidStiffness = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += blockOffset;
 
             new UiText(layer, "consola")
@@ -374,7 +374,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.BoundaryViscosity = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -395,7 +395,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma1 = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -416,7 +416,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma2 = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")
@@ -437,7 +437,7 @@ namespace FlowLab.Objects.Layers
                         return;
                     settings.Gamma3 = f;
                 }
-            }.Place(height: 25,width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
             y += elementOffset;
 
             new UiText(layer, "consola")

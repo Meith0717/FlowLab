@@ -1,4 +1,4 @@
-﻿// ControllsWidget.cs 
+﻿// ControlWidget.cs 
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
@@ -19,7 +19,8 @@ namespace FlowLab.Objects.Widgets
             new UiButton(this, "play", () => simulationLayer.Paused = !simulationLayer.Paused)
             {
                 Action = Core.InputManagement.ActionType.TogglePause,
-                UpdatTracker = self => { 
+                UpdatTracker = self =>
+                {
                     self.Texture = simulationLayer.Paused ? "play" : "pause";
                     self.TextureIdleColor = simulationLayer.Paused ? Color.Red : Color.LightGreen;
                 },
@@ -72,7 +73,8 @@ namespace FlowLab.Objects.Widgets
 
             new UiButton(this, "save", simulationLayer.ToggleDataSaver)
             {
-                UpdatTracker = self => {
+                UpdatTracker = self =>
+                {
                     self.TextureIdleColor = particleManager.DataCollector.IsActive ? Color.Red : Color.SkyBlue;
                 },
                 TextureScale = .5f,

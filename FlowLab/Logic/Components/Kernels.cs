@@ -1,4 +1,4 @@
-﻿// SPHKernel.cs 
+﻿// Kernels.cs 
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
@@ -6,10 +6,10 @@ using System;
 
 namespace FlowLab.Logic.SphComponents
 {
-    internal class Kernels(float particleDiameter)
+    public class Kernels(float particleDiameter)
     {
         private const float kernelCorrection = 0.04f / 0.0400344729f;
-        private readonly float particleDiameterInverse = 1 / particleDiameter; 
+        private readonly float particleDiameterInverse = 1 / particleDiameter;
         public readonly float CubicSplineAlpha = 5 / (14 * MathF.PI * (particleDiameter * particleDiameter));
 
         private float DistanceOverH(System.Numerics.Vector2 pos1, System.Numerics.Vector2 pos2)

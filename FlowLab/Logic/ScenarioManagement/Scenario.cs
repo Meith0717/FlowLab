@@ -19,7 +19,8 @@ namespace FlowLab.Logic.ScenarioManagement
 
         [JsonIgnore] public bool Saved { get; set; } = true;
 
-        [JsonIgnore] public bool IsEmpty 
+        [JsonIgnore]
+        public bool IsEmpty
             => Bodies.Count == 0;
 
         public void AddBody(Body body)
@@ -28,16 +29,16 @@ namespace FlowLab.Logic.ScenarioManagement
             Saved = false;
         }
 
-        public void RemoveBody(Body body) 
+        public void RemoveBody(Body body)
         {
             Bodies.Remove(body);
             Saved = false;
         }
 
-        public void Load(ParticleManager particleManager) 
+        public void Load(ParticleManager particleManager)
             => Utilitys.ForEach(false, Bodies, body => body.Load(particleManager));
 
-        public void Update() 
+        public void Update()
             => Utilitys.ForEach(false, Bodies, body => body.Update());
 
         public void Draw(SpriteBatch spriteBatch)

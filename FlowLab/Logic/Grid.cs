@@ -20,7 +20,7 @@ namespace FlowLab.Logic
         }
 
         public System.Numerics.Vector2 GetCellPosition(System.Numerics.Vector2 position)
-            => ( GetCell(position) + new System.Numerics.Vector2(.5f)) * _particleSize;
+            => (GetCell(position) + new System.Numerics.Vector2(.5f)) * _particleSize;
 
         public System.Numerics.Vector2 GetCellCenter(System.Numerics.Vector2 position)
             => GetCellPosition(position);

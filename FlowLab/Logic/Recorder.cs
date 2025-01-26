@@ -3,10 +3,8 @@
 // All rights reserved.
 
 using FlowLab.Core;
-using FlowLab.Engine.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Data;
 
 namespace FlowLab.Logic
 {

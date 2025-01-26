@@ -2,10 +2,8 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Core;
 using FlowLab.Logic.ParticleManagement;
 using System.Collections.Generic;
-using System.IO;
 
 namespace FlowLab.Logic.ScenarioManagement
 {
