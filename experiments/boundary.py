@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the CSV file
-data = pd.read_csv("20250125_184836\\simulation.csv")
+data = pd.read_csv("boundarieData\\simulation.csv")
 
 # Extract the required columns
 boundaries = data["boundary"].unique()
