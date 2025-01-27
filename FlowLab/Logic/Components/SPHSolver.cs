@@ -1,4 +1,4 @@
-﻿// SPHSolver.cs 
+// SPHSolver.cs 
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
@@ -59,7 +59,7 @@ namespace FlowLab.Logic.SphComponents
                 particle.Cfl = timeStep * (particle.Velocity.Length() / h);
             });
             var maxVelocity = particles.Fluid.AsParallel().Max(p => p.Velocity.Length());
-            spatialHashing.Rearrange(false);
+            spatialHashing.Rearrange(parallel);
             return new(iterations, maxVelocity, timeStep * (maxVelocity / h), densityErrorSum / particles.CountFluid);
         }
 
