@@ -93,12 +93,60 @@ def Plot_DensityError_Stiffness(data):
     plt.tight_layout()
     plt.savefig("experiments\\Stiffness vs Density Error.png")
 
-data = pd.read_csv("experiments\\stiffnesData\\simulation.csv")
-data1 = pd.read_csv("experiments\\20250127_202349\\simulation.csv")
+def Plot__Gamma1_SolverIterations(data):
+    # Extract static values for title
+    solver = data["solver"].iloc[0]
+    boundary = data["boundary"].iloc[0]
+    timeStep = data["timeStep"].iloc[0]
+
+    # Calculate the mean density error for each stiffness value
+    mean_density_error_per_stiffness = data.groupby("gamma1")["iterations"].mean()
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(mean_density_error_per_stiffness.index, mean_density_error_per_stiffness.values, label="Iterations", marker="o")
+    plt.xlabel("Gamma 1")
+    plt.ylabel("Solver Iterations")
+    plt.title(f"Gamma 1 vs Solver Iterations\nSolver: {solver}, Boundary: {boundary}, Time Step: {timeStep}")
+    plt.legend()
+    plt.grid(True)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.savefig("experiments\\Gamma 1 vs Solver Iterations.png")
+
+def Plot__Gamma2_SolverIterations(data):
+    # Extract static values for title
+    solver = data["solver"].iloc[0]
+    boundary = data["boundary"].iloc[0]
+    timeStep = data["timeStep"].iloc[0]
+
+    # Calculate the mean density error for each stiffness value
+    mean_density_error_per_stiffness = data.groupby("gamma2")["iterations"].mean()
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(mean_density_error_per_stiffness.index, mean_density_error_per_stiffness.values, label="Iterations", marker="o")
+    plt.xlabel("Gamma 2")
+    plt.ylabel("Solver Iterations")
+    plt.title(f"Gamma 2 vs Solver Iterations\nSolver: {solver}, Boundary: {boundary}, Time Step: {timeStep}")
+    plt.legend()
+    plt.grid(True)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.savefig("experiments\\Gamma 2 vs Solver Iterations.png")
+
+data = pd.read_csv("experiments\\stiffnessData\\simulation.csv")
+data1 = pd.read_csv("experiments\\20250127_230007\\simulation.csv")
 data2 = pd.read_csv("experiments\\columnHeightData\\simulation.csv")
 data3 = pd.read_csv("experiments\\timestepData\\simulation.csv")
+data4 = pd.read_csv("experiments\\20250127_232634\\simulation.csv")
+data5 = pd.read_csv("experiments\\20250128_000417\\simulation.csv")
 
 Plot_DensityError_Stiffness(data)
 Plot_Boundary_Handling(data1)
 Plot_ColumnHeight_SolverIterations(data2)
 Plot_TimeStep_SolverIterations(data3)
+Plot__Gamma1_SolverIterations(data4)
+Plot__Gamma2_SolverIterations(data5)
