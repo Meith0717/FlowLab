@@ -3,6 +3,7 @@
 // All rights reserved.
 
 using FlowLab.Engine.SpatialManagement;
+using FlowLab.Logic.SphComponents;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using Newtonsoft.Json;
@@ -73,7 +74,7 @@ namespace FlowLab.Logic.ParticleManagement
         /// <param name="spatialHashing"></param>
         /// <param name="kernel"></param>
         /// <param name="kernelDerivativ"></param>
-        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<System.Numerics.Vector2, System.Numerics.Vector2, float> kernel, Func<System.Numerics.Vector2, System.Numerics.Vector2, System.Numerics.Vector2> kernelDerivativ)
+        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Kernels kernels)
         {
             _neighbors.Clear();
             _fluidNeighbors.Clear();
@@ -83,12 +84,13 @@ namespace FlowLab.Logic.ParticleManagement
 
             spatialHashing.InRadius(Position, Diameter * 2f, ref _neighbors);
             if (_neighbors.Count == 0) _neighbors.Add(this);
-            foreach (var neighbor in _neighbors)
+            for (int i = 0; i < _neighbors.Count; i++)
             {
+                var neighbor = _neighbors[i];
                 if (!neighbor.IsBoundary) _fluidNeighbors.Add(neighbor);
                 if (neighbor.IsBoundary) _boundaryNeighbors.Add(neighbor);
-                var k = kernel.Invoke(Position, neighbor.Position);
-                var kD = kernelDerivativ.Invoke(Position, neighbor.Position);
+                var k = kernels.CubicSpline(Position, neighbor.Position);
+                var kD = kernels.NablaCubicSpline(Position, neighbor.Position);
                 _neighborKernels[neighbor] = k;
                 _neighborKernelDerivatives[neighbor] = kD;
             }
