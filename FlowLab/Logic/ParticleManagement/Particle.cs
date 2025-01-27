@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
 {
@@ -68,12 +69,6 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, System.Numerics.Vector2> _neighborKernelDerivatives = [];
 
-        /// <summary>
-        /// This Method search for neighbors around and calculates the Kernel and Kernel derivative of these.
-        /// </summary>
-        /// <param name="spatialHashing"></param>
-        /// <param name="kernel"></param>
-        /// <param name="kernelDerivativ"></param>
         public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Kernels kernels)
         {
             _neighbors.Clear();
@@ -87,23 +82,22 @@ namespace FlowLab.Logic.ParticleManagement
             for (int i = 0; i < _neighbors.Count; i++)
             {
                 var neighbor = _neighbors[i];
-                if (!neighbor.IsBoundary) _fluidNeighbors.Add(neighbor);
-                if (neighbor.IsBoundary) _boundaryNeighbors.Add(neighbor);
-                var k = kernels.CubicSpline(Position, neighbor.Position);
-                var kD = kernels.NablaCubicSpline(Position, neighbor.Position);
-                _neighborKernels[neighbor] = k;
-                _neighborKernelDerivatives[neighbor] = kD;
+                if (!neighbor.IsBoundary) 
+                    _fluidNeighbors.Add(neighbor);
+                else
+                    _boundaryNeighbors.Add(neighbor);
+
+                _neighborKernels[neighbor] = kernels.CubicSpline(Position, neighbor.Position);
+                _neighborKernelDerivatives[neighbor] = kernels.NablaCubicSpline(Position, neighbor.Position);
             }
+
             PressureAcceleration = System.Numerics.Vector2.Zero;
             ViscosityAcceleration = System.Numerics.Vector2.Zero;
             GravitationAcceleration = System.Numerics.Vector2.Zero;
             Pressure = 0;
 
             if (!IsBoundary) return;
-            var sum = 0f;
-            foreach (var neighbor in _boundaryNeighbors)
-                sum += Kernel(neighbor);
-            var volume = gamma / sum;
+            var volume = gamma / _boundaryNeighbors.Sum(Kernel);
             Mass = Density0 * volume;
         }
 
