@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import make_interp_spline
 
 # Load the CSV file
-data = pd.read_csv("stiffnesData\\simulation.csv")
+data = pd.read_csv("stiffnessData\\simulation.csv")
 
 # Extract static values for title
 solver = data["solver"].iloc[0]
@@ -17,9 +17,9 @@ mean_density_error_per_stiffness = data.groupby("stiffness")["densityError"].mea
 # Create the plot
 plt.figure(figsize=(10, 6))
 plt.plot(mean_density_error_per_stiffness.index, mean_density_error_per_stiffness.values, label="Density Error", marker="o")
-plt.xlabel("Sample")
+plt.xlabel("Stiffness")
 plt.ylabel("Density Error")
-plt.title(f"Sample vs Density Error\nSolver: {solver}, Boundary: {boundary}")
+plt.title(f"Stiffness vs Density Error\nSolver: {solver}, Boundary: {boundary}")
 plt.legend()
 plt.grid(True)
 

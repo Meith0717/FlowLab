@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import make_interp_spline
 
 # Load the CSV file
-data = pd.read_csv("20250125_175859\\simulation.csv")
+data = pd.read_csv("timeStepData\\simulation.csv")
 
 # Extract static values for title
 solver = data["solver"].iloc[0]
