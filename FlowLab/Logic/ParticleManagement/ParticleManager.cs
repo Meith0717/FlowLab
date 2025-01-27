@@ -73,21 +73,13 @@ namespace FlowLab.Logic.ParticleManagement
         {
             // ____Update____
             var watch = Stopwatch.StartNew();
-            switch (settings.SimulationMethod)
+            State = settings.SimulationMethod switch
             {
-                case SimulationMethod.IISPH:
-                    State = SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, settings);
-                    break;
-                case SimulationMethod.SESPH:
-                    State = SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, settings);
-                    break;
-            }
+                SimulationMethod.IISPH => SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, settings),
+                SimulationMethod.SESPH => SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, settings)
+            };
             watch.Stop();
-
-            if (settings.DynamicTimeStep)
-                settings.TimeStep = SPHComponents.ComputeDynamicTimeStep(settings, State, ParticleDiameter);
-            else
-                settings.TimeStep = settings.FixTimeStep;
+            settings.TimeStep = settings.DynamicTimeStep ? SPHComponents.ComputeDynamicTimeStep(settings, State, ParticleDiameter) : settings.FixTimeStep;
 
             // ___Track some stuff___
             TimeSteps += settings.TimeStep;

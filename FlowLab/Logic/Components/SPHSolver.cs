@@ -50,6 +50,7 @@ namespace FlowLab.Logic.SphComponents
 
         public SimulationState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
+            if (particles.CountFluid == 0) return new(0, 0, 0, 0);
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
             var fluidViscosity = settings.FluidViscosity;
@@ -68,6 +69,7 @@ namespace FlowLab.Logic.SphComponents
 
         public SimulationState SESPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
+            if (particles.CountFluid == 0) return new(0, 0, 0, 0);
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
             var fluidViscosity = settings.FluidViscosity;
