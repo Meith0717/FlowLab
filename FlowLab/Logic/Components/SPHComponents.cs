@@ -51,10 +51,8 @@ namespace FlowLab.Logic.SphComponents
             float particlePressureOverDensity2 = fParticle.Pressure / (fParticle.Density * fParticle.Density);
 
             var sum1 = System.Numerics.Vector2.Zero;
-            foreach (var neighbor in fParticle.Neighbors)
+            foreach (var neighbor in fParticle.FluidNeighbors)
             {
-                if (neighbor.IsBoundary) continue;
-
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var combinedPressure = particlePressureOverDensity2 + neighborPressureOverDensity2;
@@ -62,10 +60,8 @@ namespace FlowLab.Logic.SphComponents
             }
 
             var sum2 = System.Numerics.Vector2.Zero;
-            foreach (var neighbor in fParticle.Neighbors)
+            foreach (var neighbor in fParticle.BoundaryNeighbors)
             {
-                if (!neighbor.IsBoundary) continue;
-
                 var neighborPressureOverDensity2 = neighbor.Pressure / (neighbor.Density * neighbor.Density);
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var combinedPressure = mirroring ? 2 * particlePressureOverDensity2 : particlePressureOverDensity2 + neighborPressureOverDensity2;

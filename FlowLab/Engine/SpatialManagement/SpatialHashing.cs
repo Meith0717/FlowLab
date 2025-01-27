@@ -38,13 +38,12 @@ namespace FlowLab.Engine.SpatialManagement
 
         public void Clear() => _grids.Clear();
 
-        public void InRadius(System.Numerics.Vector2 position, float radius, ref List<Particle> allInRad)
+        public void InRadius(System.Numerics.Vector2 position, float radius, ref List<Particle> particleInRadius)
         {
             var startX = (int)MathF.Floor((position.X - radius) / CellSize);
             var endX = (int)MathF.Ceiling((position.X + radius) / CellSize);
             var startY = (int)MathF.Floor((position.Y - radius) / CellSize);
             var endY = (int)MathF.Ceiling((position.Y + radius) / CellSize);
-            var count = 0;
 
             for (int x = startX; x < endX; x++)
             {
@@ -52,18 +51,7 @@ namespace FlowLab.Engine.SpatialManagement
                 {
                     var hash = (x, y);
                     if (!_grids.TryGetValue(hash, out var grid)) continue;
-                    count += grid.CountObjectsInRadius(position, radius);
-                }
-            }
-
-            allInRad.Capacity = count;
-            for (int x = startX; x < endX; x++)
-            {
-                for (int y = startY; y < endY; y++)
-                {
-                    var hash = (x, y);
-                    if (!_grids.TryGetValue(hash, out var grid)) continue;
-                    grid.AddObjectsInRadius(position, radius, ref allInRad);
+                    grid.AddObjectsInRadius(position, radius, ref particleInRadius);
                 }
             }
         }

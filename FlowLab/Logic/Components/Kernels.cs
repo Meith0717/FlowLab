@@ -6,7 +6,7 @@ using System;
 
 namespace FlowLab.Logic.SphComponents
 {
-    public class Kernels(float particleDiameter)
+    internal class Kernels(float particleDiameter)
     {
         private const float kernelCorrection = 0.04f / 0.0400344729f;
         private readonly float particleDiameterInverse = 1 / particleDiameter;

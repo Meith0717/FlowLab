@@ -3,7 +3,6 @@
 // All rights reserved.
 
 using FlowLab.Engine.SpatialManagement;
-using FlowLab.Logic.SphComponents;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using Newtonsoft.Json;
@@ -38,37 +37,26 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore][NotNull] public System.Numerics.Vector2 ViscosityAcceleration;
         [JsonIgnore][NotNull] public Color Color;
 
-        /// <summary>
-        /// Current particle neighbors.
-        /// </summary>
         [JsonIgnore]
         [NotNull]
         public List<Particle> Neighbors => _neighbors;
 
-        /// <summary>
-        /// Current fluid particle neighbors.
-        /// </summary>
         [JsonIgnore]
         [NotNull]
         public List<Particle> FluidNeighbors => _fluidNeighbors;
 
-        /// <summary>
-        /// Current bound box of Particle.
-        /// </summary>
+        [JsonIgnore]
+        [NotNull]
+        public List<Particle> BoundaryNeighbors => _boundaryNeighbors;
+
         [JsonIgnore]
         [NotNull]
         public CircleF BoundBox => new(Position, Diameter / 2);
 
-        /// <summary>
-        /// Sum of all accelerations.
-        /// </summary>
         [JsonIgnore]
         [NotNull]
         public System.Numerics.Vector2 Acceleration => PressureAcceleration + ViscosityAcceleration + GravitationAcceleration;
 
-        /// <summary>
-        /// Sum of all non Pressure accelerations.
-        /// </summary>
         [JsonIgnore]
         [NotNull]
         public System.Numerics.Vector2 NonPAcceleration => ViscosityAcceleration + GravitationAcceleration;
@@ -76,7 +64,6 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore][NotNull] private List<Particle> _neighbors = [];
         [JsonIgnore][NotNull] private List<Particle> _fluidNeighbors = [];
         [JsonIgnore][NotNull] private List<Particle> _boundaryNeighbors = [];
-
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, System.Numerics.Vector2> _neighborKernelDerivatives = [];
 
@@ -86,31 +73,25 @@ namespace FlowLab.Logic.ParticleManagement
         /// <param name="spatialHashing"></param>
         /// <param name="kernel"></param>
         /// <param name="kernelDerivativ"></param>
-        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Kernels kernels)
+        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Func<System.Numerics.Vector2, System.Numerics.Vector2, float> kernel, Func<System.Numerics.Vector2, System.Numerics.Vector2, System.Numerics.Vector2> kernelDerivativ)
         {
             _neighbors.Clear();
-            spatialHashing.InRadius(Position, Diameter * 2f, ref _neighbors);
-
-            _boundaryNeighbors.Clear();
             _fluidNeighbors.Clear();
+            _boundaryNeighbors.Clear();
             _neighborKernels.Clear();
             _neighborKernelDerivatives.Clear();
 
-            for (int i = 0; i < _neighbors.Count; i++)
+            spatialHashing.InRadius(Position, Diameter * 2f, ref _neighbors);
+            if (_neighbors.Count == 0) _neighbors.Add(this);
+            foreach (var neighbor in _neighbors)
             {
-                var neighbor = _neighbors[i];
-                if (neighbor.IsBoundary)
-                    _boundaryNeighbors.Add(neighbor);
-                else
-                    _fluidNeighbors.Add(neighbor);
-
-                var k = kernels.CubicSpline(Position, neighbor.Position);
-                var kD = kernels.NablaCubicSpline(Position, neighbor.Position);
-
-                _neighborKernels.Add(neighbor, k);
-                _neighborKernelDerivatives.Add(neighbor, kD);
+                if (!neighbor.IsBoundary) _fluidNeighbors.Add(neighbor);
+                if (neighbor.IsBoundary) _boundaryNeighbors.Add(neighbor);
+                var k = kernel.Invoke(Position, neighbor.Position);
+                var kD = kernelDerivativ.Invoke(Position, neighbor.Position);
+                _neighborKernels[neighbor] = k;
+                _neighborKernelDerivatives[neighbor] = kD;
             }
-
             PressureAcceleration = System.Numerics.Vector2.Zero;
             ViscosityAcceleration = System.Numerics.Vector2.Zero;
             GravitationAcceleration = System.Numerics.Vector2.Zero;
@@ -125,15 +106,9 @@ namespace FlowLab.Logic.ParticleManagement
         }
 
         public float Kernel(Particle neighbor)
-        {
-            var val = _neighborKernels[neighbor];
-            return val;
-        }
+            => _neighborKernels[neighbor];
 
         public System.Numerics.Vector2 KernelDerivativ(Particle neighbor)
-        {
-            var val = _neighborKernelDerivatives[neighbor];
-            return val;
-        }
+            => _neighborKernelDerivatives[neighbor];
     }
 }

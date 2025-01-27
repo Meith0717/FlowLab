@@ -49,8 +49,6 @@ namespace FlowLab.Logic.SphComponents
             particle.Ap *= timeStep;
         }
 
-        private static readonly object _lockObject = new();
-
         public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings settings)
         {
             var parallel = settings.ParallelProcessing;
@@ -59,59 +57,35 @@ namespace FlowLab.Logic.SphComponents
             var omega = settings.RelaxationCoefficient;
             var minError = settings.MinError;
             var maxIterations = settings.MaxIterations;
+            var boundaryHandling = settings.BoundaryHandling;
             var gamma3 = settings.Gamma3;
 
             Utilitys.ForEach(parallel, particles.Fluid, particle =>
             {
                 ComputeSourceTerm(timeStep, particle);
                 ComputeDiagonalElement(particle, timeStep);
-
-                particle.Pressure *= .5f;
-                if (float.Abs(particle.AII) > 1e-6)
-                    particle.Pressure = omega / particle.AII * particle.St;
+                particle.Pressure = float.Abs(particle.AII) > 1e-6 ? omega / particle.AII * particle.St : 0;
             });
 
-            // perform pressure solve using IISPH
-            var i = -1;
+            var i = 0;
             while (true)
             {
-                i++;
+                if (boundaryHandling == BoundaryHandling.Extrapolation)
+                    Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
 
-                switch (settings.BoundaryHandling)
+                Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, boundaryHandling == BoundaryHandling.Mirroring));
+
+                Utilitys.ForEach(parallel, particles.Fluid, particle =>
                 {
-                    case BoundaryHandling.Zero:
-                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, false));
-                        break;
-                    case BoundaryHandling.Mirroring:
-                        Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, true));
-                        break;
-                    case BoundaryHandling.Extrapolation:
-                        Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
-                        Utilitys.ForEach(parallel, particles.Fluid, p => SPHComponents.ComputePressureAcceleration(p, gamma3, false));
-                        break;
-                }
-
-                Utilitys.ForEach(parallel, particles.Fluid, p =>
-                {
-                    if (float.Abs(p.AII) > 1e-6)
-                    {
-                        // compute aij * pj
-                        ComputeLaplacian(p, timeStep);
-
-                        // update pressure values
-                        p.Pressure += omega / p.AII * (p.St - p.Ap);
-                    }
-                    else
-                        p.Pressure = 0;
-
-                    // pressure clamping
-                    p.Pressure = float.Max(p.Pressure, 0);
-                    p.EstimatedDensityError = 100 * ((p.Ap - p.St) / fluidDensity);
+                    ComputeLaplacian(particle, timeStep);
+                    particle.Pressure = float.Abs(particle.AII) > 1e-6 ? particle.Pressure + (omega / particle.AII * (particle.St - particle.Ap)) : 0;
+                    particle.Pressure = float.Max(particle.Pressure, 0);
+                    particle.EstimatedDensityError = 100 * ((particle.Ap - particle.St) / fluidDensity);
                 });
 
-                // Break condition
                 var estimatedDensityErrorSum = particles.Fluid.AsParallel().Sum(p => float.Max(p.EstimatedDensityError, 0));
                 var avgDensityError = estimatedDensityErrorSum / particles.CountFluid;
+                i++;
                 if ((avgDensityError <= minError) && (i > 2) || (i >= maxIterations))
                     break;
             }

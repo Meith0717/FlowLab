@@ -42,40 +42,29 @@ namespace FlowLab.Engine.SpatialManagement
                 _objects.Remove(item); // Remove particle from the grid
         }
 
-        public int CountObjectsInRadius(System.Numerics.Vector2 position, float radius)
-        {
-            var radiusSquared = radius * radius;
-            var count = 0;
-            for (int i = 0; i < _objects.Count; i++)
-            {
-                T obj = _objects[i];
-                var dx = obj.Position.X - position.X;
-                var dy = obj.Position.Y - position.Y;
-                var distanceSquared = dx * dx + dy * dy;
-
-                if (distanceSquared <= radiusSquared)
-                    count++;
-            }
-            return count;
-        }
-
-
         public void AddObjectsInRadius(System.Numerics.Vector2 position, float radius, ref List<T> values)
         {
             var radiusSquared = radius * radius;
-            for (int i = 0; i < _objects.Count; i++)
-            {
-                T obj = _objects[i];
-                var dx = obj.Position.X - position.X;
-                var dy = obj.Position.Y - position.Y;
-                var distanceSquared = dx * dx + dy * dy;
 
-                if (distanceSquared <= radiusSquared)
-                    values.Add(obj);
+            lock (_lock) // Ensure thread-safe access during iteration
+            {
+                for (int i = 0; i < _objects.Count; i++)
+                {
+                    T obj = _objects[i];
+                    var dx = obj.Position.X - position.X; var dy = obj.Position.Y - position.Y;
+                    var distanceSquared = dx * dx + dy * dy;
+
+                    if (distanceSquared <= radiusSquared)
+                        values.Add(obj);
+                }
             }
         }
 
+
+
         public void Draw(SpriteBatch spriteBatch, float cameraZoom)
-            => spriteBatch.DrawRectangle(Bounds, Color.Gray, 2 / cameraZoom);
+        {
+            spriteBatch.DrawRectangle(Bounds, Color.Gray, 2 / cameraZoom);
+        }
     }
 }
