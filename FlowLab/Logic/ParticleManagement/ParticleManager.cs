@@ -6,6 +6,7 @@ using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Fluid_Simulator.Core.Profiling;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
@@ -16,7 +17,7 @@ namespace FlowLab.Logic.ParticleManagement
 
         public readonly FluidDomain Particles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
-        public readonly DataCollector DataCollector = new("simulation", ["simulationStep", "simulationStepsTime", "neighborSearchTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "densityError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
+        public readonly DataCollector DataCollector = new("performance", ["simulationStep", "simulationStepsTime", "neighborSearchTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "densityError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
         public readonly float ParticleDiameter = particleDiameter;
         public readonly float FluidDensity = fluidDensity;
         public SimulationState State { get; private set; }
@@ -104,6 +105,7 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("stiffness", settings.FluidStiffness);
         }
 
+        private List<Particle> _particlesInBox = new();
         public void ApplyColors(ColorMode colorMode, ParticelDebugger particelDebugger, SimulationSettings settings)
         {
             // ____Manage Color____
@@ -135,7 +137,11 @@ namespace FlowLab.Logic.ParticleManagement
             });
 
             if (!particelDebugger.IsSelected) return;
+            _particlesInBox.Clear();
             var debugParticle = particelDebugger.SelectedParticle;
+            SpatialHashing.InBoxes(debugParticle.Position, debugParticle.Diameter * 2, ref _particlesInBox);
+            foreach (var particle in _particlesInBox)
+                particle.Color = Microsoft.Xna.Framework.Color.Orange;
             Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Microsoft.Xna.Framework.Color.DarkOrchid);
             debugParticle.Color = Microsoft.Xna.Framework.Color.DarkMagenta;
         }

@@ -42,7 +42,7 @@ namespace FlowLab.Logic.SphComponents
             foreach (var neighbor in particle.FluidNeighbors)
                 s3 += particle.Kernel(neighbor);
 
-            particle.Pressure = (s1 + System.Numerics.Vector2.Dot(new System.Numerics.Vector2(0, -gravitation), s2)) / s3;
+            particle.Pressure = (s1 + System.Numerics.Vector2.Dot(new System.Numerics.Vector2(0, gravitation), s2)) / s3;
         }
 
         public static void ComputePressureAcceleration(Particle fParticle, float gamma, bool mirroring)

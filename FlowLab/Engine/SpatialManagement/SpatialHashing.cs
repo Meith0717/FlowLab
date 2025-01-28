@@ -56,6 +56,24 @@ namespace FlowLab.Engine.SpatialManagement
             }
         }
 
+        public void InBoxes(System.Numerics.Vector2 position, float radius, ref List<Particle> particleInRadius)
+        {
+            var startX = (int)MathF.Floor((position.X - radius) / CellSize);
+            var endX = (int)MathF.Ceiling((position.X + radius) / CellSize);
+            var startY = (int)MathF.Floor((position.Y - radius) / CellSize);
+            var endY = (int)MathF.Ceiling((position.Y + radius) / CellSize);
+
+            for (int x = startX; x < endX; x++)
+            {
+                for (int y = startY; y < endY; y++)
+                {
+                    var hash = (x, y);
+                    if (!_grids.TryGetValue(hash, out var grid)) continue;
+                    grid.AddObjects(position, ref particleInRadius);
+                }
+            }
+        }
+
         private (int, int) Hash(Vector2 vector)
             => ((int)float.Floor(vector.X / CellSize), (int)float.Floor(vector.Y / CellSize));
 
@@ -85,11 +103,10 @@ namespace FlowLab.Engine.SpatialManagement
             });
         }
 
-
-        public void Draw(SpriteBatch spriteBatch, float cameraZoom)
+        public void Draw(SpriteBatch spriteBatch, Color color, float cameraZoom)
         {
             foreach (var grid in _grids.Values)
-                grid.Draw(spriteBatch, cameraZoom);
+                grid.Draw(spriteBatch, color, cameraZoom);
         }
     }
 }

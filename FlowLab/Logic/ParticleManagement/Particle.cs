@@ -17,27 +17,27 @@ namespace FlowLab.Logic.ParticleManagement
     [Serializable]
     public class Particle(System.Numerics.Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
-        [JsonProperty] public float Diameter = diameter;
-        [JsonProperty] public float Density0 = fluidDensity;
-        [JsonProperty] public bool IsBoundary = isBoundary;
+        [JsonProperty] public float Diameter { get; set; } = diameter;
+        [JsonProperty] public float Density0 { get; set; } = fluidDensity;
+        [JsonProperty] public bool IsBoundary { get; set; } = isBoundary;
 
-        [JsonIgnore] public float Mass = (diameter * diameter) * fluidDensity;
-        [JsonIgnore] public float Density;
-        [JsonIgnore] public float Pressure;
-        [JsonIgnore] public float AII;
-        [JsonIgnore] public float St;
-        [JsonIgnore] public float Ap;
-        [JsonIgnore] public float Cfl;
-        [JsonIgnore] public float EstimatedDensityError;
-        [JsonIgnore] public float DensityError;
+        [JsonIgnore] public float Mass { get; set; } = (diameter * diameter) * fluidDensity;
+        [JsonIgnore] public float Density { get; set; }
+        [JsonIgnore] public float Pressure { get; set; }
+        [JsonIgnore] public float AII { get; set; }
+        [JsonIgnore] public float St { get; set; }
+        [JsonIgnore] public float Ap { get; set; }
+        [JsonIgnore] public float Cfl { get; set; }
+        [JsonIgnore] public float EstimatedDensityError { get; set; }
+        [JsonIgnore] public float DensityError { get; set; }
 
-        [JsonProperty][NotNull] public System.Numerics.Vector2 Position = position;
-        [JsonIgnore][NotNull] public System.Numerics.Vector2 Velocity;
-        [JsonIgnore][NotNull] public System.Numerics.Vector2 IntermediateVelocity;
-        [JsonIgnore][NotNull] public System.Numerics.Vector2 PressureAcceleration;
-        [JsonIgnore][NotNull] public System.Numerics.Vector2 GravitationAcceleration;
-        [JsonIgnore][NotNull] public System.Numerics.Vector2 ViscosityAcceleration;
-        [JsonIgnore][NotNull] public Color Color;
+        [JsonProperty][NotNull] public System.Numerics.Vector2 Position { get; set; } = position;
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 Velocity { get; set; }
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 IntermediateVelocity { get; set; }
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 PressureAcceleration { get; set; }
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 GravitationAcceleration { get; set; }
+        [JsonIgnore][NotNull] public System.Numerics.Vector2 ViscosityAcceleration { get; set; }
+        [JsonIgnore][NotNull] public Color Color { get; set; }
 
         [JsonIgnore]
         [NotNull]
@@ -53,19 +53,22 @@ namespace FlowLab.Logic.ParticleManagement
 
         [JsonIgnore]
         [NotNull]
-        public CircleF BoundBox => new(Position, Diameter / 2);
+        public CircleF BoundBox 
+            => new(Position, Diameter / 2);
 
         [JsonIgnore]
         [NotNull]
-        public System.Numerics.Vector2 Acceleration => PressureAcceleration + ViscosityAcceleration + GravitationAcceleration;
+        public System.Numerics.Vector2 Acceleration 
+            => PressureAcceleration + ViscosityAcceleration + GravitationAcceleration;
 
         [JsonIgnore]
         [NotNull]
-        public System.Numerics.Vector2 NonPAcceleration => ViscosityAcceleration + GravitationAcceleration;
+        public System.Numerics.Vector2 NonPAcceleration 
+            => ViscosityAcceleration + GravitationAcceleration;
 
         [JsonIgnore][NotNull] private List<Particle> _neighbors = [];
-        [JsonIgnore][NotNull] private List<Particle> _fluidNeighbors = [];
-        [JsonIgnore][NotNull] private List<Particle> _boundaryNeighbors = [];
+        [JsonIgnore][NotNull] private readonly List<Particle> _fluidNeighbors = [];
+        [JsonIgnore][NotNull] private readonly List<Particle> _boundaryNeighbors = [];
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, System.Numerics.Vector2> _neighborKernelDerivatives = [];
 

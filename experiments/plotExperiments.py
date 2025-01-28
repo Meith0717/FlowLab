@@ -93,27 +93,37 @@ def Plot_DensityError_Stiffness(data):
     plt.tight_layout()
     plt.savefig("experiments\\Stiffness vs Density Error.png")
 
-def Plot__Gamma1_SolverIterations(data):
+def Plot__Gamma_SolverIterations(gamma1, gamma2, gamma3):
     # Extract static values for title
-    solver = data["solver"].iloc[0]
-    boundary = data["boundary"].iloc[0]
-    timeStep = data["timeStep"].iloc[0]
+    solver1 = gamma1["solver"].iloc[0]
+    solver2 = gamma2["solver"].iloc[0]
+    solver3 = gamma3["solver"].iloc[0]
+    boundary1 = gamma1["boundary"].iloc[0]
+    boundary2 = gamma2["boundary"].iloc[0]
+    boundary3 = gamma3["boundary"].iloc[0]
+
+    assert(solver1 == solver2 and solver2 == solver3)
+    assert(boundary1 == boundary2 and boundary2 == boundary3)
 
     # Calculate the mean density error for each stiffness value
-    mean_density_error_per_stiffness = data.groupby("gamma1")["iterations"].mean()
+    gamma1_grouped = gamma1.groupby("gamma1")["iterations"].mean()
+    gamma2_grouped = gamma2.groupby("gamma2")["iterations"].mean()
+    gamma3_grouped = gamma3.groupby("gamma3")["iterations"].mean()
 
     # Create the plot
     plt.figure(figsize=(10, 6))
-    plt.plot(mean_density_error_per_stiffness.index, mean_density_error_per_stiffness.values, label="Iterations", marker="o")
-    plt.xlabel("Gamma 1")
+    plt.plot(gamma1_grouped.index, gamma1_grouped.values, label="Gamma 1", marker="o")
+    plt.plot(gamma2_grouped.index, gamma2_grouped.values, label="Gamma 2", marker="o")
+    plt.plot(gamma3_grouped.index, gamma3_grouped.values, label="Gamma 3", marker="o")
+    plt.xlabel("Gamma")
     plt.ylabel("Solver Iterations")
-    plt.title(f"Gamma 1 vs Solver Iterations\nSolver: {solver}, Boundary: {boundary}, Time Step: {timeStep}")
+    plt.title(f"Gamma vs Solver Iterations\nSolver: {solver1}, Boundary: {boundary1}")
     plt.legend()
     plt.grid(True)
 
     # Show the plot
     plt.tight_layout()
-    plt.savefig("experiments\\Gamma 1 vs Solver Iterations.png")
+    plt.savefig(f"{solver1}_{boundary1}Gamma.png")
 
 def Plot_Gamma2_SolverIterations(data):
     # Extract static values for title
@@ -138,36 +148,25 @@ def Plot_Gamma2_SolverIterations(data):
     plt.savefig("experiments\\Gamma 2 vs Solver Iterations.png")
 
 def Plot_TimeStep_SearchPercentage(data):
-    # Calculate the percentage of neighbor search time in simulation steps time
+
+    solver = data["solver"].iloc[0]
+    boundary = data["boundary"].iloc[0]
     data["search_percentage"] = (data["neighborSearchTime"] / data["simulationStepsTime"]) * 100
-
-    # Calculate the mean search percentage for each timeStep
     mean_search_percentage = data.groupby("timeStep")["search_percentage"].mean()
-
-    # Create the plot
     plt.figure(figsize=(10, 6))
     plt.plot(mean_search_percentage.index, mean_search_percentage.values, label="Neighbor Search %", marker="o")
     plt.xlabel("TimeStep")
     plt.ylabel("Neighbor Search Time (%)")
+    plt.title(f"TimeStep vs Neighbor search part\nSolver: {solver}, Boundary: {boundary}")
     plt.legend()
     plt.grid(True)
-
-    # Show the plot
     plt.tight_layout()
-    plt.savefig("experiments\\6.png")
+    plt.savefig(f"{solver}TimeStepIterations.png")
 
-data = pd.read_csv("experiments\\stiffnessData\\simulation.csv")
-data1 = pd.read_csv("experiments\\20250127_230007\\simulation.csv")
-data2 = pd.read_csv("experiments\\columnHeightData\\simulation.csv")
-data3 = pd.read_csv("experiments\\timestepData\\simulation.csv")
-data4 = pd.read_csv("experiments\\20250127_232634\\simulation.csv")
-data5 = pd.read_csv("experiments\\20250128_000417\\simulation.csv")
-data6 = pd.read_csv("experiments\\20250128_155157\\simulation.csv")
+data = pd.read_csv("IISPHTimeStepIterations.csv")
+Plot_TimeStep_SearchPercentage(data)
 
-# Plot_DensityError_Stiffness(data)
-# Plot_Boundary_Handling(data1)
-# Plot_ColumnHeight_SolverIterations(data2)
-# Plot_TimeStep_SolverIterations(data3)
-# Plot_Gamma1_SolverIterations(data4)
-# Plot_Gamma2_SolverIterations(data5)
-Plot_TimeStep_SearchPercentage(data6)
+data = pd.read_csv("extrapolationGamma1.csv")
+data1 = pd.read_csv("extrapolationGamma2.csv")
+data2 = pd.read_csv("extrapolationGamma3.csv")
+Plot__Gamma_SolverIterations(data, data1, data2)

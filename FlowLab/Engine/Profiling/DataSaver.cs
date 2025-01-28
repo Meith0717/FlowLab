@@ -15,14 +15,11 @@ namespace Fluid_Simulator.Core.Profiling
 
         public void SaveToCsv(Serializer serializer, params DataCollector[] dataCollectors)
         {
-            var directoryName = $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
-            var directoryPath = Path.Combine(DataSaveDirectory, directoryName);
-            serializer.CreateFolder(directoryPath);
-
+            var date = $"{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
             foreach (var dataCollector in dataCollectors)
             {
                 if (dataCollector.Count == 0) continue;
-                var dataPath = Path.Combine(directoryPath, $"{dataCollector.Name}.csv");
+                var dataPath = Path.Combine(DataSaveDirectory, $"{date}_{dataCollector.Name}.csv");
                 using StreamWriter dataWriter = serializer.GetStreamWriter(dataPath);
                 dataWriter.WriteLine("sample," + string.Join(",", dataCollector.Data.Keys));
                 for (int i = 0; i < dataCollector.Count; i++)
@@ -33,9 +30,6 @@ namespace Fluid_Simulator.Core.Profiling
                     dataWriter.WriteLine($"{i}," + string.Join(",", line));
                 }
             }
-
-            if (serializer.GetFilesInFolder(directoryPath).Length > 0) return;
-            serializer.DeleteFolder(directoryPath);
         }
     }
 }

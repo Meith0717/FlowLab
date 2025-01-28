@@ -60,11 +60,17 @@ namespace FlowLab.Engine.SpatialManagement
             }
         }
 
-
-
-        public void Draw(SpriteBatch spriteBatch, float cameraZoom)
+        public void AddObjects(System.Numerics.Vector2 position, ref List<T> values)
         {
-            spriteBatch.DrawRectangle(Bounds, Color.Gray, 2 / cameraZoom);
+
+            lock (_lock) // Ensure thread-safe access during iteration
+                for (int i = 0; i < _objects.Count; i++)
+                    values.Add(_objects[i]);
+        }
+
+        public void Draw(SpriteBatch spriteBatch, Color color, float cameraZoom)
+        {
+            spriteBatch.DrawRectangle(Bounds, color, 2 / cameraZoom);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace FlowLab.Objects.Layers
                 InnerColor = new(5, 5, 5),
                 BorderSize = 2,
                 BorderColor = Color.Gray
-            }.Place(anchor: Anchor.S, y: 330, width: 415, height: 40, hSpace: 5, vSpace: 5);
+            }.Place(anchor: Anchor.NW, y: 330, width: 415, height: 40, hSpace: 5, vSpace: 5);
 
             var layer = new UiLayer(UiRoot)
             {

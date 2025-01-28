@@ -20,6 +20,7 @@ namespace FlowLab.Logic
         private readonly SpatialHashing _spatialHashing = spatialHashing;
         private Particle _selectedParticle;
         private List<Particle> _particles = new();
+        private List<Particle> _particlesInBox = new();
         private bool _active = false;
         private bool _drawSpatialHashing = false;
 
@@ -70,7 +71,7 @@ namespace FlowLab.Logic
             if (IsSelected)
                 spriteBatch.DrawCircle(SelectedParticle.Position, SelectedParticle.Diameter * 2, 50, Color.Gray, 4 / cameraZoom);
             if (_drawSpatialHashing)
-                _spatialHashing.Draw(spriteBatch, cameraZoom);
+                _spatialHashing.Draw(spriteBatch, Color.Gray, cameraZoom);
         }
     }
 }
