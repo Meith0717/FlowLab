@@ -7,6 +7,7 @@ using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
 using FlowLab.Engine.Debugging;
 using FlowLab.Engine.LayerManagement;
+using FlowLab.Engine.Profiling;
 using FlowLab.Engine.Rendering;
 using FlowLab.Engine.UserInterface.Components;
 using FlowLab.Logic;
@@ -30,7 +31,8 @@ namespace FlowLab.Game.Objects.Layers
         private const int ParticleDiameter = 10;
         private const float FluidDensity = 0.3f;
 
-        private SimulationSettings _settings;
+        private readonly SimulationSettings _settings;
+        private readonly Script _script = new();
         private readonly Camera2D _camera;
         private readonly ParticleManager _particleManager;
         private readonly ScenarioManager _scenarioManager;
@@ -115,8 +117,10 @@ namespace FlowLab.Game.Objects.Layers
 
             if (!Paused)
             {
+                _script.Update(_particleManager.State, _settings);
                 _scenarioManager.Update();
                 _particleManager.Update(gameTime, _settings);
+                _script.BreakCondition(_particleManager.State, _settings, ()=> { SaveData(); TogglePause(true); });
             }
             Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
 

@@ -5,11 +5,13 @@
 
 namespace FlowLab.Logic.ParticleManagement
 {
-    internal readonly struct SimulationState(int solverIterations, float maxVelocity, float maxCfl, float densityError)
+    internal readonly struct SimulationState(int solverIterations, float maxVelocity, float maxCfl, float densityError, double simStepTime, double neighbourSearchTime)
     {
         public readonly int SolverIterations = solverIterations;
         public readonly float MaxVelocity = maxVelocity;
         public readonly float MaxCFL = maxCfl;
         public readonly float DensityError = densityError;
+        public readonly double SimStepTime = simStepTime;
+        public readonly double NeighbourSearchTime = neighbourSearchTime;
     }
 }

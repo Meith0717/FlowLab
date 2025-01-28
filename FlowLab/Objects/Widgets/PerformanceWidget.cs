@@ -49,20 +49,20 @@ namespace FlowLab.Objects.Widgets
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 70);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = double.Round(particleManager.SimStepTime).ToString() + "ms",
+                UpdateTracker = self => self.Text = double.Round(particleManager.State.SimStepTime).ToString() + "ms",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 70);
 
             new UiText(this, "consola")
             {
-                Text = "Frame Time:",
+                Text = "Search Time:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 100);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = frameCounter.FrameDuration.ToString() + "ms",
+                UpdateTracker = self => self.Text = double.Round(particleManager.State.NeighbourSearchTime).ToString() + "ms",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 100);

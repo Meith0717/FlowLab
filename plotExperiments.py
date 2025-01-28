@@ -115,7 +115,7 @@ def Plot__Gamma1_SolverIterations(data):
     plt.tight_layout()
     plt.savefig("experiments\\Gamma 1 vs Solver Iterations.png")
 
-def Plot__Gamma2_SolverIterations(data):
+def Plot_Gamma2_SolverIterations(data):
     # Extract static values for title
     solver = data["solver"].iloc[0]
     boundary = data["boundary"].iloc[0]
@@ -137,16 +137,37 @@ def Plot__Gamma2_SolverIterations(data):
     plt.tight_layout()
     plt.savefig("experiments\\Gamma 2 vs Solver Iterations.png")
 
+def Plot_TimeStep_SearchPercentage(data):
+    # Calculate the percentage of neighbor search time in simulation steps time
+    data["search_percentage"] = (data["neighborSearchTime"] / data["simulationStepsTime"]) * 100
+
+    # Calculate the mean search percentage for each timeStep
+    mean_search_percentage = data.groupby("timeStep")["search_percentage"].mean()
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(mean_search_percentage.index, mean_search_percentage.values, label="Neighbor Search %", marker="o")
+    plt.xlabel("TimeStep")
+    plt.ylabel("Neighbor Search Time (%)")
+    plt.legend()
+    plt.grid(True)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.savefig("experiments\\6.png")
+
 data = pd.read_csv("experiments\\stiffnessData\\simulation.csv")
 data1 = pd.read_csv("experiments\\20250127_230007\\simulation.csv")
 data2 = pd.read_csv("experiments\\columnHeightData\\simulation.csv")
 data3 = pd.read_csv("experiments\\timestepData\\simulation.csv")
 data4 = pd.read_csv("experiments\\20250127_232634\\simulation.csv")
 data5 = pd.read_csv("experiments\\20250128_000417\\simulation.csv")
+data6 = pd.read_csv("experiments\\20250128_155157\\simulation.csv")
 
-Plot_DensityError_Stiffness(data)
-Plot_Boundary_Handling(data1)
-Plot_ColumnHeight_SolverIterations(data2)
-Plot_TimeStep_SolverIterations(data3)
-Plot__Gamma1_SolverIterations(data4)
-Plot__Gamma2_SolverIterations(data5)
+# Plot_DensityError_Stiffness(data)
+# Plot_Boundary_Handling(data1)
+# Plot_ColumnHeight_SolverIterations(data2)
+# Plot_TimeStep_SolverIterations(data3)
+# Plot_Gamma1_SolverIterations(data4)
+# Plot_Gamma2_SolverIterations(data5)
+Plot_TimeStep_SearchPercentage(data6)

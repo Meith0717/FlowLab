@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using FlowLab.Engine.Profiling;
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
@@ -17,7 +18,7 @@ namespace FlowLab.Logic.ParticleManagement
 
         public readonly FluidDomain Particles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
-        public readonly DataCollector DataCollector = new("simulation", ["simulationStep", "simulationStepsTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "densityError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
+        public readonly DataCollector DataCollector = new("simulation", ["simulationStep", "simulationStepsTime", "neighborSearchTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "densityError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
         public readonly float ParticleDiameter = particleDiameter;
         public readonly float FluidDensity = fluidDensity;
         public SimulationState State { get; private set; }
@@ -29,7 +30,6 @@ namespace FlowLab.Logic.ParticleManagement
                 SpatialHashing.RemoveObject(particle);
             Particles.ClearFluid();
             TimeSteps = SimStepsCount = _lastTimeSteps = 0;
-            TotalTime = SimStepTime = 0;
         }
 
         public void ClearBoundary()
@@ -72,27 +72,25 @@ namespace FlowLab.Logic.ParticleManagement
         public void Update(Microsoft.Xna.Framework.GameTime gameTime, SimulationSettings settings)
         {
             // ____Update____
-            var watch = Stopwatch.StartNew();
             State = settings.SimulationMethod switch
             {
                 SimulationMethod.IISPH => SPHSolver.IISPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, settings),
                 SimulationMethod.SESPH => SPHSolver.SESPH(Particles, SpatialHashing, ParticleDiameter, FluidDensity, settings)
             };
-            watch.Stop();
             settings.TimeStep = settings.DynamicTimeStep ? SPHComponents.ComputeDynamicTimeStep(settings, State, ParticleDiameter) : settings.FixTimeStep;
 
             // ___Track some stuff___
             TimeSteps += settings.TimeStep;
             SimStepsCount++;
             TotalTime += gameTime.ElapsedGameTime.TotalMilliseconds;
-            SimStepTime = watch.Elapsed.TotalMilliseconds;
 
             // ____Collect data____
             if (_lastTimeSteps >= (int)float.Floor(TimeSteps)) return;
             _lastTimeSteps = (int)float.Floor(TimeSteps);
             DataCollector.AddData("simulationStep", SimStepsCount);
             DataCollector.AddData("timeSteps", _lastTimeSteps);
-            DataCollector.AddData("simulationStepsTime", SimStepTime);
+            DataCollector.AddData("simulationStepsTime", State.SimStepTime);
+            DataCollector.AddData("neighborSearchTime", State.NeighbourSearchTime);
             DataCollector.AddData("solver", settings.SimulationMethod);
             DataCollector.AddData("boundary", settings.BoundaryHandling);
             DataCollector.AddData("iterations", State.SolverIterations);
@@ -143,8 +141,6 @@ namespace FlowLab.Logic.ParticleManagement
             Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Microsoft.Xna.Framework.Color.DarkOrchid);
             debugParticle.Color = Microsoft.Xna.Framework.Color.DarkMagenta;
         }
-
-        public double SimStepTime { get; private set; }     // Time for a sim step
         public double TotalTime { get; private set; }       // Total sim time
         public float TimeSteps { get; private set; }       // Time step sum
         public int SimStepsCount { get; private set; }   // Sim steps Count
