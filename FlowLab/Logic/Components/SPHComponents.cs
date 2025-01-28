@@ -68,7 +68,7 @@ namespace FlowLab.Logic.SphComponents
                 sum2 += neighbor.Mass * combinedPressure * kernelDerivative;
             }
 
-            fParticle.PressureAcceleration = - sum1 - (gamma * sum2);
+            fParticle.PressureAcceleration = -sum1 - (gamma * sum2);
         }
 
         public static void ComputeViscosityAcceleration(float h, float boundaryViscosity, float fluidViscosity, Particle fParticle)

@@ -120,7 +120,7 @@ namespace FlowLab.Game.Objects.Layers
                 _script.Update(_particleManager.State, _settings);
                 _scenarioManager.Update();
                 _particleManager.Update(gameTime, _settings);
-                _script.BreakCondition(_particleManager.State, _settings, ()=> { SaveData(); TogglePause(true); });
+                _script.BreakCondition(_particleManager.State, _settings, () => { SaveData(); TogglePause(true); });
             }
             Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
 

@@ -2,12 +2,10 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
-using FlowLab.Engine.Profiling;
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Fluid_Simulator.Core.Profiling;
-using System.Diagnostics;
 using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement

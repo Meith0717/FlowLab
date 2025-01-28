@@ -4,7 +4,6 @@
 
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.ParticleManagement;
-using Microsoft.VisualBasic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -112,7 +111,7 @@ namespace FlowLab.Logic.SphComponents
             UpdateVelocities(particles, parallel, h, timeStep, out var maxVelocity);
             spatialHashing.Rearrange(parallel);
             simStepStopWatch.Stop();
-            return new(0, 
+            return new(0,
                 maxVelocity,
                 timeStep * (maxVelocity / h),
                 densityErrorSum / particles.CountFluid,

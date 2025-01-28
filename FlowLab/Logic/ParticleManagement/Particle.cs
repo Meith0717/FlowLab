@@ -82,7 +82,7 @@ namespace FlowLab.Logic.ParticleManagement
             for (int i = 0; i < _neighbors.Count; i++)
             {
                 var neighbor = _neighbors[i];
-                if (!neighbor.IsBoundary) 
+                if (!neighbor.IsBoundary)
                     _fluidNeighbors.Add(neighbor);
                 else
                     _boundaryNeighbors.Add(neighbor);
