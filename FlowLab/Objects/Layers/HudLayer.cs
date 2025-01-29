@@ -38,7 +38,7 @@ namespace FlowLab.Objects.Layers
                 BorderSize = 5,
                 BorderColor = Color.Gray
             };
-            layer.Place(anchor: Anchor.NE, width: 240, height: 580, hSpace: 10, vSpace: 10);
+            layer.Place(anchor: Anchor.NE, width: 240, height: 600, hSpace: 10, vSpace: 10);
 
             new UiButton(layer, "settings", OpenSettings)
             {
@@ -55,12 +55,12 @@ namespace FlowLab.Objects.Layers
             {
                 InnerColor = Color.Transparent,
                 Alpha = .75f
-            }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 190, vSpace: 5, hSpace: 5, y: 295);
+            }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 200, vSpace: 5, hSpace: 5, y: 295);
 
             new RecordingWidget(layer, simulationSettings, recorder)
             {
                 InnerColor = Color.Transparent,
-            }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 120, vSpace: 5, hSpace: 5, y: 440);
+            }.Place(anchor: Anchor.CenterV, relWidth: 1, height: 120, vSpace: 5, hSpace: 5, y: 470);
 
         }
 

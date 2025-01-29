@@ -3,6 +3,7 @@
 // All rights reserved.
 
 using FlowLab.Logic.ParticleManagement;
+using System.Diagnostics;
 
 namespace FlowLab.Logic.SphComponents
 {
@@ -25,24 +26,44 @@ namespace FlowLab.Logic.SphComponents
             {
                 var density = neighbor.Mass * particle.Kernel(neighbor);
                 particle.Density += neighbor.IsBoundary ? gamma * density : density;
+                if (float.IsNaN(particle.Density))
+                    Debugger.Break();
             }
         }
 
         public static void PressureExtrapolation(Particle particle, float gravitation)
         {
+            particle.Pressure = 0;
+            if (particle.FluidNeighbors.Count == 0) return;
+
             var s1 = 0f;
             foreach (var neighbor in particle.FluidNeighbors)
+            {
                 s1 += neighbor.Pressure * particle.Kernel(neighbor);
+                if (float.IsNaN(s1))
+                    Debugger.Break();
+            }
 
             var s2 = System.Numerics.Vector2.Zero;
             foreach (var neighbor in particle.FluidNeighbors)
+            { 
                 s2 += neighbor.Density * (particle.Position - neighbor.Position) * particle.Kernel(neighbor);
+                if (float.IsNaN(s2.X) || float.IsNaN(s2.Y))
+                    Debugger.Break();
+            }
 
             var s3 = 0f;
             foreach (var neighbor in particle.FluidNeighbors)
+            {
                 s3 += particle.Kernel(neighbor);
+                if (float.IsNaN(s3))
+                    Debugger.Break();
+            }
 
-            particle.Pressure = (s1 + System.Numerics.Vector2.Dot(new System.Numerics.Vector2(0, gravitation), s2)) / s3;
+            var dotProduct = System.Numerics.Vector2.Dot(new System.Numerics.Vector2(0, gravitation), s2);
+            particle.Pressure = (s1 + dotProduct) / s3;
+            if (float.IsNaN(particle.Pressure))
+                Debugger.Break();
         }
 
         public static void ComputePressureAcceleration(Particle fParticle, float gamma, bool mirroring)
@@ -57,6 +78,8 @@ namespace FlowLab.Logic.SphComponents
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var combinedPressure = particlePressureOverDensity2 + neighborPressureOverDensity2;
                 sum1 += neighbor.Mass * combinedPressure * kernelDerivative;
+                if (float.IsNaN(sum1.X) || float.IsNaN(sum1.Y))
+                    Debugger.Break();
             }
 
             var sum2 = System.Numerics.Vector2.Zero;
@@ -66,6 +89,8 @@ namespace FlowLab.Logic.SphComponents
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var combinedPressure = mirroring ? 2 * particlePressureOverDensity2 : particlePressureOverDensity2 + neighborPressureOverDensity2;
                 sum2 += neighbor.Mass * combinedPressure * kernelDerivative;
+                if (float.IsNaN(sum2.X) || float.IsNaN(sum2.Y))
+                    Debugger.Break();
             }
 
             fParticle.PressureAcceleration = -sum1 - (gamma * sum2);
@@ -85,8 +110,13 @@ namespace FlowLab.Logic.SphComponents
                 var massOverDensity = neighbor.Mass / neighbor.Density;
                 var kernelDerivative = fParticle.KernelDerivativ(neighbor);
                 var res = massOverDensity * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
+                if (float.IsNaN(res.X) || float.IsNaN(res.Y))
+                    Debugger.Break();
 
                 var viscosity = neighbor.IsBoundary ? boundaryViscosity : fluidViscosity;
+                if (float.IsNaN(viscosity))
+                    Debugger.Break();
+
                 fParticle.ViscosityAcceleration += 2f * viscosity * res;
             }
         }

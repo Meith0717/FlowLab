@@ -27,42 +27,55 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "Error:",
+                Text = "Compression:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 40);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => { self.Text = $"{float.Round(_particleManager.RelativeDensityError, 2).ToString()}%"; },
+                UpdateTracker = self => { self.Text = $"{float.Round(_particleManager.State.CompressionError, 2)}%"; },
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 40);
 
             new UiText(this, "consola")
             {
-                Text = "CFL:",
+                Text = "Abs Error:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 70);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => { self.Text = $"{double.Round(_particleManager.CflCondition * 100).ToString()}%"; },
+                UpdateTracker = self => { self.Text = $"{float.Round(_particleManager.State.AbsDensityError, 2)}%"; },
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 70);
 
             new UiText(this, "consola")
             {
-                Text = "Time Step:",
+                Text = "CFL:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 100);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => { self.Text = double.Round(settings.TimeStep, 5).ToString(); },
+                UpdateTracker = self => { self.Text = $"{double.Round(_particleManager.State.MaxCFL * 100)}%"; },
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 100);
+
+            new UiText(this, "consola")
+            {
+                Text = "Time Step:",
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, hSpace: 10, y: 130);
+            new UiText(this, "consola")
+            {
+                UpdateTracker = self => { self.Text = double.Round(settings.TimeStep, 5).ToString(); },
+                Scale = .17f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Right, hSpace: 10, y: 130);
 
         }
     }

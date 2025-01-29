@@ -4,6 +4,7 @@
 
 using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
+using MathNet.Numerics.Distributions;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using Newtonsoft.Json;
@@ -18,9 +19,7 @@ namespace FlowLab.Logic.ParticleManagement
     public class Particle(System.Numerics.Vector2 position, float diameter, float fluidDensity, bool isBoundary)
     {
         [JsonProperty] public float Diameter { get; set; } = diameter;
-        [JsonProperty] public float Density0 { get; set; } = fluidDensity;
         [JsonProperty] public bool IsBoundary { get; set; } = isBoundary;
-
         [JsonIgnore] public float Mass { get; set; } = (diameter * diameter) * fluidDensity;
         [JsonIgnore] public float Density { get; set; }
         [JsonIgnore] public float Pressure { get; set; }
@@ -72,7 +71,7 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, float> _neighborKernels = [];
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, System.Numerics.Vector2> _neighborKernelDerivatives = [];
 
-        public void FindNeighbors(SpatialHashing spatialHashing, float gamma, Kernels kernels)
+        public void FindNeighbors(SpatialHashing spatialHashing, Kernels kernels, float gamma, float fluidDensity)
         {
             _neighbors.Clear();
             _fluidNeighbors.Clear();
@@ -101,7 +100,7 @@ namespace FlowLab.Logic.ParticleManagement
 
             if (!IsBoundary) return;
             var volume = gamma / _boundaryNeighbors.Sum(Kernel);
-            Mass = Density0 * volume;
+            Mass = fluidDensity * volume;
         }
 
         public float Kernel(Particle neighbor)

@@ -17,7 +17,7 @@ namespace FlowLab.Logic.ParticleManagement
 
         public readonly FluidDomain Particles = new();
         public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
-        public readonly DataCollector DataCollector = new("performance", ["simulationStep", "simulationStepsTime", "neighborSearchTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "densityError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
+        public readonly DataCollector DataCollector = new("performance", ["simulationStep", "simulationStepsTime", "neighborSearchTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "compressionError", "absoluteError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
         public readonly float ParticleDiameter = particleDiameter;
         public readonly float FluidDensity = fluidDensity;
         public SimulationState State { get; private set; }
@@ -62,11 +62,6 @@ namespace FlowLab.Logic.ParticleManagement
         public int FluidParticlesCount
             => Particles.CountFluid;
 
-        public float RelativeDensityError
-            => State.DensityError;
-        public float CflCondition
-            => State.MaxCFL;
-
         private int _lastTimeSteps;
         public void Update(Microsoft.Xna.Framework.GameTime gameTime, SimulationSettings settings)
         {
@@ -98,8 +93,9 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("gamma2", settings.Gamma2);
             DataCollector.AddData("gamma3", settings.Gamma3);
             DataCollector.AddData("timeStep", settings.TimeStep);
-            DataCollector.AddData("densityError", RelativeDensityError);
-            DataCollector.AddData("cfl", CflCondition);
+            DataCollector.AddData("compressionError", State.CompressionError);
+            DataCollector.AddData("absoluteError", State.AbsDensityError);
+            DataCollector.AddData("cfl", State.MaxCFL);
             DataCollector.AddData("bViscosity", settings.BoundaryViscosity);
             DataCollector.AddData("fViscosity", settings.FluidViscosity);
             DataCollector.AddData("stiffness", settings.FluidStiffness);
@@ -126,13 +122,12 @@ namespace FlowLab.Logic.ParticleManagement
                         relPressure = float.IsNaN(relPressure) ? 0 : relPressure;
                         p.Color = ColorSpectrum.ValueToColor(relPressure);
                         break;
-                    case ColorMode.PosError:
-                        p.Color = ColorSpectrum.ValueToColor(p.DensityError / 10);
+                    case ColorMode.AbsError:
+                        p.Color = p.IsBoundary ? Microsoft.Xna.Framework.Color.DarkGray : ColorSpectrum.ValueToColor(float.Abs(p.DensityError) / 10);
                         break;
-                    case ColorMode.NegError:
-                        p.Color = ColorSpectrum.ValueToColor(-p.DensityError / 10);
+                    case ColorMode.CompError:
+                        p.Color = p.IsBoundary ? Microsoft.Xna.Framework.Color.DarkGray : ColorSpectrum.ValueToColor(p.DensityError / 10);
                         break;
-
                 }
             });
 

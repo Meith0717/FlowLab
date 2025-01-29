@@ -9,9 +9,9 @@ namespace FlowLab.Logic.SphComponents
 {
     internal class SESPHComponents
     {
-        public static void StateEquation(Particle particle, float fluidStiffness)
+        public static void StateEquation(Particle particle, float fluidDensity, float fluidStiffness)
         {
-            particle.Pressure = MathF.Max(fluidStiffness * ((particle.Density / particle.Density0) - 1), 0);
+            particle.Pressure = MathF.Max(fluidStiffness * ((particle.Density / fluidDensity) - 1), 0);
         }
     }
 }
