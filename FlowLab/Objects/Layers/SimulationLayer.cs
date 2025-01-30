@@ -19,7 +19,9 @@ using Fluid_Simulator.Core.Profiling;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System;
 using System.IO;
+using System.Linq.Expressions;
 
 namespace FlowLab.Game.Objects.Layers
 {
@@ -119,17 +121,25 @@ namespace FlowLab.Game.Objects.Layers
             {
                 _script.Update(_particleManager.State, _settings);
                 _scenarioManager.Update();
-                _particleManager.Update(gameTime, _settings);
+                try
+                {
+                    _particleManager.Update(gameTime, _settings);
+                }
+                catch (Exception ex)
+                {
+                    ErorDetected(ex);
+                }
                 _script.BreakCondition(_particleManager.State, _settings, () => { ToggleDataSaver(); TogglePause(true); });
             }
-            Paused = _particleManager.FluidParticlesCount == 0 ? true : Paused;
+
+            Paused = _particleManager.Particles.CountFluid == 0 ? true : Paused;
 
             if (_recorder.IsActive && (_recorder.FrameCount >= _settings.MaxRecordingSeconds * _settings.FrameRate))
                 _recorder.Toggle(0, null);
 
             _particleManager.ApplyColors(_settings.ColorMode, _debugger, _settings);
             _debugger.Update(inputState, new(_worldMousePosition.X, _worldMousePosition.Y), ParticleDiameter, _camera);
-            _recorder.TakeFrame(RenderTarget2D, _particleManager.TimeSteps);
+            _recorder.TakeFrame(RenderTarget2D, _particleManager.TotalTimeSteps);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -154,6 +164,12 @@ namespace FlowLab.Game.Objects.Layers
             spriteBatch.End();
             _debugger.DrawParticleInfo(spriteBatch, GraphicsDevice.Viewport.Bounds.GetCorners()[3].ToVector2());
             base.Draw(spriteBatch);
+        }
+
+        private void ErorDetected(Exception exception)
+        {
+            TogglePause(true);
+            LayerManager.AddLayer(new DialogBoxLayer(Game1, "An error has occurred.", exception.Message, LayerManager.PopLayer));
         }
 
         public void ToggleMode()

@@ -105,6 +105,7 @@ namespace FlowLab
             InputState inputState = _active ? _inputManager.Update(gameTime) : new([], "", Vector2.Zero);
             inputState.DoAction(ActionType.ToggleFullscreen, ToggleFullScreen);
             LayerManager.Update(gameTime, inputState);
+
             Exiting += delegate
             {
                 if (_exitingHandled) return;

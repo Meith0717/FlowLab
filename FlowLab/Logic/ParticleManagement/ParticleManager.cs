@@ -11,16 +11,41 @@ using System.Linq;
 
 namespace FlowLab.Logic.ParticleManagement
 {
-    internal class ParticleManager(int particleDiameter, float fluidDensity)
+    internal class ParticleManager
     {
-        private readonly SPHSolver SPHSolver = new(new(particleDiameter));
-
         public readonly FluidDomain Particles = new();
-        public readonly SpatialHashing SpatialHashing = new(particleDiameter * 2);
-        public readonly DataCollector DataCollector = new("performance", ["simulationStep", "simulationStepsTime", "neighborSearchTime", "timeSteps", "particles", "solver", "fViscosity", "stiffness", "iterations", "timeStep", "compressionError", "absoluteError", "cfl", "boundary", "bViscosity", "gamma1", "gamma2", "gamma3"]);
-        public readonly float ParticleDiameter = particleDiameter;
-        public readonly float FluidDensity = fluidDensity;
-        public SimulationState State { get; private set; }
+        public readonly SpatialHashing SpatialHashing;
+        private readonly SPHSolver SPHSolver;
+        public readonly DataCollector DataCollector;
+        public readonly float ParticleDiameter;
+        public readonly float FluidDensity;
+
+        public ParticleManager(int particleDiameter, float fluidDensity)
+        {
+            SpatialHashing = new(particleDiameter * 2);
+            SPHSolver = new(new(particleDiameter));
+            ParticleDiameter = particleDiameter;
+            FluidDensity = fluidDensity;
+            DataCollector = new("performance", 
+                ["simulationStep",
+                "totalSolverTime",
+                "pressureSolverTime",
+                "timeSteps",
+                "particles",
+                "solver",
+                "fViscosity",
+                "stiffness",
+                "iterations",
+                "timeStep",
+                "compressionError",
+                "absoluteError",
+                "cfl",
+                "boundary",
+                "bViscosity",
+                "gamma1",
+                "gamma2",
+                "gamma3"]);
+        }
 
         public void ClearFluid()
         {
@@ -28,15 +53,7 @@ namespace FlowLab.Logic.ParticleManagement
             foreach (var particle in Particles.Fluid)
                 SpatialHashing.RemoveObject(particle);
             Particles.ClearFluid();
-            TimeSteps = SimStepsCount = _lastTimeSteps = 0;
-        }
-
-        public void ClearBoundary()
-        {
-            DataCollector.Clear();
-            foreach (var particle in Particles.Boundary)
-                SpatialHashing.RemoveObject(particle);
-            Particles.ClearBoundary();
+            TotalTimeSteps = TotalSimSteps = _previousTotalTimeStep = 0;
         }
 
         public void ClearAll()
@@ -59,10 +76,15 @@ namespace FlowLab.Logic.ParticleManagement
             SpatialHashing.InsertObject(particle);
         }
 
-        public int FluidParticlesCount
-            => Particles.CountFluid;
+        public double TotalTime { get; private set; }
+        public float TotalTimeSteps { get; private set; }
+        public int TotalSimSteps { get; private set; }
+        public SolverState State { get; private set; }
 
-        private int _lastTimeSteps;
+        private int _previousTotalTimeStep;
+        private double _totalSolverTimeSum;
+        private double _pressureSolverTimeSum;
+
         public void Update(Microsoft.Xna.Framework.GameTime gameTime, SimulationSettings settings)
         {
             // ____Update____
@@ -74,17 +96,20 @@ namespace FlowLab.Logic.ParticleManagement
             settings.TimeStep = settings.DynamicTimeStep ? SPHComponents.ComputeDynamicTimeStep(settings, State, ParticleDiameter) : settings.FixTimeStep;
 
             // ___Track some stuff___
-            TimeSteps += settings.TimeStep;
-            SimStepsCount++;
+            TotalTimeSteps += settings.TimeStep;
+            TotalSimSteps++;
             TotalTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            _totalSolverTimeSum += State.TotalSolverTime;
+            _pressureSolverTimeSum += State.PressureSolverTime;
 
             // ____Collect data____
-            if (_lastTimeSteps >= (int)float.Floor(TimeSteps)) return;
-            _lastTimeSteps = (int)float.Floor(TimeSteps);
-            DataCollector.AddData("simulationStep", SimStepsCount);
-            DataCollector.AddData("timeSteps", _lastTimeSteps);
-            DataCollector.AddData("simulationStepsTime", State.SimStepTime);
-            DataCollector.AddData("neighborSearchTime", State.NeighbourSearchTime);
+            if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;
+            _previousTotalTimeStep = (int)float.Floor(TotalTimeSteps);
+
+            DataCollector.AddData("simulationStep", TotalSimSteps);
+            DataCollector.AddData("timeSteps", _previousTotalTimeStep);
+            DataCollector.AddData("totalSolverTime", (float)_totalSolverTimeSum);
+            DataCollector.AddData("pressureSolverTime", (float)_pressureSolverTimeSum);
             DataCollector.AddData("solver", settings.SimulationMethod);
             DataCollector.AddData("boundary", settings.BoundaryHandling);
             DataCollector.AddData("iterations", State.SolverIterations);
@@ -95,10 +120,13 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("timeStep", settings.TimeStep);
             DataCollector.AddData("compressionError", State.CompressionError);
             DataCollector.AddData("absoluteError", State.AbsDensityError);
-            DataCollector.AddData("cfl", State.MaxCFL);
+            DataCollector.AddData("cfl", State.MaxParticleCfl);
             DataCollector.AddData("bViscosity", settings.BoundaryViscosity);
             DataCollector.AddData("fViscosity", settings.FluidViscosity);
             DataCollector.AddData("stiffness", settings.FluidStiffness);
+
+            _totalSolverTimeSum = 0;
+            _pressureSolverTimeSum = 0;
         }
 
         private List<Particle> _particlesInBox = new();
@@ -140,8 +168,5 @@ namespace FlowLab.Logic.ParticleManagement
             Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Microsoft.Xna.Framework.Color.DarkOrchid);
             debugParticle.Color = Microsoft.Xna.Framework.Color.DarkMagenta;
         }
-        public double TotalTime { get; private set; }       // Total sim time
-        public float TimeSteps { get; private set; }       // Time step sum
-        public int SimStepsCount { get; private set; }   // Sim steps Count
     }
 }

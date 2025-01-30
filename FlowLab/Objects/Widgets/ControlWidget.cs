@@ -30,7 +30,7 @@ namespace FlowLab.Objects.Widgets
             new UiButton(this, "trash", particleManager.ClearFluid)
             {
                 Action = Core.InputManagement.ActionType.DeleteParticles,
-                UpdatTracker = self => self.Disable = !simulationLayer.Paused || particleManager.FluidParticlesCount == 0,
+                UpdatTracker = self => self.Disable = !simulationLayer.Paused || particleManager.Particles.CountFluid == 0,
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 40);
 
@@ -39,7 +39,7 @@ namespace FlowLab.Objects.Widgets
                 TextureScale = .5f,
             }.Place(anchor: Anchor.CenterH, x: 100);
 
-            new UiButton(this, "record", () => recorder.Toggle(particleManager.TimeSteps, null))
+            new UiButton(this, "record", () => recorder.Toggle(particleManager.TotalTimeSteps, null))
             {
                 UpdatTracker = self => self.TextureIdleColor = recorder.IsActive ? Color.Red : Color.SkyBlue,
                 TextureScale = .5f,

@@ -38,7 +38,7 @@ namespace FlowLab.Objects.Layers
                 BorderSize = 5,
                 BorderColor = Color.Gray
             };
-            layer.Place(anchor: Anchor.NE, width: 240, height: 600, hSpace: 10, vSpace: 10);
+            layer.Place(anchor: Anchor.NE, width: 280, height: 600, hSpace: 10, vSpace: 10);
 
             new UiButton(layer, "settings", OpenSettings)
             {

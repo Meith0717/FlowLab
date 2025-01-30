@@ -59,7 +59,7 @@ namespace FlowLab.Objects.Widgets
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 100);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => { self.Text = $"{double.Round(_particleManager.State.MaxCFL * 100)}%"; },
+                UpdateTracker = self => { self.Text = $"{double.Round(_particleManager.State.MaxParticleCfl * 100)}%"; },
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 100);

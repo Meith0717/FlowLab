@@ -9,13 +9,13 @@ namespace FlowLab.Logic.SphComponents
 {
     internal static class SPHComponents
     {
-        public static float ComputeDynamicTimeStep(SimulationSettings settings, SimulationState state, float particleDiameter)
+        public static float ComputeDynamicTimeStep(SimulationSettings settings, SolverState state, float particleDiameter)
         {
             float ts;
-            if (state.MaxVelocity == 0)
+            if (state.MaxParticleVelocity == 0)
                 ts = float.PositiveInfinity;
             else
-                ts = settings.MaxCfl * (particleDiameter / state.MaxVelocity);
+                ts = settings.MaxCfl * (particleDiameter / state.MaxParticleVelocity);
             return float.Min(settings.MaxTimeStep, ts);
         }
 

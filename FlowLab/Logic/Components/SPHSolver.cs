@@ -11,13 +11,9 @@ namespace FlowLab.Logic.SphComponents
 {
     internal class SPHSolver(Kernels kernels)
     {
-        private readonly static Stopwatch neighborSearchStopWatch = new();
-
-        private void ComputeDensity(FluidDomain particles, SpatialHashing spatialHashing, float fluidDensity, bool parallel, float gamma1, float gamma2, out float compressionErrorSum, out float absErrorSum, out double neighborSearchTime)
+        private void ComputeDensity(FluidDomain particles, SpatialHashing spatialHashing, float fluidDensity, bool parallel, float gamma1, float gamma2, out float compressionErrorSum, out float absErrorSum)
         {
-            neighborSearchStopWatch.Restart();
             Utilitys.ForEach(parallel, particles.All, particle => particle.FindNeighbors(spatialHashing, kernels, gamma1, fluidDensity));
-            neighborSearchStopWatch.Stop();
             Utilitys.ForEach(parallel, particles.All, particle =>
             {
                 SPHComponents.ComputeLocalDensity(particle, gamma2);
@@ -25,7 +21,6 @@ namespace FlowLab.Logic.SphComponents
             });
             compressionErrorSum = particles.Fluid.AsParallel().Sum(p => float.Max(p.DensityError, 0));
             absErrorSum = particles.Fluid.AsParallel().Sum(p => float.Abs(p.DensityError));
-            neighborSearchTime = neighborSearchStopWatch.Elapsed.TotalMilliseconds;
             if (float.IsNaN(compressionErrorSum))
                 Debugger.Break();
         }
@@ -57,12 +52,13 @@ namespace FlowLab.Logic.SphComponents
             maxVelocity = particles.Fluid.AsParallel().Max(p => p.Velocity.Length());
         }
 
-        private readonly static Stopwatch simStepStopWatch = new();
+        private readonly static Stopwatch _totalSolverTimeWatch = new();
+        private readonly static Stopwatch _pressureWatch = new();
 
-        public SimulationState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
+        public SolverState IISPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float FluidDensity, SimulationSettings settings)
         {
-            simStepStopWatch.Restart();
-            if (particles.CountFluid == 0) return new(0, 0, 0, 0, 0, 0, 0);
+            _totalSolverTimeWatch.Restart();
+            if (particles.CountFluid == 0) return new();
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
             var fluidViscosity = settings.FluidViscosity;
@@ -71,25 +67,30 @@ namespace FlowLab.Logic.SphComponents
             var gamma1 = settings.Gamma1;
             var gamma2 = settings.Gamma2;
 
-            ComputeDensity(particles, spatialHashing, FluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum, out var neighborSearchTime);
+            ComputeDensity(particles, spatialHashing, FluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum);
             ComputeNonPressureAccelerations(particles, parallel, h, fluidViscosity, boundaryViscosity, gravitation, timeStep);
+
+            _pressureWatch.Restart();
             var iterations = IISPHComponents.RelaxedJacobiSolver(particles, FluidDensity, settings);
+            _pressureWatch.Stop();
+
             UpdateVelocities(particles, parallel, h, timeStep, out var maxVelocity);
             spatialHashing.Rearrange(parallel);
-            simStepStopWatch.Stop();
+            _totalSolverTimeWatch.Stop();
             return new(iterations,
                 maxVelocity,
                 timeStep * (maxVelocity / h),
+                particles.All.AsParallel().Max(p => p.Pressure),
                 compressionErrorSum / particles.CountFluid,
                 absErrorSum / particles.CountFluid,
-                simStepStopWatch.Elapsed.TotalMilliseconds,
-                neighborSearchTime);
+                _totalSolverTimeWatch.Elapsed.TotalMilliseconds,
+                _pressureWatch.Elapsed.TotalMilliseconds);
         }
 
-        public SimulationState SESPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float fluidDensity, SimulationSettings settings)
+        public SolverState SESPH(FluidDomain particles, SpatialHashing spatialHashing, float h, float fluidDensity, SimulationSettings settings)
         {
-            simStepStopWatch.Restart();
-            if (particles.CountFluid == 0) return new(0, 0, 0, 0, 0, 0, 0);
+            _totalSolverTimeWatch.Restart();
+            if (particles.CountFluid == 0) return new();
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
             var fluidViscosity = settings.FluidViscosity;
@@ -101,24 +102,27 @@ namespace FlowLab.Logic.SphComponents
             var gamma2 = settings.Gamma2;
             var gamma3 = settings.Gamma3;
 
-            ComputeDensity(particles, spatialHashing, fluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum, out var neighborSearchTime);
+            ComputeDensity(particles, spatialHashing, fluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum);
             ComputeNonPressureAccelerations(particles, parallel, h, fluidViscosity, boundaryViscosity, gravitation, timeStep);
 
+            _pressureWatch.Restart();
             Utilitys.ForEach(parallel, particles.Fluid, particle => SESPHComponents.StateEquation(particle, fluidDensity, fluidStiffness));
             if (boundaryHandling == BoundaryHandling.Extrapolation)
                 Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
+            _pressureWatch.Stop();
 
             ComputePressureAcceleration(particles, parallel, gamma3, boundaryHandling == BoundaryHandling.Mirroring);
             UpdateVelocities(particles, parallel, h, timeStep, out var maxVelocity);
             spatialHashing.Rearrange(parallel);
-            simStepStopWatch.Stop();
+            _totalSolverTimeWatch.Stop();
             return new(0,
                 maxVelocity,
                 timeStep * (maxVelocity / h),
+                particles.All.AsParallel().Max(p => p.Pressure),
                 compressionErrorSum / particles.CountFluid,
                 absErrorSum / particles.CountFluid,
-                simStepStopWatch.Elapsed.TotalMilliseconds,
-                neighborSearchTime);
+                _totalSolverTimeWatch.Elapsed.TotalMilliseconds,
+                _pressureWatch.Elapsed.TotalMilliseconds);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "Run Time:",
+                Text = "Total:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 40);
@@ -43,26 +43,26 @@ namespace FlowLab.Objects.Widgets
 
             new UiText(this, "consola")
             {
-                Text = "Sim. Time:",
+                Text = "Solver:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 70);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = double.Round(particleManager.State.SimStepTime).ToString() + "ms",
+                UpdateTracker = self => self.Text = double.Round(particleManager.State.TotalSolverTime, 2).ToString() + "ms",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 70);
 
             new UiText(this, "consola")
             {
-                Text = "Search Time:",
+                Text = "Pressure:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 100);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = double.Round(particleManager.State.NeighbourSearchTime).ToString() + "ms",
+                UpdateTracker = self => self.Text = double.Round(particleManager.State.PressureSolverTime, 2).ToString() + "ms",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 100);
@@ -80,20 +80,18 @@ namespace FlowLab.Objects.Widgets
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 130);
 
-
             new UiText(this, "consola")
             {
-                Text = "Steps Count:",
+                Text = "Solver Steps:",
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 160);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = particleManager.SimStepsCount.ToString(),
+                UpdateTracker = self => self.Text = particleManager.TotalSimSteps.ToString(),
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 160);
-
 
             new UiText(this, "consola")
             {
@@ -103,7 +101,7 @@ namespace FlowLab.Objects.Widgets
             }.Place(anchor: Anchor.Left, hSpace: 10, y: 190);
             new UiText(this, "consola")
             {
-                UpdateTracker = self => self.Text = float.Round(particleManager.TimeSteps).ToString(),
+                UpdateTracker = self => self.Text = float.Round(particleManager.TotalTimeSteps).ToString(),
                 Scale = .17f,
                 Color = Color.White
             }.Place(anchor: Anchor.Right, hSpace: 10, y: 190);

@@ -20,6 +20,7 @@ namespace FlowLab.Game.Engine.UserInterface.Components
             base.Update(inputState, transformedMousePosition, gameTime);
 
             UpdateTracker?.Invoke(this);
+            Text = Text == "∞%" ? "infinity" : Text;
             var textSize = _font.MeasureString(Text) * Scale * new Vector2(1, .75f);
             textSize.Ceiling();
             _textDimension = textSize.ToPoint();

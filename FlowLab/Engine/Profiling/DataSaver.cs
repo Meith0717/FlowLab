@@ -21,13 +21,13 @@ namespace Fluid_Simulator.Core.Profiling
                 if (dataCollector.Count == 0) continue;
                 var dataPath = Path.Combine(DataSaveDirectory, $"{date}_{dataCollector.Name}.csv");
                 using StreamWriter dataWriter = serializer.GetStreamWriter(dataPath);
-                dataWriter.WriteLine("sample," + string.Join(",", dataCollector.Data.Keys));
-                for (int i = 0; i < dataCollector.Count; i++)
+                dataWriter.WriteLine(string.Join(",", dataCollector.Data.Keys));
+                for (int _ = 0; _ < dataCollector.Count; _++)
                 {
                     var line = new List<object>();
                     foreach (var entry in dataCollector.Data.Keys)
-                        line.Add(dataCollector.Data[entry][i]);
-                    dataWriter.WriteLine($"{i}," + string.Join(",", line));
+                        line.Add(dataCollector.Data[entry][_]);
+                    dataWriter.WriteLine(string.Join(",", line));
                 }
             }
         }

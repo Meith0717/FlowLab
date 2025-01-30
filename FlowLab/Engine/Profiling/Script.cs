@@ -10,30 +10,30 @@ namespace FlowLab.Engine.Profiling
 {
     internal class Script
     {
-        public const float Threshold = 500;
+        public const float Threshold = 300;
         private float _thresholdCounter;
         private int _counter;
         public bool Active = false;
         private readonly Random _random = new();
 
-        public void Update(SimulationState simulationState, SimulationSettings simulationSettings)
+        private int i = 0;
+        public void Update(SolverState simulationState, SimulationSettings simulationSettings)
         {
             if (!Active) return;
             _thresholdCounter += simulationSettings.TimeStep;
             if (_thresholdCounter < Threshold) return;
             _thresholdCounter = _thresholdCounter - Threshold;
-            simulationSettings.Gamma1 = _random.Next(75, 125) / 100f;
-            simulationSettings.Gamma2 = _random.Next(75, 125) / 100f;
-            simulationSettings.Gamma3 = _random.Next(75, 125) / 100f;
             _counter++;
+            // TODO
         }
         
-        public void BreakCondition(SimulationState simulationState, SimulationSettings simulationSettings, Action breakAction)
+        public void BreakCondition(SolverState simulationState, SimulationSettings simulationSettings, Action breakAction)
         {
             if (!Active) return;
-            if (_counter < 200) return;
+            if (_counter < 1) return;
             breakAction?.Invoke();
             Active = false;
+            _counter = 0;
         }
     }
 }
