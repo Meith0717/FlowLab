@@ -5,6 +5,7 @@
 using FlowLab.Core.Extensions;
 using FlowLab.Logic.ParticleManagement;
 using MonoGame.Extended;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
 
@@ -18,51 +19,50 @@ namespace FlowLab.Logic.SphComponents
         private static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
             var sum1 = 0f;
-            foreach (var neighbor in particle.Neighbors.Where(p => !p.IsBoundary))
-                sum1 += (neighbor.Mass * particle.KernelDerivativ(neighbor)).SquaredNorm();
-
             var sum2 = System.Numerics.Vector2.Zero;
             foreach (var neighbor in particle.Neighbors)
+            {
+                sum1 += (neighbor.Mass * particle.KernelDerivativ(neighbor)).SquaredNorm();
                 sum2 += neighbor.Mass * particle.KernelDerivativ(neighbor);
+# if DEBUG
+                if (float.IsNaN(sum1)) throw new System.Exception("ComputeDiagonalElement: sum1 is NaN");
+                if (float.IsNaN(sum2.X) || float.IsNaN(sum2.Y)) throw new System.Exception("ComputeDiagonalElement: sum2 is NaN");
+#endif
+            }
 
-            if (float.IsNaN(sum1))
-                throw new System.Exception("ComputeDiagonalElement: sum1 is NaN");
-            if (float.IsNaN(sum2.X) || float.IsNaN(sum2.Y))
-                throw new System.Exception("ComputeDiagonalElement: sum2 is NaN");
-
-            sum1 += sum2.SquaredNorm();
-            var aii = -timeStep / (particle.Density * particle.Density) * sum1;
-            if (float.IsNaN(aii))
-                throw new System.Exception("ComputeDiagonalElement: aii is NaN");
-
-            particle.AII = aii;
+            particle.AII = - (timeStep / (particle.Density * particle.Density)) * (sum1 + sum2.SquaredNorm());
+#if DEBUG
+            if (float.IsNaN(particle.AII)) throw new System.Exception("ComputeDiagonalElement: aii is NaN");
+#endif
         }
 
         private static void ComputeSourceTerm(Particle particle, float timeStep, float fluidDensity)
         {
-            var predDensityOfNonPVel = 0f;
+            var sum = 0f;
             foreach (var neighbor in particle.Neighbors)
             {
                 var velDif = particle.IntermediateVelocity - neighbor.IntermediateVelocity;
-                predDensityOfNonPVel += (neighbor.Mass * velDif).Dot(particle.KernelDerivativ(neighbor));
-                if (float.IsNaN(predDensityOfNonPVel))
-                    throw new System.Exception("ComputeSourceTerm: predDensityOfNonPVel is NaN");
+                sum += neighbor.Mass * velDif.Dot(particle.KernelDerivativ(neighbor));
+#if DEBUG
+                if (float.IsNaN(sum)) throw new System.Exception("ComputeSourceTerm: predDensityOfNonPVel is NaN");
+# endif
             }
-            var predDensity = particle.Density + (timeStep * predDensityOfNonPVel);
+            var predDensity = particle.Density + (timeStep * sum);
             particle.St = (fluidDensity - predDensity) / timeStep;
         }
 
         private static void ComputeLaplacian(Particle particle, float timeStep)
         {
-            particle.Ap = 0;
+            var sum = 0f;
             foreach (var neighbor in particle.Neighbors)
             {
-                var update = (neighbor.Mass * (particle.Acceleration - neighbor.Acceleration)).Dot(particle.KernelDerivativ(neighbor));
-                particle.Ap += update;
-                if (float.IsNaN(particle.Ap))
-                    throw new System.Exception("ComputeLaplacian: particle.Ap is NaN");
+                var accDif = particle.PressureAcceleration - neighbor.PressureAcceleration;
+                sum += neighbor.Mass * accDif.Dot(particle.KernelDerivativ(neighbor));
+#if DEBUG
+                if (float.IsNaN(sum)) throw new System.Exception("ComputeLaplacian: particle.Ap is NaN");
+# endif
             }
-            particle.Ap *= timeStep;
+            particle.Ap = timeStep * sum;
         }
 
         public static int RelaxedJacobiSolver(FluidDomain particles, float fluidDensity, SimulationSettings settings)
@@ -71,7 +71,7 @@ namespace FlowLab.Logic.SphComponents
             var timeStep = settings.TimeStep;
             var gravitation = settings.Gravitation;
             var omega = settings.RelaxationCoefficient;
-            var minError = settings.MinError;
+            var minCompression = settings.MinError;
             var maxIterations = settings.MaxIterations;
             var boundaryHandling = settings.BoundaryHandling;
             var gamma3 = settings.Gamma3;
@@ -83,32 +83,34 @@ namespace FlowLab.Logic.SphComponents
                 particle.Pressure = float.Abs(particle.AII) > 1e-6 ? omega / particle.AII * particle.St : 0;
             });
 
-            var i = 0;
-            for (;;)
+            int i;
+            for (i = 1; i < maxIterations; i++)
             {
                 if (boundaryHandling == BoundaryHandling.Extrapolation)
                     Utilitys.ForEach(parallel, particles.Boundary, particle => SPHComponents.PressureExtrapolation(particle, gravitation));
-
                 Utilitys.ForEach(parallel, particles.Fluid, particle => SPHComponents.ComputePressureAcceleration(particle, gamma3, boundaryHandling == BoundaryHandling.Mirroring));
 
                 Utilitys.ForEach(parallel, particles.Fluid, particle =>
                 {
                     ComputeLaplacian(particle, timeStep);
-                    particle.Pressure = float.Abs(particle.AII) > 1e-6 ? particle.Pressure + (omega / particle.AII * (particle.St - particle.Ap)) : 0;
+                    if (float.Abs(particle.AII) > 0)
+                        particle.Pressure += omega / particle.AII * (particle.St - particle.Ap);
+                    else
+                        particle.Pressure = 0;
                     particle.Pressure = float.Max(particle.Pressure, 0);
-                    if (float.IsNaN(particle.Pressure))
-                        throw new System.Exception("RelaxedJacobiSolver: particle.Pressure is NaN");
-                    particle.EstimatedDensityError = (particle.Ap - particle.St) / fluidDensity * 100;
+#if DEBUG
+                    if (float.IsNaN(particle.Pressure)) throw new System.Exception("RelaxedJacobiSolver: particle.Pressure is NaN");
+#endif
+                    particle.EstimatedCompression = -float.Min(particle.St - particle.Ap, 0) * timeStep / fluidDensity * 100;
                 });
 
-                var estimatedDensityErrorSum = particles.Fluid.AsParallel().Sum(p => float.Max(p.EstimatedDensityError, 0));
-                var avgDensityError = estimatedDensityErrorSum / particles.CountFluid;
-                if (float.IsNaN(avgDensityError))
-                    throw new System.Exception("RelaxedJacobiSolver: avgDensityError is NaN");
-
-                i++;
-                if ((avgDensityError <= minError) && (i > 2) || (i >= maxIterations))
-                    break;
+                var estimatedCompressionSum = particles.Fluid.AsParallel().Sum(p => p.EstimatedCompression);
+                var avgCompression = estimatedCompressionSum / particles.CountFluid;
+#if DEBUG
+                if (float.IsNaN(avgCompression)) throw new System.Exception("RelaxedJacobiSolver: avgDensityError is NaN");
+#endif
+                if ((avgCompression <= minCompression) && (i > 2)) 
+                    return i;
             }
             return i;
         }

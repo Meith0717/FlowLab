@@ -10,13 +10,11 @@ namespace FlowLab.Engine.Profiling
 {
     internal class Script
     {
-        public const float Threshold = 300;
+        public const float Threshold = 100;
         private float _thresholdCounter;
         private int _counter;
         public bool Active = false;
-        private readonly Random _random = new();
 
-        private int i = 0;
         public void Update(SolverState simulationState, SimulationSettings simulationSettings)
         {
             if (!Active) return;
@@ -24,13 +22,14 @@ namespace FlowLab.Engine.Profiling
             if (_thresholdCounter < Threshold) return;
             _thresholdCounter = _thresholdCounter - Threshold;
             _counter++;
+            simulationSettings.FixTimeStep -= 0.005f;
             // TODO
         }
         
         public void BreakCondition(SolverState simulationState, SimulationSettings simulationSettings, Action breakAction)
         {
             if (!Active) return;
-            if (_counter < 1) return;
+            if (simulationSettings.FixTimeStep > .01f) return;
             breakAction?.Invoke();
             Active = false;
             _counter = 0;

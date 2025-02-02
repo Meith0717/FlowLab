@@ -27,7 +27,7 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore] public float St { get; set; }
         [JsonIgnore] public float Ap { get; set; }
         [JsonIgnore] public float Cfl { get; set; }
-        [JsonIgnore] public float EstimatedDensityError { get; set; }
+        [JsonIgnore] public float EstimatedCompression { get; set; }
         [JsonIgnore] public float DensityError { get; set; }
 
         [JsonProperty][NotNull] public System.Numerics.Vector2 Position { get; set; } = position;

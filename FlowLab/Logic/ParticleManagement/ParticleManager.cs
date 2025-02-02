@@ -27,24 +27,25 @@ namespace FlowLab.Logic.ParticleManagement
             ParticleDiameter = particleDiameter;
             FluidDensity = fluidDensity;
             DataCollector = new("performance", 
-                ["simulationStep",
-                "totalSolverTime",
-                "pressureSolverTime",
-                "timeSteps",
+                ["totalTime",
+                "simulationStep",
                 "particles",
+                "solverTime",
+                "pressureSolverTime",
+                "neighborSolverTime",
                 "solver",
-                "fViscosity",
-                "stiffness",
                 "iterations",
                 "timeStep",
                 "compressionError",
                 "absoluteError",
                 "cfl",
+                "fViscosity",
+                "stiffness",
                 "boundary",
-                "bViscosity",
                 "gamma1",
                 "gamma2",
-                "gamma3"]);
+                "gamma3",
+                "bViscosity"]);
         }
 
         public void ClearFluid()
@@ -53,7 +54,8 @@ namespace FlowLab.Logic.ParticleManagement
             foreach (var particle in Particles.Fluid)
                 SpatialHashing.RemoveObject(particle);
             Particles.ClearFluid();
-            TotalTimeSteps = TotalSimSteps = _previousTotalTimeStep = 0;
+            TotalTimeSteps = TotalSimulationSteps = _previousTotalTimeStep = 0;
+            TotalTime = 0; 
         }
 
         public void ClearAll()
@@ -78,12 +80,15 @@ namespace FlowLab.Logic.ParticleManagement
 
         public double TotalTime { get; private set; }
         public float TotalTimeSteps { get; private set; }
-        public int TotalSimSteps { get; private set; }
+        public int TotalSimulationSteps { get; private set; }
         public SolverState State { get; private set; }
 
         private int _previousTotalTimeStep;
-        private double _totalSolverTimeSum;
+        private double _simulationSteps;
+        private double _timeStepTime;
+        private double _solverTimeSum;
         private double _pressureSolverTimeSum;
+        private double _neighborSearchTimeSum;
 
         public void Update(Microsoft.Xna.Framework.GameTime gameTime, SimulationSettings settings)
         {
@@ -97,19 +102,23 @@ namespace FlowLab.Logic.ParticleManagement
 
             // ___Track some stuff___
             TotalTimeSteps += settings.TimeStep;
-            TotalSimSteps++;
+            TotalSimulationSteps++;
+            _simulationSteps++;
             TotalTime += gameTime.ElapsedGameTime.TotalMilliseconds;
-            _totalSolverTimeSum += State.TotalSolverTime;
+            _timeStepTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            _solverTimeSum += State.TotalSolverTime;
             _pressureSolverTimeSum += State.PressureSolverTime;
+            _neighborSearchTimeSum += State.NeighborSearchTime;
 
             // ____Collect data____
-            if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;
-            _previousTotalTimeStep = (int)float.Floor(TotalTimeSteps);
+            //if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;
+            //_previousTotalTimeStep = (int)float.Floor(TotalTimeSteps);
 
-            DataCollector.AddData("simulationStep", TotalSimSteps);
-            DataCollector.AddData("timeSteps", _previousTotalTimeStep);
-            DataCollector.AddData("totalSolverTime", (float)_totalSolverTimeSum);
-            DataCollector.AddData("pressureSolverTime", (float)_pressureSolverTimeSum);
+            DataCollector.AddData("simulationStep", _simulationSteps);
+            DataCollector.AddData("totalTime", _timeStepTime);
+            DataCollector.AddData("solverTime", _solverTimeSum);
+            DataCollector.AddData("pressureSolverTime", _pressureSolverTimeSum);
+            DataCollector.AddData("neighborSolverTime", _neighborSearchTimeSum);
             DataCollector.AddData("solver", settings.SimulationMethod);
             DataCollector.AddData("boundary", settings.BoundaryHandling);
             DataCollector.AddData("iterations", State.SolverIterations);
@@ -125,8 +134,11 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("fViscosity", settings.FluidViscosity);
             DataCollector.AddData("stiffness", settings.FluidStiffness);
 
-            _totalSolverTimeSum = 0;
+            _solverTimeSum = 0;
+            _timeStepTime = 0;
+            _simulationSteps = 0;
             _pressureSolverTimeSum = 0;
+            _neighborSearchTimeSum = 0;
         }
 
         private List<Particle> _particlesInBox = new();

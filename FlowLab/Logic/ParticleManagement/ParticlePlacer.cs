@@ -98,7 +98,6 @@ namespace FlowLab.Logic.ParticleManagement
                 for (int j = 0; j < yAmount; j++)
                 {
                     var particlePosition = position + new System.Numerics.Vector2(i, j) * _particleDiameter;
-                    if (j % 2 == 0) particlePosition.X += _particleDiameter / 2;
                     _particles.Add(particlePosition);
                 }
             }
