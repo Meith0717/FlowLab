@@ -111,8 +111,8 @@ namespace FlowLab.Logic.ParticleManagement
             _neighborSearchTimeSum += State.NeighborSearchTime;
 
             // ____Collect data____
-            //if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;
-            //_previousTotalTimeStep = (int)float.Floor(TotalTimeSteps);
+            if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;
+            _previousTotalTimeStep = (int)float.Floor(TotalTimeSteps);
 
             DataCollector.AddData("simulationStep", _simulationSteps);
             DataCollector.AddData("totalTime", _timeStepTime);
