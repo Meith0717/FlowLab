@@ -10,18 +10,17 @@ namespace FlowLab.Engine.Profiling
 {
     internal class Script
     {
-        public const float Threshold = 3;
+        public const float Threshold = 1000;
         private float _thresholdCounter;
         private int _counter;
         public bool Active = false;
 
         public void Update(SolverState simulationState, SimulationSettings simulationSettings)
         {
-            if (true) return;
+            if (!Active) return;
             _thresholdCounter += simulationSettings.TimeStep;
             if (_thresholdCounter < Threshold) return;
             _thresholdCounter = _thresholdCounter - Threshold;
-            simulationSettings.FluidStiffness -= 1;
             _counter++;
             // TODO
         }
