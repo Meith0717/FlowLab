@@ -155,7 +155,7 @@ namespace FlowLab.Logic.ParticleManagement
                         p.Color = !p.IsBoundary ? new(20, 100, 255) : Microsoft.Xna.Framework.Color.DarkGray;
                         break;
                     case ColorMode.Velocity:
-                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl / settings.MaxCfl) : Microsoft.Xna.Framework.Color.DarkGray;
+                        p.Color = !p.IsBoundary ? ColorSpectrum.ValueToColor(p.Cfl) : Microsoft.Xna.Framework.Color.DarkGray;
                         break;
                     case ColorMode.Pressure:
                         var relPressure = p.Pressure / 70;

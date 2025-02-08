@@ -96,7 +96,7 @@ namespace FlowLab.Logic.ParticleManagement
             PressureAcceleration = System.Numerics.Vector2.Zero;
             ViscosityAcceleration = System.Numerics.Vector2.Zero;
             GravitationAcceleration = System.Numerics.Vector2.Zero;
-            Pressure = 0;
+            Pressure = AII = St = Ap = 0;
 
             if (!IsBoundary) return;
             var volume = gamma / _boundaryNeighbors.Sum(Kernel);

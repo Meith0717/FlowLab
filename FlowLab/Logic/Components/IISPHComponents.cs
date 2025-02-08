@@ -5,8 +5,6 @@
 using FlowLab.Core.Extensions;
 using FlowLab.Logic.ParticleManagement;
 using MonoGame.Extended;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.Linq;
 
 namespace FlowLab.Logic.SphComponents
@@ -22,15 +20,17 @@ namespace FlowLab.Logic.SphComponents
             var sum2 = System.Numerics.Vector2.Zero;
             foreach (var neighbor in particle.Neighbors)
             {
-                sum1 += (neighbor.Mass * particle.KernelDerivativ(neighbor)).SquaredNorm();
-                sum2 += neighbor.Mass * particle.KernelDerivativ(neighbor);
+                var massKernel = neighbor.Mass * particle.KernelDerivativ(neighbor);
+                sum2 += massKernel;
+                if (!neighbor.IsBoundary) 
+                    sum1 += massKernel.SquaredNorm();
 # if DEBUG
                 if (float.IsNaN(sum1)) throw new System.Exception("ComputeDiagonalElement: sum1 is NaN");
                 if (float.IsNaN(sum2.X) || float.IsNaN(sum2.Y)) throw new System.Exception("ComputeDiagonalElement: sum2 is NaN");
 #endif
             }
 
-            particle.AII = - (timeStep / (particle.Density * particle.Density)) * (sum1 + sum2.SquaredNorm());
+            particle.AII = - timeStep / (particle.Density * particle.Density) * (sum1 + sum2.SquaredNorm());
 #if DEBUG
             if (float.IsNaN(particle.AII)) throw new System.Exception("ComputeDiagonalElement: aii is NaN");
 #endif
@@ -80,7 +80,8 @@ namespace FlowLab.Logic.SphComponents
             {
                 ComputeSourceTerm(particle, timeStep, fluidDensity);
                 ComputeDiagonalElement(particle, timeStep);
-                particle.Pressure = float.Abs(particle.AII) > 1e-6 ? omega / particle.AII * particle.St : 0;
+                particle.Pressure = float.Abs(particle.AII) > 1e-6f ? omega  * (particle.St / particle.AII) : 0;
+                particle.Pressure = float.Max(particle.Pressure, 0);
             });
 
             int i;
@@ -93,15 +94,16 @@ namespace FlowLab.Logic.SphComponents
                 Utilitys.ForEach(parallel, particles.Fluid, particle =>
                 {
                     ComputeLaplacian(particle, timeStep);
-                    if (float.Abs(particle.AII) > 0)
-                        particle.Pressure += omega / particle.AII * (particle.St - particle.Ap);
+
+                    if (float.Abs(particle.AII) > 1e-6f)
+                        particle.Pressure += omega * ((particle.St - particle.Ap) / particle.AII);
                     else
                         particle.Pressure = 0;
                     particle.Pressure = float.Max(particle.Pressure, 0);
 #if DEBUG
                     if (float.IsNaN(particle.Pressure)) throw new System.Exception("RelaxedJacobiSolver: particle.Pressure is NaN");
 #endif
-                    particle.EstimatedCompression = -float.Min(particle.St - particle.Ap, 0) * timeStep / fluidDensity * 100;
+                    particle.EstimatedCompression = float.Max(particle.Ap - particle.St, 0) * timeStep / fluidDensity * 100;
                 });
 
                 var estimatedCompressionSum = particles.Fluid.AsParallel().Sum(p => p.EstimatedCompression);
@@ -109,7 +111,7 @@ namespace FlowLab.Logic.SphComponents
 #if DEBUG
                 if (float.IsNaN(avgCompression)) throw new System.Exception("RelaxedJacobiSolver: avgDensityError is NaN");
 #endif
-                if ((avgCompression <= minCompression) && (i > 2)) 
+                if ((avgCompression <= minCompression) && (i > 1)) 
                     return i;
             }
             return i;

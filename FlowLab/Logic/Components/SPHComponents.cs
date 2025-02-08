@@ -46,24 +46,16 @@ namespace FlowLab.Logic.SphComponents
 
             var s2 = System.Numerics.Vector2.Zero;
             foreach (var neighbor in particle.FluidNeighbors)
-            { 
                 s2 += neighbor.Density * (particle.Position - neighbor.Position) * particle.Kernel(neighbor);
-                if (float.IsNaN(s2.X) || float.IsNaN(s2.Y))
-                    Debugger.Break();
-            }
 
             var s3 = 0f;
             foreach (var neighbor in particle.FluidNeighbors)
-            {
                 s3 += particle.Kernel(neighbor);
-                if (float.IsNaN(s3))
-                    Debugger.Break();
-            }
 
             var dotProduct = System.Numerics.Vector2.Dot(new System.Numerics.Vector2(0, gravitation), s2);
+            if (float.IsNaN(dotProduct))
+                dotProduct = 0;
             particle.Pressure = (s1 + dotProduct) / s3;
-            if (float.IsNaN(particle.Pressure))
-                Debugger.Break();
         }
 
         public static void ComputePressureAcceleration(Particle fParticle, float gamma, bool mirroring)
