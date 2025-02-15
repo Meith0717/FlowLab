@@ -50,9 +50,13 @@ namespace FlowLab.Logic.SphComponents
         {
             Utilitys.ForEach(parallel, particles.All, (particle) =>
             {
-                if (!particle.IsBoundary)
+                if (!particle.IsBoundary){
                     particle.Velocity = particle.IntermediateVelocity + (timeStep * particle.PressureAcceleration);
-                particle.Position += timeStep * particle.Velocity;
+                    particle.Position += timeStep * particle.Velocity;
+                }
+                else
+                    particle.Position += particle.Velocity;
+
                 particle.Cfl = timeStep * (particle.Velocity.Length() / particleSize);
             });
             maxVelocity = particles.Fluid.AsParallel().Max(p => p.Velocity.Length());

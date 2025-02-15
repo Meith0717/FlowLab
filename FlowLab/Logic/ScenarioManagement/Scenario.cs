@@ -38,8 +38,8 @@ namespace FlowLab.Logic.ScenarioManagement
         public void Load(ParticleManager particleManager)
             => Utilitys.ForEach(false, Bodies, body => body.Load(particleManager));
 
-        public void Update()
-            => Utilitys.ForEach(false, Bodies, body => body.Update());
+        public void Update(float timeStep)
+            => Utilitys.ForEach(false, Bodies, body => body.Update(timeStep));
 
         public void Draw(SpriteBatch spriteBatch)
             => Utilitys.ForEach(false, Bodies, body => body.Draw(spriteBatch, Color.White));

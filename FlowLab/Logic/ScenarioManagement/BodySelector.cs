@@ -37,11 +37,12 @@ namespace FlowLab.Logic.ScenarioManagement
                 return;
             });
             if (Body is null) return;
-            inputState.DoAction(ActionType.IncreaseRotation, () => Body.RotationUpdate += 0.0001f);
-            inputState.DoAction(ActionType.FastIncreaseRotation, () => Body.RotationUpdate += 0.001f);
-            inputState.DoAction(ActionType.DecreaseRotation, () => Body.RotationUpdate -= 0.0001f);
-            inputState.DoAction(ActionType.FastDecreaseRotation, () => Body.RotationUpdate -= 0.001f);
-            Body.RotationUpdate = float.Max(0, float.Round(Body.RotationUpdate, 4));
+            inputState.DoAction(ActionType.FastIncreaseRotation, () => Body.RotationUpdate += .1f);
+            inputState.DoAction(ActionType.IncreaseRotation, () => Body.RotationUpdate += 0.01f);
+            inputState.DoAction(ActionType.FastDecreaseRotation, () => Body.RotationUpdate -= .1f);
+            inputState.DoAction(ActionType.DecreaseRotation, () => Body.RotationUpdate -= 0.01f);
+            inputState.DoAction(ActionType.ResetRotation, () => Body.RotationUpdate = 0);
+            Body.RotationUpdate = float.Round(Body.RotationUpdate, 2);
         }
 
         public void Draw(SpriteBatch spriteBatch, System.Numerics.Vector2 mousePosition)

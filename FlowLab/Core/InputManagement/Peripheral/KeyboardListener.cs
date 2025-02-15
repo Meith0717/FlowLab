@@ -26,7 +26,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Hash(Keys.LeftControl, Keys.A), ActionType.FastDecreaseWidth },
                 { Hash(Keys.LeftControl, Keys.S), ActionType.FastDecreaseHeight },
                 { Hash(Keys.LeftControl, Keys.D), ActionType.FastIncreaseWidth},
-                { Hash(Keys.LeftControl, Keys.X), ActionType.FastIncreaseRotation },
+                { Hash(Keys.LeftControl, Keys.C), ActionType.FastIncreaseRotation },
                 { Hash(Keys.LeftControl, Keys.Y), ActionType.FastDecreaseRotation},
             };
 
@@ -47,7 +47,8 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.T, ActionType.Test },
                 { Keys.V, ActionType.NextScene },
                 { Keys.H, ActionType.Help},
-                { Keys.X, ActionType.IncreaseRotation },
+                { Keys.C, ActionType.IncreaseRotation },
+                { Keys.X, ActionType.ResetRotation },
                 { Keys.Y, ActionType.DecreaseRotation},
                 { Keys.F11, ActionType.NeighborSearchDebugg},
             };

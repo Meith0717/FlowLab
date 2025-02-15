@@ -40,22 +40,24 @@ namespace FlowLab.Logic.ScenarioManagement
                 particleManager.AddParticle(particle);
         }
 
-        public void Rotate()
+        public void Rotate(float timeStep)
         {
             foreach (var particle in _boundaryParticles)
             {
+                if (RotationUpdate == 0) return;
                 var relativePosition = particle.Position - _position;
                 var radius = relativePosition.Length();
                 var currentAngle = MathF.Atan2(relativePosition.Y, relativePosition.X);
-                var newAngle = currentAngle + RotationUpdate;
+                var newAngle = currentAngle + (RotationUpdate  * timeStep);
                 var newX = _position.X + radius * MathF.Cos(newAngle);
                 var newY = _position.Y + radius * MathF.Sin(newAngle);
+
                 particle.Velocity = new System.Numerics.Vector2(newX, newY) - particle.Position;
             }
         }
 
-        public void Update()
-            => Rotate();
+        public void Update(float timeStep)
+            => Rotate(timeStep);
 
         public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.Color color)
         {

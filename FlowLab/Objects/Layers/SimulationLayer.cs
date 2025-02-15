@@ -120,7 +120,7 @@ namespace FlowLab.Game.Objects.Layers
             if (!Paused)
             {
                 _script.Update(_particleManager.State, _settings);
-                _scenarioManager.Update();
+                _scenarioManager.Update(_settings.TimeStep);
                 try
                 {
                     _particleManager.Update(gameTime, _settings);

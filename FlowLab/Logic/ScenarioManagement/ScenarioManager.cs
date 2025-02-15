@@ -28,8 +28,8 @@ namespace FlowLab.Logic.ScenarioManagement
         public void Remove(Scenario scenario)
             => Scenarios.Remove(scenario);
 
-        public void Update()
-            => CurrentScenario?.Update();
+        public void Update(float timeStep)
+            => CurrentScenario?.Update(timeStep);
 
         public void DeleteCurrentScenario()
         {

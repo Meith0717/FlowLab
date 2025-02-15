@@ -32,6 +32,7 @@ namespace FlowLab.Core.InputManagement
         FastDecreaseHeight,
         FastIncreaseRotation,
         FastDecreaseRotation,
+        ResetRotation,
         ToggleFullscreen,
         Help,
         BackSpace,
