@@ -16,21 +16,21 @@ namespace FlowLab.Logic.SphComponents
     {
         private static void ComputeDiagonalElement(Particle particle, float timeStep)
         {
-            var sum1 = 0f;
-            var sum2 = System.Numerics.Vector2.Zero;
+            var dii = System.Numerics.Vector2.Zero;
+            var dij = 0f;
             foreach (var neighbor in particle.Neighbors)
             {
                 var massKernel = neighbor.Mass * particle.KernelDerivativ(neighbor);
-                sum2 += massKernel;
+                dii += massKernel;
                 if (!neighbor.IsBoundary) 
-                    sum1 += massKernel.SquaredNorm();
+                    dij += massKernel.SquaredNorm();
 # if DEBUG
-                if (float.IsNaN(sum1)) throw new System.Exception("ComputeDiagonalElement: sum1 is NaN");
-                if (float.IsNaN(sum2.X) || float.IsNaN(sum2.Y)) throw new System.Exception("ComputeDiagonalElement: sum2 is NaN");
+                if (float.IsNaN(dij)) throw new System.Exception("ComputeDiagonalElement: sum1 is NaN");
+                if (float.IsNaN(dii.X) || float.IsNaN(dii.Y)) throw new System.Exception("ComputeDiagonalElement: sum2 is NaN");
 #endif
             }
 
-            particle.AII = - timeStep / (particle.Density * particle.Density) * (sum1 + sum2.SquaredNorm());
+            particle.AII = - timeStep / (particle.Density * particle.Density) * (dij + dii.SquaredNorm());
 #if DEBUG
             if (float.IsNaN(particle.AII)) throw new System.Exception("ComputeDiagonalElement: aii is NaN");
 #endif
