@@ -34,7 +34,7 @@ namespace FlowLab.Logic
             if (IsSelected)
                 camera.Position = SelectedParticle.Position;
             if (!_active) return;
-            inputState.DoAction(ActionType.NeighborSearchDebugg, () => _drawSpatialHashing = !_drawSpatialHashing);
+            inputState.DoAction(ActionType.neighbourSearchDebugg, () => _drawSpatialHashing = !_drawSpatialHashing);
             _spatialHashing.InRadius(mousePosition, particleSize * 2, ref _particles);
             if (!inputState.ContainAction(ActionType.LeftClicked)) return;
             foreach (var particle in _particles)

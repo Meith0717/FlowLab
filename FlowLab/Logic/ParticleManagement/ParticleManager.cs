@@ -32,7 +32,7 @@ namespace FlowLab.Logic.ParticleManagement
                 "particles",
                 "solverTime",
                 "pressureSolverTime",
-                "neighborSolverTime",
+                "neighbourSolverTime",
                 "solver",
                 "iterations",
                 "timeStep",
@@ -88,7 +88,7 @@ namespace FlowLab.Logic.ParticleManagement
         private double _timeStepTime;
         private double _solverTimeSum;
         private double _pressureSolverTimeSum;
-        private double _neighborSearchTimeSum;
+        private double _neighbourSearchTimeSum;
 
         public void Update(Microsoft.Xna.Framework.GameTime gameTime, SimulationSettings settings)
         {
@@ -108,7 +108,7 @@ namespace FlowLab.Logic.ParticleManagement
             _timeStepTime += gameTime.ElapsedGameTime.TotalMilliseconds;
             _solverTimeSum += State.TotalSolverTime;
             _pressureSolverTimeSum += State.PressureSolverTime;
-            _neighborSearchTimeSum += State.NeighborSearchTime;
+            _neighbourSearchTimeSum += State.neighbourSearchTime;
 
             // ____Collect data____
             if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;
@@ -118,7 +118,7 @@ namespace FlowLab.Logic.ParticleManagement
             DataCollector.AddData("totalTime", _timeStepTime);
             DataCollector.AddData("solverTime", _solverTimeSum);
             DataCollector.AddData("pressureSolverTime", _pressureSolverTimeSum);
-            DataCollector.AddData("neighborSolverTime", _neighborSearchTimeSum);
+            DataCollector.AddData("neighbourSolverTime", _neighbourSearchTimeSum);
             DataCollector.AddData("solver", settings.SimulationMethod);
             DataCollector.AddData("boundary", settings.BoundaryHandling);
             DataCollector.AddData("iterations", State.SolverIterations);
@@ -138,7 +138,7 @@ namespace FlowLab.Logic.ParticleManagement
             _timeStepTime = 0;
             _simulationSteps = 0;
             _pressureSolverTimeSum = 0;
-            _neighborSearchTimeSum = 0;
+            _neighbourSearchTimeSum = 0;
         }
 
         private List<Particle> _particlesInBox = new();
@@ -177,7 +177,7 @@ namespace FlowLab.Logic.ParticleManagement
             SpatialHashing.InBoxes(debugParticle.Position, debugParticle.Diameter * 2, ref _particlesInBox);
             foreach (var particle in _particlesInBox)
                 particle.Color = Microsoft.Xna.Framework.Color.Orange;
-            Utilitys.ForEach(true, debugParticle.Neighbors, p => p.Color = Microsoft.Xna.Framework.Color.DarkOrchid);
+            Utilitys.ForEach(true, debugParticle.neighbours, p => p.Color = Microsoft.Xna.Framework.Color.DarkOrchid);
             debugParticle.Color = Microsoft.Xna.Framework.Color.DarkMagenta;
         }
     }

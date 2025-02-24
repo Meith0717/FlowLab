@@ -21,26 +21,26 @@ namespace FlowLab.Logic.Components
         private static Vector<float> SolveHyperplaneParameters(Particle particle)
         {
             var sumMatrix = Matrix<float>.Build.Dense(3, 3, 0);
-            foreach (var neighbor in particle.FluidNeighbors)
+            foreach (var neighbour in particle.Fluidneighbours)
             {
-                var x = neighbor.Position.X;
-                var y = neighbor.Position.Y;
+                var x = neighbour.Position.X;
+                var y = neighbour.Position.Y;
                 var matrix = Matrix<float>.Build.DenseOfArray(new float[,]
                 {
                     { 1, x, y },
                     { x, x * x, x * y },
                     { y, x * y, y * y }
                 });
-                var weight = neighbor.Mass / neighbor.Density * particle.Kernel(neighbor);
+                var weight = neighbour.Mass / neighbour.Density * particle.Kernel(neighbour);
                 sumMatrix += matrix * weight;
             }
 
             var sumVector = Vector<float>.Build.Dense(3, 0);
-            foreach (var neighbor in particle.FluidNeighbors)
+            foreach (var neighbour in particle.Fluidneighbours)
             {
-                var position = Vector<float>.Build.DenseOfArray([1, neighbor.Position.X, neighbor.Position.Y]);
-                var weight = neighbor.Mass / neighbor.Density * particle.Kernel(neighbor);
-                sumVector += position * neighbor.Pressure * weight;
+                var position = Vector<float>.Build.DenseOfArray([1, neighbour.Position.X, neighbour.Position.Y]);
+                var weight = neighbour.Mass / neighbour.Density * particle.Kernel(neighbour);
+                sumVector += position * neighbour.Pressure * weight;
             }
 
             // Apply SVD-based safe inversion

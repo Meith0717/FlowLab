@@ -39,9 +39,9 @@ namespace FlowLab.Logic.ParticleManagement
         /// <summary>
         /// Time spent on pressure calculations
         /// </summary>
-        public readonly double NeighborSearchTime;
+        public readonly double neighbourSearchTime;
 
-        public SolverState(int solverIterations, float maxParticleVelocity, float maxParticleCfl, float maxParticlePressure, float compressionError, float absDensityError, double totalSolverTime, double PressureSolverTime, double neighborSearchTime)
+        public SolverState(int solverIterations, float maxParticleVelocity, float maxParticleCfl, float maxParticlePressure, float compressionError, float absDensityError, double totalSolverTime, double PressureSolverTime, double neighbourSearchTime)
         {
             MaxParticleCfl = maxParticleCfl;
             MaxParticleVelocity = maxParticleVelocity;
@@ -51,7 +51,7 @@ namespace FlowLab.Logic.ParticleManagement
             AbsDensityError = absDensityError;
             TotalSolverTime = totalSolverTime;
             this.PressureSolverTime = PressureSolverTime;
-            NeighborSearchTime = neighborSearchTime;
+            neighbourSearchTime = neighbourSearchTime;
         }
 
         public SolverState()

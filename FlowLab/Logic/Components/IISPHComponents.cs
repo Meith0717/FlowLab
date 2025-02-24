@@ -18,11 +18,11 @@ namespace FlowLab.Logic.SphComponents
         {
             var dii = System.Numerics.Vector2.Zero;
             var dij = 0f;
-            foreach (var neighbor in particle.Neighbors)
+            foreach (var neighbour in particle.neighbours)
             {
-                var massKernel = neighbor.Mass * particle.KernelDerivativ(neighbor);
+                var massKernel = neighbour.Mass * particle.KernelDerivativ(neighbour);
                 dii += massKernel;
-                if (!neighbor.IsBoundary) 
+                if (!neighbour.IsBoundary) 
                     dij += massKernel.SquaredNorm();
 # if DEBUG
                 if (float.IsNaN(dij)) throw new System.Exception("ComputeDiagonalElement: sum1 is NaN");
@@ -39,10 +39,10 @@ namespace FlowLab.Logic.SphComponents
         private static void ComputeSourceTerm(Particle particle, float timeStep, float fluidDensity)
         {
             var sum = 0f;
-            foreach (var neighbor in particle.Neighbors)
+            foreach (var neighbour in particle.neighbours)
             {
-                var velDif = particle.IntermediateVelocity - neighbor.IntermediateVelocity;
-                sum += neighbor.Mass * velDif.Dot(particle.KernelDerivativ(neighbor));
+                var velDif = particle.IntermediateVelocity - neighbour.IntermediateVelocity;
+                sum += neighbour.Mass * velDif.Dot(particle.KernelDerivativ(neighbour));
 #if DEBUG
                 if (float.IsNaN(sum)) throw new System.Exception("ComputeSourceTerm: predDensityOfNonPVel is NaN");
 # endif
@@ -54,10 +54,10 @@ namespace FlowLab.Logic.SphComponents
         private static void ComputeLaplacian(Particle particle, float timeStep)
         {
             var sum = 0f;
-            foreach (var neighbor in particle.Neighbors)
+            foreach (var neighbour in particle.neighbours)
             {
-                var accDif = particle.PressureAcceleration - neighbor.PressureAcceleration;
-                sum += neighbor.Mass * accDif.Dot(particle.KernelDerivativ(neighbor));
+                var accDif = particle.PressureAcceleration - neighbour.PressureAcceleration;
+                sum += neighbour.Mass * accDif.Dot(particle.KernelDerivativ(neighbour));
 #if DEBUG
                 if (float.IsNaN(sum)) throw new System.Exception("ComputeLaplacian: particle.Ap is NaN");
 # endif

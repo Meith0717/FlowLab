@@ -16,7 +16,7 @@ namespace FlowLab.Core.InputManagement
         DeleteParticles,
         TogglePause,
         ToggleDebugg,
-        NeighborSearchDebugg,
+        neighbourSearchDebugg,
         NextScene,
         SwitchMode,
         NextShape,

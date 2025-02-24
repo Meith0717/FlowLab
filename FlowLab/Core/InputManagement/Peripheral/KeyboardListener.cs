@@ -50,7 +50,7 @@ namespace FlowLab.Core.InputManagement.Peripheral
                 { Keys.C, ActionType.IncreaseRotation },
                 { Keys.X, ActionType.ResetRotation },
                 { Keys.Y, ActionType.DecreaseRotation},
-                { Keys.F11, ActionType.NeighborSearchDebugg},
+                { Keys.F11, ActionType.neighbourSearchDebugg},
             };
 
 
