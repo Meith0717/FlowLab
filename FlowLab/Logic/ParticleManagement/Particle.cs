@@ -71,7 +71,7 @@ namespace FlowLab.Logic.ParticleManagement
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, float> _neighbourKernels = [];
         [JsonIgnore][NotNull] private readonly Dictionary<Particle, System.Numerics.Vector2> _neighbourKernelDerivatives = [];
 
-        public void Findneighbours(SpatialHashing spatialHashing, Kernels kernels, float gamma, float fluidDensity)
+        public void Findneighbours(FluidDomain fluid, SpatialHashing spatialHashing, Kernels kernels, NeighbourSearch neighbourSearch, float gamma, float fluidDensity)
         {
             _neighbours.Clear();
             _fluidneighbours.Clear();
@@ -79,7 +79,16 @@ namespace FlowLab.Logic.ParticleManagement
             _neighbourKernels.Clear();
             _neighbourKernelDerivatives.Clear();
 
-            spatialHashing.InRadius(Position, Diameter * 2f, ref _neighbours);
+            switch (neighbourSearch)
+            {
+                case NeighbourSearch.SpatialHash:
+                    spatialHashing.InRadius(Position, Diameter * 2f, ref _neighbours);
+                    break;
+                case NeighbourSearch.Quadratic:
+                    fluid.InRadius(Position, Diameter * 2f, ref _neighbours);
+                    break;
+            }
+
             if (_neighbours.Count == 0) _neighbours.Add(this);
             for (int i = 0; i < _neighbours.Count; i++)
             {

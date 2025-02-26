@@ -26,7 +26,7 @@ namespace FlowLab.Objects.Layers
                 BorderColor = Color.Gray,
                 BorderSize = 5,
             };
-            layer.Place(anchor: Anchor.Center, width: 550, height: 980);
+            layer.Place(anchor: Anchor.Center, width: 550, height: 1020);
 
             int y = 10; // Starting Y value
             int blockOffset = 45; // Offset between blocks
@@ -64,6 +64,23 @@ namespace FlowLab.Objects.Layers
                 Values = Enum.GetValues(typeof(SimulationMethod)).Cast<SimulationMethod>().ToList(),
                 Value = settings.SimulationMethod,
                 UpdatTracker = self => settings.SimulationMethod = self.Value,
+                TextScale = .17f,
+                ButtonScale = .7f,
+                TextColor = Color.White
+            }.Place(height: 25, width: 200, anchor: Anchor.Right, y: y, hSpace: 20);
+            y += elementOffset;
+
+            new UiText(layer, "consola")
+            {
+                Text = "Neighbour query:",
+                Scale = .18f,
+                Color = Color.White
+            }.Place(anchor: Anchor.Left, y: y, hSpace: 20);
+            new UiVariableSelector<NeighbourSearch>(layer, "consola")
+            {
+                Values = Enum.GetValues(typeof(NeighbourSearch)).Cast<NeighbourSearch>().ToList(),
+                Value = settings.NeighbourSearch,
+                UpdatTracker = self => settings.NeighbourSearch = self.Value,
                 TextScale = .17f,
                 ButtonScale = .7f,
                 TextColor = Color.White

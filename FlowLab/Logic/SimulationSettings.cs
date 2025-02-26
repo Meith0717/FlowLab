@@ -7,11 +7,13 @@ namespace FlowLab.Logic
     public enum SimulationMethod { SESPH, IISPH }
     public enum ColorMode { None, Velocity, Pressure, AbsError, CompError }
     public enum BoundaryHandling { Extrapolation, Mirroring, Zero }
+    public enum NeighbourSearch { SpatialHash, Quadratic }
 
     internal class SimulationSettings
     {
         // Global
         public SimulationMethod SimulationMethod = SimulationMethod.SESPH;
+        public NeighbourSearch NeighbourSearch = NeighbourSearch.SpatialHash;
         public bool ParallelProcessing = true;
         public ColorMode ColorMode = ColorMode.Velocity;
         public float MaxCfl = .4f;

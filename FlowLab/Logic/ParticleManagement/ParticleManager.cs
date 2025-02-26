@@ -6,6 +6,7 @@ using FlowLab.Engine.SpatialManagement;
 using FlowLab.Logic.SphComponents;
 using Fluid_Simulator.Core.ColorManagement;
 using Fluid_Simulator.Core.Profiling;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -72,6 +73,14 @@ namespace FlowLab.Logic.ParticleManagement
             SpatialHashing.InsertObject(particle);
         }
 
+        public void AddNewParticle(Vector2 position, bool isBoundary = false)
+        {
+            var pos = new System.Numerics.Vector2(position.X, position.Y);
+            var particle = new Particle(pos, ParticleDiameter, FluidDensity, isBoundary);
+            Particles.Add(particle);
+            SpatialHashing.InsertObject(particle);
+        }
+
         public void AddParticle(Particle particle)
         {
             Particles.Add(particle);
@@ -108,7 +117,7 @@ namespace FlowLab.Logic.ParticleManagement
             _timeStepTime += gameTime.ElapsedGameTime.TotalMilliseconds;
             _solverTimeSum += State.TotalSolverTime;
             _pressureSolverTimeSum += State.PressureSolverTime;
-            _neighbourSearchTimeSum += State.neighbourSearchTime;
+            _neighbourSearchTimeSum += State.NeighbourSearchTime;
 
             // ____Collect data____
             if (_previousTotalTimeStep >= (int)float.Floor(TotalTimeSteps)) return;

@@ -119,7 +119,7 @@ namespace FlowLab.Game.Objects.Layers
 
             if (!Paused)
             {
-                _script.Update(_particleManager.State, _settings);
+                _script.Update(_particleManager.State, _settings, () => { _particlePlacer.GetBlock(Vector2.Zero, 50, 2); _particlePlacer.Place(); });
                 _scenarioManager.Update(_settings.TimeStep);
                 try
                 {

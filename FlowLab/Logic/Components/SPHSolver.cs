@@ -12,11 +12,11 @@ namespace FlowLab.Logic.SphComponents
     internal class SPHSolver(Kernels kernels)
     {
         private readonly Stopwatch _neighbourSearchWatch = new();
-        private void ComputeDensity(FluidDomain particles, SpatialHashing spatialHashing, float fluidDensity, bool parallel, float gamma1, float gamma2, out float compressionErrorSum, out float absErrorSum, out double neighbourSearchTime)
+        private void ComputeDensity(FluidDomain particles, SpatialHashing spatialHashing, NeighbourSearch neighbourSearch, float fluidDensity, bool parallel, float gamma1, float gamma2, out float compressionErrorSum, out float absErrorSum, out double neighbourSearchTime)
         {
             _neighbourSearchWatch.Restart();
             Utilitys.ForEach(parallel, particles.All, particle =>{
-                particle.Findneighbours(spatialHashing, kernels, gamma1, fluidDensity);
+                particle.Findneighbours(particles, spatialHashing, kernels, neighbourSearch, gamma1, fluidDensity);
             });
             _neighbourSearchWatch.Stop();
             neighbourSearchTime = _neighbourSearchWatch.Elapsed.TotalMilliseconds;
@@ -69,6 +69,7 @@ namespace FlowLab.Logic.SphComponents
         {
             _totalSolverTimeWatch.Restart();
             if (particles.CountFluid == 0) return new();
+            var neighbourSearch = settings.NeighbourSearch;
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
             var fluidViscosity = settings.FluidViscosity;
@@ -77,7 +78,7 @@ namespace FlowLab.Logic.SphComponents
             var gamma1 = settings.Gamma1;
             var gamma2 = settings.Gamma2;
 
-            ComputeDensity(particles, spatialHashing, FluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum, out var neighbourSearchTime);
+            ComputeDensity(particles, spatialHashing, neighbourSearch, FluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum, out var neighbourSearchTime);
             ComputeNonPressureAccelerations(particles, parallel, h, fluidViscosity, boundaryViscosity, gravitation, timeStep);
 
             _pressureWatch.Restart();
@@ -102,6 +103,7 @@ namespace FlowLab.Logic.SphComponents
         {
             _totalSolverTimeWatch.Restart();
             if (particles.CountFluid == 0) return new();
+            var neighbourSearch = settings.NeighbourSearch;
             var parallel = settings.ParallelProcessing;
             var timeStep = settings.TimeStep;
             var fluidViscosity = settings.FluidViscosity;
@@ -113,7 +115,7 @@ namespace FlowLab.Logic.SphComponents
             var gamma2 = settings.Gamma2;
             var gamma3 = settings.Gamma3;
 
-            ComputeDensity(particles, spatialHashing, fluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum, out var neighbourSearchTime);
+            ComputeDensity(particles, spatialHashing, neighbourSearch, fluidDensity, parallel, gamma1, gamma2, out var compressionErrorSum, out var absErrorSum, out var neighbourSearchTime);
             ComputeNonPressureAccelerations(particles, parallel, h, fluidViscosity, boundaryViscosity, gravitation, timeStep);
 
             _pressureWatch.Restart();

@@ -2,11 +2,12 @@
 // Copyright (c) 2023-2025 Thierry Meiers 
 // All rights reserved.
 
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 namespace FlowLab.Logic.ParticleManagement
 {
-    internal class FluidDomain
+    public class FluidDomain
     {
         private readonly List<Particle> _all = new();
         private readonly List<Particle> _fluid = new();
@@ -60,5 +61,20 @@ namespace FlowLab.Logic.ParticleManagement
             else
                 _fluid.Remove(particle);
         }
+
+        public void InRadius(System.Numerics.Vector2 position, float radius, ref List<Particle> particleInRadius)
+        {
+            var radiusSquared = radius * radius;
+            for (int i = 0; i < _all.Count; i++)
+            {
+                var obj = _all[i];
+                var dx = obj.Position.X - position.X; var dy = obj.Position.Y - position.Y;
+                var distanceSquared = dx * dx + dy * dy;
+
+                if (distanceSquared <= radiusSquared)
+                    particleInRadius.Add(obj);
+            }
+        }
+
     }
 }
