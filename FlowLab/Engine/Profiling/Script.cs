@@ -17,6 +17,7 @@ namespace FlowLab.Engine.Profiling
 
         public void Update(SolverState simulationState, SimulationSettings simulationSettings, Action action = null)
         {
+            return;
             if (!Active) return;
             _thresholdCounter += simulationSettings.TimeStep;
             if (_thresholdCounter < Threshold) return;
@@ -27,6 +28,7 @@ namespace FlowLab.Engine.Profiling
 
         public void BreakCondition(SolverState simulationState, SimulationSettings simulationSettings, Action breakAction)
         {
+            return;
             if (!Active) return;
             if (_counter < 50000) return;
             breakAction?.Invoke();
