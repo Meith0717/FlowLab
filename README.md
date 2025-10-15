@@ -98,7 +98,7 @@ FlowLab demonstrates that the **IISPH** approach achieves improved stability and
 ---
 
 ## 🪪 License  
-MIT License — see [LICENSE](./LICENSE).
+MIT License — see [LICENSE](./LICENCE).
 
 ---
 
@@ -108,7 +108,6 @@ These controls allow you to modify emitter properties, control the simulation st
 
 ## 👤 Author  
 **Thierry Meiers**  
-University of Freiburg  
-GitHub: [Meith0717](https://github.com/Meith0717)
+University of Freiburg
 
 
