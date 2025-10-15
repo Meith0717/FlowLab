@@ -1,5 +1,32 @@
-# 2D Fluid Simulator for Bachelor in Computer Science Studies
+# FlowLab — 2D Fluid Simulator  
+*A Bachelor’s thesis / final project in Computer Science*
 
-Welcome to the repository for my Bachelor in Computer Science Studies, where I'll be developing a simple 2D fluid simulator. Inspired by the principles taught in the [Computer Graphics](https://cg.informatik.uni-freiburg.de) offered by the University of Freiburg, this project aims to explore the fundamentals of fluid dynamics simulation within a computational environment.
+![](./docs/teaser.png)
 
-Through this project, I aim to deepen my understanding of computational fluid dynamics, sharpen my programming skills, and produce a functional tool for visualizing and analyzing fluid motion in a 2D space. The repository will contain code, documentation, and resources necessary for both development and understanding of the simulator, fostering transparency and accessibility for fellow enthusiasts and researchers.
+## 🎯 Overview  
+FlowLab is a 2D fluid dynamics simulator built as part of my [Bachelor’s thesis](./docs/thesis.pdf) at the University of Freiburg. It allows users to visualize and experiment with fluid behavior in a 2D environment, using particle-based techniques.
+
+This repository hosts:
+- The full source code  
+- The executable (in the latest release)  
+- The full [thesis](./docs/thesis.pdf) document  
+- Examples, images, and demo videos  
+
+## 🚀 Demo & Media  
+**Video demo:**  
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/Qm8a-ChkG9o/0.jpg)](https://www.youtube.com/watch?v=Qm8a-ChkG9o)
+
+## 🧱 Features  
+- Basic 2D fluid simulation 
+- Real-time visualization & user interaction
+- Adjustable parameters: viscosity, time step, boundary conditions 
+
+## 🏗️ Architecture & Implementation  
+Here’s a rough breakdown of the system:
+
+- **Core simulation module** — e.g. solves momentum, diffusion, advection  
+- **Data structures** — neighbor search  
+- **Rendering / visualization** — OpenGL  
+- **I/O & persistence** — loading / saving scenes, exporting images & videos  
+
+You can also refer to the [thesis](./docs/thesis.pdf) for in-depth mathematical derivations and implementation details.
