@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "FlowLab": {
-      "commandName": "Project",
-      "jsWebView2Debugging": false
-    }
-  }
-}

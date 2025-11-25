@@ -301,3 +301,5 @@ FakesAssemblies/
 /Fluid Simulator/bin/Debug/net6.0/Fluid Simulator.pdb
 /Fluid Simulator/Content/obj/DesktopGL/net6.0/Content/.mgstats
 /Fluid Simulator/Content/obj/DesktopGL/net6.0/Content/particle.mgcontent
+
+*.idea
