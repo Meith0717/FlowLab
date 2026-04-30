@@ -109,5 +109,4 @@ These controls allow you to modify emitter properties, control the simulation st
 ## 👤 Author  
 **Thierry Meiers**  
 University of Freiburg
-.
 
