@@ -17,15 +17,5 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Cache .NET SDK and NuGet
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.nuget/packages
-          ~/.dotnet
-        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-dotnet-
-
     - name: Build
       run: dotnet build --configuration Release FlowLab/FlowLab.sln
