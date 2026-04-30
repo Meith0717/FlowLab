@@ -1,0 +1,21 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  Build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Set up Git
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Build
+      run: dotnet build --configuration Release FlowLab/FlowLab.sln
