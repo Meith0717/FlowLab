@@ -42,8 +42,8 @@ VertexShaderOutput MainVS(VertexShaderInput input, InstanceInput instance)
     
     // Position the quad in the world based on the particle instance
     float3 worldPos = instance.InstancePosition.xyz 
-                    + (worldRight * input.Position.x * instance.InstanceSize)
-                    + (worldUp * input.Position.y * instance.InstanceSize);
+                    + (worldRight * input.Position.x * (instance.InstanceSize / 2))
+                    + (worldUp * input.Position.y * (instance.InstanceSize / 2));
 
     float4 viewPos = mul(float4(worldPos, 1.0), View);
     output.Position = mul(viewPos, Projection);
