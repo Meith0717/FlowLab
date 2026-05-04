@@ -4,36 +4,40 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
+using FlowLab.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoKit.Graphics;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
-using PhotonLab.Source.Input;
 
 namespace FlowLab;
 
 public class Game1 : Game
 {
     private readonly InputHandler _inputHandler = new();
-    private readonly GraphicsDeviceManager _graphics;
-    private readonly GraphicsController _graphicsController;
     private Camera3D _camera3D;
     private BasicEffect _effect;
     private VertexBuffer _gridBuffer;
-    private int _gridVertexCount;
     private ParticleSystem _particleSystem;
+    private int _gridVertexCount;
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
-        _graphicsController = new GraphicsController(this, Window, _graphics);
-        _graphicsController.ApplyMode(WindowMode.FullScreen);
-        _graphicsController.ApplyRefreshRate(60, false);
-        
+        var graphics = new GraphicsDeviceManager(this);
+        var graphicsController = new GraphicsController(this, Window, graphics);
+        graphicsController.ApplyMode(WindowMode.Windowed);
+        graphicsController.ApplyRefreshRate(60, false);
+
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+
+        var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
+        {
+            { (Keys.Space, InputEventType.Held), (byte)ActionType.Test },
+        };
+        _inputHandler.RegisterDevice(new KeyboardListener(keyBindings));
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
         {
             { (MouseButton.Right, InputEventType.Held), (byte)ActionType.MoveCameraByMouse },
@@ -88,8 +92,10 @@ public class Game1 : Game
         )
             Exit();
 
-        _inputHandler.Update(gameTime.ElapsedGameTime.TotalMilliseconds);
-        _camera3D.Update(gameTime.ElapsedGameTime.TotalMilliseconds, _inputHandler);
+        var elapsedGameTime = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+        _inputHandler.Update(elapsedGameTime);
+        _camera3D.Update(elapsedGameTime, _inputHandler);
+        _particleSystem.Update(elapsedGameTime, _inputHandler);
 
         base.Update(gameTime);
     }
@@ -106,7 +112,7 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.Black);
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-        _particleSystem.Draw(_camera3D);
+        _particleSystem.Draw(_camera3D, _effect);
 
         /*var snapX = float.Floor(_camera3D.Position.X);
         var snapZ = float.Floor(_camera3D.Position.Z);

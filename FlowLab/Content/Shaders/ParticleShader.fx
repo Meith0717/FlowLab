@@ -61,11 +61,8 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     if (distSq > 1.0) 
         discard;
     
-    float alpha = 1.0 - smoothstep(0.9, 1.0, distSq);
-
-    float3 color = input.Color.rgb * alpha; // premultiply
-
-    return float4(color, alpha);
+    float3 color = input.Color.rgb * (1 - smoothstep(0.9, 1.0, distSq));
+    return float4(color, 1);
 }
 
 technique ParticleDrawing

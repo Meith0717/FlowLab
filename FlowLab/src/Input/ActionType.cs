@@ -3,16 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-namespace PhotonLab.Source.Input
+namespace FlowLab.Input
 {
     public enum ActionType : byte
     {
         MoveCameraByMouse,
-        RayTracImage,
-        RayTraceSequence,
-        NextCam,
-        Break,
-        ResetCam,
-        NextScene,
+        Test
     }
 }

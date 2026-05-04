@@ -27,9 +27,6 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\MonoKit\MonoKit.csproj" />
   </ItemGroup>
 </Project>
