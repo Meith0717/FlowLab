@@ -17,10 +17,10 @@ namespace FlowLab.Sph
         {
             var dx = pos1.X - pos2.X;
             var dy = pos1.Y - pos2.Y;
-            
-            return float.Sqrt(dx * dx + dy * dy) * _particleDiameterInverse;
+            var dz = pos1.Z - pos2.Z;
+            return float.Sqrt(dx * dx + dy * dy + dz * dz) * _particleDiameterInverse;
         }
- 
+
         public float CubicSpline(Vector3 position1, Vector3 position2)
         {
             var distanceOverH = DistanceOverH(position1, position2);
