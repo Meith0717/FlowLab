@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace FlowLab.Ecs.Components;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct ParticleShaderComponent
+public struct ParticleShaderData
 {
     public Vector3 Position; // 12 bytes
     public Color Color; // 4 bytes

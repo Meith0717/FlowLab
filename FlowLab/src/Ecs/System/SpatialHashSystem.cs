@@ -23,15 +23,12 @@ public class SpatialHashSystem(int cellSize = 10) : ISystem, IOnEntityDestroyed
     public void Update(double elapsedMs, World world)
     {
         var components = world.Components;
-        var query = world.GetQuery().With<ParticleShaderComponent>();
+        var query = world.GetQuery().With<ParticleShaderData>();
 
         query.ForEach(e =>
         {
             var archetype = world.Archetypes.GetArchetype(e);
-            ref var particle = ref components.GetComponent<ParticleShaderComponent>(
-                archetype,
-                e.Id
-            );
+            ref var particle = ref components.GetComponent<ParticleShaderData>(archetype, e.Id);
 
             Grid.UpdateEntity(e, particle.Position);
         });

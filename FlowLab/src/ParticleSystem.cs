@@ -46,79 +46,35 @@ public class ParticleSystem : IDisposable
         _world.Systems.Add(new Movement3DSystem());
         _world.Systems.Add(new ParticleTransformSyncSystem());
 
+        Vector3 position;
         for (var i = 0.5f; i < 50.5f; i++)
         for (var j = 0.5f; j < 50.5f; j++)
         {
-            _world.AddComponents(
-                _world.CreateEntity(),
-                new Transform3D { Position = new Vector3(i, j, 0) },
-                new ParticleShaderComponent
-                {
-                    Color = Color.DimGray,
-                    Position = new Vector3(i, 0.5f, j),
-                    Size = 1,
-                }
-            );
-            _world.AddComponents(
-                _world.CreateEntity(),
-                new Transform3D { Position = new Vector3(i, 49.5f, j) },
-                new ParticleShaderComponent
-                {
-                    Color = Color.DimGray,
-                    Position = new Vector3(i, 49.5f, j),
-                    Size = 1,
-                }
-            );
+            position = new Vector3(i, 0.5f, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
+
+            position = new Vector3(i, 49.5f, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
         for (var i = 0.5f; i < 50.5f; i++)
         for (var j = 0.5f; j < 50.5f; j++)
         {
-            _world.AddComponents(
-                _world.CreateEntity(),
-                new Transform3D { Position = new Vector3(i, j, 0.5f) },
-                new ParticleShaderComponent
-                {
-                    Color = Color.DimGray,
-                    Position = new Vector3(i, j, 0.5f),
-                    Size = 1,
-                }
-            );
-            _world.AddComponents(
-                _world.CreateEntity(),
-                new Transform3D { Position = new Vector3(i, j, 49.5f) },
-                new ParticleShaderComponent
-                {
-                    Color = Color.DimGray,
-                    Position = new Vector3(i, j, 49.5f),
-                    Size = 1,
-                }
-            );
+            position = new Vector3(i, j, 0.5f);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
+
+            position = new Vector3(i, j, 49.5f);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
         for (var i = 0.5f; i < 50.5f; i++)
         for (var j = 0.5f; j < 50.5f; j++)
         {
-            _world.AddComponents(
-                _world.CreateEntity(),
-                new Transform3D { Position = new Vector3(0.5f, i, j) },
-                new ParticleShaderComponent
-                {
-                    Color = Color.DimGray,
-                    Position = new Vector3(0.5f, i, j),
-                    Size = 1,
-                }
-            );
-            _world.AddComponents(
-                _world.CreateEntity(),
-                new Transform3D { Position = new Vector3(49.5f, i, j) },
-                new ParticleShaderComponent
-                {
-                    Color = Color.DimGray,
-                    Position = new Vector3(49.5f, i, j),
-                    Size = 1,
-                }
-            );
+            position = new Vector3(0.5f, i, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
+
+            position = new Vector3(49.5f, i, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
         InitializeBuffers();
@@ -149,7 +105,7 @@ public class ParticleSystem : IDisposable
         _quadIndexBuffer.SetData(new short[] { 0, 1, 2, 2, 1, 3 });
         _instanceBuffer = new DynamicVertexBuffer(
             _graphics,
-            ParticleShaderComponent.VertexDeclaration,
+            ParticleShaderData.VertexDeclaration,
             MaxParticles,
             BufferUsage.WriteOnly
         );
@@ -181,9 +137,7 @@ public class ParticleSystem : IDisposable
 
     public void Draw(Camera3D camera, BasicEffect effect)
     {
-        var instanceData = _world
-            .Components.GetAllComponentData<ParticleShaderComponent>()
-            .ToArray();
+        var instanceData = _world.Components.GetAllComponentData<ParticleShaderData>().ToArray();
         var activeParticleCount = instanceData.Length;
 
         _instanceBuffer.SetData(instanceData, 0, activeParticleCount, SetDataOptions.Discard);
@@ -229,24 +183,12 @@ public class ParticleSystem : IDisposable
 
     private void AddRandomBlueParticle()
     {
-        var entity = _world.CreateEntity();
         var position = new Vector3(
             (float)_random.NextDouble() * (MaxBound - MinBound) + MinBound,
             (float)_random.NextDouble() * (MaxBound - MinBound) + MinBound,
             (float)_random.NextDouble() * (MaxBound - MinBound) + MinBound
         );
-        _world.AddComponents(
-            entity,
-            new Transform3D { Position = position },
-            new Velocity3D(),
-            new ParticleShaderComponent
-            {
-                Color = Color.DodgerBlue,
-                Position = position,
-                Size = 1,
-            },
-            new Lifetime { CoolDown = 10_000 }
-        );
+        ParticleFactory.CreateFluidParticle(_world, position);
         Debug.WriteLine(_world.ToString());
     }
 }

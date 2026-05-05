@@ -17,13 +17,13 @@ public class ParticleTransformSyncSystem : ISystem
     {
         var query = world
             .GetQuery()
-            .With<ParticleShaderComponent>()
+            .With<ParticleShaderData>()
             .With<Transform3D>()
             .With<Velocity3D>();
 
         query.ForEach(entity =>
         {
-            if (!world.TryGetComponent(entity, out ParticleShaderComponent particle))
+            if (!world.TryGetComponent(entity, out ParticleShaderData particle))
                 return;
             if (!world.TryGetComponent(entity, out Transform3D transform))
                 return;
