@@ -4,6 +4,7 @@
 
 using FlowLab.Ecs.Components;
 using MonoKit.Ecs;
+using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Entities;
 using MonoKit.Ecs.Systems;
 using MonoKit.Spatial;
@@ -27,10 +28,8 @@ public class SpatialHashSystem(int cellSize = 10) : ISystem, IOnEntityDestroyed
 
         query.ForEach(e =>
         {
-            var archetype = world.Archetypes.GetArchetype(e);
-            ref var particle = ref components.GetComponent<ParticleShaderData>(archetype, e.Id);
-
-            Grid.UpdateEntity(e, particle.Position);
+            var refTransform3D = world.GetComponent<Transform3D>(e);
+            Grid.UpdateEntity(e, refTransform3D.Value.Position);
         });
     }
 

@@ -127,9 +127,8 @@ public class ParticleSystem : IDisposable
             .With<Velocity3D>()
             .ForEach(e =>
             {
-                _world.TryGetComponent(e, out Velocity3D velocity);
-                velocity.LinearVelocity += new Vector3(0, -0.01f, 0);
-                _world.AddComponent(e, velocity);
+                var refVelocity = _world.GetComponent<Velocity3D>(e);
+                refVelocity.Value.LinearVelocity += new Vector3(0, -0.01f, 0);
             });
 
         _world.Update(gameTime);

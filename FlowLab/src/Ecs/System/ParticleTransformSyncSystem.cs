@@ -21,15 +21,11 @@ public class ParticleTransformSyncSystem : ISystem
             .With<Transform3D>()
             .With<Velocity3D>();
 
-        query.ForEach(entity =>
+        query.ForEach(e =>
         {
-            if (!world.TryGetComponent(entity, out ParticleShaderData particle))
-                return;
-            if (!world.TryGetComponent(entity, out Transform3D transform))
-                return;
-
-            particle.Position = transform.Position;
-            world.AddComponent(entity, particle);
+            var refTransform3D = world.GetComponent<Transform3D>(e);
+            var refParticleShaderData = world.GetComponent<ParticleShaderData>(e);
+            refParticleShaderData.Value.Position = refTransform3D.Value.Position;
         });
     }
 }
