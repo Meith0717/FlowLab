@@ -30,18 +30,30 @@ namespace FlowLab.Sph
             return _alpha3D * t3 * KernelCorrection;
         }
 
-        public Vector3 NablaCubicSpline(Vector3 position1, Vector3 position2)
+        public Vector3 NablaCubicSpline(Vector3 p1, Vector3 p2)
         {
-            var positionDifference = position1 - position2;
-            var distanceOverH = DistanceOverH(position1, position2);
-            if (distanceOverH == 0)
+            var rVec = p1 - p2;
+            var r = rVec.Length();
+
+            if (r == 0f)
                 return Vector3.Zero;
-            var t1 = float.Max(1 - distanceOverH, 0);
-            var t2 = float.Max(2 - distanceOverH, 0);
-            var t3 = (-3 * t2 * t2) + (12 * t1 * t1);
-            return _alpha3D
-                * (positionDifference / (positionDifference.Length() * particleDiameter))
-                * t3;
+
+            var q = r * _particleDiameterInverse;
+
+            if (q >= 2f)
+                return Vector3.Zero;
+
+            var t1 = float.Max(1f - q, 0f);
+            var t2 = float.Max(2f - q, 0f);
+
+            float factor;
+
+            if (q < 1f)
+                factor = -3f * t2 * t2 + 12f * t1 * t1;
+            else
+                factor = -3f * t2 * t2;
+
+            return _alpha3D * factor * (rVec / (r * particleDiameter));
         }
     }
 }

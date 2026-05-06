@@ -5,7 +5,4 @@
 
 namespace FlowLab.Ecs.Tags;
 
-public class BoundaryParticle
-{
-    
-}
+public struct BoundaryParticle { }

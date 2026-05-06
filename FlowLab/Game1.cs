@@ -48,7 +48,6 @@ public class Game1 : Game
     protected override void Initialize()
     {
         base.Initialize();
-        _camera3D.AddBehaviour(new MoveByMouse());
         GenerateGrid(100, 1);
     }
 
@@ -78,6 +77,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _camera3D = new Camera3D(Vector3.Zero, GraphicsDevice);
+        _camera3D.AddBehaviour(new MoveByMouse());
         _effect = new BasicEffect(GraphicsDevice);
 
         _particleSystem = new ParticleSystem(GraphicsDevice);

@@ -5,6 +5,7 @@
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -25,6 +26,8 @@
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
+    <PackageReference Include="NUnit" Version="4.6.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MonoKit\MonoKit.csproj" />

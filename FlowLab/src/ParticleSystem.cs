@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System;
-using System.Diagnostics;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
 using FlowLab.Input;
@@ -13,7 +12,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
 using MonoKit.Ecs;
-using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Systems;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
@@ -33,7 +31,7 @@ public class ParticleSystem : IDisposable
 
     // Bounds of the particle cube
     private const float MinBound = 2f;
-    private const float MaxBound = 48f;
+    private const float MaxBound = 23f;
 
     private const int MaxParticles = 1_000_000;
 
@@ -43,37 +41,37 @@ public class ParticleSystem : IDisposable
         _world = new World();
         _world.Systems.Add(_spatialHashSystem = new SpatialHashSystem(2));
         _world.Systems.Add(new LifetimeSystem());
-        _world.Systems.Add(new Movement3DSystem());
         _world.Systems.Add(new ParticleTransformSyncSystem());
+        _world.Systems.Add(new SimulationSystem(_spatialHashSystem.Grid, 1, 1, 2000, 10, .1f));
 
         Vector3 position;
-        for (var i = 0.5f; i < 50.5f; i++)
-        for (var j = 0.5f; j < 50.5f; j++)
+        for (var i = 0.5f; i < 25.5f; i++)
+        for (var j = 0.5f; j < 25.5f; j++)
         {
             position = new Vector3(i, 0.5f, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
 
-            position = new Vector3(i, 49.5f, j);
+            position = new Vector3(i, 24.5f, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
-        for (var i = 0.5f; i < 50.5f; i++)
-        for (var j = 0.5f; j < 50.5f; j++)
+        for (var i = 0.5f; i < 25.5f; i++)
+        for (var j = 0.5f; j < 25.5f; j++)
         {
             position = new Vector3(i, j, 0.5f);
             ParticleFactory.CreateBoundaryParticle(_world, position);
 
-            position = new Vector3(i, j, 49.5f);
+            position = new Vector3(i, j, 24.5f);
             ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
-        for (var i = 0.5f; i < 50.5f; i++)
-        for (var j = 0.5f; j < 50.5f; j++)
+        for (var i = 0.5f; i < 25.5f; i++)
+        for (var j = 0.5f; j < 25.5f; j++)
         {
             position = new Vector3(0.5f, i, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
 
-            position = new Vector3(49.5f, i, j);
+            position = new Vector3(24.5f, i, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
@@ -120,16 +118,11 @@ public class ParticleSystem : IDisposable
     public void Update(double gameTime, InputHandler inputHandler)
     {
         if (inputHandler.HasAction((byte)ActionType.Test))
+        {
             AddRandomBlueParticle();
-
-        _world
-            .GetQuery()
-            .With<Velocity3D>()
-            .ForEach(e =>
-            {
-                var refVelocity = _world.GetComponent<Velocity3D>(e);
-                refVelocity.Value.LinearVelocity += new Vector3(0, -0.01f, 0);
-            });
+            AddRandomBlueParticle();
+            AddRandomBlueParticle();
+        }
 
         _world.Update(gameTime);
     }
@@ -183,11 +176,14 @@ public class ParticleSystem : IDisposable
     private void AddRandomBlueParticle()
     {
         var position = new Vector3(
-            (float)_random.NextDouble() * (MaxBound - MinBound) + MinBound,
-            (float)_random.NextDouble() * (MaxBound - MinBound) + MinBound,
-            (float)_random.NextDouble() * (MaxBound - MinBound) + MinBound
+            MinBound + MaxBound / 2,
+            MinBound + MaxBound / 2,
+            MinBound + MaxBound / 2
         );
-        ParticleFactory.CreateFluidParticle(_world, position);
-        Debug.WriteLine(_world.ToString());
+
+        for (var x = -1; x <= 1; x++)
+        for (var y = -1; y <= 1; y++)
+        for (var z = -1; z <= 1; z++)
+            ParticleFactory.CreateFluidParticle(_world, position + new Vector3(x, y, z));
     }
 }
