@@ -15,6 +15,7 @@ using MonoKit.Ecs;
 using MonoKit.Ecs.Systems;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
+using SpatialHashSystem = FlowLab.Ecs.System.SpatialHashSystem;
 
 namespace FlowLab;
 
@@ -23,7 +24,6 @@ public class ParticleSystem : IDisposable
     private readonly GraphicsDevice _graphics;
     private readonly World _world;
     private readonly SpatialHashSystem _spatialHashSystem;
-    private readonly Random _random = new Random();
     private Effect _particleShader;
     private VertexBuffer _quadBuffer;
     private IndexBuffer _quadIndexBuffer;
@@ -42,7 +42,7 @@ public class ParticleSystem : IDisposable
         _world.Systems.Add(_spatialHashSystem = new SpatialHashSystem(2));
         _world.Systems.Add(new LifetimeSystem());
         _world.Systems.Add(new ParticleTransformSyncSystem());
-        _world.Systems.Add(new SimulationSystem(_spatialHashSystem.Grid, 1, 1, 2000, 10, .1f));
+        _world.Systems.Add(new SimulationSystem(_spatialHashSystem.Grid, 1, 1, 100, 2, .05f));
 
         Vector3 position;
         for (var i = 0.5f; i < 25.5f; i++)
@@ -50,8 +50,7 @@ public class ParticleSystem : IDisposable
         {
             position = new Vector3(i, 0.5f, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
-
-            position = new Vector3(i, 24.5f, j);
+            position = new Vector3(i, -0.5f, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
@@ -60,8 +59,12 @@ public class ParticleSystem : IDisposable
         {
             position = new Vector3(i, j, 0.5f);
             ParticleFactory.CreateBoundaryParticle(_world, position);
+            position = new Vector3(i, j, -0.5f);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
 
             position = new Vector3(i, j, 24.5f);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
+            position = new Vector3(i, j, 25.5f);
             ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
@@ -70,12 +73,17 @@ public class ParticleSystem : IDisposable
         {
             position = new Vector3(0.5f, i, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
+            position = new Vector3(-0.5f, i, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
 
             position = new Vector3(24.5f, i, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
+            position = new Vector3(25.5f, i, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
         InitializeBuffers();
+        AddRandomBlueParticle();
     }
 
     private void InitializeBuffers()
@@ -120,8 +128,6 @@ public class ParticleSystem : IDisposable
         if (inputHandler.HasAction((byte)ActionType.Test))
         {
             AddRandomBlueParticle();
-            AddRandomBlueParticle();
-            AddRandomBlueParticle();
         }
 
         _world.Update(gameTime);
@@ -129,7 +135,10 @@ public class ParticleSystem : IDisposable
 
     public void Draw(Camera3D camera, BasicEffect effect)
     {
-        var instanceData = _world.Components.GetAllComponentData<ParticleShaderData>().ToArray();
+        var instanceData = _world
+            .Components.GetOrCreatePool<ParticleShaderData>()
+            .AsSpan()
+            .ToArray();
         var activeParticleCount = instanceData.Length;
 
         _instanceBuffer.SetData(instanceData, 0, activeParticleCount, SetDataOptions.Discard);
@@ -157,13 +166,13 @@ public class ParticleSystem : IDisposable
             );
         }
 
-        _spatialHashSystem.Grid.DrawDebug(
-            _graphics,
-            camera.View,
-            camera.Projection,
-            effect,
-            Color.Red
-        );
+        // _spatialHashSystem.Grid.DrawDebug(
+        //     _graphics,
+        //     camera.View,
+        //     camera.Projection,
+        //     effect,
+        //     Color.Red
+        // );
     }
 
     public void Dispose()
@@ -181,9 +190,9 @@ public class ParticleSystem : IDisposable
             MinBound + MaxBound / 2
         );
 
-        for (var x = -1; x <= 1; x++)
-        for (var y = -1; y <= 1; y++)
-        for (var z = -1; z <= 1; z++)
+        for (var x = -10; x <= 10; x++)
+        for (var y = -10; y <= 10; y++)
+        for (var z = -10; z <= 10; z++)
             ParticleFactory.CreateFluidParticle(_world, position + new Vector3(x, y, z));
     }
 }

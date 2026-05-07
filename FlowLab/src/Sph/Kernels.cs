@@ -6,54 +6,58 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Sph
 {
-    public class Kernels(float particleDiameter)
+    /// <summary>
+    /// Standard 3D cubic spline SPH kernel.
+    ///
+    /// h = smoothing length
+    /// support radius = 2h
+    /// </summary>
+    public sealed class Kernels(float smoothingLength)
     {
-        private const float KernelCorrection = 1;
-        private readonly float _particleDiameterInverse = 1 / particleDiameter;
-        private readonly float _alpha3D =
-            1f / (4 * float.Pi * (particleDiameter * particleDiameter * particleDiameter));
+        private const float Epsilon = 1e-6f;
 
-        private float DistanceOverH(Vector3 pos1, Vector3 pos2)
-        {
-            var dx = pos1.X - pos2.X;
-            var dy = pos1.Y - pos2.Y;
-            var dz = pos1.Z - pos2.Z;
-            return float.Sqrt(dx * dx + dy * dy + dz * dz) * _particleDiameterInverse;
-        }
+        private readonly float _h = smoothingLength;
+        private readonly float _hInverse = 1f / smoothingLength;
+        private readonly float _alpha3D =
+            1f / (4f * float.Pi * smoothingLength * smoothingLength * smoothingLength);
 
         public float CubicSpline(Vector3 position1, Vector3 position2)
         {
-            var distanceOverH = DistanceOverH(position1, position2);
-            var t1 = float.Max(1 - distanceOverH, 0);
-            var t2 = float.Max(2 - distanceOverH, 0);
-            var t3 = (t2 * t2 * t2) - 4 * (t1 * t1 * t1);
-            return _alpha3D * t3 * KernelCorrection;
+            var r = position1 - position2;
+            var distance = r.Length();
+
+            var q = distance * _hInverse;
+
+            if (q >= 2f)
+                return 0f;
+
+            var t1 = float.Max(1f - q, 0f);
+            var t2 = 2f - q;
+
+            return _alpha3D * ((t2 * t2 * t2) - 4f * (t1 * t1 * t1));
         }
 
-        public Vector3 NablaCubicSpline(Vector3 p1, Vector3 p2)
+        public Vector3 NablaCubicSpline(Vector3 position1, Vector3 position2)
         {
-            var rVec = p1 - p2;
-            var r = rVec.Length();
+            var r = position1 - position2;
+            var distance = r.Length();
 
-            if (r == 0f)
+            if (distance < Epsilon)
                 return Vector3.Zero;
 
-            var q = r * _particleDiameterInverse;
+            var q = distance * _hInverse;
 
             if (q >= 2f)
                 return Vector3.Zero;
 
             var t1 = float.Max(1f - q, 0f);
-            var t2 = float.Max(2f - q, 0f);
+            var t2 = 2f - q;
 
-            float factor;
+            var derivative = (-3f * t2 * t2) + (12f * t1 * t1);
 
-            if (q < 1f)
-                factor = -3f * t2 * t2 + 12f * t1 * t1;
-            else
-                factor = -3f * t2 * t2;
+            var factor = _alpha3D * derivative * _hInverse;
 
-            return _alpha3D * factor * (rVec / (r * particleDiameter));
+            return factor * (r / distance);
         }
     }
 }

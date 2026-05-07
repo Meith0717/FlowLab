@@ -5,11 +5,15 @@
 
 using System.Collections.Generic;
 using MonoKit.Ecs.Entities;
-using NotImplementedException = System.NotImplementedException;
 
 namespace FlowLab.Ecs.Components;
 
 public struct NeighbourList()
 {
-    public List<Entity> Neighbours = new();
+    public List<Entity> Neighbours = [];
+
+    public void Clear()
+    {
+        Neighbours.Clear();
+    }
 }

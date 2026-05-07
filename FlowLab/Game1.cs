@@ -35,7 +35,7 @@ public class Game1 : Game
 
         var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
         {
-            { (Keys.Space, InputEventType.Held), (byte)ActionType.Test },
+            { (Keys.Space, InputEventType.Released), (byte)ActionType.Test },
         };
         _inputHandler.RegisterDevice(new KeyboardListener(keyBindings));
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
@@ -43,6 +43,7 @@ public class Game1 : Game
             { (MouseButton.Right, InputEventType.Held), (byte)ActionType.MoveCameraByMouse },
         };
         _inputHandler.RegisterDevice(new MouseListener(mouseBindings));
+        IsFixedTimeStep = false;
     }
 
     protected override void Initialize()
@@ -78,6 +79,7 @@ public class Game1 : Game
     {
         _camera3D = new Camera3D(Vector3.Zero, GraphicsDevice);
         _camera3D.AddBehaviour(new MoveByMouse());
+        _camera3D.AddBehaviour(new ZoomByMouse(.5f));
         _effect = new BasicEffect(GraphicsDevice);
 
         _particleSystem = new ParticleSystem(GraphicsDevice);
@@ -113,20 +115,6 @@ public class Game1 : Game
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
         _particleSystem.Draw(_camera3D, _effect);
-
-        /*var snapX = float.Floor(_camera3D.Position.X);
-        var snapZ = float.Floor(_camera3D.Position.Z);
-    
-        _effect.World = Matrix.CreateTranslation(new Vector3(snapX, 0, snapZ));
-        _effect.View = _camera3D.View;
-        _effect.Projection = _camera3D.Projection;
-        _effect.VertexColorEnabled = true;
-        GraphicsDevice.SetVertexBuffer(_gridBuffer);
-        foreach (var pass in _effect.CurrentTechnique.Passes)
-        {
-          pass.Apply();
-          GraphicsDevice.DrawPrimitives(PrimitiveType.LineList, 0, _gridVertexCount / 2);
-        }*/
 
         base.Draw(gameTime);
     }

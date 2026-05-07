@@ -3,8 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System.Diagnostics;
-
 namespace FlowLab.Ecs.Components;
 
 public struct FluidComponent(float mass, float density)
