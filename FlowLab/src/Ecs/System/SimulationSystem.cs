@@ -30,11 +30,10 @@ public class SimulationSystem(EcsSpatialHash3D spatialHash3D, SimulationConfig c
     public void Update(double elapsedMs, World world)
     {
         var fluidEntities = _tracker.GetEntitiesWith<FluidTag>();
-
         DensityPass.Compute(fluidEntities, spatialHash3D, _kernels, _context, config);
         NonPressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config);
         WcPressurePass.Compute(fluidEntities, _context, config);
-        PressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config.TimeStep);
+        PressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config);
 
         foreach (var entity in fluidEntities)
         {

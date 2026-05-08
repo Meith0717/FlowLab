@@ -1,7 +1,8 @@
-﻿// Game1.cs 
-// Copyright (c) 2023-2025 Thierry Meiers 
+﻿// Game1.cs
+// Copyright (c) 2023-2025 Thierry Meiers
 // All rights reserved.
 
+using System.IO;
 using FlowLab.Core;
 using FlowLab.Core.ContentHandling;
 using FlowLab.Core.InputManagement;
@@ -12,7 +13,6 @@ using FlowLab.Logic;
 using FlowLab.Logic.ScenarioManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.IO;
 
 namespace FlowLab
 {
@@ -41,17 +41,27 @@ namespace FlowLab
             _contentLoader = new(Content);
 
             // Manage if Window is selected or not
-            Activated += delegate { _active = true; };
-            Deactivated += delegate { _active = false; };
+            Activated += delegate
+            {
+                _active = true;
+            };
+            Deactivated += delegate
+            {
+                _active = false;
+            };
 
             // Window properties
             IsMouseVisible = true;
             Window.AllowUserResizing = true;
             Window.Title = Title;
-            Window.ClientSizeChanged += delegate { _ResolutionWasResized = true; };
+            Window.ClientSizeChanged += delegate
+            {
+                _ResolutionWasResized = true;
+            };
         }
 
         private SimulationSettings _simulationSettings = new();
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -68,24 +78,46 @@ namespace FlowLab
             TextureManager.Instance.SetSpriteBatch(_spriteBatch);
             TextureManager.Instance.SetGraphicsDevice(GraphicsDevice);
             var settingsPath = PersistenceManager.SettingsFilePath;
-            PersistenceManager.Load<SimulationSettings>(settingsPath, s => _simulationSettings = s, null);
-            foreach (var file in PersistenceManager.Serializer.GetFilesInFolder(PersistenceManager.ScenariosDirectory))
-                PersistenceManager.Load<Scenario>(file.FullName, scenario => _scenarioManager.Add(scenario), null);
+            PersistenceManager.Load<SimulationSettings>(
+                settingsPath,
+                s => _simulationSettings = s,
+                null
+            );
+            foreach (
+                var file in PersistenceManager.Serializer.GetFilesInFolder(
+                    PersistenceManager.ScenariosDirectory
+                )
+            )
+                PersistenceManager.Load<Scenario>(
+                    file.FullName,
+                    scenario => _scenarioManager.Add(scenario),
+                    null
+                );
 
             _contentLoader.LoadEssenzialContentSerial();
-            _contentLoader.LoadContentAsync(ConfigsManager, () => _safeToStart = true, (ex) => throw ex);
+            _contentLoader.LoadContentAsync(
+                ConfigsManager,
+                () => _safeToStart = true,
+                (ex) => throw ex
+            );
         }
 
         private void StartMainMenu()
         {
             LayerManager.PopLayer();
-            var simulation = new SimulationLayer(this, _scenarioManager, _simulationSettings, _frameCounter);
+            var simulation = new SimulationLayer(
+                this,
+                _scenarioManager,
+                _simulationSettings,
+                _frameCounter
+            );
             LayerManager.AddLayer(simulation);
 
             _safeToStart = false;
         }
 
         private bool _exitingHandled;
+
         protected override void Update(GameTime gameTime)
         {
             // if (!_active) return;
@@ -102,18 +134,23 @@ namespace FlowLab
             _frameCounter.Update(gameTime);
             base.Update(gameTime);
 
-            InputState inputState = _active ? _inputManager.Update(gameTime) : new([], "", Vector2.Zero);
+            InputState inputState = _active
+                ? _inputManager.Update(gameTime)
+                : new([], "", Vector2.Zero);
             inputState.DoAction(ActionType.ToggleFullscreen, ToggleFullScreen);
             LayerManager.Update(gameTime, inputState);
 
             Exiting += delegate
             {
-                if (_exitingHandled) return;
+                if (_exitingHandled)
+                    return;
                 _exitingHandled = true;
                 LayerManager.Exit();
                 var settingsPath = PersistenceManager.SettingsFilePath;
                 PersistenceManager.Save(settingsPath, _simulationSettings, null, null);
-                var scenarioFolder = PersistenceManager.Serializer.GetFullPath(PersistenceManager.ScenariosDirectory);
+                var scenarioFolder = PersistenceManager.Serializer.GetFullPath(
+                    PersistenceManager.ScenariosDirectory
+                );
                 PersistenceManager.Serializer.ClearFolder(scenarioFolder);
                 foreach (var scenario in _scenarioManager.Scenarios)
                 {
@@ -127,8 +164,12 @@ namespace FlowLab
         {
             var scale = GraphicsManager.IsFullScreen ? .5f : 1;
 
-            GraphicsManager.PreferredBackBufferHeight = (int)(scale * GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
-            GraphicsManager.PreferredBackBufferWidth = (int)(scale * GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width);
+            GraphicsManager.PreferredBackBufferHeight = (int)(
+                scale * GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height
+            );
+            GraphicsManager.PreferredBackBufferWidth = (int)(
+                scale * GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width
+            );
             GraphicsManager.ToggleFullScreen();
 
             _ResolutionWasResized = true;

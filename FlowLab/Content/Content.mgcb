@@ -13,6 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Fonts/consola/consola.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/consola/consola.spritefont
+
 #begin Shaders/ParticleShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor

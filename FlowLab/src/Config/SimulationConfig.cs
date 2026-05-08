@@ -21,6 +21,7 @@ public class SimulationConfig
     public float Viscosity { get; set; }
     public float TimeStep { get; set; }
     public Vector3 Gravity { get; set; }
+    public bool UseParallel { get; set; }
 
     public static SimulationConfig Default =>
         new SimulationConfig
@@ -29,5 +30,6 @@ public class SimulationConfig
             Viscosity = 2f,
             TimeStep = 0.05f,
             Gravity = new Vector3(0, -0.05f, 0),
+            UseParallel = false,
         };
 }

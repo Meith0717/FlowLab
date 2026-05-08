@@ -18,9 +18,23 @@ public static class WcPressurePass
         SimulationConfig config
     )
     {
-        Parallel.ForEach(
-            fluidEntities,
-            entity =>
+        if (config.UseParallel)
+        {
+            Parallel.ForEach(
+                fluidEntities,
+                entity =>
+                {
+                    ref var fluid = ref context.FluidPool.Get(entity.Id);
+                    fluid.Pressure = float.Max(
+                        config.Stiffness * (fluid.Density / SimulationConfig.FluidDensity - 1),
+                        0
+                    );
+                }
+            );
+        }
+        else
+        {
+            foreach (var entity in fluidEntities)
             {
                 ref var fluid = ref context.FluidPool.Get(entity.Id);
                 fluid.Pressure = float.Max(
@@ -28,6 +42,6 @@ public static class WcPressurePass
                     0
                 );
             }
-        );
+        }
     }
 }

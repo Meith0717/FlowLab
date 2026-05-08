@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
 using MonoKit.Screens;
+using MonoKit.Ui;
 
 namespace FlowLab.Screens;
 
@@ -29,6 +30,22 @@ public class SimulationScreen : Screen
         _effect = new BasicEffect(GraphicsDevice);
         _fluidSimulation = new FluidSimulation();
         _fluidRenderer = new FluidRenderer(GraphicsDevice);
+
+        var layer = new UiFrame()
+        {
+            Allign = Allign.E,
+            Width = 300,
+            RelHeight = .8f,
+            Color = Color.DimGray,
+            HSpace = 10,
+        };
+        UiRoot.Add(layer);
+
+        var liveData = _fluidSimulation.LiveData;
+        layer.Add(new UiText("consola") { TextProvider = () => $"EntityCount: {liveData.EntityCount} ", RelY = .1f, Scale = .15f});
+        layer.Add(new UiText("consola") { TextProvider = () => $"CompressionError: {liveData.CompressionError}", RelY = .2f, Scale = .15f });
+        layer.Add(new UiText("consola") { TextProvider = () => $"TotalError: {liveData.TotalError }", RelY = .3f, Scale = .15f });
+        layer.Add(new UiText("consola") { TextProvider = () => $"Cfl: {liveData.Cfl}", RelY = .4f, Scale = .15f });
     }
 
     public override void Initialize()

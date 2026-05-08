@@ -37,6 +37,7 @@ public static class ParticleFactory
         world.Components.Add(entity, shaderData);
         world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new NeighbourList());
+        world.Components.Add(entity, new Collider3D(Vector3.Zero));
 
         return entity;
     }
@@ -69,6 +70,7 @@ public static class ParticleFactory
         world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new FluidTag());
+        world.Components.Add(entity, new Collider3D(Vector3.Zero));
 
         return entity;
     }

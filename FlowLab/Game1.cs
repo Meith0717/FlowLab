@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoKit.Content;
+using MonoKit.Core.Diagnostics;
 using MonoKit.Graphics;
 using MonoKit.Input;
 using MonoKit.Screens;
@@ -19,6 +20,8 @@ namespace FlowLab;
 public class Game1 : Game
 {
     private SpriteBatch _spriteBatch;
+    private FrameCounter _frameCounter;
+    private readonly GraphicsController _graphicsController;
     private readonly InputHandler _inputHandler;
     private readonly ScreenManager _screenManager;
     private readonly GameServiceContainer _serviceContainer;
@@ -26,7 +29,7 @@ public class Game1 : Game
     public Game1()
     {
         var graphics = new GraphicsDeviceManager(this);
-        var graphicsController = new GraphicsController(this, Window, graphics);
+        _graphicsController = new GraphicsController(this, Window, graphics);
         _inputHandler = new InputHandler();
         _screenManager = new ScreenManager(this);
         _serviceContainer = new GameServiceContainer();
@@ -41,12 +44,12 @@ public class Game1 : Game
             { (MouseButton.Right, InputEventType.Held), (byte)ActionType.MoveCameraByMouse },
         };
 
-        graphicsController.ApplyMode(WindowMode.Windowed);
-        graphicsController.ApplyRefreshRate(60, false);
+        _graphicsController.ApplyMode(WindowMode.Windowed);
+        _graphicsController.ApplyRefreshRate(250, false);
         _inputHandler.RegisterDevice(new KeyboardListener(keyBindings));
         _inputHandler.RegisterDevice(new MouseListener(mouseBindings));
         _serviceContainer.AddService(_screenManager);
-        _serviceContainer.AddService(graphicsController);
+        _serviceContainer.AddService(_graphicsController);
 
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -57,7 +60,6 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _serviceContainer.AddService(GraphicsDevice);
-        _screenManager.AddScreen(new SimulationScreen(_serviceContainer));
 
         base.Initialize();
     }
@@ -65,6 +67,9 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         ContentProvider.Container<Effect>().LoadContent(Content, "Shaders");
+        ContentProvider.Container<SpriteFont>().LoadContent(Content, "Fonts");
+        _screenManager.AddScreen(new SimulationScreen(_serviceContainer));
+        _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("consola"));
         base.LoadContent();
     }
 
@@ -76,18 +81,31 @@ public class Game1 : Game
         )
             Exit();
 
-        var elapsedGameTime = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-        _inputHandler.Update(elapsedGameTime);
-        _screenManager.Update(elapsedGameTime, _inputHandler, 1);
-
+        var elapsedMilliseconds = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+        _inputHandler.Update(elapsedMilliseconds);
+        _screenManager.Update(
+            elapsedMilliseconds,
+            _inputHandler,
+            _graphicsController.ViewportScale
+        );
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
+        var elapsedMilliseconds = gameTime.ElapsedGameTime.TotalMilliseconds;
+        var elapsedSeconds = gameTime.ElapsedGameTime.TotalSeconds;
+
+        _frameCounter.Update(elapsedSeconds, elapsedMilliseconds);
+
+        GraphicsDevice.Clear(Color.SlateGray);
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
         _screenManager.Draw(_spriteBatch);
+
+        _spriteBatch.Begin();
+        _frameCounter.Draw(_spriteBatch, GraphicsDevice.Viewport, 1);
+        _spriteBatch.End();
+
         base.Draw(gameTime);
     }
 }
