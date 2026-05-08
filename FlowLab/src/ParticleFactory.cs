@@ -35,7 +35,7 @@ public static class ParticleFactory
         world.Components.Add(entity, transform);
         world.Components.Add(entity, fluidComponent);
         world.Components.Add(entity, shaderData);
-        world.Components.Add(entity, new BoundaryParticle());
+        world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new NeighbourList());
 
         return entity;
@@ -66,9 +66,9 @@ public static class ParticleFactory
         world.Components.Add(entity, lifetime);
         world.Components.Add(entity, fluidComponent);
         world.Components.Add(entity, shaderData);
-        world.Components.Add(entity, new BoundaryParticle());
+        world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new NeighbourList());
-        world.Components.Add(entity, new FluidParticle());
+        world.Components.Add(entity, new FluidTag());
 
         return entity;
     }
