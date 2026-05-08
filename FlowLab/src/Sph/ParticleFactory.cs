@@ -10,7 +10,7 @@ using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Entities;
 
-namespace FlowLab;
+namespace FlowLab.Sph;
 
 public static class ParticleFactory
 {

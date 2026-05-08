@@ -1,4 +1,4 @@
-﻿#if OPENGL
+#if OPENGL
     #define SV_POSITION POSITION
     #define VS_SHADERMODEL vs_3_0
     #define PS_SHADERMODEL ps_3_0
@@ -9,6 +9,10 @@
 
 matrix View;
 matrix Projection;
+
+// Cross-section plane parameters (set from C#)
+float3 CrossSectionNormal;
+float CrossSectionDistance;
 
 struct VertexShaderInput
 {
@@ -29,6 +33,7 @@ struct VertexShaderOutput
     float4 Position : SV_POSITION;
     float4 Color : COLOR0;
     float2 UV : TEXCOORD0;
+    float DistanceToPlane : TEXCOORD1; // Signed distance to cross-section plane
 };
 
 VertexShaderOutput MainVS(VertexShaderInput input, InstanceInput instance)
@@ -45,11 +50,15 @@ VertexShaderOutput MainVS(VertexShaderInput input, InstanceInput instance)
                     + (worldRight * input.Position.x * (instance.InstanceSize / 2))
                     + (worldUp * input.Position.y * (instance.InstanceSize / 2));
 
+    // Calculate signed distance to cross-section plane
+    float distanceToPlane = dot(worldPos, CrossSectionNormal) - CrossSectionDistance;
+    
     float4 viewPos = mul(float4(worldPos, 1.0), View);
     output.Position = mul(viewPos, Projection);
     
     output.UV = input.UV;
     output.Color = instance.InstanceColor;
+    output.DistanceToPlane = distanceToPlane;
 
     return output;
 }
@@ -59,6 +68,12 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float distSq = dot(input.UV, input.UV);
     
     if (distSq > 1.0) 
+        discard;
+    
+    // Cutting plane: hide particles behind the plane
+    // Positive distance = in front of plane (visible)
+    // Negative distance = behind plane (hidden)
+    if (input.DistanceToPlane < 0) 
         discard;
     
     float3 color = input.Color.rgb * (1 - smoothstep(0.9, 1.0, distSq));
