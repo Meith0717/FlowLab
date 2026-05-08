@@ -20,7 +20,7 @@ public class Game1 : Game
     private Camera3D _camera3D;
     private BasicEffect _effect;
     private VertexBuffer _gridBuffer;
-    private ParticleSystem _particleSystem;
+    private FluidSimulation _fluidSimulation;
     private int _gridVertexCount;
 
     public Game1()
@@ -82,8 +82,8 @@ public class Game1 : Game
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
         _effect = new BasicEffect(GraphicsDevice);
 
-        _particleSystem = new ParticleSystem(GraphicsDevice);
-        _particleSystem.LoadContent(Content);
+        _fluidSimulation = new FluidSimulation(GraphicsDevice);
+        _fluidSimulation.LoadContent(Content);
     }
 
     protected override void Update(GameTime gameTime)
@@ -97,7 +97,7 @@ public class Game1 : Game
         var elapsedGameTime = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
         _inputHandler.Update(elapsedGameTime);
         _camera3D.Update(elapsedGameTime, _inputHandler);
-        _particleSystem.Update(elapsedGameTime, _inputHandler);
+        _fluidSimulation.Update(elapsedGameTime, _inputHandler);
 
         base.Update(gameTime);
     }
@@ -105,7 +105,7 @@ public class Game1 : Game
     protected override void Dispose(bool disposing)
     {
         if (disposing)
-            _particleSystem?.Dispose();
+            _fluidSimulation?.Dispose();
         base.Dispose(disposing);
     }
 
@@ -114,7 +114,7 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.Black);
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-        _particleSystem.Draw(_camera3D, _effect);
+        _fluidSimulation.Draw(_camera3D, _effect);
 
         base.Draw(gameTime);
     }

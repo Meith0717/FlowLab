@@ -3,16 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System.Diagnostics;
-using System.Threading.Tasks;
 using FlowLab.Config;
-using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
-using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
-using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;
 using MonoKit.Ecs.Systems;
 using MonoKit.Spatial;
@@ -22,7 +17,7 @@ namespace FlowLab.Ecs.System;
 public class SimulationSystem(EcsSpatialHash3D spatialHash3D, SimulationConfig config) : ISystem
 {
     public int Priority => 1;
-    private readonly Kernels _kernels = new Kernels(config.ParticleSize);
+    private readonly Kernels _kernels = new Kernels(SimulationConfig.ParticleSize);
     private readonly SphPassContext _context = new SphPassContext();
     private EntityTypeTracker _tracker;
 
@@ -37,9 +32,9 @@ public class SimulationSystem(EcsSpatialHash3D spatialHash3D, SimulationConfig c
         var fluidEntities = _tracker.GetEntitiesWith<FluidTag>();
 
         DensityPass.Compute(fluidEntities, spatialHash3D, _kernels, _context, config);
-        NonPressurePass.Compute(fluidEntities, _kernels, _context, config);
+        NonPressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config);
         WcPressurePass.Compute(fluidEntities, _context, config);
-        PressurePass.Compute(fluidEntities, _kernels, _context, config.TimeStep);
+        PressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config.TimeStep);
 
         foreach (var entity in fluidEntities)
         {

@@ -12,20 +12,19 @@ namespace FlowLab.Config;
 /// </summary>
 public class SimulationConfig
 {
-    public int ParticleSize { get; set; }
-    public float FluidDensity { get; set; }
+    public const int ParticleSize = 1;
+    public const float FluidDensity = 1;
+    public static int SpatialHashQueryRadius => ParticleSize * 2;
+    public static float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
+
     public float Stiffness { get; set; }
     public float Viscosity { get; set; }
     public float TimeStep { get; set; }
-    public int SpatialHashQueryRadius => ParticleSize * 2;
-    public float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
     public Vector3 Gravity { get; set; }
 
     public static SimulationConfig Default =>
         new SimulationConfig
         {
-            ParticleSize = 1,
-            FluidDensity = 1f,
             Stiffness = 100f,
             Viscosity = 2f,
             TimeStep = 0.05f,

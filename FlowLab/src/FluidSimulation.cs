@@ -1,4 +1,4 @@
-// ParticleSystem.cs
+// FluidSimulation.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -20,11 +20,10 @@ using SpatialHashSystem = FlowLab.Ecs.System.SpatialHashSystem;
 
 namespace FlowLab;
 
-public class ParticleSystem : IDisposable
+public class FluidSimulation : IDisposable
 {
     private readonly GraphicsDevice _graphics;
     private readonly World _world;
-    private readonly SpatialHashSystem _spatialHashSystem;
     private Effect _particleShader;
     private VertexBuffer _quadBuffer;
     private IndexBuffer _quadIndexBuffer;
@@ -36,14 +35,16 @@ public class ParticleSystem : IDisposable
 
     private const int MaxParticles = 1_000_000;
 
-    public ParticleSystem(GraphicsDevice graphics)
+    public FluidSimulation(GraphicsDevice graphics)
     {
+        var config = SimulationConfig.Default;
+        var spatialHashSystem = new SpatialHashSystem(SimulationConfig.SpatialHashQueryRadius);
         _graphics = graphics;
         _world = new World();
-        _world.Systems.Add(_spatialHashSystem = new SpatialHashSystem(2));
+        _world.Systems.Add(spatialHashSystem);
         _world.Systems.Add(new LifetimeSystem());
         _world.Systems.Add(new ParticleTransformSyncSystem());
-        _world.Systems.Add(new SimulationSystem(_spatialHashSystem.Grid, SimulationConfig.Default));
+        _world.Systems.Add(new SimulationSystem(spatialHashSystem.Grid, config));
 
         Vector3 position;
         for (var i = 0.5f; i < 25.5f; i++)
@@ -166,14 +167,6 @@ public class ParticleSystem : IDisposable
                 instanceCount: activeParticleCount
             );
         }
-
-        // _spatialHashSystem.Grid.DrawDebug(
-        //     _graphics,
-        //     camera.View,
-        //     camera.Projection,
-        //     effect,
-        //     Color.Red
-        // );
     }
 
     public void Dispose()

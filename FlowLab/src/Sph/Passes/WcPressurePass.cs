@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
 using MonoKit.Ecs.Entities;
-using MonoKit.Spatial;
 
 namespace FlowLab.Sph.Passes;
 
@@ -25,7 +24,7 @@ public static class WcPressurePass
             {
                 ref var fluid = ref context.FluidPool.Get(entity.Id);
                 fluid.Pressure = float.Max(
-                    config.Stiffness * (fluid.Density / config.FluidDensity - 1),
+                    config.Stiffness * (fluid.Density / SimulationConfig.FluidDensity - 1),
                     0
                 );
             }

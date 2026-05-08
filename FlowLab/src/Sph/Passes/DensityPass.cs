@@ -32,7 +32,7 @@ public static class DensityPass
                 neighbours.Clear();
                 spatialHash3D.GetInRadius(
                     transform.Position,
-                    config.SpatialHashQueryRadius,
+                    SimulationConfig.SpatialHashQueryRadius,
                     neighbours.Neighbours
                 );
 
