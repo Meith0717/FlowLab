@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
 
@@ -15,8 +16,7 @@ public static class WcPressurePass
     public static void Compute(
         HashSet<Entity> fluidEntities,
         SphPassContext context,
-        float stiffness,
-        float fluidDensity
+        SimulationConfig config
     )
     {
         Parallel.ForEach(
@@ -24,7 +24,10 @@ public static class WcPressurePass
             entity =>
             {
                 ref var fluid = ref context.FluidPool.Get(entity.Id);
-                fluid.Pressure = float.Max(stiffness * (fluid.Density / fluidDensity - 1), 0);
+                fluid.Pressure = float.Max(
+                    config.Stiffness * (fluid.Density / config.FluidDensity - 1),
+                    0
+                );
             }
         );
     }

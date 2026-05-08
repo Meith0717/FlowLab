@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
 
@@ -16,7 +17,8 @@ public static class DensityPass
         HashSet<Entity> fluidEntities,
         EcsSpatialHash3D spatialHash3D,
         Kernels kernels,
-        SphPassContext context
+        SphPassContext context,
+        SimulationConfig config
     )
     {
         Parallel.ForEach(
@@ -28,7 +30,11 @@ public static class DensityPass
                 ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
                 neighbours.Clear();
-                spatialHash3D.GetInRadius(transform.Position, 2, neighbours.Neighbours);
+                spatialHash3D.GetInRadius(
+                    transform.Position,
+                    config.SpatialHashQueryRadius,
+                    neighbours.Neighbours
+                );
 
                 var density = 0f;
                 foreach (var nEntity in neighbours.Neighbours)

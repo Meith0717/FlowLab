@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System;
+using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
 using FlowLab.Input;
@@ -42,7 +43,7 @@ public class ParticleSystem : IDisposable
         _world.Systems.Add(_spatialHashSystem = new SpatialHashSystem(2));
         _world.Systems.Add(new LifetimeSystem());
         _world.Systems.Add(new ParticleTransformSyncSystem());
-        _world.Systems.Add(new SimulationSystem(_spatialHashSystem.Grid, 1, 1, 100, 2, .05f));
+        _world.Systems.Add(new SimulationSystem(_spatialHashSystem.Grid, SimulationConfig.Default));
 
         Vector3 position;
         for (var i = 0.5f; i < 25.5f; i++)

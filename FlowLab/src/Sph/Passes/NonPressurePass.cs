@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
 
@@ -17,9 +18,7 @@ public class NonPressurePass
         HashSet<Entity> fluidEntities,
         Kernels kernels,
         SphPassContext context,
-        float particleSize,
-        float viscosity,
-        float timeStep
+        SimulationConfig config
     )
     {
         Parallel.ForEach(
@@ -30,7 +29,6 @@ public class NonPressurePass
                 ref var velocity = ref context.VelocityPool.Get(entity.Id);
                 ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-                var scaledParticleDiameter2 = 0.01f * (particleSize * particleSize);
                 var nonPressureAccelerations = new Vector3(0, -.05f, 0);
 
                 foreach (var nEntity in neighbours.Neighbours)
@@ -42,7 +40,8 @@ public class NonPressurePass
                         : Vector3.Zero;
 
                     var xIj = transform.Position - nTransform.Position;
-                    var dotPositionPosition = Vector3.Dot(xIj, xIj) + scaledParticleDiameter2;
+                    var dotPositionPosition =
+                        Vector3.Dot(xIj, xIj) + config.ScaledParticleDiameter2;
 
                     var vIj = velocity.LinearVelocity - neighbourVelocity;
                     var dotVelocityPosition = Vector3.Dot(vIj, xIj);
@@ -60,10 +59,10 @@ public class NonPressurePass
                     if (float.IsNaN(res.X) || float.IsNaN(res.Y))
                         Debugger.Break();
 
-                    nonPressureAccelerations += 2f * viscosity * res;
+                    nonPressureAccelerations += 2f * config.Viscosity * res;
                 }
 
-                velocity.LinearVelocity += nonPressureAccelerations * timeStep;
+                velocity.LinearVelocity += nonPressureAccelerations * config.TimeStep;
             }
         );
     }
