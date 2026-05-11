@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -16,12 +17,12 @@ public static class ParticleFactory
 {
     public static Entity CreateBoundaryParticle(
         World world,
-        Vector3 position,
-        float density = 1,
-        float size = 1
+        Vector3 position
     )
     {
         var entity = world.CreateEntity();
+        const int size = SimulationConfig.ParticleSize;
+        const float density = SimulationConfig.FluidDensity;
 
         var transform = new Transform3D { Position = position };
         var fluidComponent = new FluidComponent(size * size * density, density);
@@ -29,7 +30,7 @@ public static class ParticleFactory
         {
             Color = Color.DimGray,
             Position = position,
-            Size = size,
+            Size = size
         };
 
         world.Components.Add(entity, transform);
@@ -41,16 +42,18 @@ public static class ParticleFactory
 
         return entity;
     }
+    
 
     public static Entity CreateFluidParticle(
         World world,
-        Vector3 position,
-        float density = 1,
-        float size = 1
+        Vector3 position
     )
     {
+        const int size = SimulationConfig.ParticleSize;
+        const float density = SimulationConfig.FluidDensity;
+        
         var entity = world.CreateEntity();
-
+        
         var transform = new Transform3D { Position = position };
         var fluidComponent = new FluidComponent(size * size * density, density);
         var velocity = new Velocity3D();
@@ -64,10 +67,8 @@ public static class ParticleFactory
 
         world.Components.Add(entity, transform);
         world.Components.Add(entity, velocity);
-        world.Components.Add(entity, lifetime);
         world.Components.Add(entity, fluidComponent);
         world.Components.Add(entity, shaderData);
-        world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new FluidTag());
         world.Components.Add(entity, new Collider3D(Vector3.Zero));

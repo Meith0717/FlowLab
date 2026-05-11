@@ -13,7 +13,7 @@ namespace FlowLab.Sph.Passes;
 public static class WcPressurePass
 {
     public static void Compute(
-        HashSet<Entity> fluidEntities,
+        IReadOnlyCollection<Entity> fluidEntities,
         SphPassContext context,
         SimulationConfig config
     )

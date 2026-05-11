@@ -15,7 +15,7 @@ namespace FlowLab.Sph;
 public class FluidRenderer : IDisposable
 {
     private static readonly Vector3 CrossSectionNormal = Vector3.UnitX;
-    private const float CrossSectionDistance = -1;
+    private const float CrossSectionDistance = -100;
     private const int MaxParticles = 1_000_000;
     private readonly GraphicsDevice _graphics;
     private readonly VertexBuffer _quadBuffer;

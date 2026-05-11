@@ -14,8 +14,8 @@ namespace FlowLab.Sph.Passes;
 public static class DensityPass
 {
     public static void Compute(
-        HashSet<Entity> fluidEntities,
-        EcsSpatialHash3D spatialHash3D,
+        IReadOnlyCollection<Entity> fluidEntities,
+        ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
         SimulationConfig config
@@ -39,7 +39,7 @@ public static class DensityPass
 
     private static void ComputeEntity(
         Entity entity,
-        EcsSpatialHash3D spatialHash3D,
+        ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
         SimulationConfig config
@@ -50,18 +50,19 @@ public static class DensityPass
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
         neighbours.Clear();
-        spatialHash3D.GetInRadius(
+        spatialHash3D.GetInRadiusFast(
             transform.Position,
             SimulationConfig.SpatialHashQueryRadius,
             neighbours.Neighbours
         );
 
         var density = 0f;
+        var entityPos = transform.Position.ToNumerics();
         foreach (var nEntity in neighbours.Neighbours)
         {
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            density += nFluid.Mass * kernels.CubicSpline(transform.Position, nTransform.Position);
+            density += nFluid.Mass * kernels.CubicSpline(entityPos, nTransform.Position.ToNumerics());
         }
 
         fluid.Density = density;

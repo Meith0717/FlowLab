@@ -1,6 +1,7 @@
 // SimulationConfig.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
+// Portions generated or assisted by AI.
 
 using Microsoft.Xna.Framework;
 
@@ -27,9 +28,9 @@ public class SimulationConfig
         new SimulationConfig
         {
             Stiffness = 100f,
-            Viscosity = 2f,
-            TimeStep = 0.05f,
+            Viscosity = .5f,
+            TimeStep = 0.1f,
             Gravity = new Vector3(0, -0.05f, 0),
-            UseParallel = false,
+            UseParallel = true,
         };
 }

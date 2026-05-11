@@ -14,11 +14,10 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Ecs.System;
 
-public class SimulationSystem(EcsSpatialHash3D spatialHash3D, SimulationConfig config) : ISystem
+public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, SimulationConfig config) : ISystem
 {
     public int Priority => 1;
-    private readonly Kernels _kernels = new Kernels(SimulationConfig.ParticleSize);
-    private readonly SphPassContext _context = new SphPassContext();
+    private readonly SphPassContext _context = new();
     private EntityTypeTracker _tracker;
 
     public void Initialize(World world)
@@ -29,17 +28,22 @@ public class SimulationSystem(EcsSpatialHash3D spatialHash3D, SimulationConfig c
 
     public void Update(double elapsedMs, World world)
     {
-        var fluidEntities = _tracker.GetEntitiesWith<FluidTag>();
-        DensityPass.Compute(fluidEntities, spatialHash3D, _kernels, _context, config);
-        NonPressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config);
-        WcPressurePass.Compute(fluidEntities, _context, config);
-        PressureAccelerationPass.Compute(fluidEntities, _kernels, _context, config);
+        var fEntities = _tracker.GetEntitiesWith<FluidTag>();
+        var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
+        
+        BoundaryPass.Compute(bEntities, kernels, spatialHash3D, _context, config);
+        DensityPass.Compute(fEntities, spatialHash3D, kernels, _context, config);
+        NonPressureAccelerationPass.Compute(fEntities, kernels, _context, config);
+        WcPressurePass.Compute(fEntities, _context, config);
+        PressureAccelerationPass.Compute(fEntities, kernels, _context, config);
 
-        foreach (var entity in fluidEntities)
+        foreach (var entity in fEntities)
         {
             ref var transform = ref _context.TransformPool.Get(entity.Id);
             ref var velocity = ref _context.VelocityPool.Get(entity.Id);
-            transform.Position += velocity.LinearVelocity * config.TimeStep;
+            var pos = transform.Position.ToNumerics();
+            var vel = velocity.LinearVelocity.ToNumerics();
+            transform.Position = (pos + vel * config.TimeStep).ToXna();
         }
     }
 }

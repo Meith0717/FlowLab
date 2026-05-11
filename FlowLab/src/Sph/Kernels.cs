@@ -1,13 +1,16 @@
 ﻿// Kernels.cs
-// Copyright (c) 2023-2025 Thierry Meiers
+// Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
+// Portions generated or assisted by AI.
 
-using Microsoft.Xna.Framework;
+using System.Numerics;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace FlowLab.Sph
 {
     /// <summary>
     /// Standard 3D cubic spline SPH kernel.
+    /// Uses System.Numerics.Vector3 for SIMD acceleration.
     ///
     /// h = smoothing length
     /// support radius = 2h
@@ -15,11 +18,9 @@ namespace FlowLab.Sph
     public sealed class Kernels(float smoothingLength)
     {
         private const float Epsilon = 1e-6f;
-
-        private readonly float _h = smoothingLength;
         private readonly float _hInverse = 1f / smoothingLength;
         private readonly float _alpha3D =
-            1f / (4f * float.Pi * smoothingLength * smoothingLength * smoothingLength);
+            1f / (4f * (float)System.Math.PI * smoothingLength * smoothingLength * smoothingLength);
 
         public float CubicSpline(Vector3 position1, Vector3 position2)
         {
@@ -31,7 +32,7 @@ namespace FlowLab.Sph
             if (q >= 2f)
                 return 0f;
 
-            var t1 = float.Max(1f - q, 0f);
+            var t1 = System.Math.Max(1f - q, 0f);
             var t2 = 2f - q;
 
             return _alpha3D * ((t2 * t2 * t2) - 4f * (t1 * t1 * t1));
@@ -50,7 +51,7 @@ namespace FlowLab.Sph
             if (q >= 2f)
                 return Vector3.Zero;
 
-            var t1 = float.Max(1f - q, 0f);
+            var t1 = System.Math.Max(1f - q, 0f);
             var t2 = 2f - q;
 
             var derivative = (-3f * t2 * t2) + (12f * t1 * t1);
@@ -59,5 +60,12 @@ namespace FlowLab.Sph
 
             return factor * (r / distance);
         }
+
+        // Overloads for XNA Vector3 compatibility
+        public float CubicSpline(XnaVector3 position1, XnaVector3 position2) =>
+            CubicSpline(position1.ToNumerics(), position2.ToNumerics());
+
+        public XnaVector3 NablaCubicSpline(XnaVector3 position1, XnaVector3 position2) =>
+            NablaCubicSpline(position1.ToNumerics(), position2.ToNumerics()).ToXna();
     }
 }
