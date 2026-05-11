@@ -3,7 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -15,7 +14,7 @@ namespace FlowLab.Sph;
 
 public static class ParticleFactory
 {
-    public static Entity CreateBoundaryParticle(World world, Config.Config config, Vector3 position)
+    public static Entity CreateBoundaryParticle(World world, Vector3 position, Config.Config config)
     {
         var entity = world.CreateEntity();
         var size = config.ParticleSize;
@@ -40,7 +39,7 @@ public static class ParticleFactory
         return entity;
     }
 
-    public static Entity CreateFluidParticle(World world, Config.Config config, Vector3 position)
+    public static Entity CreateFluidParticle(World world, Vector3 position, Config.Config config)
     {
         var size = config.ParticleSize;
         var density = config.FluidDensity;

@@ -3,13 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using Microsoft.Xna.Framework;
-using MonoKit.Core.Diagnostics;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Systems;
 using MonoKit.Input;
@@ -46,27 +44,27 @@ public class FluidSimulation
         for (var j = 0.5f; j < 25.5f; j++)
         {
             position = new Vector3(i, 0.5f, j);
-            ParticleFactory.CreateBoundaryParticle(_world, Config, position);
+            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
             position = new Vector3(i, 40.5f, j);
-            ParticleFactory.CreateBoundaryParticle(_world, Config, position);
+            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
         }
 
         for (var i = 0.5f; i < 25.5f; i++)
         for (var j = 0.5f; j < 40.5f; j++)
         {
             position = new Vector3(i, j, 0.5f);
-            ParticleFactory.CreateBoundaryParticle(_world, Config, position);
+            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
             position = new Vector3(i, j, 24.5f);
-            ParticleFactory.CreateBoundaryParticle(_world, Config, position);
+            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
         }
 
         for (var i = 0.5f; i < 25.5f; i++)
         for (var j = 0.5f; j < 40.5f; j++)
         {
             position = new Vector3(0.5f, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, Config, position);
+            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
             position = new Vector3(24.5f, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, Config, position);
+            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
         }
     }
 
@@ -91,6 +89,6 @@ public class FluidSimulation
         for (var x = -10; x <= 10; x++)
         for (var y = -10; y <= 20; y++)
         for (var z = -10; z <= 10; z++)
-            ParticleFactory.CreateFluidParticle(_world, Config, position + new Vector3(x, y, z));
+            ParticleFactory.CreateFluidParticle(_world, position + new Vector3(x, y, z), Config);
     }
 }

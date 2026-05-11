@@ -3,7 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using MonoKit.Ecs;
