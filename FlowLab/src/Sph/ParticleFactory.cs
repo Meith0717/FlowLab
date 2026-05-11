@@ -15,22 +15,19 @@ namespace FlowLab.Sph;
 
 public static class ParticleFactory
 {
-    public static Entity CreateBoundaryParticle(
-        World world,
-        Vector3 position
-    )
+    public static Entity CreateBoundaryParticle(World world, Vector3 position)
     {
         var entity = world.CreateEntity();
         const int size = SimulationConfig.ParticleSize;
         const float density = SimulationConfig.FluidDensity;
 
         var transform = new Transform3D { Position = position };
-        var fluidComponent = new FluidComponent(size * size * density, density);
+        var fluidComponent = new FluidComponent(size * size * size * density, density);
         var shaderData = new ParticleShaderData
         {
             Color = Color.DimGray,
             Position = position,
-            Size = size
+            Size = size,
         };
 
         world.Components.Add(entity, transform);
@@ -42,20 +39,16 @@ public static class ParticleFactory
 
         return entity;
     }
-    
 
-    public static Entity CreateFluidParticle(
-        World world,
-        Vector3 position
-    )
+    public static Entity CreateFluidParticle(World world, Vector3 position)
     {
         const int size = SimulationConfig.ParticleSize;
         const float density = SimulationConfig.FluidDensity;
-        
+
         var entity = world.CreateEntity();
-        
+
         var transform = new Transform3D { Position = position };
-        var fluidComponent = new FluidComponent(size * size * density, density);
+        var fluidComponent = new FluidComponent(size * size * size * density, density);
         var velocity = new Velocity3D();
         var shaderData = new ParticleShaderData()
         {

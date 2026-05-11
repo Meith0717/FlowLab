@@ -9,6 +9,7 @@ using FlowLab.Ecs.System;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using Microsoft.Xna.Framework;
+using MonoKit.Core.Diagnostics;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Systems;
 using MonoKit.Input;
@@ -20,6 +21,7 @@ public class FluidSimulation
 {
     private readonly World _world;
     public readonly LiveData LiveData;
+    public readonly SimulationConfig Config;
 
     // Bounds of the particle cube
     private const float MinBound = 2f;
@@ -27,7 +29,7 @@ public class FluidSimulation
 
     public FluidSimulation()
     {
-        var config = SimulationConfig.Default;
+        Config = SimulationConfig.Default;
         var kernels = new Kernels(SimulationConfig.ParticleSize);
         var spatialHash3D = new EcsSpatialHash3D(
             SimulationConfig.SpatialHashQueryRadius,
@@ -39,8 +41,8 @@ public class FluidSimulation
         _world.Systems.Add(spatialHashSystem);
         _world.Systems.Add(new LifetimeSystem());
         _world.Systems.Add(new ParticleTransformSyncSystem());
-        _world.Systems.Add(new SimulationSystem(spatialHashSystem.Grid, kernels, config));
-        LiveData = new LiveData(_world, config);
+        _world.Systems.Add(new SimulationSystem(spatialHashSystem.Grid, kernels, Config));
+        LiveData = new LiveData(_world, Config);
 
         Vector3 position;
         for (var i = 0.5f; i < 25.5f; i++)
@@ -48,10 +50,12 @@ public class FluidSimulation
         {
             position = new Vector3(i, 0.5f, j);
             ParticleFactory.CreateBoundaryParticle(_world, position);
+            position = new Vector3(i, 40.5f, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position);
         }
 
         for (var i = 0.5f; i < 25.5f; i++)
-        for (var j = 0.5f; j < 30.5f; j++)
+        for (var j = 0.5f; j < 40.5f; j++)
         {
             position = new Vector3(i, j, 0.5f);
             ParticleFactory.CreateBoundaryParticle(_world, position);
@@ -60,7 +64,7 @@ public class FluidSimulation
         }
 
         for (var i = 0.5f; i < 25.5f; i++)
-        for (var j = 0.5f; j < 30.5f; j++)
+        for (var j = 0.5f; j < 40.5f; j++)
         {
             position = new Vector3(0.5f, j, i);
             ParticleFactory.CreateBoundaryParticle(_world, position);
@@ -75,7 +79,7 @@ public class FluidSimulation
             AddBlueParticle();
 
         _world.Update(gameTime);
-        LiveData.Collect();
+        LiveData.Collect(gameTime);
     }
 
     public ParticleShaderData[] InstanceData =>
@@ -85,11 +89,11 @@ public class FluidSimulation
     {
         var position =
             new Vector3(MinBound + MaxBound / 2, MinBound + MaxBound / 2, MinBound + MaxBound / 2)
-            + new Vector3(0, 30, 0);
+            + new Vector3(0, 0, 0);
 
-        for (var x = -7; x <= 7; x++)
-        for (var y = -7; y <= 7; y++)
-        for (var z = -7; z <= 7; z++)
+        for (var x = -10; x <= 10; x++)
+        for (var y = -10; y <= 20; y++)
+        for (var z = -10; z <= 10; z++)
             ParticleFactory.CreateFluidParticle(_world, position + new Vector3(x, y, z));
     }
 }

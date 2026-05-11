@@ -68,8 +68,17 @@ public class Game1 : Game
     {
         ContentProvider.Container<Effect>().LoadContent(Content, "Shaders");
         ContentProvider.Container<SpriteFont>().LoadContent(Content, "Fonts");
-        _screenManager.AddScreen(new SimulationScreen(_serviceContainer));
         _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("consola"));
+        var simulationScreen = new SimulationScreen(_serviceContainer);
+        _screenManager.AddScreen(simulationScreen);
+        _screenManager.AddScreen(
+            new HudScreen(
+                _serviceContainer,
+                _frameCounter,
+                simulationScreen.FluidSimulation.Config,
+                simulationScreen.LiveData
+            )
+        );
         base.LoadContent();
     }
 
@@ -101,10 +110,6 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.SlateGray);
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
         _screenManager.Draw(_spriteBatch);
-
-        _spriteBatch.Begin();
-        _frameCounter.Draw(_spriteBatch, GraphicsDevice.Viewport, 1);
-        _spriteBatch.End();
 
         base.Draw(gameTime);
     }

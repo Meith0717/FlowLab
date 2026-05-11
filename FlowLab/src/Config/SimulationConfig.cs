@@ -27,7 +27,7 @@ public class SimulationConfig
     public static SimulationConfig Default =>
         new SimulationConfig
         {
-            Stiffness = 100f,
+            Stiffness = 50f,
             Viscosity = .5f,
             TimeStep = 0.1f,
             Gravity = new Vector3(0, -0.05f, 0),

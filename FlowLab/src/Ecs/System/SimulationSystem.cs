@@ -14,7 +14,11 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Ecs.System;
 
-public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, SimulationConfig config) : ISystem
+public class SimulationSystem(
+    ISpatialGrid3D spatialHash3D,
+    Kernels kernels,
+    SimulationConfig config
+) : ISystem
 {
     public int Priority => 1;
     private readonly SphPassContext _context = new();
@@ -30,7 +34,7 @@ public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, Sim
     {
         var fEntities = _tracker.GetEntitiesWith<FluidTag>();
         var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
-        
+
         BoundaryPass.Compute(bEntities, kernels, spatialHash3D, _context, config);
         DensityPass.Compute(fEntities, spatialHash3D, kernels, _context, config);
         NonPressureAccelerationPass.Compute(fEntities, kernels, _context, config);
@@ -41,9 +45,9 @@ public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, Sim
         {
             ref var transform = ref _context.TransformPool.Get(entity.Id);
             ref var velocity = ref _context.VelocityPool.Get(entity.Id);
-            var pos = transform.Position.ToNumerics();
-            var vel = velocity.LinearVelocity.ToNumerics();
-            transform.Position = (pos + vel * config.TimeStep).ToXna();
+            var pos = transform.Position;
+            var vel = velocity.LinearVelocity;
+            transform.Position = pos + vel * config.TimeStep;
         }
     }
 }

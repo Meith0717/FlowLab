@@ -5,6 +5,7 @@
 
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
+using FlowLab.Ecs.Tags;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 
@@ -13,37 +14,61 @@ namespace FlowLab.Monitoring;
 public class LiveData(World world, SimulationConfig config)
 {
     public int EntityCount { get; private set; }
+    public float FluidMass { get; private set; }
+    public float FluidVolume { get; private set; }
     public float CompressionError { get; private set; }
-    public float TotalError { get; private set; }
+    public float AbsError { get; private set; }
     public float Cfl { get; private set; }
+    public float MaxVelocity { get; private set; }
+    public float AvgVelocity { get; private set; }
 
-    public void Collect()
+    private const int CoolDown = 200;
+    private double _currentCoolDown = CoolDown;
+
+    public void Collect(double elapsedMilliseconds)
     {
-        EntityCount = world.EntityCount;
+        _currentCoolDown -= elapsedMilliseconds;
+        if (_currentCoolDown > 0)
+            return;
 
+        _currentCoolDown = CoolDown;
+
+        EntityCount = world.EntityCount;
         var fluidPool = world.Components.GetOrCreatePool<FluidComponent>();
+        var fluidEntities = world.TypeTracker.GetEntitiesWith<FluidTag>();
+        FluidMass = FluidVolume = 0;
+        foreach (var entity in fluidEntities)
+        {
+            ref var fluid = ref fluidPool.Get(entity.Id);
+            FluidMass += fluid.Mass;
+            FluidVolume += fluid.Mass / fluid.Density;
+        }
+
         var fluidComponentsSpan = fluidPool.AsSpan();
+        AbsError = CompressionError = 0;
         foreach (var fluidComponent in fluidComponentsSpan)
         {
-            TotalError =
+            var error =
                 (fluidComponent.Density - SimulationConfig.FluidDensity)
                 / SimulationConfig.FluidDensity;
-            CompressionError = float.Max(TotalError, 0);
+            CompressionError += float.Max(error, 0);
+            AbsError += float.Abs(error);
         }
-        TotalError /= EntityCount;
+        AbsError /= EntityCount;
         CompressionError /= EntityCount;
 
         var velocityPool = world.Components.GetOrCreatePool<Velocity3D>();
         var velocityComponentsSpan = velocityPool.AsSpan();
-        var maxVelocity = 0f;
+        AvgVelocity = MaxVelocity = 0;
         foreach (var velocityComponent in velocityComponentsSpan)
         {
             var velocity = velocityComponent.LinearVelocity.Length();
-            if (velocity < maxVelocity)
+            AvgVelocity += velocity;
+            if (velocity < MaxVelocity)
                 continue;
-            maxVelocity = velocity;
+            MaxVelocity = velocity;
         }
-
-        Cfl = config.TimeStep * (maxVelocity / SimulationConfig.ParticleSize);
+        AvgVelocity /= EntityCount;
+        Cfl = MaxVelocity * config.TimeStep / SimulationConfig.ParticleSize;
     }
 }
