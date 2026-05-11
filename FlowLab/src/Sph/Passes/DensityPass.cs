@@ -18,7 +18,7 @@ public static class DensityPass
         ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
-        SimulationConfig config
+        Config.Config config
     )
     {
         if (config.UseParallel)
@@ -42,7 +42,7 @@ public static class DensityPass
         ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
-        SimulationConfig config
+        Config.Config config
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
@@ -52,7 +52,7 @@ public static class DensityPass
         neighbours.Clear();
         spatialHash3D.GetInRadiusFast(
             transform.Position,
-            SimulationConfig.SpatialHashQueryRadius,
+            config.SpatialHashQueryRadius,
             neighbours.Neighbours
         );
 
@@ -62,7 +62,8 @@ public static class DensityPass
         {
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            density += nFluid.Mass * kernels.CubicSpline(entityPos, nTransform.Position.ToNumerics());
+            density +=
+                nFluid.Mass * kernels.CubicSpline(entityPos, nTransform.Position.ToNumerics());
         }
 
         fluid.Density = density;

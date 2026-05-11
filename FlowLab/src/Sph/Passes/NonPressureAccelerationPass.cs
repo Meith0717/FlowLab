@@ -17,7 +17,7 @@ public static class NonPressureAccelerationPass
         IReadOnlyCollection<Entity> fluidEntities,
         Kernels kernels,
         SphPassContext context,
-        SimulationConfig config
+        Config.Config config
     )
     {
         if (config.UseParallel)
@@ -40,14 +40,14 @@ public static class NonPressureAccelerationPass
         Entity entity,
         Kernels kernels,
         SphPassContext context,
-        SimulationConfig config
+        Config.Config config
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var velocity = ref context.VelocityPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        var nonPressureAccelerations = new System.Numerics.Vector3(0, -0.05f, 0);
+        var nonPressureAccelerations = new System.Numerics.Vector3(0, -config.Gravity, 0);
         var entityPos = transform.Position.ToNumerics();
         var entityVel = velocity.LinearVelocity.ToNumerics();
 
@@ -61,7 +61,7 @@ public static class NonPressureAccelerationPass
 
             var xIj = entityPos - nTransform.Position.ToNumerics();
             var dotPositionPosition =
-                System.Numerics.Vector3.Dot(xIj, xIj) + SimulationConfig.ScaledParticleDiameter2;
+                System.Numerics.Vector3.Dot(xIj, xIj) + config.ScaledParticleDiameter2;
 
             var vIj = entityVel - nVelocity;
             var dotVelocityPosition = System.Numerics.Vector3.Dot(vIj, xIj);
@@ -72,9 +72,7 @@ public static class NonPressureAccelerationPass
                 nTransform.Position.ToNumerics()
             );
             var res =
-                massOverDensity
-                * (dotVelocityPosition / dotPositionPosition)
-                * kernelDerivative;
+                massOverDensity * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
             if (float.IsNaN(res.X) || float.IsNaN(res.Y))
                 Debugger.Break();

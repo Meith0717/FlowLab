@@ -1,4 +1,4 @@
-// SimulationConfig.cs
+// Config.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -11,26 +11,26 @@ namespace FlowLab.Config;
 /// Configuration for the SPH fluid simulation.
 /// All parameters can be tuned at runtime via UI.
 /// </summary>
-public class SimulationConfig
+public class Config(float particleSize, float fluidDensity)
 {
-    public const int ParticleSize = 1;
-    public const float FluidDensity = 1;
-    public static int SpatialHashQueryRadius => ParticleSize * 2;
-    public static float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
+    public readonly float ParticleSize = particleSize;
+    public readonly float FluidDensity = fluidDensity;
+    public float SpatialHashQueryRadius => ParticleSize * 2f;
+    public float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
 
     public float Stiffness { get; set; }
     public float Viscosity { get; set; }
     public float TimeStep { get; set; }
-    public Vector3 Gravity { get; set; }
+    public float Gravity { get; set; }
     public bool UseParallel { get; set; }
 
-    public static SimulationConfig Default =>
-        new SimulationConfig
+    public static Config Default =>
+        new Config(1, 1)
         {
             Stiffness = 50f,
             Viscosity = .5f,
             TimeStep = 0.1f,
-            Gravity = new Vector3(0, -0.05f, 0),
+            Gravity = 0.05f,
             UseParallel = true,
         };
 }

@@ -11,7 +11,7 @@ using MonoKit.Ecs.Components;
 
 namespace FlowLab.Monitoring;
 
-public class LiveData(World world, SimulationConfig config)
+public class LiveData(World world, Config.Config config)
 {
     public int EntityCount { get; private set; }
     public float FluidMass { get; private set; }
@@ -48,9 +48,7 @@ public class LiveData(World world, SimulationConfig config)
         AbsError = CompressionError = 0;
         foreach (var fluidComponent in fluidComponentsSpan)
         {
-            var error =
-                (fluidComponent.Density - SimulationConfig.FluidDensity)
-                / SimulationConfig.FluidDensity;
+            var error = (fluidComponent.Density - config.FluidDensity) / config.FluidDensity;
             CompressionError += float.Max(error, 0);
             AbsError += float.Abs(error);
         }
@@ -69,6 +67,6 @@ public class LiveData(World world, SimulationConfig config)
             MaxVelocity = velocity;
         }
         AvgVelocity /= EntityCount;
-        Cfl = MaxVelocity * config.TimeStep / SimulationConfig.ParticleSize;
+        Cfl = MaxVelocity * config.TimeStep / config.ParticleSize;
     }
 }

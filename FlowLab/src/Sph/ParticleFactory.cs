@@ -15,11 +15,11 @@ namespace FlowLab.Sph;
 
 public static class ParticleFactory
 {
-    public static Entity CreateBoundaryParticle(World world, Vector3 position)
+    public static Entity CreateBoundaryParticle(World world, Config.Config config, Vector3 position)
     {
         var entity = world.CreateEntity();
-        const int size = SimulationConfig.ParticleSize;
-        const float density = SimulationConfig.FluidDensity;
+        var size = config.ParticleSize;
+        var density = config.FluidDensity;
 
         var transform = new Transform3D { Position = position };
         var fluidComponent = new FluidComponent(size * size * size * density, density);
@@ -40,10 +40,10 @@ public static class ParticleFactory
         return entity;
     }
 
-    public static Entity CreateFluidParticle(World world, Vector3 position)
+    public static Entity CreateFluidParticle(World world, Config.Config config, Vector3 position)
     {
-        const int size = SimulationConfig.ParticleSize;
-        const float density = SimulationConfig.FluidDensity;
+        var size = config.ParticleSize;
+        var density = config.FluidDensity;
 
         var entity = world.CreateEntity();
 

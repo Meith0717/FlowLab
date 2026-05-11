@@ -14,11 +14,8 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Ecs.System;
 
-public class SimulationSystem(
-    ISpatialGrid3D spatialHash3D,
-    Kernels kernels,
-    SimulationConfig config
-) : ISystem
+public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, Config.Config config)
+    : ISystem
 {
     public int Priority => 1;
     private readonly SphPassContext _context = new();

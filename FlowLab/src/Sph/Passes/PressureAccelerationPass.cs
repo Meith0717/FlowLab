@@ -17,7 +17,7 @@ public static class PressureAccelerationPass
         IReadOnlyCollection<Entity> fluidEntities,
         Kernels kernels,
         SphPassContext context,
-        SimulationConfig config
+        Config.Config config
     )
     {
         if (config.UseParallel)
@@ -40,7 +40,7 @@ public static class PressureAccelerationPass
         Entity entity,
         Kernels kernels,
         SphPassContext context,
-        SimulationConfig config
+        Config.Config config
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
@@ -59,8 +59,7 @@ public static class PressureAccelerationPass
 
             var isBoundary = context.BoundaryPool.Has(nEntity.Id);
 
-            var neighbourPressureOverDensity2 =
-                nFluid.Pressure / (nFluid.Density * nFluid.Density);
+            var neighbourPressureOverDensity2 = nFluid.Pressure / (nFluid.Density * nFluid.Density);
             var kernelDerivative = kernels.NablaCubicSpline(
                 entityPos,
                 nTransform.Position.ToNumerics()
@@ -70,8 +69,7 @@ public static class PressureAccelerationPass
             if (isBoundary)
                 combinedPressure = 2 * particlePressureOverDensity2;
             else
-                combinedPressure =
-                    particlePressureOverDensity2 + neighbourPressureOverDensity2;
+                combinedPressure = particlePressureOverDensity2 + neighbourPressureOverDensity2;
 
             pressureAcceleration -= nFluid.Mass * combinedPressure * kernelDerivative;
 
