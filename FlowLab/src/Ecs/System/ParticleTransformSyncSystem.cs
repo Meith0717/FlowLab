@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using FlowLab.Ecs.Components;
+using FlowLab.Ecs.Tags;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;
@@ -28,7 +29,7 @@ public class ParticleTransformSyncSystem : ISystem
 
     public void Update(double elapsedMs, World world)
     {
-        var entities = _tracker.GetEntitiesWith<Transform3D, ParticleShaderData>();
+        var entities = _tracker.GetEntitiesWith<ParticleTag>();
 
         foreach (var e in entities)
         {

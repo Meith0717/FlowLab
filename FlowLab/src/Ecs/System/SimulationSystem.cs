@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Threading.Tasks;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
@@ -13,8 +14,11 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Ecs.System;
 
-public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, Config.Config config)
-    : ISystem
+public class SimulationSystem(
+    ISpatialGrid3D spatialHash3D,
+    Kernels kernels,
+    Config.SimConfig simConfig
+) : ISystem
 {
     public int Priority => 1;
     private readonly SphPassContext _context = new();
@@ -24,26 +28,29 @@ public class SimulationSystem(ISpatialGrid3D spatialHash3D, Kernels kernels, Con
     {
         _tracker = world.TypeTracker;
         _context.Initialize(world.Components);
+
+        var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
+        BoundaryPass.Compute(bEntities, kernels, spatialHash3D, _context, simConfig);
     }
 
     public void Update(double elapsedMs, World world)
     {
         var fEntities = _tracker.GetEntitiesWith<FluidTag>();
-        var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
+        DensityPass.Compute(fEntities, spatialHash3D, kernels, _context, simConfig);
+        NonPressureAccelerationPass.Compute(fEntities, kernels, _context, simConfig);
+        WcPressurePass.Compute(fEntities, _context, simConfig);
+        PressureAccelerationPass.Compute(fEntities, kernels, _context, simConfig);
 
-        BoundaryPass.Compute(bEntities, kernels, spatialHash3D, _context, config);
-        DensityPass.Compute(fEntities, spatialHash3D, kernels, _context, config);
-        NonPressureAccelerationPass.Compute(fEntities, kernels, _context, config);
-        WcPressurePass.Compute(fEntities, _context, config);
-        PressureAccelerationPass.Compute(fEntities, kernels, _context, config);
-
-        foreach (var entity in fEntities)
-        {
-            ref var transform = ref _context.TransformPool.Get(entity.Id);
-            ref var velocity = ref _context.VelocityPool.Get(entity.Id);
-            var pos = transform.Position;
-            var vel = velocity.LinearVelocity;
-            transform.Position = pos + vel * config.TimeStep;
-        }
+        Parallel.ForEach(
+            fEntities,
+            entity =>
+            {
+                ref var transform = ref _context.TransformPool.Get(entity.Id);
+                ref var velocity = ref _context.VelocityPool.Get(entity.Id);
+                var pos = transform.Position;
+                var vel = velocity.LinearVelocity;
+                transform.Position = pos + vel * simConfig.TimeStep;
+            }
+        );
     }
 }

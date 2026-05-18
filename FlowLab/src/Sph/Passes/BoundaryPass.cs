@@ -18,10 +18,10 @@ public static class BoundaryPass
         Kernels kernels,
         ISpatialGrid3D spatialHashing,
         SphPassContext context,
-        Config.Config config
+        Config.SimConfig simConfig
     )
     {
-        if (config.UseParallel)
+        if (simConfig.UseParallel)
         {
             var localNeighbours = new ThreadLocal<List<Entity>>(() => new List<Entity>(128));
 
@@ -31,7 +31,7 @@ public static class BoundaryPass
                 {
                     var neighbours = localNeighbours.Value;
                     neighbours.Clear();
-                    ComputeEntity(entity, spatialHashing, kernels, context, config, neighbours);
+                    ComputeEntity(entity, spatialHashing, kernels, context, simConfig, neighbours);
                 }
             );
         }
@@ -41,7 +41,7 @@ public static class BoundaryPass
             foreach (var entity in boundaryEntities)
             {
                 neighbours.Clear();
-                ComputeEntity(entity, spatialHashing, kernels, context, config, neighbours);
+                ComputeEntity(entity, spatialHashing, kernels, context, simConfig, neighbours);
             }
         }
     }
@@ -51,12 +51,12 @@ public static class BoundaryPass
         ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
-        Config.Config config,
+        Config.SimConfig simConfig,
         List<Entity> neighbours
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
-        spatialHash3D.GetInRadius(transform.Position, config.SpatialHashQueryRadius, neighbours);
+        spatialHash3D.GetInRadius(transform.Position, simConfig.SpatialHashQueryRadius, neighbours);
 
         var kernelSum = 0f;
         foreach (var neighbour in neighbours)
@@ -68,7 +68,7 @@ public static class BoundaryPass
         }
 
         var artificialVolume = 1f / kernelSum;
-        var artificialMass = config.FluidDensity * artificialVolume;
+        var artificialMass = simConfig.FluidDensity * artificialVolume;
         context.FluidPool.Get(entity.Id).Mass = artificialMass;
     }
 }

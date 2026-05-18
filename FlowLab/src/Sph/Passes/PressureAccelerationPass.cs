@@ -16,21 +16,21 @@ public static class PressureAccelerationPass
         IReadOnlyCollection<Entity> fluidEntities,
         Kernels kernels,
         SphPassContext context,
-        Config.Config config
+        Config.SimConfig simConfig
     )
     {
-        if (config.UseParallel)
+        if (simConfig.UseParallel)
         {
             Parallel.ForEach(
                 fluidEntities,
-                entity => ProcessEntity(entity, kernels, context, config)
+                entity => ProcessEntity(entity, kernels, context, simConfig)
             );
         }
         else
         {
             foreach (var entity in fluidEntities)
             {
-                ProcessEntity(entity, kernels, context, config);
+                ProcessEntity(entity, kernels, context, simConfig);
             }
         }
     }
@@ -39,7 +39,7 @@ public static class PressureAccelerationPass
         Entity entity,
         Kernels kernels,
         SphPassContext context,
-        Config.Config config
+        Config.SimConfig simConfig
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
@@ -76,7 +76,7 @@ public static class PressureAccelerationPass
                 Debugger.Break();
         }
 
-        var deltaVelocity = pressureAcceleration * config.TimeStep;
+        var deltaVelocity = pressureAcceleration * simConfig.TimeStep;
         velocity.LinearVelocity += deltaVelocity.ToXna();
     }
 }

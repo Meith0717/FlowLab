@@ -14,10 +14,10 @@ public static class WcPressurePass
     public static void Compute(
         IReadOnlyCollection<Entity> fluidEntities,
         SphPassContext context,
-        Config.Config config
+        Config.SimConfig simConfig
     )
     {
-        if (config.UseParallel)
+        if (simConfig.UseParallel)
         {
             Parallel.ForEach(
                 fluidEntities,
@@ -25,7 +25,7 @@ public static class WcPressurePass
                 {
                     ref var fluid = ref context.FluidPool.Get(entity.Id);
                     fluid.Pressure = float.Max(
-                        config.Stiffness * (fluid.Density / config.FluidDensity - 1),
+                        simConfig.Stiffness * (fluid.Density / simConfig.FluidDensity - 1),
                         0
                     );
                 }
@@ -37,7 +37,7 @@ public static class WcPressurePass
             {
                 ref var fluid = ref context.FluidPool.Get(entity.Id);
                 fluid.Pressure = float.Max(
-                    config.Stiffness * (fluid.Density / config.FluidDensity - 1),
+                    simConfig.Stiffness * (fluid.Density / simConfig.FluidDensity - 1),
                     0
                 );
             }

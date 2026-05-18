@@ -5,6 +5,7 @@
 
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
@@ -14,11 +15,14 @@ namespace FlowLab.Sph;
 
 public static class ParticleFactory
 {
-    public static Entity CreateBoundaryParticle(World world, Vector3 position, Config.Config config)
+    public static Entity CreateBoundaryParticle(
+        World world,
+        Vector3 position,
+        float size,
+        float density
+    )
     {
         var entity = world.CreateEntity();
-        var size = config.ParticleSize;
-        var density = config.FluidDensity;
 
         var transform = new Transform3D { Position = position };
         var fluidComponent = new FluidComponent(size * size * size * density, density);
@@ -40,10 +44,14 @@ public static class ParticleFactory
         return entity;
     }
 
-    public static Entity CreateFluidParticle(World world, Vector3 position, Config.Config config)
+    public static Entity CreateFluidParticle(
+        World world,
+        Vector3 position,
+        Config.SimConfig simConfig
+    )
     {
-        var size = config.ParticleSize;
-        var density = config.FluidDensity;
+        var size = simConfig.ParticleSize;
+        var density = simConfig.FluidDensity;
 
         var entity = world.CreateEntity();
 
@@ -66,6 +74,7 @@ public static class ParticleFactory
         world.Components.Add(entity, new FluidTag());
         world.Components.Add(entity, new Collider3D(Vector3.Zero));
         world.Components.Add(entity, new ParticleTag());
+        world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
 
         return entity;
     }

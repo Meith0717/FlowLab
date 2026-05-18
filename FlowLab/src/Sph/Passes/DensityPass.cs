@@ -17,21 +17,21 @@ public static class DensityPass
         ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
-        Config.Config config
+        Config.SimConfig simConfig
     )
     {
-        if (config.UseParallel)
+        if (simConfig.UseParallel)
         {
             Parallel.ForEach(
                 fluidEntities,
-                entity => ComputeEntity(entity, spatialHash3D, kernels, context, config)
+                entity => ComputeEntity(entity, spatialHash3D, kernels, context, simConfig)
             );
         }
         else
         {
             foreach (var entity in fluidEntities)
             {
-                ComputeEntity(entity, spatialHash3D, kernels, context, config);
+                ComputeEntity(entity, spatialHash3D, kernels, context, simConfig);
             }
         }
     }
@@ -41,7 +41,7 @@ public static class DensityPass
         ISpatialGrid3D spatialHash3D,
         Kernels kernels,
         SphPassContext context,
-        Config.Config config
+        Config.SimConfig simConfig
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
@@ -51,7 +51,7 @@ public static class DensityPass
         neighbours.Clear();
         spatialHash3D.GetInRadiusFast(
             transform.Position,
-            config.SpatialHashQueryRadius,
+            simConfig.SpatialHashQueryRadius,
             neighbours.Neighbours
         );
 

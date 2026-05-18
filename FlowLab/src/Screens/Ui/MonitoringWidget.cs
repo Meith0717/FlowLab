@@ -10,7 +10,11 @@ using MonoKit.Ui;
 
 namespace FlowLab.Screens.Ui;
 
-public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, LiveData liveData)
+public class MonitoringWidget(
+    FrameCounter frameCounter,
+    Config.SimConfig simConfig,
+    LiveData liveData
+)
 {
     private UiFrame _simMonitoring;
     private UiSlider _cflBar;
@@ -147,7 +151,7 @@ public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, L
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{config.TimeStep}",
+                TextProvider = () => $"{simConfig.TimeStep}",
                 Allign = Allign.Right,
                 HSpace = 10,
                 Y = y + 50,
@@ -264,7 +268,7 @@ public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, L
                 Y = y + 50,
                 Scale = 0.16f,
                 Color = Color.White,
-                TextProvider = () => $"{config.FluidDensity} kg/m\u00B3",
+                TextProvider = () => $"{simConfig.FluidDensity} kg/m\u00B3",
             }
         );
 
@@ -281,7 +285,7 @@ public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, L
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{liveData.FluidMass * config.FluidDensity} m\u00B3",
+                TextProvider = () => $"{liveData.FluidMass * simConfig.FluidDensity} m\u00B3",
                 Allign = Allign.Right,
                 HSpace = 10,
                 Y = y + 70,

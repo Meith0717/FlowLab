@@ -38,14 +38,15 @@ public class Game1 : Game
         var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
         {
             { (Keys.Space, InputEventType.Released), (byte)ActionType.SpawnBlock },
-            { (Keys.H, InputEventType.Released), (byte)ActionType.ToogleBoundaryDraw },
+            { (Keys.H, InputEventType.Released), (byte)ActionType.ToggleBoundaryDraw },
+            { (Keys.Delete, InputEventType.Released), (byte)ActionType.DeleteFluid },
         };
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
         {
             { (MouseButton.Right, InputEventType.Held), (byte)ActionType.MoveCameraByMouse },
         };
 
-        _graphicsController.ApplyMode(WindowMode.Windowed);
+        _graphicsController.ApplyMode(WindowMode.FullScreen);
         _graphicsController.ApplyRefreshRate(250, false);
         _inputHandler.RegisterDevice(new KeyboardListener(keyBindings));
         _inputHandler.RegisterDevice(new MouseListener(mouseBindings));
@@ -70,16 +71,8 @@ public class Game1 : Game
         ContentProvider.Container<Effect>().LoadContent(Content, "Shaders");
         ContentProvider.Container<SpriteFont>().LoadContent(Content, "Fonts");
         _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("consola"));
-        var simulationScreen = new SimulationScreen(_serviceContainer);
-        _screenManager.AddScreen(simulationScreen);
-        _screenManager.AddScreen(
-            new HudScreen(
-                _serviceContainer,
-                _frameCounter,
-                simulationScreen.FluidSimulation.Config,
-                simulationScreen.LiveData
-            )
-        );
+        _serviceContainer.AddService(_frameCounter);
+        _screenManager.AddScreen(new SimulationScreen(_serviceContainer));
         base.LoadContent();
     }
 

@@ -3,16 +3,15 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using FlowLab.Config;
 using Microsoft.Xna.Framework;
 using MonoKit.Input;
 using MonoKit.Ui;
 
 namespace FlowLab.Screens.Ui;
 
-public class SettingsWidget(Config.Config config)
+public class SettingsWidget(Config.SimConfig simConfig)
 {
-    private readonly Config.Config _config = config;
+    private readonly Config.SimConfig _simConfig = simConfig;
     private UiFrame _settingsFrame;
 
     // Text entry fields for numeric values
@@ -59,15 +58,25 @@ public class SettingsWidget(Config.Config config)
             }
         );
 
-        AddTextEntrySetting("Stiffness", 60, ref _stiffnessEntry, _config.Stiffness.ToString("F2"));
+        AddTextEntrySetting(
+            "Stiffness",
+            60,
+            ref _stiffnessEntry,
+            _simConfig.Stiffness.ToString("F2")
+        );
         AddTextEntrySetting(
             "Viscosity",
             100,
             ref _viscosityEntry,
-            _config.Viscosity.ToString("F2")
+            _simConfig.Viscosity.ToString("F2")
         );
-        AddTextEntrySetting("Time Step", 140, ref _timeStepEntry, _config.TimeStep.ToString("F3"));
-        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, _config.Gravity.ToString("F3"));
+        AddTextEntrySetting(
+            "Time Step",
+            140,
+            ref _timeStepEntry,
+            _simConfig.TimeStep.ToString("F3")
+        );
+        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, _simConfig.Gravity.ToString("F3"));
         AddParallelToggle(220);
     }
 
@@ -127,8 +136,8 @@ public class SettingsWidget(Config.Config config)
             HSpace = 10,
             Y = y,
             Scale = 0.15f,
-            Color = _config.UseParallel ? Color.Lime : Color.DimGray,
-            TextProvider = () => _config.UseParallel ? "ON" : "OFF",
+            Color = _simConfig.UseParallel ? Color.Lime : Color.DimGray,
+            TextProvider = () => _simConfig.UseParallel ? "ON" : "OFF",
         };
         _settingsFrame.Add(_parallelText);
 
@@ -163,23 +172,23 @@ public class SettingsWidget(Config.Config config)
 
     private void ToggleParallel()
     {
-        _config.UseParallel = !_config.UseParallel;
-        _parallelText.Color = _config.UseParallel ? Color.Lime : Color.DimGray;
+        _simConfig.UseParallel = !_simConfig.UseParallel;
+        _parallelText.Color = _simConfig.UseParallel ? Color.Lime : Color.DimGray;
     }
 
     public void Update(InputHandler inputHandler)
     {
-        // Sync text entry values to config
+        // Sync text entry values to simConfig
         if (_stiffnessEntry != null && float.TryParse(_stiffnessEntry.Text, out var stiffness))
-            _config.Stiffness = MathHelper.Clamp(stiffness, 0, 200);
+            _simConfig.Stiffness = MathHelper.Clamp(stiffness, 0, 200);
 
         if (_viscosityEntry != null && float.TryParse(_viscosityEntry.Text, out var viscosity))
-            _config.Viscosity = MathHelper.Clamp(viscosity, 0, 5);
+            _simConfig.Viscosity = MathHelper.Clamp(viscosity, 0, 5);
 
         if (_timeStepEntry != null && float.TryParse(_timeStepEntry.Text, out var timeStep))
-            _config.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);
+            _simConfig.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);
 
         if (_gravityEntry != null && float.TryParse(_gravityEntry.Text, out var gravity))
-            _config.Gravity = MathHelper.Clamp(gravity, 0, 1);
+            _simConfig.Gravity = MathHelper.Clamp(gravity, 0, 1);
     }
 }

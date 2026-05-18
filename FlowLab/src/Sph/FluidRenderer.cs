@@ -5,14 +5,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
 using MonoKit.Ecs;
-using MonoKit.Ecs.Entities;
 using MonoKit.Graphics.Camera;
 
 namespace FlowLab.Sph;
@@ -21,7 +19,6 @@ public class FluidRenderer : IDisposable
 {
     private static readonly Vector3 CrossSectionNormal = Vector3.UnitX;
     private const float CrossSectionDistance = -100;
-    private const int MaxParticles = 1_000_000;
     private readonly GraphicsDevice _graphics;
     private readonly VertexBuffer _quadBuffer;
     private readonly IndexBuffer _quadIndexBuffer;
@@ -61,7 +58,7 @@ public class FluidRenderer : IDisposable
         _instanceBuffer = new DynamicVertexBuffer(
             graphics,
             ParticleShaderData.VertexDeclaration,
-            MaxParticles,
+            Config.SimConfig.MaxParticles,
             BufferUsage.WriteOnly
         );
     }

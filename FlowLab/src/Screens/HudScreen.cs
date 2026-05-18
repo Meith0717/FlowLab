@@ -3,7 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using FlowLab.Config;
 using FlowLab.Monitoring;
 using FlowLab.Screens.Ui;
 using Microsoft.Xna.Framework;
@@ -20,15 +19,15 @@ public class HudScreen : Screen
 
     public HudScreen(
         GameServiceContainer appServices,
-        FrameCounter frameCounter,
-        Config.Config config,
+        Config.SimConfig simConfig,
         LiveData liveData
     )
         : base(appServices, true, true)
     {
-        _monitoringWidget = new MonitoringWidget(frameCounter, config, liveData);
+        var frameCounter = appServices.GetService<FrameCounter>();
+        _monitoringWidget = new MonitoringWidget(frameCounter, simConfig, liveData);
         _monitoringWidget.Build(UiRoot);
-        _settingsWidget = new SettingsWidget(config);
+        _settingsWidget = new SettingsWidget(simConfig);
         _settingsWidget.Build(UiRoot);
     }
 
