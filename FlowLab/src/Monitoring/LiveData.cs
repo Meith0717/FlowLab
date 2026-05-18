@@ -21,7 +21,7 @@ public class LiveData(World world, Config.Config config)
     public float MaxVelocity { get; private set; }
     public float AvgVelocity { get; private set; }
 
-    private const int CoolDown = 200;
+    private const int CoolDown = 50;
     private double _currentCoolDown = CoolDown;
 
     public void Collect(double elapsedMilliseconds)

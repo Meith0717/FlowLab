@@ -8,6 +8,7 @@ namespace FlowLab.Input
     public enum ActionType : byte
     {
         MoveCameraByMouse,
-        Test
+        ToogleBoundaryDraw,
+        SpawnBlock,
     }
 }

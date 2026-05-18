@@ -37,7 +37,8 @@ public class Game1 : Game
 
         var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
         {
-            { (Keys.Space, InputEventType.Released), (byte)ActionType.Test },
+            { (Keys.Space, InputEventType.Released), (byte)ActionType.SpawnBlock },
+            { (Keys.H, InputEventType.Released), (byte)ActionType.ToogleBoundaryDraw },
         };
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
         {
@@ -107,7 +108,7 @@ public class Game1 : Game
 
         _frameCounter.Update(elapsedSeconds, elapsedMilliseconds);
 
-        GraphicsDevice.Clear(Color.SlateGray);
+        GraphicsDevice.Clear(Color.DimGray);
         GraphicsDevice.RasterizerState = RasterizerState.CullNone;
         _screenManager.Draw(_spriteBatch);
 

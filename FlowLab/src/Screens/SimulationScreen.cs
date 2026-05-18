@@ -31,7 +31,7 @@ public class SimulationScreen : Screen
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
         _effect = new BasicEffect(GraphicsDevice);
         FluidSimulation = new FluidSimulation();
-        _fluidRenderer = new FluidRenderer(GraphicsDevice);
+        _fluidRenderer = new FluidRenderer(GraphicsDevice, FluidSimulation.World);
     }
 
     public override void Initialize()
@@ -46,9 +46,12 @@ public class SimulationScreen : Screen
         float uiScale
     )
     {
+        if (inputHandler.HasAction((byte)ActionType.ToogleBoundaryDraw))
+            _fluidRenderer.HideBoundary = !_fluidRenderer.HideBoundary;
+
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         FluidSimulation.Update(elapsedMilliseconds, inputHandler);
-        _fluidRenderer.Update(FluidSimulation.InstanceData);
+        _fluidRenderer.Update();
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 

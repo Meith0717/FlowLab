@@ -17,7 +17,7 @@ namespace FlowLab.Sph;
 
 public class FluidSimulation
 {
-    private readonly World _world;
+    public readonly World World;
     public readonly LiveData LiveData;
     public readonly Config.Config Config;
 
@@ -32,53 +32,50 @@ public class FluidSimulation
         var spatialHash3D = new EcsSpatialHash3D(Config.SpatialHashQueryRadius, 1_000_000);
         var spatialHashSystem = new SpatialHashSystem3D(spatialHash3D);
 
-        _world = new World();
-        _world.Systems.Add(spatialHashSystem);
-        _world.Systems.Add(new LifetimeSystem());
-        _world.Systems.Add(new ParticleTransformSyncSystem());
-        _world.Systems.Add(new SimulationSystem(spatialHashSystem.Grid, kernels, Config));
-        LiveData = new LiveData(_world, Config);
+        World = new World();
+        World.Systems.Add(spatialHashSystem);
+        World.Systems.Add(new LifetimeSystem());
+        World.Systems.Add(new ParticleTransformSyncSystem());
+        World.Systems.Add(new SimulationSystem(spatialHashSystem.Grid, kernels, Config));
+        LiveData = new LiveData(World, Config);
 
         Vector3 position;
         for (var i = 0.5f; i < 25.5f; i++)
         for (var j = 0.5f; j < 25.5f; j++)
         {
             position = new Vector3(i, 0.5f, j);
-            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
-            position = new Vector3(i, 40.5f, j);
-            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
+            ParticleFactory.CreateBoundaryParticle(World, position, Config);
+            position = new Vector3(i, 50.5f, j);
+            ParticleFactory.CreateBoundaryParticle(World, position, Config);
         }
 
         for (var i = 0.5f; i < 25.5f; i++)
-        for (var j = 0.5f; j < 40.5f; j++)
+        for (var j = 0.5f; j < 50.5f; j++)
         {
             position = new Vector3(i, j, 0.5f);
-            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
+            ParticleFactory.CreateBoundaryParticle(World, position, Config);
             position = new Vector3(i, j, 24.5f);
-            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
+            ParticleFactory.CreateBoundaryParticle(World, position, Config);
         }
 
         for (var i = 0.5f; i < 25.5f; i++)
-        for (var j = 0.5f; j < 40.5f; j++)
+        for (var j = 0.5f; j < 50.5f; j++)
         {
             position = new Vector3(0.5f, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
+            ParticleFactory.CreateBoundaryParticle(World, position, Config);
             position = new Vector3(24.5f, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, position, Config);
+            ParticleFactory.CreateBoundaryParticle(World, position, Config);
         }
     }
 
     public void Update(double gameTime, InputHandler inputHandler)
     {
-        if (inputHandler.HasAction((byte)ActionType.Test))
+        if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
             AddBlueParticle();
 
-        _world.Update(gameTime);
+        World.Update(gameTime);
         LiveData.Collect(gameTime);
     }
-
-    public ParticleShaderData[] InstanceData =>
-        _world.Components.GetOrCreatePool<ParticleShaderData>().AsSpan().ToArray();
 
     private void AddBlueParticle()
     {
@@ -87,8 +84,8 @@ public class FluidSimulation
             + new Vector3(0, 0, 0);
 
         for (var x = -10; x <= 10; x++)
-        for (var y = -10; y <= 20; y++)
+        for (var y = -10; y <= 35; y++)
         for (var z = -10; z <= 10; z++)
-            ParticleFactory.CreateFluidParticle(_world, position + new Vector3(x, y, z), Config);
+            ParticleFactory.CreateFluidParticle(World, position + new Vector3(x, y, z), Config);
     }
 }

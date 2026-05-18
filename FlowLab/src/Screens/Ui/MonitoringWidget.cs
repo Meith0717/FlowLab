@@ -14,6 +14,7 @@ public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, L
 {
     private UiFrame _simMonitoring;
     private UiSlider _cflBar;
+    private UiSlider _errorBar;
 
     public void Build(UiFrame root)
     {
@@ -312,32 +313,32 @@ public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, L
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Error")
-            {
-                Allign = Allign.Left,
-                HSpace = 10,
-                Y = y + 110,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText("consola")
-            {
-                TextProvider = () => $"{float.Round(liveData.CompressionError, 2)} %",
-                Allign = Allign.Right,
-                HSpace = 10,
-                Y = y + 110,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _simMonitoring.Add(
             new UiText("consola", "Abs. Error")
             {
                 Allign = Allign.Left,
                 HSpace = 10,
+                Y = y + 110,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText("consola")
+            {
+                TextProvider = () => $"{float.Round(liveData.AbsError * 100, 2)} %",
+                Allign = Allign.Right,
+                HSpace = 10,
+                Y = y + 110,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText("consola", "Error")
+            {
+                Allign = Allign.Left,
+                HSpace = 10,
                 Y = y + 130,
                 Scale = 0.16f,
                 Color = Color.LightGray,
@@ -346,31 +347,58 @@ public class MonitoringWidget(FrameCounter frameCounter, Config.Config config, L
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{float.Round(liveData.AbsError, 2)} %",
+                TextProvider = () => $"{float.Round(liveData.CompressionError * 100, 2)} %",
                 Allign = Allign.Right,
-                HSpace = 10,
+                HSpace = 150,
                 Y = y + 130,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
         );
+        _errorBar = new UiSlider(false)
+        {
+            Allign = Allign.Right,
+            Y = y + 132,
+            HSpace = 10,
+            Width = 130,
+            Height = 15,
+            BgColor = Color.Gray,
+        };
+        _simMonitoring.Add(_errorBar);
     }
 
     public void Update()
     {
-        var cfl = MathHelper.Clamp(liveData.Cfl, 0, 1);
+        var cfl = float.Clamp(liveData.Cfl, 0, 1);
         var cflColor = CflColor(cfl);
         _cflBar.Value = cfl * 2;
         _cflBar.Color = cflColor;
+
+        var error = float.Clamp(float.RootN(liveData.CompressionError, 3), 0, 1);
+        var errorColor = ErrorColor(liveData.CompressionError);
+        _errorBar.Value = error;
+        _errorBar.Color = errorColor;
     }
 
     private static Color CflColor(float cfl)
     {
-        return cfl switch
-        {
-            < 0.4f => Color.Lime,
-            < 0.5f => Color.Yellow,
-            _ => Color.Red,
-        };
+        // Smooth gradient: Lime (0-0.4) -> Yellow (0.4-0.5) -> Red (0.5+)
+        if (cfl < 0.4f)
+            return Color.Lerp(Color.Lime, Color.Yellow, cfl / 0.4f);
+        else if (cfl < 0.5f)
+            return Color.Lerp(Color.Yellow, Color.Red, (cfl - 0.4f) / 0.1f);
+        else
+            return Color.Red;
+    }
+
+    private static Color ErrorColor(float error)
+    {
+        // Smooth gradient: Lime (0-0.01) -> Yellow (0.01-0.03) -> Red (0.03+)
+        if (error < 0.01f)
+            return Color.Lerp(Color.Lime, Color.Yellow, error / 0.01f);
+        else if (error < 0.03f)
+            return Color.Lerp(Color.Yellow, Color.Red, (error - 0.01f) / 0.02f);
+        else
+            return Color.Red;
     }
 }

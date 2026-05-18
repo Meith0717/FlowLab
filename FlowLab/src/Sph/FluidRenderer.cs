@@ -4,10 +4,15 @@
 // Portions generated or assisted by AI.
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using FlowLab.Ecs.Components;
+using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
+using MonoKit.Ecs;
+using MonoKit.Ecs.Entities;
 using MonoKit.Graphics.Camera;
 
 namespace FlowLab.Sph;
@@ -21,12 +26,16 @@ public class FluidRenderer : IDisposable
     private readonly VertexBuffer _quadBuffer;
     private readonly IndexBuffer _quadIndexBuffer;
     private readonly DynamicVertexBuffer _instanceBuffer;
+    private readonly World _world;
+    private readonly List<ParticleShaderData> _instanceData = [];
     private Effect _particleShader;
-    private ParticleShaderData[] _instanceData;
 
-    public FluidRenderer(GraphicsDevice graphics)
+    public bool HideBoundary;
+
+    public FluidRenderer(GraphicsDevice graphics, World world)
     {
         _graphics = graphics;
+        _world = world;
 
         var quadVertices = new[]
         {
@@ -62,15 +71,33 @@ public class FluidRenderer : IDisposable
         _particleShader = ContentProvider.Get<Effect>("ParticleShader");
     }
 
-    public void Update(ParticleShaderData[] instanceData)
+    public void Update()
     {
-        _instanceData = instanceData;
+        var entities = HideBoundary
+            ? _world.TypeTracker.GetEntitiesWith<FluidTag>()
+            : _world.TypeTracker.GetEntitiesWith<ParticleTag>();
+
+        var shaderDataPool = _world.Components.GetOrCreatePool<ParticleShaderData>();
+        _instanceData.Clear();
+        foreach (var entity in entities)
+        {
+            ref var shaderData = ref shaderDataPool.Get(entity.Id);
+            _instanceData.Add(shaderData);
+        }
     }
 
     public void Draw(Camera3D camera)
     {
-        var activeParticleCount = _instanceData.Length;
-        _instanceBuffer.SetData(_instanceData, 0, activeParticleCount, SetDataOptions.Discard);
+        var activeParticleCount = _instanceData.Count;
+        if (activeParticleCount == 0)
+            return;
+
+        _instanceBuffer.SetData(
+            _instanceData.ToArray(),
+            0,
+            activeParticleCount,
+            SetDataOptions.Discard
+        );
 
         _particleShader.Parameters["View"].SetValue(camera.View);
         _particleShader.Parameters["Projection"].SetValue(camera.Projection);

@@ -24,7 +24,7 @@ public static class ParticleFactory
         var fluidComponent = new FluidComponent(size * size * size * density, density);
         var shaderData = new ParticleShaderData
         {
-            Color = Color.DimGray,
+            Color = new Color(50, 50, 50),
             Position = position,
             Size = size,
         };
@@ -35,6 +35,7 @@ public static class ParticleFactory
         world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new Collider3D(Vector3.Zero));
+        world.Components.Add(entity, new ParticleTag());
 
         return entity;
     }
@@ -51,7 +52,7 @@ public static class ParticleFactory
         var velocity = new Velocity3D();
         var shaderData = new ParticleShaderData()
         {
-            Color = Color.DodgerBlue,
+            Color = Color.RoyalBlue,
             Position = position,
             Size = size,
         };
@@ -64,6 +65,7 @@ public static class ParticleFactory
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new FluidTag());
         world.Components.Add(entity, new Collider3D(Vector3.Zero));
+        world.Components.Add(entity, new ParticleTag());
 
         return entity;
     }
