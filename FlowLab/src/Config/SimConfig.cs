@@ -27,6 +27,6 @@ public class SimConfig(float particleSize, float fluidDensity)
             Viscosity = .5f,
             TimeStep = 0.1f,
             Gravity = 0.05f,
-            UseParallel = false,
+            UseParallel = true,
         };
 }

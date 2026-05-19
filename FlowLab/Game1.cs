@@ -40,6 +40,8 @@ public class Game1 : Game
             { (Keys.Space, InputEventType.Released), (byte)ActionType.SpawnBlock },
             { (Keys.H, InputEventType.Released), (byte)ActionType.ToggleBoundaryDraw },
             { (Keys.Delete, InputEventType.Released), (byte)ActionType.DeleteFluid },
+            { (Keys.P, InputEventType.Released), (byte)ActionType.ToggleSensorPlane },
+            { (Keys.O, InputEventType.Released), (byte)ActionType.CycleSensorProperty },
         };
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
         {

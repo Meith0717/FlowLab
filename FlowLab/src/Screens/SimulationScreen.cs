@@ -3,11 +3,13 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Drawing;
 using FlowLab.Config;
 using FlowLab.Ecs.System;
 using FlowLab.Ecs.Tags;
 using FlowLab.Input;
 using FlowLab.Monitoring;
+using FlowLab.Monitoring.SensorPlanes;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,6 +31,7 @@ public class SimulationScreen : Screen
     private readonly FluidRenderer _fluidRenderer;
     private readonly GameRuntime3D _simRuntime;
     private readonly LiveData _liveData;
+    private readonly SensorPlaneManager _sensorManager;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
@@ -48,6 +51,19 @@ public class SimulationScreen : Screen
 
         _fluidRenderer = new FluidRenderer(GraphicsDevice, _world);
         _liveData = new(_world, _simConfig);
+
+        _sensorManager = new SensorPlaneManager(GraphicsDevice);
+        var sensorPlane = new SensorPlane(
+            _world,
+            spatialHashSystem,
+            kernels,
+            _simConfig,
+            new Vector3(0, 20, 0),
+            Vector3.UnitX,
+            new SizeF(55, 55),
+            220
+        );
+        _sensorManager.Add(sensorPlane);
 
         SpawnBox(55, 55, 60, 1f);
     }
@@ -72,18 +88,20 @@ public class SimulationScreen : Screen
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddBlueParticle(50, 50, 50);
+            AddBlueParticle(20, 20, 20);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
         _liveData.Collect(elapsedMilliseconds);
         _fluidRenderer.Update();
+        _sensorManager.Update();
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
         _fluidRenderer.Draw(_camera3D);
+        _sensorManager.Draw(_camera3D);
         base.Draw(spriteBatch);
     }
 
@@ -177,5 +195,7 @@ public class SimulationScreen : Screen
     public override void Dispose()
     {
         _fluidRenderer.Dispose();
+        _sensorManager.Dispose();
+        base.Dispose();
     }
 }

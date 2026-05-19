@@ -1,4 +1,4 @@
-﻿// ActionType.cs
+// ActionType.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -11,5 +11,7 @@ namespace FlowLab.Input
         ToggleBoundaryDraw,
         SpawnBlock,
         DeleteFluid,
+        ToggleSensorPlane,
+        CycleSensorProperty,
     }
 }
