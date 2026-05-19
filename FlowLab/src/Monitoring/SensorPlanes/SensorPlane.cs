@@ -1,3 +1,8 @@
+// SensorPlane.cs
+// Copyright (c) 2023-2026 Thierry Meiers
+// All rights reserved.
+// Portions generated or assisted by AI.
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,33 +23,27 @@ namespace FlowLab.Monitoring.SensorPlanes;
 
 public class SensorPlane : IDisposable
 {
-    private float CellSize => _size.Width / _resolution;
+    private float CellSize => _size.Width / Resolution;
     private readonly ThreadLocal<List<Entity>> _neighborsBuffer = new(() => new List<Entity>(128));
     private readonly ISpatialGrid3D _spatialHash;
     private readonly Kernels _kernels;
     private readonly SimConfig _config;
     private readonly World _world;
-    private readonly Vector3 _position;
-    private readonly Vector3 _normal;
     private readonly SizeF _size;
-    private readonly int _resolution;
     private readonly bool[] _hasDataGrid;
-
-    public Vector3 Position => _position;
-    public Vector3 Normal => _normal;
-    public SizeF Size => _size;
-    public int Resolution => _resolution;
-
+    private readonly float[] _pressureGrid;
+    private readonly float[] _velocityGrid;
+    private readonly float[] _densityGrid;
+    
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<FluidComponent> _fluidPool;
     private ComponentPool<Velocity3D> _velocityPool;
     private ComponentPool<BoundaryTag> _boundaryPool;
-
-    public readonly float[] PressureGrid;
-    public readonly float[] VelocityGrid;
-    public readonly float[] DensityGrid;
-
-    // Expose the processed color array directly for rendering flexibility
+    
+    public Vector3 Position { get; }
+    public Vector3 Normal { get; }
+    public SizeF Size => _size;
+    public int Resolution { get; }
     public Color[] TextureData { get; private set; }
 
     private readonly Dictionary<PropertyType, (float Min, float Max)> _bounds = new()
@@ -69,15 +68,15 @@ public class SensorPlane : IDisposable
         _spatialHash = spatialHash;
         _kernels = kernels;
         _config = config;
-        _position = position;
-        _normal = normal;
+        Position = position;
+        Normal = normal;
         _size = size;
-        _resolution = resolution;
+        Resolution = resolution;
 
         var gridSize = resolution * resolution;
-        PressureGrid = new float[gridSize];
-        VelocityGrid = new float[gridSize];
-        DensityGrid = new float[gridSize];
+        _pressureGrid = new float[gridSize];
+        _velocityGrid = new float[gridSize];
+        _densityGrid = new float[gridSize];
         _hasDataGrid = new bool[gridSize];
         TextureData = new Color[gridSize];
     }
@@ -94,14 +93,14 @@ public class SensorPlane : IDisposable
     {
         Sample();
 
-        var gridSize = _resolution * _resolution;
+        var gridSize = Resolution * Resolution;
         Parallel.For(
             0,
             gridSize,
             i =>
             {
-                var x = i % _resolution;
-                var y = i / _resolution;
+                var x = i % Resolution;
+                var y = i / Resolution;
                 var normalized = GetNormalizedValue(x, y, property);
                 TextureData[i] = ConvertToColor(normalized, scheme);
             }
@@ -110,12 +109,12 @@ public class SensorPlane : IDisposable
 
     private void Sample()
     {
-        var right = Vector3.Normalize(Vector3.Cross(_normal, Vector3.Up));
+        var right = Vector3.Normalize(Vector3.Cross(Normal, Vector3.Up));
         if (right == Vector3.Zero)
-            right = Vector3.Normalize(Vector3.Cross(_normal, Vector3.Forward));
+            right = Vector3.Normalize(Vector3.Cross(Normal, Vector3.Forward));
 
-        var up = Vector3.Cross(_normal, right);
-        var start = _position - right * (_size.Width / 2f) - up * (_size.Height / 2f);
+        var up = Vector3.Cross(Normal, right);
+        var start = Position - right * (_size.Width / 2f) - up * (_size.Height / 2f);
 
         _bounds[PropertyType.Pressure] = (float.MaxValue, float.MinValue);
         _bounds[PropertyType.Density] = (float.MaxValue, float.MinValue);
@@ -125,7 +124,7 @@ public class SensorPlane : IDisposable
 
         Parallel.For(
             0,
-            _resolution,
+            Resolution,
             y =>
             {
                 float localMinP = float.MaxValue,
@@ -135,10 +134,10 @@ public class SensorPlane : IDisposable
                 float localMinV = float.MaxValue,
                     localMaxV = float.MinValue;
 
-                for (var x = 0; x < _resolution; x++)
+                for (var x = 0; x < Resolution; x++)
                 {
                     var gridPos = start + right * (x * CellSize) + up * (y * CellSize);
-                    var index = y * _resolution + x;
+                    var index = y * Resolution + x;
 
                     if (SamplePoint(gridPos, index, out float p, out float d, out float v))
                     {
@@ -226,16 +225,16 @@ public class SensorPlane : IDisposable
             density = densitySum / sumWeight;
             velocityMag = (velocitySum / sumWeight).Length();
 
-            PressureGrid[index] = pressure;
-            DensityGrid[index] = density;
-            VelocityGrid[index] = velocityMag;
+            _pressureGrid[index] = pressure;
+            _densityGrid[index] = density;
+            _velocityGrid[index] = velocityMag;
             _hasDataGrid[index] = true;
             return true;
         }
 
-        PressureGrid[index] = 0;
-        DensityGrid[index] = 0;
-        VelocityGrid[index] = 0;
+        _pressureGrid[index] = 0;
+        _densityGrid[index] = 0;
+        _velocityGrid[index] = 0;
         _hasDataGrid[index] = false;
         pressure = density = velocityMag = 0f;
         return false;
@@ -243,7 +242,7 @@ public class SensorPlane : IDisposable
 
     private float GetNormalizedValue(int x, int y, PropertyType property)
     {
-        var index = y * _resolution + x;
+        var index = y * Resolution + x;
         if (!_hasDataGrid[index])
             return 0f;
 
@@ -253,10 +252,10 @@ public class SensorPlane : IDisposable
 
         var value = property switch
         {
-            PropertyType.Pressure => PressureGrid[index],
-            PropertyType.Density => DensityGrid[index],
-            PropertyType.Velocity => VelocityGrid[index],
-            _ => PressureGrid[index],
+            PropertyType.Pressure => _pressureGrid[index],
+            PropertyType.Density => _densityGrid[index],
+            PropertyType.Velocity => _velocityGrid[index],
+            _ => _pressureGrid[index],
         };
 
         return Math.Clamp((value - min) / (max - min), 0f, 1f);
