@@ -16,13 +16,13 @@ public class SensorPlaneManager : IDisposable
     private readonly GraphicsDevice _graphics;
     private readonly List<SensorPlane> _planes = [];
     private readonly List<Texture2D> _textures = [];
+    private readonly Dictionary<string, int> _dictionary = [];
 
-    // Cached rendering states
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
-    private readonly BasicEffect _sharedEffect; // Single shared effect instance
+    private readonly BasicEffect _sharedEffect;
 
-    public ColorScheme ColorScheme { get; set; } = ColorScheme.Hot;
+    public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
 
     public SensorPlaneManager(GraphicsDevice graphics)
@@ -62,14 +62,12 @@ public class SensorPlaneManager : IDisposable
         };
     }
 
-    public void Add(SensorPlane plane)
+    public void Add(string id, SensorPlane plane)
     {
         plane.Initialize();
-
-        var texture = new Texture2D(_graphics, plane.Resolution, plane.Resolution);
-
+        _dictionary.Add(id, _planes.Count);
         _planes.Add(plane);
-        _textures.Add(texture);
+        _textures.Add(new Texture2D(_graphics, plane.Resolution, plane.Resolution));
     }
 
     public void Update()

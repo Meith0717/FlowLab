@@ -3,7 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System.Drawing;
 using FlowLab.Config;
 using FlowLab.Ecs.System;
 using FlowLab.Ecs.Tags;
@@ -20,6 +19,7 @@ using MonoKit.Graphics.Camera;
 using MonoKit.Input;
 using MonoKit.Screens;
 using MonoKit.Spatial;
+using MonoGame.Extended;
 
 namespace FlowLab.Screens;
 
@@ -60,10 +60,10 @@ public class SimulationScreen : Screen
             _simConfig,
             new Vector3(0, 20, 0),
             Vector3.UnitX,
-            new SizeF(55, 55),
+            new Size(55, 55),
             220
         );
-        _sensorManager.Add(sensorPlane);
+        _sensorManager.Add("Test", sensorPlane);
 
         SpawnBox(55, 55, 60, 1f);
     }

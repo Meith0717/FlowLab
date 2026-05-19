@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using FlowLab.Config;
@@ -17,19 +16,19 @@ using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
-using Color = Microsoft.Xna.Framework.Color;
+using MonoGame.Extended;
 
 namespace FlowLab.Monitoring.SensorPlanes;
 
 public class SensorPlane : IDisposable
 {
-    private float CellSize => _size.Width / Resolution;
+    private float CellSize => _size.Width / (float)Resolution;
     private readonly ThreadLocal<List<Entity>> _neighborsBuffer = new(() => new List<Entity>(128));
     private readonly ISpatialGrid3D _spatialHash;
     private readonly Kernels _kernels;
     private readonly SimConfig _config;
     private readonly World _world;
-    private readonly SizeF _size;
+    private readonly Size _size;
     private readonly bool[] _hasDataGrid;
     private readonly float[] _pressureGrid;
     private readonly float[] _velocityGrid;
@@ -42,7 +41,7 @@ public class SensorPlane : IDisposable
     
     public Vector3 Position { get; }
     public Vector3 Normal { get; }
-    public SizeF Size => _size;
+    public Size Size => _size;
     public int Resolution { get; }
     public Color[] TextureData { get; private set; }
 
@@ -60,7 +59,7 @@ public class SensorPlane : IDisposable
         SimConfig config,
         Vector3 position,
         Vector3 normal,
-        SizeF size,
+        Size size,
         int resolution
     )
     {
