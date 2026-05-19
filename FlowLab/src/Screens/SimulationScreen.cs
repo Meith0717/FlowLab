@@ -49,7 +49,7 @@ public class SimulationScreen : Screen
         _fluidRenderer = new FluidRenderer(GraphicsDevice, _world);
         _liveData = new(_world, _simConfig);
 
-        SpawnBox(30, 30, 60, 1f);
+        SpawnBox(55, 55, 60, 1f);
     }
 
     public override void Initialize()
@@ -72,7 +72,7 @@ public class SimulationScreen : Screen
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddBlueParticle(25, 25, 50);
+            AddBlueParticle(50, 50, 50);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -172,5 +172,10 @@ public class SimulationScreen : Screen
                 _simConfig.FluidDensity
             );
         }
+    }
+
+    public override void Dispose()
+    {
+        _fluidRenderer.Dispose();
     }
 }

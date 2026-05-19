@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System;
-using System.Collections.Generic;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -22,10 +21,14 @@ public class FluidRenderer : IDisposable
     private readonly GraphicsDevice _graphics;
     private readonly VertexBuffer _quadBuffer;
     private readonly IndexBuffer _quadIndexBuffer;
-    private readonly DynamicVertexBuffer _instanceBuffer;
+    private readonly DynamicVertexBuffer _instanceBufferA;
+    private readonly DynamicVertexBuffer _instanceBufferB;
     private readonly World _world;
-    private readonly List<ParticleShaderData> _instanceData = [];
+    private readonly ParticleShaderData[] _instanceData;
+    private DynamicVertexBuffer _currentWriteBuffer;
+    private DynamicVertexBuffer _currentReadBuffer;
     private Effect _particleShader;
+    private int _particleCount;
 
     public bool HideBoundary;
 
@@ -33,6 +36,7 @@ public class FluidRenderer : IDisposable
     {
         _graphics = graphics;
         _world = world;
+        _instanceData = new ParticleShaderData[Config.SimConfig.MaxParticles];
 
         var quadVertices = new[]
         {
@@ -55,12 +59,22 @@ public class FluidRenderer : IDisposable
             BufferUsage.WriteOnly
         );
         _quadIndexBuffer.SetData(new short[] { 0, 1, 2, 2, 1, 3 });
-        _instanceBuffer = new DynamicVertexBuffer(
+
+        // Double-buffered instance buffers
+        _instanceBufferA = new DynamicVertexBuffer(
             graphics,
             ParticleShaderData.VertexDeclaration,
             Config.SimConfig.MaxParticles,
             BufferUsage.WriteOnly
         );
+        _instanceBufferB = new DynamicVertexBuffer(
+            graphics,
+            ParticleShaderData.VertexDeclaration,
+            Config.SimConfig.MaxParticles,
+            BufferUsage.WriteOnly
+        );
+        _currentWriteBuffer = _instanceBufferA;
+        _currentReadBuffer = _instanceBufferB;
     }
 
     public void Initialize()
@@ -75,26 +89,34 @@ public class FluidRenderer : IDisposable
             : _world.TypeTracker.GetEntitiesWith<ParticleTag>();
 
         var shaderDataPool = _world.Components.GetOrCreatePool<ParticleShaderData>();
-        _instanceData.Clear();
+        _particleCount = 0;
         foreach (var entity in entities)
         {
             ref var shaderData = ref shaderDataPool.Get(entity.Id);
-            _instanceData.Add(shaderData);
+            _instanceData[_particleCount++] = shaderData;
         }
+
+        if (_particleCount > 0)
+        {
+            _currentWriteBuffer.SetData(
+                _instanceData,
+                0,
+                _particleCount,
+                SetDataOptions.NoOverwrite
+            );
+        }
+        SwapBuffers();
+    }
+
+    private void SwapBuffers()
+    {
+        (_currentWriteBuffer, _currentReadBuffer) = (_currentReadBuffer, _currentWriteBuffer);
     }
 
     public void Draw(Camera3D camera)
     {
-        var activeParticleCount = _instanceData.Count;
-        if (activeParticleCount == 0)
+        if (_particleCount == 0)
             return;
-
-        _instanceBuffer.SetData(
-            _instanceData.ToArray(),
-            0,
-            activeParticleCount,
-            SetDataOptions.Discard
-        );
 
         _particleShader.Parameters["View"].SetValue(camera.View);
         _particleShader.Parameters["Projection"].SetValue(camera.Projection);
@@ -103,7 +125,7 @@ public class FluidRenderer : IDisposable
 
         _graphics.SetVertexBuffers(
             new VertexBufferBinding(_quadBuffer, 0, 0),
-            new VertexBufferBinding(_instanceBuffer, 0, 1)
+            new VertexBufferBinding(_currentReadBuffer, 0, 1)
         );
         _graphics.Indices = _quadIndexBuffer;
         _graphics.BlendState = BlendState.AlphaBlend;
@@ -117,7 +139,7 @@ public class FluidRenderer : IDisposable
                 baseVertex: 0,
                 startIndex: 0,
                 primitiveCount: 2,
-                instanceCount: activeParticleCount
+                instanceCount: _particleCount
             );
         }
     }
@@ -126,6 +148,7 @@ public class FluidRenderer : IDisposable
     {
         _quadBuffer?.Dispose();
         _quadIndexBuffer?.Dispose();
-        _instanceBuffer?.Dispose();
+        _instanceBufferA?.Dispose();
+        _instanceBufferB?.Dispose();
     }
 }
