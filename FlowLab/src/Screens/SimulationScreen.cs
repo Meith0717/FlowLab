@@ -67,7 +67,7 @@ public class SimulationScreen : Screen
 
         SpawnBox(55, 55, 60, 1f);
     }
-
+    
     public override void Initialize()
     {
         _fluidRenderer.Initialize();

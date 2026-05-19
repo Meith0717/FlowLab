@@ -70,6 +70,14 @@ public class SensorPlaneManager : IDisposable
         _textures.Add(new Texture2D(_graphics, plane.Resolution, plane.Resolution));
     }
 
+    public Color[] GetTextureData(string id)
+    {
+        if (!_dictionary.TryGetValue(id, out var count))
+            throw new KeyNotFoundException();
+        var texture = _planes[count];
+        return texture.TextureData;
+    }
+    
     public void Update()
     {
         for (var i = 0; i < _planes.Count; i++)
