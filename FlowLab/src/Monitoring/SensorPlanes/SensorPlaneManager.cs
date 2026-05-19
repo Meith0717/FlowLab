@@ -22,7 +22,7 @@ public class SensorPlaneManager : IDisposable
     private readonly IndexBuffer _indexBuffer;
     private readonly BasicEffect _sharedEffect; // Single shared effect instance
 
-    public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
+    public ColorScheme ColorScheme { get; set; } = ColorScheme.Hot;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
 
     public SensorPlaneManager(GraphicsDevice graphics)

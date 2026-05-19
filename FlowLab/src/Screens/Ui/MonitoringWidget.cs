@@ -134,7 +134,7 @@ public class MonitoringWidget(
                 Y = y + 30,
                 Scale = 0.15f,
                 Color = Color.White,
-                TextProvider = () => $"{float.Round(liveData.Cfl * 100, 1)}%",
+                TextProvider = () => $"{float.Round(liveData.Cfl, 2)}",
             }
         );
 
