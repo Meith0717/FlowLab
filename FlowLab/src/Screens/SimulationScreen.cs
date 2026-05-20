@@ -12,6 +12,7 @@ using FlowLab.Monitoring.SensorPlanes;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Gameplay;
@@ -19,7 +20,6 @@ using MonoKit.Graphics.Camera;
 using MonoKit.Input;
 using MonoKit.Screens;
 using MonoKit.Spatial;
-using MonoGame.Extended;
 
 namespace FlowLab.Screens;
 
@@ -60,14 +60,14 @@ public class SimulationScreen : Screen
             _simConfig,
             new Vector3(0, 25, 0),
             Vector3.UnitX,
-            new Size(55, 55),
-            100
+            new Size(60, 60),
+            120
         );
-        _sensorManager.Add("Test", sensorPlane);
+        _sensorManager.Add("Plane 1", sensorPlane);
 
-        SpawnBox(55, 55, 60, 1f);
+        SpawnBox(25, 25, 60, 1f);
     }
-    
+
     public override void Initialize()
     {
         _fluidRenderer.Initialize();
@@ -88,7 +88,7 @@ public class SimulationScreen : Screen
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddBlueParticle(45, 45, 40);
+            AddBlueParticle(21, 21, 45);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);

@@ -6,6 +6,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FlowLab.Config;
+using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
 
@@ -13,62 +15,33 @@ namespace FlowLab.Sph.Passes;
 
 public static class BoundaryPass
 {
-    public static void Compute(
-        IReadOnlyCollection<Entity> boundaryEntities,
-        Kernels kernels,
-        ISpatialGrid3D spatialHashing,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
-    {
-        if (simConfig.UseParallel)
-        {
-            var localNeighbours = new ThreadLocal<List<Entity>>(() => new List<Entity>(128));
-
-            Parallel.ForEach(
-                boundaryEntities,
-                entity =>
-                {
-                    var neighbours = localNeighbours.Value;
-                    neighbours.Clear();
-                    ComputeEntity(entity, spatialHashing, kernels, context, simConfig, neighbours);
-                }
-            );
-        }
-        else
-        {
-            var neighbours = new List<Entity>(128);
-            foreach (var entity in boundaryEntities)
-            {
-                neighbours.Clear();
-                ComputeEntity(entity, spatialHashing, kernels, context, simConfig, neighbours);
-            }
-        }
-    }
-
-    private static void ComputeEntity(
+    public static void ComputeEntity(
         Entity entity,
         ISpatialGrid3D spatialHash3D,
-        Kernels kernels,
         SphPassContext context,
-        Config.SimConfig simConfig,
-        List<Entity> neighbours
+        SimConfig config
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
-        spatialHash3D.GetInRadius(transform.Position, simConfig.SpatialHashQueryRadius, neighbours);
+        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+
+        spatialHash3D.GetInRadius(
+            transform.Position,
+            config.SpatialHashQueryRadius,
+            neighbourList.Neighbours
+        );
 
         var kernelSum = 0f;
-        foreach (var neighbour in neighbours)
+        foreach (var neighbour in neighbourList.Neighbours)
         {
             if (!context.BoundaryPool.Has(neighbour.Id))
                 continue;
             var nTransform = context.TransformPool.Get(neighbour.Id);
-            kernelSum += kernels.CubicSpline(transform.Position, nTransform.Position);
+            kernelSum += context.Kernels.CubicSpline(transform.Position, nTransform.Position);
         }
 
         var artificialVolume = 1f / kernelSum;
-        var artificialMass = simConfig.FluidDensity * artificialVolume;
+        var artificialMass = config.FluidDensity * artificialVolume;
         context.FluidPool.Get(entity.Id).Mass = artificialMass;
     }
 }

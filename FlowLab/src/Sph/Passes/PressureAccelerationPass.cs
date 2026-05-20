@@ -6,41 +6,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
 
 public static class PressureAccelerationPass
 {
-    public static void Compute(
-        IReadOnlyCollection<Entity> fluidEntities,
-        Kernels kernels,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
-    {
-        if (simConfig.UseParallel)
-        {
-            Parallel.ForEach(
-                fluidEntities,
-                entity => ProcessEntity(entity, kernels, context, simConfig)
-            );
-        }
-        else
-        {
-            foreach (var entity in fluidEntities)
-            {
-                ProcessEntity(entity, kernels, context, simConfig);
-            }
-        }
-    }
-
-    private static void ProcessEntity(
-        Entity entity,
-        Kernels kernels,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
+    public static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var velocity = ref context.VelocityPool.Get(entity.Id);
@@ -59,7 +32,7 @@ public static class PressureAccelerationPass
             var isBoundary = context.BoundaryPool.Has(nEntity.Id);
 
             var neighbourPressureOverDensity2 = nFluid.Pressure / (nFluid.Density * nFluid.Density);
-            var kernelDerivative = kernels.NablaCubicSpline(
+            var kernelDerivative = context.Kernels.NablaCubicSpline(
                 entityPos,
                 nTransform.Position.ToNumerics()
             );
@@ -76,7 +49,7 @@ public static class PressureAccelerationPass
                 Debugger.Break();
         }
 
-        var deltaVelocity = pressureAcceleration * simConfig.TimeStep;
+        var deltaVelocity = pressureAcceleration * config.TimeStep;
         velocity.LinearVelocity += deltaVelocity.ToXna();
     }
 }

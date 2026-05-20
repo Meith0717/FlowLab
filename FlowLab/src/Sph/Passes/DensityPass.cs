@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
 
@@ -12,36 +13,11 @@ namespace FlowLab.Sph.Passes;
 
 public static class DensityPass
 {
-    public static void Compute(
-        IReadOnlyCollection<Entity> fluidEntities,
-        ISpatialGrid3D spatialHash3D,
-        Kernels kernels,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
-    {
-        if (simConfig.UseParallel)
-        {
-            Parallel.ForEach(
-                fluidEntities,
-                entity => ComputeEntity(entity, spatialHash3D, kernels, context, simConfig)
-            );
-        }
-        else
-        {
-            foreach (var entity in fluidEntities)
-            {
-                ComputeEntity(entity, spatialHash3D, kernels, context, simConfig);
-            }
-        }
-    }
-
-    private static void ComputeEntity(
+    public static void ComputeEntity(
         Entity entity,
         ISpatialGrid3D spatialHash3D,
-        Kernels kernels,
         SphPassContext context,
-        Config.SimConfig simConfig
+        SimConfig config
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
@@ -51,7 +27,7 @@ public static class DensityPass
         neighbours.Clear();
         spatialHash3D.GetInRadiusFast(
             transform.Position,
-            simConfig.SpatialHashQueryRadius,
+            config.SpatialHashQueryRadius,
             neighbours.Neighbours
         );
 
@@ -62,7 +38,8 @@ public static class DensityPass
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             density +=
-                nFluid.Mass * kernels.CubicSpline(entityPos, nTransform.Position.ToNumerics());
+                nFluid.Mass
+                * context.Kernels.CubicSpline(entityPos, nTransform.Position.ToNumerics());
         }
 
         fluid.Density = density;

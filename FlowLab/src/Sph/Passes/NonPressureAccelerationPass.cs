@@ -6,47 +6,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
 
 public static class NonPressureAccelerationPass
 {
-    public static void Compute(
-        IReadOnlyCollection<Entity> fluidEntities,
-        Kernels kernels,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
-    {
-        if (simConfig.UseParallel)
-        {
-            Parallel.ForEach(
-                fluidEntities,
-                entity => ProcessEntity(entity, kernels, context, simConfig)
-            );
-        }
-        else
-        {
-            foreach (var entity in fluidEntities)
-            {
-                ProcessEntity(entity, kernels, context, simConfig);
-            }
-        }
-    }
-
-    private static void ProcessEntity(
-        Entity entity,
-        Kernels kernels,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
+    public static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var velocity = ref context.VelocityPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        var nonPressureAccelerations = new System.Numerics.Vector3(0, -simConfig.Gravity, 0);
+        var nonPressureAccelerations = new System.Numerics.Vector3(0, -config.Gravity, 0);
         var entityPos = transform.Position.ToNumerics();
         var entityVel = velocity.LinearVelocity.ToNumerics();
 
@@ -60,13 +33,13 @@ public static class NonPressureAccelerationPass
 
             var xIj = entityPos - nTransform.Position.ToNumerics();
             var dotPositionPosition =
-                System.Numerics.Vector3.Dot(xIj, xIj) + simConfig.ScaledParticleDiameter2;
+                System.Numerics.Vector3.Dot(xIj, xIj) + config.ScaledParticleDiameter2;
 
             var vIj = entityVel - nVelocity;
             var dotVelocityPosition = System.Numerics.Vector3.Dot(vIj, xIj);
 
             var massOverDensity = nFluid.Mass / nFluid.Density;
-            var kernelDerivative = kernels.NablaCubicSpline(
+            var kernelDerivative = context.Kernels.NablaCubicSpline(
                 entityPos,
                 nTransform.Position.ToNumerics()
             );
@@ -76,10 +49,10 @@ public static class NonPressureAccelerationPass
             if (float.IsNaN(res.X) || float.IsNaN(res.Y))
                 Debugger.Break();
 
-            nonPressureAccelerations += 2f * simConfig.Viscosity * res;
+            nonPressureAccelerations += 2f * config.Viscosity * res;
         }
 
-        var deltaVelocity = nonPressureAccelerations * simConfig.TimeStep;
+        var deltaVelocity = nonPressureAccelerations * config.TimeStep;
         velocity.LinearVelocity += deltaVelocity.ToXna();
     }
 }

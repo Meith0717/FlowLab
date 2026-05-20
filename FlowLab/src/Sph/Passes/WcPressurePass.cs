@@ -5,42 +5,16 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
 
 public static class WcPressurePass
 {
-    public static void Compute(
-        IReadOnlyCollection<Entity> fluidEntities,
-        SphPassContext context,
-        Config.SimConfig simConfig
-    )
+    public static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
-        if (simConfig.UseParallel)
-        {
-            Parallel.ForEach(
-                fluidEntities,
-                entity =>
-                {
-                    ref var fluid = ref context.FluidPool.Get(entity.Id);
-                    fluid.Pressure = float.Max(
-                        simConfig.Stiffness * (fluid.Density / simConfig.FluidDensity - 1),
-                        0
-                    );
-                }
-            );
-        }
-        else
-        {
-            foreach (var entity in fluidEntities)
-            {
-                ref var fluid = ref context.FluidPool.Get(entity.Id);
-                fluid.Pressure = float.Max(
-                    simConfig.Stiffness * (fluid.Density / simConfig.FluidDensity - 1),
-                    0
-                );
-            }
-        }
+        ref var fluid = ref context.FluidPool.Get(entity.Id);
+        fluid.Pressure = float.Max(config.Stiffness * (fluid.Density / config.FluidDensity - 1), 0);
     }
 }

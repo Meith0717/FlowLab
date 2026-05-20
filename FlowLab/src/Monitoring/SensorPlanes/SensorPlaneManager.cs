@@ -18,6 +18,7 @@ public class SensorPlaneManager : IDisposable
     private readonly List<SensorPlane> _planes = [];
     private readonly List<Texture2D> _textures = [];
     private readonly Dictionary<string, int> _dictionary = [];
+    private readonly RasterizerState _wireframeRasterizerState;
 
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
@@ -63,6 +64,12 @@ public class SensorPlaneManager : IDisposable
             LightingEnabled = false,
             VertexColorEnabled = false,
         };
+
+        _wireframeRasterizerState = new RasterizerState
+        {
+            FillMode = FillMode.WireFrame,
+            CullMode = CullMode.None,
+        };
     }
 
     public void Add(string id, SensorPlane plane)
@@ -80,14 +87,14 @@ public class SensorPlaneManager : IDisposable
         var texture = _planes[count];
         return texture.TextureData;
     }
-    
+
     public Texture2D GetCurrentTexture()
     {
         if (CurrentPlaneIndex < 0 || CurrentPlaneIndex >= _textures.Count)
             return null;
         return _textures[CurrentPlaneIndex];
     }
-    
+
     public void Update()
     {
         for (var i = 0; i < _planes.Count; i++)
@@ -106,16 +113,18 @@ public class SensorPlaneManager : IDisposable
         _graphics.Indices = _indexBuffer;
         _graphics.BlendState = BlendState.Opaque;
         _graphics.DepthStencilState = DepthStencilState.Default;
-        _graphics.RasterizerState = RasterizerState.CullNone;
+
+        // FIX: Use your cached custom wireframe state here instead
+        _graphics.RasterizerState = _wireframeRasterizerState;
 
         _sharedEffect.View = camera.View;
         _sharedEffect.Projection = camera.Projection;
+        _sharedEffect.TextureEnabled = false;
+        _sharedEffect.DiffuseColor = Vector3.One; // Lines will draw as solid white
 
         for (var i = 0; i < _planes.Count; i++)
         {
             var plane = _planes[i];
-
-            _sharedEffect.Texture = _textures[i];
 
             var scaleMatrix = Matrix.CreateScale(plane.Size.Width, plane.Size.Height, 1f);
 

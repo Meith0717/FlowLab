@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
+using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Querying;
 using MonoKit.Ecs.Systems;
@@ -27,21 +28,45 @@ public class SimulationSystem(
     public void Initialize(World world)
     {
         _tracker = world.TypeTracker;
-        _context.Initialize(world.Components);
+        _context.Initialize(world.Components, kernels);
 
         var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
-        BoundaryPass.Compute(bEntities, kernels, spatialHash3D, _context, simConfig);
+        Helper.ForEach(
+            simConfig.UseParallel,
+            bEntities,
+            e => BoundaryPass.ComputeEntity(e, spatialHash3D, _context, simConfig)
+        );
     }
 
     public void Update(double elapsedMs, World world)
     {
         var fEntities = _tracker.GetEntitiesWith<FluidTag>();
-        DensityPass.Compute(fEntities, spatialHash3D, kernels, _context, simConfig);
-        NonPressureAccelerationPass.Compute(fEntities, kernels, _context, simConfig);
-        WcPressurePass.Compute(fEntities, _context, simConfig);
-        PressureAccelerationPass.Compute(fEntities, kernels, _context, simConfig);
+        Helper.ForEach(
+            simConfig.UseParallel,
+            fEntities,
+            e => DensityPass.ComputeEntity(e, spatialHash3D, _context, simConfig)
+        );
 
-        Parallel.ForEach(
+        Helper.ForEach(
+            simConfig.UseParallel,
+            fEntities,
+            e => NonPressureAccelerationPass.ComputeEntity(e, _context, simConfig)
+        );
+
+        Helper.ForEach(
+            simConfig.UseParallel,
+            fEntities,
+            e => WcPressurePass.ComputeEntity(e, _context, simConfig)
+        );
+
+        Helper.ForEach(
+            simConfig.UseParallel,
+            fEntities,
+            e => PressureAccelerationPass.ComputeEntity(e, _context, simConfig)
+        );
+
+        Helper.ForEach(
+            simConfig.UseParallel,
             fEntities,
             entity =>
             {

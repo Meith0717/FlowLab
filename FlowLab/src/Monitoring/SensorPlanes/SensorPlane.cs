@@ -12,11 +12,11 @@ using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
-using MonoGame.Extended;
 
 namespace FlowLab.Monitoring.SensorPlanes;
 
@@ -33,12 +33,12 @@ public class SensorPlane : IDisposable
     private readonly float[] _pressureGrid;
     private readonly float[] _velocityGrid;
     private readonly float[] _densityGrid;
-    
+
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<FluidComponent> _fluidPool;
     private ComponentPool<Velocity3D> _velocityPool;
     private ComponentPool<BoundaryTag> _boundaryPool;
-    
+
     public Vector3 Position { get; }
     public Vector3 Normal { get; }
     public Size Size => _size;
@@ -92,16 +92,16 @@ public class SensorPlane : IDisposable
     {
         Sample();
 
-        var gridSize = Resolution * Resolution;
         Parallel.For(
             0,
-            gridSize,
-            i =>
+            Resolution,
+            y =>
             {
-                var x = i % Resolution;
-                var y = i / Resolution;
-                var normalized = GetNormalizedValue(x, y, property);
-                TextureData[i] = ConvertToColor(normalized, scheme);
+                for (var x = 0; x < Resolution; x++)
+                {
+                    var normalized = GetNormalizedValue(y, y, property);
+                    TextureData[y * Resolution + x] = ConvertToColor(normalized, scheme);
+                }
             }
         );
     }
@@ -117,7 +117,7 @@ public class SensorPlane : IDisposable
 
         _bounds[PropertyType.Pressure] = (float.MaxValue, float.MinValue);
         _bounds[PropertyType.Density] = (float.MaxValue, float.MinValue);
-        _bounds[PropertyType.Velocity] = (float.MaxValue, float.MinValue);
+        _bounds[PropertyType.Velocity] = (0, _config.MaxCfl);
 
         object lockObj = new object();
 
@@ -130,8 +130,6 @@ public class SensorPlane : IDisposable
                     localMaxP = float.MinValue;
                 float localMinD = float.MaxValue,
                     localMaxD = float.MinValue;
-                float localMinV = float.MaxValue,
-                    localMaxV = float.MinValue;
 
                 for (var x = 0; x < Resolution; x++)
                 {
@@ -144,8 +142,6 @@ public class SensorPlane : IDisposable
                         localMaxP = Math.Max(localMaxP, p);
                         localMinD = Math.Min(localMinD, d);
                         localMaxD = Math.Max(localMaxD, d);
-                        localMinV = Math.Min(localMinV, v);
-                        localMaxV = Math.Max(localMaxV, v);
                     }
                 }
 
@@ -160,11 +156,6 @@ public class SensorPlane : IDisposable
                     _bounds[PropertyType.Density] = (
                         Math.Min(dB.Min, localMinD),
                         Math.Max(dB.Max, localMaxD)
-                    );
-                    var vB = _bounds[PropertyType.Velocity];
-                    _bounds[PropertyType.Velocity] = (
-                        Math.Min(vB.Min, localMinV),
-                        Math.Max(vB.Max, localMaxV)
                     );
                 }
             }
@@ -222,7 +213,8 @@ public class SensorPlane : IDisposable
         {
             pressure = pressureSum / sumWeight;
             density = densitySum / sumWeight;
-            velocityMag = _config.TimeStep * (velocitySum / sumWeight).Length() / _config.ParticleSize;
+            velocityMag =
+                _config.TimeStep * (velocitySum / sumWeight).Length() / _config.ParticleSize;
 
             _pressureGrid[index] = pressure;
             _densityGrid[index] = density;
