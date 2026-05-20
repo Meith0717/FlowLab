@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Graphics.Camera;
@@ -24,6 +25,8 @@ public class SensorPlaneManager : IDisposable
 
     public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
+    public IReadOnlyList<string> PlaneIds => _dictionary.Keys.ToList();
+    public int CurrentPlaneIndex { get; set; }
 
     public SensorPlaneManager(GraphicsDevice graphics)
     {
@@ -76,6 +79,13 @@ public class SensorPlaneManager : IDisposable
             throw new KeyNotFoundException();
         var texture = _planes[count];
         return texture.TextureData;
+    }
+    
+    public Texture2D GetCurrentTexture()
+    {
+        if (CurrentPlaneIndex < 0 || CurrentPlaneIndex >= _textures.Count)
+            return null;
+        return _textures[CurrentPlaneIndex];
     }
     
     public void Update()

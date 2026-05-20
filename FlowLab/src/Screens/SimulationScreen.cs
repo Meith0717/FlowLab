@@ -58,10 +58,10 @@ public class SimulationScreen : Screen
             spatialHashSystem,
             kernels,
             _simConfig,
-            new Vector3(0, 20, 0),
+            new Vector3(0, 25, 0),
             Vector3.UnitX,
             new Size(55, 55),
-            220
+            100
         );
         _sensorManager.Add("Test", sensorPlane);
 
@@ -71,7 +71,7 @@ public class SimulationScreen : Screen
     public override void Initialize()
     {
         _fluidRenderer.Initialize();
-        ScreenManager.AddScreen(new HudScreen(AppServices, _simConfig, _liveData));
+        ScreenManager.AddScreen(new HudScreen(AppServices, _simConfig, _liveData, _sensorManager));
         base.Initialize();
     }
 
@@ -88,7 +88,7 @@ public class SimulationScreen : Screen
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddBlueParticle(20, 20, 20);
+            AddBlueParticle(45, 45, 40);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
