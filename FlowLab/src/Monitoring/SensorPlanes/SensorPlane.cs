@@ -99,7 +99,7 @@ public class SensorPlane : IDisposable
             {
                 for (var x = 0; x < Resolution; x++)
                 {
-                    var normalized = GetNormalizedValue(y, y, property);
+                    var normalized = GetNormalizedValue(x, y, property);
                     TextureData[y * Resolution + x] = ConvertToColor(normalized, scheme);
                 }
             }

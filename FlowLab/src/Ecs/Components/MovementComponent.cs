@@ -1,4 +1,4 @@
-// SolverComponent.cs
+// MovementComponent.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -7,9 +7,8 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Ecs.Components;
 
-public struct SolverComponent
+public struct MovementComponent
 {
-    public float DiagonalElement;
-    public float SourceTherm;
-    public float Laplacian;
+    public Vector3 Velocity;
+    public Vector3 PressureAcceleration;
 }

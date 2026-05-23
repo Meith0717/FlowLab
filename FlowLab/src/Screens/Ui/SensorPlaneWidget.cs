@@ -4,11 +4,10 @@
 // Portions generated or assisted by AI.
 
 using System;
+using FlowLab.Monitoring.SensorPlanes;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Input;
 using MonoKit.Ui;
-using FlowLab.Monitoring.SensorPlanes;
 
 namespace FlowLab.Screens.Ui;
 
@@ -38,9 +37,9 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         root.Add(
             _sensorFrame = new UiFrame
             {
-                Allign = Allign.SW,       // Bottom-left
+                Allign = Allign.SW, // Bottom-left
                 Width = 300,
-                Height = 420,  // Increased height for better spacing
+                Height = 420, // Increased height for better spacing
                 Color = new Color(30, 30, 30, 200),
                 HSpace = 15,
                 VSpace = 12,
@@ -89,7 +88,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 Allign = Allign.Left,
                 HSpace = 10,
-                Y = 320,  // +15px
+                Y = 320, // +15px
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -101,13 +100,13 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 Allign = Allign.Right,
                 HSpace = 80,
-                Y = 320,  // +15px
+                Y = 320, // +15px
                 Scale = 0.15f,
                 Color = Color.White,
                 TextProvider = () => GetCurrentPlaneInfo(),
             }
         );
-        
+
         // Navigation buttons: Next plane
         AddNavigationButton("NEXT", 320, ref _nextPlaneButton, NextPlane);
 
@@ -116,7 +115,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             new UiFrame
             {
                 Allign = Allign.CenterV,
-                Y = 355,  // +15px
+                Y = 355, // +15px
                 RelWidth = .95f,
                 Height = 2,
                 Color = Color.DimGray,
@@ -129,7 +128,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 Allign = Allign.Left,
                 HSpace = 10,
-                Y = 365,  // +15px
+                Y = 365, // +15px
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -141,7 +140,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 Allign = Allign.Right,
                 HSpace = 80,
-                Y = 365,  // +15px
+                Y = 365, // +15px
                 Scale = 0.15f,
                 Color = Color.White,
                 TextProvider = () => sensorPlaneManager.PropertyType.ToString(),
@@ -157,7 +156,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 Allign = Allign.Left,
                 HSpace = 10,
-                Y = 395,  // +15px
+                Y = 395, // +15px
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -169,7 +168,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 Allign = Allign.Right,
                 HSpace = 80,
-                Y = 395,  // +15px
+                Y = 395, // +15px
                 Scale = 0.15f,
                 Color = Color.White,
                 TextProvider = () => sensorPlaneManager.ColorScheme.ToString(),
@@ -178,7 +177,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
 
         // Cycle color button
         AddNavigationButton("CYCLE", 395, ref _cycleColorButton, CycleColor);
-        
+
         // Create the initial plane sprite
         CreatePlaneSprite();
     }
@@ -247,12 +246,12 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
     private void UpdatePlaneSprite()
     {
         var texture = sensorPlaneManager.GetCurrentTexture();
-        
+
         if (texture != null && !texture.IsDisposed)
         {
             // Create sprite if it doesn't exist
             CreatePlaneSprite();
-            
+
             // Update the sprite's texture
             if (_planeSprite != null)
             {
@@ -260,12 +259,13 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             }
         }
     }
-    
+
     private void NextPlane()
     {
         var planeIds = sensorPlaneManager.PlaneIds;
-        if (planeIds.Count == 0) return;
-        sensorPlaneManager.CurrentPlaneIndex = 
+        if (planeIds.Count == 0)
+            return;
+        sensorPlaneManager.CurrentPlaneIndex =
             (sensorPlaneManager.CurrentPlaneIndex + 1) % planeIds.Count;
         UpdatePlaneSprite();
     }

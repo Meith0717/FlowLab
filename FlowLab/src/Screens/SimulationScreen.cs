@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using FlowLab.Config;
+using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
 using FlowLab.Ecs.Tags;
 using FlowLab.Input;
@@ -48,9 +49,10 @@ public class SimulationScreen : Screen
         var kernels = new Kernels(_simConfig.ParticleSize);
         var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
         _world.Systems.Add(new SimulationSystem(spatialHashSystem, kernels, _simConfig));
+        _world.Components.Add(_world.WorldEntity, new DebugComponent());
 
         _fluidRenderer = new FluidRenderer(GraphicsDevice, _world);
-        _liveData = new(_world, _simConfig);
+        _liveData = new LiveData(_world, _simConfig);
 
         _sensorManager = new SensorPlaneManager(GraphicsDevice);
         var sensorPlane = new SensorPlane(
@@ -65,7 +67,7 @@ public class SimulationScreen : Screen
         );
         _sensorManager.Add("Plane 1", sensorPlane);
 
-        SpawnBox(25, 25, 60, 1f);
+        //SpawnBox(25, 25, 60, 1f);
     }
 
     public override void Initialize()
@@ -88,13 +90,13 @@ public class SimulationScreen : Screen
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddBlueParticle(21, 21, 45);
+            AddFluidBlock(4, 4, 4);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
         _liveData.Collect(elapsedMilliseconds);
         _fluidRenderer.Update();
-        _sensorManager.Update();
+        _sensorManager.Update(elapsedMilliseconds);
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 
@@ -116,7 +118,7 @@ public class SimulationScreen : Screen
         }
     }
 
-    private void AddBlueParticle(float width, float depth, float height)
+    private void AddFluidBlock(float width, float depth, float height)
     {
         var halfWidth = width / 2;
         var halfDepth = depth / 2;
@@ -124,7 +126,7 @@ public class SimulationScreen : Screen
         for (var x = -halfWidth; x <= halfWidth; x++)
         for (var z = -halfDepth; z <= halfDepth; z++)
         for (var y = 0; y <= height; y++)
-            ParticleFactory.CreateFluidParticle(_world, new Vector3(x, y + 1, z), _simConfig);
+            ParticleFactory.CreateFluidParticle(_world, new Vector3(x, y + 5, z), _simConfig);
     }
 
     private void SpawnBox(float width, float depth, float height, float particleSize)

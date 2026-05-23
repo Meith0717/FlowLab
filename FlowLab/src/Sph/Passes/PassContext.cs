@@ -12,7 +12,7 @@ namespace FlowLab.Sph.Passes;
 public class SphPassContext()
 {
     public ComponentPool<Transform3D> TransformPool { get; private set; }
-    public ComponentPool<Velocity3D> VelocityPool { get; private set; }
+    public ComponentPool<MovementComponent> MovementPool { get; private set; }
     public ComponentPool<FluidComponent> FluidPool { get; private set; }
     public ComponentPool<NeighbourList> NeighbourPool { get; private set; }
     public ComponentPool<BoundaryTag> BoundaryPool { get; private set; }
@@ -22,10 +22,11 @@ public class SphPassContext()
     public void Initialize(ComponentManager components, Kernels kernels)
     {
         TransformPool = components.GetOrCreatePool<Transform3D>();
-        VelocityPool = components.GetOrCreatePool<Velocity3D>();
+        MovementPool = components.GetOrCreatePool<MovementComponent>();
         FluidPool = components.GetOrCreatePool<FluidComponent>();
         NeighbourPool = components.GetOrCreatePool<NeighbourList>();
         BoundaryPool = components.GetOrCreatePool<BoundaryTag>();
+        SolverPool = components.GetOrCreatePool<SolverComponent>();
         Kernels = kernels;
     }
 }

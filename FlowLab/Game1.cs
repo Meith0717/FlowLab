@@ -48,7 +48,7 @@ public class Game1 : Game
             { (MouseButton.Right, InputEventType.Held), (byte)ActionType.MoveCameraByMouse },
         };
 
-        _graphicsController.ApplyMode(WindowMode.FullScreen);
+        _graphicsController.ApplyMode(WindowMode.Windowed);
         _graphicsController.ApplyRefreshRate(250, false);
         _inputHandler.RegisterDevice(new KeyboardListener(keyBindings));
         _inputHandler.RegisterDevice(new MouseListener(mouseBindings));

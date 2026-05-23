@@ -3,8 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FlowLab.Config;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
@@ -32,14 +30,12 @@ public static class DensityPass
         );
 
         var density = 0f;
-        var entityPos = transform.Position.ToNumerics();
         foreach (var nEntity in neighbours.Neighbours)
         {
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             density +=
-                nFluid.Mass
-                * context.Kernels.CubicSpline(entityPos, nTransform.Position.ToNumerics());
+                nFluid.Mass * context.Kernels.CubicSpline(transform.Position, nTransform.Position);
         }
 
         fluid.Density = density;

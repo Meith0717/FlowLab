@@ -14,15 +14,17 @@ namespace FlowLab.Monitoring.SensorPlanes;
 
 public class SensorPlaneManager : IDisposable
 {
+    private const double CoolDown = 1000 / 15d;
+
     private readonly GraphicsDevice _graphics;
     private readonly List<SensorPlane> _planes = [];
     private readonly List<Texture2D> _textures = [];
     private readonly Dictionary<string, int> _dictionary = [];
     private readonly RasterizerState _wireframeRasterizerState;
-
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
     private readonly BasicEffect _sharedEffect;
+    private double _actualCoolDown = CoolDown;
 
     public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
@@ -95,8 +97,10 @@ public class SensorPlaneManager : IDisposable
         return _textures[CurrentPlaneIndex];
     }
 
-    public void Update()
+    public void Update(double elapsedMilliseconds)
     {
+        _actualCoolDown -= elapsedMilliseconds;
+        _actualCoolDown = CoolDown;
         for (var i = 0; i < _planes.Count; i++)
         {
             _planes[i].Update(PropertyType, ColorScheme);
@@ -114,13 +118,12 @@ public class SensorPlaneManager : IDisposable
         _graphics.BlendState = BlendState.Opaque;
         _graphics.DepthStencilState = DepthStencilState.Default;
 
-        // FIX: Use your cached custom wireframe state here instead
         _graphics.RasterizerState = _wireframeRasterizerState;
 
         _sharedEffect.View = camera.View;
         _sharedEffect.Projection = camera.Projection;
         _sharedEffect.TextureEnabled = false;
-        _sharedEffect.DiffuseColor = Vector3.One; // Lines will draw as solid white
+        _sharedEffect.DiffuseColor = Vector3.One;
 
         for (var i = 0; i < _planes.Count; i++)
         {

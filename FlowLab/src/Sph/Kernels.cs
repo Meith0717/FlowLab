@@ -1,36 +1,45 @@
-﻿// Kernels.cs
-// Copyright (c) 2023-2026 Thierry Meiers
-// All rights reserved.
-// Portions generated or assisted by AI.
-
-using System.Numerics;
+﻿using System.Numerics;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace FlowLab.Sph
 {
     /// <summary>
-    /// Standard 3D cubic spline SPH kernel.
+    /// Highly optimized standard 3D cubic spline SPH kernel.
     /// Uses System.Numerics.Vector3 for SIMD acceleration.
     ///
     /// h = smoothing length
     /// support radius = 2h
     /// </summary>
-    public sealed class Kernels(float smoothingLength)
+    public sealed class Kernels
     {
-        private const float Epsilon = 1e-6f;
-        private readonly float _hInverse = 1f / smoothingLength;
-        private readonly float _alpha3D =
-            1f / (4f * (float)System.Math.PI * smoothingLength * smoothingLength * smoothingLength);
+        private const float EpsilonSquared = 1e-12f;
+        private readonly float _hInverse;
+        private readonly float _alpha3D;
+        private readonly float _supportRadiusSquared;
+
+        public Kernels(float smoothingLength)
+        {
+            _hInverse = 1f / smoothingLength;
+            _alpha3D =
+                1f
+                / (
+                    4f * (float)System.Math.PI * smoothingLength * smoothingLength * smoothingLength
+                );
+
+            float supportRadius = 2f * smoothingLength;
+            _supportRadiusSquared = supportRadius * supportRadius;
+        }
 
         public float CubicSpline(Vector3 position1, Vector3 position2)
         {
             var r = position1 - position2;
-            var distance = r.Length();
+            var distanceSquared = r.LengthSquared();
 
-            var q = distance * _hInverse;
-
-            if (q >= 2f)
+            if (distanceSquared >= _supportRadiusSquared)
                 return 0f;
+
+            var distance = (float)System.Math.Sqrt(distanceSquared);
+            var q = distance * _hInverse;
 
             var t1 = System.Math.Max(1f - q, 0f);
             var t2 = 2f - q;
@@ -41,27 +50,23 @@ namespace FlowLab.Sph
         public Vector3 NablaCubicSpline(Vector3 position1, Vector3 position2)
         {
             var r = position1 - position2;
-            var distance = r.Length();
+            var distanceSquared = r.LengthSquared();
 
-            if (distance < Epsilon)
+            if (distanceSquared >= _supportRadiusSquared || distanceSquared < EpsilonSquared)
                 return Vector3.Zero;
 
+            var distance = (float)System.Math.Sqrt(distanceSquared);
             var q = distance * _hInverse;
-
-            if (q >= 2f)
-                return Vector3.Zero;
 
             var t1 = System.Math.Max(1f - q, 0f);
             var t2 = 2f - q;
 
             var derivative = (-3f * t2 * t2) + (12f * t1 * t1);
-
             var factor = _alpha3D * derivative * _hInverse;
 
-            return factor * (r / distance);
+            return (factor / distance) * r;
         }
 
-        // Overloads for XNA Vector3 compatibility
         public float CubicSpline(XnaVector3 position1, XnaVector3 position2) =>
             CubicSpline(position1.ToNumerics(), position2.ToNumerics());
 

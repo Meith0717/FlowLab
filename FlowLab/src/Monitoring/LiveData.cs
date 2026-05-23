@@ -34,9 +34,9 @@ public class LiveData(World world, Config.SimConfig simConfig)
 
         EntityCount = world.EntityCount;
         var fluidPool = world.Components.GetOrCreatePool<FluidComponent>();
-        var fluidEntities = world.TypeTracker.GetEntitiesWith<FluidTag>();
+        var fluidEntityCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
         FluidMass = FluidVolume = 0;
-        foreach (var entity in fluidEntities)
+        foreach (var entity in fluidEntityCollection)
         {
             ref var fluid = ref fluidPool.Get(entity.Id);
             FluidMass += fluid.Mass;

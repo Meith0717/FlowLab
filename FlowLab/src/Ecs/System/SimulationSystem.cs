@@ -3,7 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System.Threading.Tasks;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
@@ -40,41 +39,49 @@ public class SimulationSystem(
 
     public void Update(double elapsedMs, World world)
     {
-        var fEntities = _tracker.GetEntitiesWith<FluidTag>();
+        // Density Pass
+        var allEntities = _tracker.GetEntitiesWith<ParticleTag>();
         Helper.ForEach(
             simConfig.UseParallel,
-            fEntities,
+            allEntities,
             e => DensityPass.ComputeEntity(e, spatialHash3D, _context, simConfig)
         );
 
+        // Non-Pressure Accelerations Pass + Non pressure velocity
+        var fEntities = _tracker.GetEntitiesWith<FluidTag>();
         Helper.ForEach(
             simConfig.UseParallel,
             fEntities,
             e => NonPressureAccelerationPass.ComputeEntity(e, _context, simConfig)
         );
 
+        // Pressure computation
+        // IiPressurePass.Compute(fEntities, _context, simConfig);
         Helper.ForEach(
             simConfig.UseParallel,
             fEntities,
             e => WcPressurePass.ComputeEntity(e, _context, simConfig)
         );
 
+        // Pressure Accelerations Pass
         Helper.ForEach(
             simConfig.UseParallel,
             fEntities,
             e => PressureAccelerationPass.ComputeEntity(e, _context, simConfig)
         );
 
+        // Position Update
         Helper.ForEach(
             simConfig.UseParallel,
             fEntities,
             entity =>
             {
                 ref var transform = ref _context.TransformPool.Get(entity.Id);
-                ref var velocity = ref _context.VelocityPool.Get(entity.Id);
-                var pos = transform.Position;
-                var vel = velocity.LinearVelocity;
-                transform.Position = pos + vel * simConfig.TimeStep;
+                ref var movement = ref _context.MovementPool.Get(entity.Id);
+
+                movement.PressureAcceleration *= simConfig.TimeStep;
+                movement.Velocity += movement.PressureAcceleration;
+                transform.Position += movement.Velocity * simConfig.TimeStep;
             }
         );
     }
