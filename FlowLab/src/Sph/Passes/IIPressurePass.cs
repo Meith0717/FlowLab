@@ -63,7 +63,7 @@ public static class IiPressurePass
                     ref var fluid = ref context.FluidPool.Get(entity.Id);
                     ref var solver = ref context.SolverPool.Get(entity.Id);
 
-                    if (solver.DiagonalElement > 1e-6f)
+                    if (float.Abs(solver.DiagonalElement) > 1e-6f)
                         fluid.Pressure +=
                             SimConfig.Relaxation
                             / solver.DiagonalElement
