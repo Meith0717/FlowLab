@@ -67,7 +67,7 @@ public class SimulationScreen : Screen
         );
         _sensorManager.Add("Plane 1", sensorPlane);
 
-        //SpawnBox(25, 25, 60, 1f);
+        SpawnBox(25, 25, 60, 1f);
     }
 
     public override void Initialize()
@@ -90,7 +90,7 @@ public class SimulationScreen : Screen
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(4, 4, 4);
+            AddFluidBlock(12, 12, 100);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -126,7 +126,7 @@ public class SimulationScreen : Screen
         for (var x = -halfWidth; x <= halfWidth; x++)
         for (var z = -halfDepth; z <= halfDepth; z++)
         for (var y = 0; y <= height; y++)
-            ParticleFactory.CreateFluidParticle(_world, new Vector3(x, y + 5, z), _simConfig);
+            ParticleFactory.CreateFluidParticle(_world, new Vector3(x, y + 10, z), _simConfig);
     }
 
     private void SpawnBox(float width, float depth, float height, float particleSize)
@@ -146,13 +146,13 @@ public class SimulationScreen : Screen
                 particleSize,
                 _simConfig.FluidDensity
             );
-            position = new Vector3(i, height - particleSize, j);
-            ParticleFactory.CreateBoundaryParticle(
-                _world,
-                position,
-                particleSize,
-                _simConfig.FluidDensity
-            );
+            // position = new Vector3(i, height - particleSize, j);
+            // ParticleFactory.CreateBoundaryParticle(
+            //     _world,
+            //     position,
+            //     particleSize,
+            //     _simConfig.FluidDensity
+            // );
         }
 
         for (var i = -halfWidth; i < halfWidth; i += particleSize)

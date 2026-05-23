@@ -36,7 +36,7 @@ public class SensorPlane : IDisposable
 
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<FluidComponent> _fluidPool;
-    private ComponentPool<Velocity3D> _velocityPool;
+    private ComponentPool<MovementComponent> _movementPool;
     private ComponentPool<BoundaryTag> _boundaryPool;
 
     public Vector3 Position { get; }
@@ -84,7 +84,7 @@ public class SensorPlane : IDisposable
     {
         _transformPool = _world.Components.GetOrCreatePool<Transform3D>();
         _fluidPool = _world.Components.GetOrCreatePool<FluidComponent>();
-        _velocityPool = _world.Components.GetOrCreatePool<Velocity3D>();
+        _movementPool = _world.Components.GetOrCreatePool<MovementComponent>();
         _boundaryPool = _world.Components.GetOrCreatePool<BoundaryTag>();
     }
 
@@ -202,10 +202,10 @@ public class SensorPlane : IDisposable
             densitySum += fluid.Density * particleWeight;
             sumWeight += particleWeight;
 
-            if (_velocityPool.Has(entity.Id))
+            if (_movementPool.Has(entity.Id))
             {
-                ref var velocity = ref _velocityPool.Get(entity.Id);
-                velocitySum += velocity.LinearVelocity.ToNumerics() * particleWeight;
+                ref var movement = ref _movementPool.Get(entity.Id);
+                velocitySum += movement.Velocity.ToNumerics() * particleWeight;
             }
         }
 

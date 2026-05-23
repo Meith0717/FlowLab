@@ -66,9 +66,11 @@ public static class IiPressurePass
                     if (solver.DiagonalElement > 1e-6f)
                         fluid.Pressure +=
                             SimConfig.Relaxation
-                            * ((solver.SourceTherm - solver.Laplacian) / solver.DiagonalElement);
+                            / solver.DiagonalElement
+                            * (solver.SourceTherm - solver.Laplacian);
                     else
                         fluid.Pressure = 0;
+                    fluid.Pressure = float.Max(0, fluid.Pressure);
 
                     lock (Lock)
                         totalDensityError +=

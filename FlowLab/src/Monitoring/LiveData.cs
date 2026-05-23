@@ -54,12 +54,12 @@ public class LiveData(World world, Config.SimConfig simConfig)
         AbsError /= EntityCount;
         CompressionError /= EntityCount;
 
-        var velocityPool = world.Components.GetOrCreatePool<Velocity3D>();
-        var velocityComponentsSpan = velocityPool.AsSpan();
+        var movementPool = world.Components.GetOrCreatePool<MovementComponent>();
+        var velocityComponentsSpan = movementPool.AsSpan();
         AvgVelocity = MaxVelocity = 0;
         foreach (var velocityComponent in velocityComponentsSpan)
         {
-            var velocity = velocityComponent.LinearVelocity.Length();
+            var velocity = velocityComponent.Velocity.Length();
             AvgVelocity += velocity;
             if (velocity < MaxVelocity)
                 continue;

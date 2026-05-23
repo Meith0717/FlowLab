@@ -56,12 +56,12 @@ public class SimulationSystem(
         );
 
         // Pressure computation
-        // IiPressurePass.Compute(fEntities, _context, simConfig);
-        Helper.ForEach(
-            simConfig.UseParallel,
-            fEntities,
-            e => WcPressurePass.ComputeEntity(e, _context, simConfig)
-        );
+        IiPressurePass.Compute(fEntities, _context, simConfig);
+        // Helper.ForEach(
+        //     simConfig.UseParallel,
+        //     fEntities,
+        //     e => WcPressurePass.ComputeEntity(e, _context, simConfig)
+        // );
 
         // Pressure Accelerations Pass
         Helper.ForEach(
