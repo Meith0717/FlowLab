@@ -6,8 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using FlowLab.Config;
-using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
 
@@ -17,7 +17,7 @@ public static class IiPressurePass
 {
     private static readonly Lock Lock = new();
 
-    public static void Compute(
+    public static void RunForEach(
         IReadOnlyCollection<Entity> fluidEntities,
         SphPassContext context,
         SimConfig config
@@ -26,8 +26,7 @@ public static class IiPressurePass
         if (fluidEntities.Count == 0)
             return;
 
-        Helper.ForEach(
-            config.UseParallel,
+        Parallel.ForEach(
             fluidEntities,
             fEntity =>
             {
@@ -46,15 +45,10 @@ public static class IiPressurePass
         double averageError = 0;
         for (i = 1; i < config.MaxIterations; i++)
         {
-            Helper.ForEach(
-                config.UseParallel,
-                fluidEntities,
-                entity => PressureAccelerationPass.ComputeEntity(entity, context, config)
-            );
+            PressureAccelerationPass.RunForEach(fluidEntities, context, config);
 
             var totalDensityError = 0d;
-            Helper.ForEach(
-                config.UseParallel,
+            Parallel.ForEach(
                 fluidEntities,
                 entity =>
                 {
@@ -86,9 +80,6 @@ public static class IiPressurePass
             if (averageError < config.MinDensityError && i > 1)
                 break;
         }
-
-        Console.WriteLine($"Solver Iterations: {i}");
-        Console.WriteLine($"Avg Density Error: {averageError}%");
     }
 }
 

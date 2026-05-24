@@ -6,7 +6,6 @@
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
-using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Querying;
 using MonoKit.Ecs.Systems;
@@ -30,59 +29,19 @@ public class SimulationSystem(
         _context.Initialize(world.Components, kernels);
 
         var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
-        Helper.ForEach(
-            simConfig.UseParallel,
-            bEntities,
-            e => BoundaryPass.ComputeEntity(e, spatialHash3D, _context, simConfig)
-        );
+        BoundaryPass.RunForEach(bEntities, spatialHash3D, _context, simConfig);
     }
 
     public void Update(double elapsedMs, World world)
     {
-        // Density Pass
         var allEntities = _tracker.GetEntitiesWith<ParticleTag>();
-        Helper.ForEach(
-            simConfig.UseParallel,
-            allEntities,
-            e => DensityPass.ComputeEntity(e, spatialHash3D, _context, simConfig)
-        );
-
-        // Non-Pressure Accelerations Pass + Non pressure velocity
         var fEntities = _tracker.GetEntitiesWith<FluidTag>();
-        Helper.ForEach(
-            simConfig.UseParallel,
-            fEntities,
-            e => NonPressureAccelerationPass.ComputeEntity(e, _context, simConfig)
-        );
 
-        // Pressure computation
-        IiPressurePass.Compute(fEntities, _context, simConfig);
-        // Helper.ForEach(
-        //     simConfig.UseParallel,
-        //     fEntities,
-        //     e => WcPressurePass.ComputeEntity(e, _context, simConfig)
-        // );
-
-        // Pressure Accelerations Pass
-        Helper.ForEach(
-            simConfig.UseParallel,
-            fEntities,
-            e => PressureAccelerationPass.ComputeEntity(e, _context, simConfig)
-        );
-
-        // Position Update
-        Helper.ForEach(
-            simConfig.UseParallel,
-            fEntities,
-            entity =>
-            {
-                ref var transform = ref _context.TransformPool.Get(entity.Id);
-                ref var movement = ref _context.MovementPool.Get(entity.Id);
-
-                movement.PressureAcceleration *= simConfig.TimeStep;
-                movement.Velocity += movement.PressureAcceleration;
-                transform.Position += movement.Velocity * simConfig.TimeStep;
-            }
-        );
+        DensityPass.RunForEach(allEntities, spatialHash3D, _context, simConfig);
+        NonPressureAccelerationPass.RunForEach(fEntities, _context, simConfig);
+        IiPressurePass.RunForEach(fEntities, _context, simConfig);
+        // WcPressurePass.Run(fEntities, _context, simConfig);
+        PressureAccelerationPass.RunForEach(fEntities, _context, simConfig);
+        PositionUpdatePass.RunForEach(fEntities, _context, simConfig);
     }
 }

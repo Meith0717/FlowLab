@@ -19,8 +19,6 @@ public class SettingsWidget(Config.SimConfig simConfig)
     private UiTextEntry _viscosityEntry;
     private UiTextEntry _timeStepEntry;
     private UiTextEntry _gravityEntry;
-    private UiButton.Text _parallelToggle;
-    private UiText _parallelText;
 
     public void Build(UiFrame root)
     {
@@ -77,7 +75,6 @@ public class SettingsWidget(Config.SimConfig simConfig)
             _simConfig.TimeStep.ToString("F3")
         );
         AddTextEntrySetting("Gravity", 180, ref _gravityEntry, _simConfig.Gravity.ToString("F3"));
-        AddParallelToggle(220);
     }
 
     private void AddTextEntrySetting(
@@ -115,65 +112,6 @@ public class SettingsWidget(Config.SimConfig simConfig)
             Padding = 4,
         };
         _settingsFrame.Add(field);
-    }
-
-    private void AddParallelToggle(int y)
-    {
-        _settingsFrame.Add(
-            new UiText("consola", "Parallel")
-            {
-                Allign = Allign.Left,
-                HSpace = 10,
-                Y = y,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _parallelText = new UiText("consola")
-        {
-            Allign = Allign.Right,
-            HSpace = 10,
-            Y = y,
-            Scale = 0.15f,
-            Color = _simConfig.UseParallel ? Color.Lime : Color.DimGray,
-            TextProvider = () => _simConfig.UseParallel ? "ON" : "OFF",
-        };
-        _settingsFrame.Add(_parallelText);
-
-        // Create clickable area for toggle
-        var toggleText = new UiText("consola", " ")
-        {
-            Allign = Allign.Right,
-            HSpace = 10,
-            Y = y,
-            Width = 40,
-            Height = 20,
-            Scale = 0.15f,
-        };
-        toggleText.Color = Color.Transparent;
-
-        _parallelToggle = new UiButton.Text();
-        _parallelToggle.OnClickAction = ToggleParallel;
-        _parallelToggle.UiText = toggleText;
-
-        var buttonFrame = new UiFrame
-        {
-            Allign = Allign.Right,
-            HSpace = 10,
-            Y = y - 2,
-            Width = 40,
-            Height = 20,
-            Color = Color.Transparent,
-        };
-        buttonFrame.Add(_parallelToggle);
-        _settingsFrame.Add(buttonFrame);
-    }
-
-    private void ToggleParallel()
-    {
-        _simConfig.UseParallel = !_simConfig.UseParallel;
-        _parallelText.Color = _simConfig.UseParallel ? Color.Lime : Color.DimGray;
     }
 
     public void Update(InputHandler inputHandler)

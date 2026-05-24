@@ -20,7 +20,6 @@ public class SimConfig(float particleSize, float fluidDensity)
     public float Viscosity { get; set; }
     public float TimeStep { get; set; }
     public float Gravity { get; set; }
-    public bool UseParallel { get; set; }
     public int MaxIterations { get; set; }
     public double MinDensityError { get; set; }
 
@@ -32,7 +31,6 @@ public class SimConfig(float particleSize, float fluidDensity)
             Viscosity = 3.5f,
             TimeStep = 0.1f,
             Gravity = 0.0f,
-            UseParallel = true,
             MaxIterations = 100,
             MinDensityError = 0.1f,
         };

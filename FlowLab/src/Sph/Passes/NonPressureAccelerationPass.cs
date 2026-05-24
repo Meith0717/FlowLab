@@ -3,6 +3,8 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FlowLab.Config;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
@@ -11,7 +13,16 @@ namespace FlowLab.Sph.Passes;
 
 public static class NonPressureAccelerationPass
 {
-    public static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
+    public static void RunForEach(
+        IReadOnlyCollection<Entity> fEntities,
+        SphPassContext context,
+        SimConfig config
+    )
+    {
+        Parallel.ForEach(fEntities, fEntity => ComputeEntity(fEntity, context, config));
+    }
+
+    private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var movement = ref context.MovementPool.Get(entity.Id);
