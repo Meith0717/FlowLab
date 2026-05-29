@@ -3,9 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
+using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
 
@@ -14,7 +16,7 @@ namespace FlowLab.Sph.Passes;
 public static class DensityPass
 {
     public static void RunForEach(
-        IReadOnlyCollection<Entity> fEntities,
+        Partitioner<Entity> fEntities,
         ISpatialGrid3D spatialHash3D,
         SphPassContext context,
         SimConfig config
@@ -22,6 +24,7 @@ public static class DensityPass
     {
         Parallel.ForEach(
             fEntities,
+            ParallelConfig.Options,
             fEntity => ComputeEntity(fEntity, spatialHash3D, context, config)
         );
     }

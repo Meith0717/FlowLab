@@ -11,7 +11,6 @@ namespace FlowLab.Screens.Ui;
 
 public class SettingsWidget(Config.SimConfig simConfig)
 {
-    private readonly Config.SimConfig _simConfig = simConfig;
     private UiFrame _settingsFrame;
 
     // Text entry fields for numeric values
@@ -60,21 +59,21 @@ public class SettingsWidget(Config.SimConfig simConfig)
             "Stiffness",
             60,
             ref _stiffnessEntry,
-            _simConfig.Stiffness.ToString("F2")
+            simConfig.Stiffness.ToString("F2")
         );
         AddTextEntrySetting(
             "Viscosity",
             100,
             ref _viscosityEntry,
-            _simConfig.Viscosity.ToString("F2")
+            simConfig.Viscosity.ToString("F2")
         );
         AddTextEntrySetting(
             "Time Step",
             140,
             ref _timeStepEntry,
-            _simConfig.TimeStep.ToString("F3")
+            simConfig.TimeStep.ToString("F3")
         );
-        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, _simConfig.Gravity.ToString("F3"));
+        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, simConfig.Gravity.ToString("F3"));
     }
 
     private void AddTextEntrySetting(
@@ -118,15 +117,15 @@ public class SettingsWidget(Config.SimConfig simConfig)
     {
         // Sync text entry values to simConfig
         if (_stiffnessEntry != null && float.TryParse(_stiffnessEntry.Text, out var stiffness))
-            _simConfig.Stiffness = MathHelper.Clamp(stiffness, 0, 200);
+            simConfig.Stiffness = MathHelper.Clamp(stiffness, 0, 200);
 
         if (_viscosityEntry != null && float.TryParse(_viscosityEntry.Text, out var viscosity))
-            _simConfig.Viscosity = MathHelper.Clamp(viscosity, 0, 5);
+            simConfig.Viscosity = MathHelper.Clamp(viscosity, 0, 5);
 
         if (_timeStepEntry != null && float.TryParse(_timeStepEntry.Text, out var timeStep))
-            _simConfig.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);
+            simConfig.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);
 
         if (_gravityEntry != null && float.TryParse(_gravityEntry.Text, out var gravity))
-            _simConfig.Gravity = MathHelper.Clamp(gravity, 0, 1);
+            simConfig.Gravity = MathHelper.Clamp(gravity, 0, 1);
     }
 }

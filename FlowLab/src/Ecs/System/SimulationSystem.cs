@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Collections.Concurrent;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
@@ -28,20 +29,21 @@ public class SimulationSystem(
         _tracker = world.TypeTracker;
         _context.Initialize(world.Components, kernels);
 
-        var bEntities = _tracker.GetEntitiesWith<BoundaryTag>();
-        BoundaryPass.RunForEach(bEntities, spatialHash3D, _context, simConfig);
+        var bPartitioner = Partitioner.Create(_tracker.GetEntitiesWith<BoundaryTag>());
+        BoundaryPass.RunForEach(bPartitioner, spatialHash3D, _context, simConfig);
     }
 
     public void Update(double elapsedMs, World world)
     {
-        var allEntities = _tracker.GetEntitiesWith<ParticleTag>();
-        var fEntities = _tracker.GetEntitiesWith<FluidTag>();
+        var allPartitioner = Partitioner.Create(_tracker.GetEntitiesWith<ParticleTag>());
+        var fluid = _tracker.GetEntitiesWith<FluidTag>();
+        var fPartitioner = Partitioner.Create(fluid);
 
-        DensityPass.RunForEach(allEntities, spatialHash3D, _context, simConfig);
-        NonPressureAccelerationPass.RunForEach(fEntities, _context, simConfig);
-        IiPressurePass.RunForEach(fEntities, _context, simConfig);
+        DensityPass.RunForEach(allPartitioner, spatialHash3D, _context, simConfig);
+        NonPressureAccelerationPass.RunForEach(fPartitioner, _context, simConfig);
+        IiPressurePass.RunForEach(fPartitioner, fluid.Count, _context, simConfig);
         // WcPressurePass.Run(fEntities, _context, simConfig);
-        PressureAccelerationPass.RunForEach(fEntities, _context, simConfig);
-        PositionUpdatePass.RunForEach(fEntities, _context, simConfig);
+        PressureAccelerationPass.RunForEach(fPartitioner, _context, simConfig);
+        PositionUpdatePass.RunForEach(fPartitioner, _context, simConfig);
     }
 }

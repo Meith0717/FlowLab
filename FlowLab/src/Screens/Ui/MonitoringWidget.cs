@@ -19,6 +19,7 @@ public class MonitoringWidget(
     private UiFrame _simMonitoring;
     private UiSlider _cflBar;
     private UiSlider _errorBar;
+    private UiSlider _iterationsBar;
 
     public void Build(UiFrame root)
     {
@@ -27,7 +28,7 @@ public class MonitoringWidget(
             {
                 Allign = Allign.NE,
                 Width = 300,
-                Height = 400,
+                Height = 500,
                 Color = new Color(30, 30, 30, 200),
                 HSpace = 15,
                 VSpace = 12,
@@ -80,7 +81,8 @@ public class MonitoringWidget(
         );
 
         Stability(100);
-        Fluid(230);
+        Solver(230);
+        Fluid(330);
     }
 
     private void Stability(int y)
@@ -205,6 +207,85 @@ public class MonitoringWidget(
         );
     }
 
+    private void Solver(int y)
+    {
+        _simMonitoring.Add(
+            new UiText("consola", "SOLVER")
+            {
+                Allign = Allign.Left,
+                Y = y,
+                HSpace = 10,
+                Scale = 0.175f,
+                Color = Color.White,
+            }
+        );
+        _simMonitoring.Add(
+            new UiFrame
+            {
+                Allign = Allign.CenterV,
+                Y = y + 20,
+                RelWidth = .95f,
+                Height = 4,
+                Color = Color.DimGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText("consola", "Iterations")
+            {
+                Allign = Allign.Left,
+                HSpace = 10,
+                Y = y + 30,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText("consola")
+            {
+                TextProvider = () => $"{float.NaN} %",
+                Allign = Allign.Right,
+                HSpace = 10,
+                Y = y + 30,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            _iterationsBar = new UiSlider(false)
+            {
+                Allign = Allign.Left,
+                Y = y + 53,
+                HSpace = 10,
+                RelWidth = 1,
+                Height = 15,
+                BgColor = Color.Gray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText("consola")
+            {
+                Text = "2",
+                Allign = Allign.Left,
+                HSpace = 10,
+                Y = y + 70,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText("consola")
+            {
+                TextProvider = () => $"{simConfig.MaxIterations}",
+                Allign = Allign.Right,
+                HSpace = 10,
+                Y = y + 70,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+    }
+
     private void Fluid(int y)
     {
         _simMonitoring.Add(
@@ -304,6 +385,7 @@ public class MonitoringWidget(
                 Color = Color.LightGray,
             }
         );
+
         _simMonitoring.Add(
             new UiText("consola")
             {
@@ -359,16 +441,17 @@ public class MonitoringWidget(
                 Color = Color.LightGray,
             }
         );
-        _errorBar = new UiSlider(false)
-        {
-            Allign = Allign.Right,
-            Y = y + 132,
-            HSpace = 10,
-            Width = 130,
-            Height = 15,
-            BgColor = Color.Gray,
-        };
-        _simMonitoring.Add(_errorBar);
+        _simMonitoring.Add(
+            _errorBar = new UiSlider(false)
+            {
+                Allign = Allign.Right,
+                Y = y + 132,
+                HSpace = 10,
+                Width = 130,
+                Height = 15,
+                BgColor = Color.Gray,
+            }
+        );
     }
 
     public void Update()
@@ -384,25 +467,36 @@ public class MonitoringWidget(
         _errorBar.Color = errorColor;
     }
 
+    private Color IterationsColor(float iterations)
+    {
+        var normalizedIterations = iterations / simConfig.MaxIterations;
+        return normalizedIterations switch
+        {
+            < 0.75f => Color.Lerp(Color.Green, Color.Yellow, normalizedIterations / 0.75f),
+            < 0.95f => Color.Lerp(Color.Yellow, Color.Red, (normalizedIterations - 0.75f) / 0.2f),
+            _ => Color.Red,
+        };
+    }
+
     private static Color CflColor(float cfl)
     {
-        // Smooth gradient: Lime (0-0.4) -> Yellow (0.4-0.5) -> Red (0.5+)
-        if (cfl < 0.4f)
-            return Color.Lerp(Color.Lime, Color.Yellow, cfl / 0.4f);
-        else if (cfl < 0.5f)
-            return Color.Lerp(Color.Yellow, Color.Red, (cfl - 0.4f) / 0.1f);
-        else
-            return Color.Red;
+        return cfl switch
+        {
+            // Smooth gradient: Lime (0-0.4) -> Yellow (0.4-0.5) -> Red (0.5+)
+            < 0.4f => Color.Lerp(Color.Lime, Color.Yellow, cfl / 0.4f),
+            < 0.5f => Color.Lerp(Color.Yellow, Color.Red, (cfl - 0.4f) / 0.1f),
+            _ => Color.Red,
+        };
     }
 
     private static Color ErrorColor(float error)
     {
-        // Smooth gradient: Lime (0-0.01) -> Yellow (0.01-0.03) -> Red (0.03+)
-        if (error < 0.01f)
-            return Color.Lerp(Color.Lime, Color.Yellow, error / 0.01f);
-        else if (error < 0.03f)
-            return Color.Lerp(Color.Yellow, Color.Red, (error - 0.01f) / 0.02f);
-        else
-            return Color.Red;
+        return error switch
+        {
+            // Smooth gradient: Lime (0-0.01) -> Yellow (0.01-0.03) -> Red (0.03+)
+            < 0.01f => Color.Lerp(Color.Lime, Color.Yellow, error / 0.01f),
+            < 0.03f => Color.Lerp(Color.Yellow, Color.Red, (error - 0.01f) / 0.02f),
+            _ => Color.Red,
+        };
     }
 }

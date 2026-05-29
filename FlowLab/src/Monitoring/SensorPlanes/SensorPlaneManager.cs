@@ -14,7 +14,7 @@ namespace FlowLab.Monitoring.SensorPlanes;
 
 public class SensorPlaneManager : IDisposable
 {
-    private const double CoolDown = 1000 / 15d;
+    private const double CoolDown = 1000 / 60d;
 
     private readonly GraphicsDevice _graphics;
     private readonly List<SensorPlane> _planes = [];

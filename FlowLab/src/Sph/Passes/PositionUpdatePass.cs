@@ -3,9 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
+using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
@@ -13,13 +15,14 @@ namespace FlowLab.Sph.Passes;
 public static class PositionUpdatePass
 {
     public static void RunForEach(
-        IReadOnlyCollection<Entity> fEntities,
+        Partitioner<Entity> fEntities,
         SphPassContext context,
         SimConfig config
     )
     {
         Parallel.ForEach(
             fEntities,
+            ParallelConfig.Options,
             entity =>
             {
                 ref var transform = ref context.TransformPool.Get(entity.Id);

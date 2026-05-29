@@ -3,11 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using FlowLab.Config;
+using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
 
@@ -18,16 +18,15 @@ public static class IiPressurePass
     private static readonly Lock Lock = new();
 
     public static void RunForEach(
-        IReadOnlyCollection<Entity> fluidEntities,
+        Partitioner<Entity> fluidEntities,
+        int particleCount,
         SphPassContext context,
         SimConfig config
     )
     {
-        if (fluidEntities.Count == 0)
-            return;
-
         Parallel.ForEach(
             fluidEntities,
+            ParallelConfig.Options,
             fEntity =>
             {
                 ISphUtil.ComputeSourceTerm(fEntity, context, config);
@@ -50,6 +49,7 @@ public static class IiPressurePass
             var totalDensityError = 0d;
             Parallel.ForEach(
                 fluidEntities,
+                ParallelConfig.Options,
                 entity =>
                 {
                     ISphUtil.ComputeLaplacian(entity, context, config);
@@ -75,7 +75,6 @@ public static class IiPressurePass
                 }
             );
 
-            var particleCount = fluidEntities.Count;
             averageError = totalDensityError / particleCount;
             if (averageError < config.MinDensityError && i > 1)
                 break;
