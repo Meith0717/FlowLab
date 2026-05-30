@@ -17,6 +17,8 @@ public static class IiPressurePass
 {
     private static readonly Lock Lock = new();
 
+    public static int LastIterationCount { get; private set; } = 0;
+
     public static void RunForEach(
         Partitioner<Entity> fluidEntities,
         int particleCount,
@@ -40,8 +42,7 @@ public static class IiPressurePass
             }
         );
 
-        int i;
-        double averageError = 0;
+        var i = 0;
         for (i = 1; i < config.MaxIterations; i++)
         {
             PressureAccelerationPass.RunForEach(fluidEntities, context, config);
@@ -75,10 +76,12 @@ public static class IiPressurePass
                 }
             );
 
-            averageError = totalDensityError / particleCount;
-            if (averageError < config.MinDensityError && i > 1)
+            var averageError = totalDensityError / particleCount;
+            if (averageError < config.MinDensityError && i > 1 || particleCount <= 0)
                 break;
         }
+
+        LastIterationCount = i;
     }
 }
 

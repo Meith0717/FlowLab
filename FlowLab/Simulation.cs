@@ -17,7 +17,7 @@ using MonoKit.Screens;
 
 namespace FlowLab;
 
-public class Game1 : Game
+public class Simulation : Game
 {
     private SpriteBatch _spriteBatch;
     private FrameCounter _frameCounter;
@@ -26,7 +26,7 @@ public class Game1 : Game
     private readonly ScreenManager _screenManager;
     private readonly GameServiceContainer _serviceContainer;
 
-    public Game1()
+    public Simulation()
     {
         var graphics = new GraphicsDeviceManager(this);
         _graphicsController = new GraphicsController(this, Window, graphics);
@@ -37,9 +37,10 @@ public class Game1 : Game
 
         var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
         {
-            { (Keys.Space, InputEventType.Released), (byte)ActionType.SpawnBlock },
-            { (Keys.H, InputEventType.Released), (byte)ActionType.ToggleBoundaryDraw },
-            { (Keys.Delete, InputEventType.Released), (byte)ActionType.DeleteFluid },
+            { (Keys.Space, InputEventType.Released), (byte)ActionType.PauseSimulation },
+            { (Keys.Tab, InputEventType.Released), (byte)ActionType.SpawnBlock },
+            { (Keys.H, InputEventType.Released), (byte)ActionType.HideBoundary },
+            { (Keys.Delete, InputEventType.Released), (byte)ActionType.ClearFluid },
             { (Keys.P, InputEventType.Released), (byte)ActionType.ToggleSensorPlane },
             { (Keys.O, InputEventType.Released), (byte)ActionType.CycleSensorProperty },
         };

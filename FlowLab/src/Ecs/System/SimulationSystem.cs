@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Concurrent;
+using FlowLab.Config;
 using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
@@ -17,7 +18,8 @@ namespace FlowLab.Ecs.System;
 public class SimulationSystem(
     ISpatialGrid3D spatialHash3D,
     Kernels kernels,
-    Config.SimConfig simConfig
+    SimConfig config,
+    SimulationController controller
 ) : ISystem
 {
     public int Priority => 1;
@@ -30,20 +32,23 @@ public class SimulationSystem(
         _context.Initialize(world.Components, kernels);
 
         var bPartitioner = Partitioner.Create(_tracker.GetEntitiesWith<BoundaryTag>());
-        BoundaryPass.RunForEach(bPartitioner, spatialHash3D, _context, simConfig);
+        BoundaryPass.RunForEach(bPartitioner, spatialHash3D, _context, config);
     }
 
     public void Update(double elapsedMs, World world)
     {
+        if (controller.IsPaused)
+            return;
+
         var allPartitioner = Partitioner.Create(_tracker.GetEntitiesWith<ParticleTag>());
         var fluid = _tracker.GetEntitiesWith<FluidTag>();
         var fPartitioner = Partitioner.Create(fluid);
 
-        DensityPass.RunForEach(allPartitioner, spatialHash3D, _context, simConfig);
-        NonPressureAccelerationPass.RunForEach(fPartitioner, _context, simConfig);
-        IiPressurePass.RunForEach(fPartitioner, fluid.Count, _context, simConfig);
-        // WcPressurePass.Run(fEntities, _context, simConfig);
-        PressureAccelerationPass.RunForEach(fPartitioner, _context, simConfig);
-        PositionUpdatePass.RunForEach(fPartitioner, _context, simConfig);
+        DensityPass.RunForEach(allPartitioner, spatialHash3D, _context, config);
+        NonPressureAccelerationPass.RunForEach(fPartitioner, _context, config);
+        IiPressurePass.RunForEach(fPartitioner, fluid.Count, _context, config);
+        // WcPressurePass.RunForEach(fPartitioner, _context, simConfig);
+        PressureAccelerationPass.RunForEach(fPartitioner, _context, config);
+        PositionUpdatePass.RunForEach(fPartitioner, _context, config);
     }
 }

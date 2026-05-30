@@ -30,8 +30,6 @@ public class FluidRenderer : IDisposable
     private Effect _particleShader;
     private int _particleCount;
 
-    public bool HideBoundary;
-
     public FluidRenderer(GraphicsDevice graphics, World world)
     {
         _graphics = graphics;
@@ -82,9 +80,9 @@ public class FluidRenderer : IDisposable
         _particleShader = ContentProvider.Get<Effect>("ParticleShader");
     }
 
-    public void Update()
+    public void Update(bool hideBoundary)
     {
-        var entities = HideBoundary
+        var entities = hideBoundary
             ? _world.TypeTracker.GetEntitiesWith<FluidTag>()
             : _world.TypeTracker.GetEntitiesWith<ParticleTag>();
 

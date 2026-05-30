@@ -6,7 +6,6 @@
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
-using FlowLab.Ecs.Tags;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
@@ -15,7 +14,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoKit.Ecs;
-using MonoKit.Ecs.Components;
 using MonoKit.Gameplay;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
@@ -33,22 +31,25 @@ public class SimulationScreen : Screen
     private readonly GameRuntime3D _simRuntime;
     private readonly LiveData _liveData;
     private readonly SensorPlaneManager _sensorManager;
+    private readonly SimulationController _simController;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
         _simConfig = SimConfig.Default;
         _simRuntime = new GameRuntime3D(GraphicsDevice, _simConfig.SpatialHashQueryRadius);
-
+        _world = _simRuntime.Services.Get<World>();
+        _simController = new SimulationController(_world);
         _camera3D = _simRuntime.Services.Get<Camera3D>();
         _camera3D.AddBehaviour(new MoveByMouse());
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
 
-        _world = _simRuntime.Services.Get<World>();
         _world.Systems.Add(new ParticleTransformSyncSystem());
         var kernels = new Kernels(_simConfig.ParticleSize);
         var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
-        _world.Systems.Add(new SimulationSystem(spatialHashSystem, kernels, _simConfig));
+        _world.Systems.Add(
+            new SimulationSystem(spatialHashSystem, kernels, _simConfig, _simController)
+        );
         _world.Components.Add(_world.WorldEntity, new DebugComponent());
 
         _fluidRenderer = new FluidRenderer(GraphicsDevice, _world);
@@ -83,20 +84,21 @@ public class SimulationScreen : Screen
         float uiScale
     )
     {
-        if (inputHandler.HasAction((byte)ActionType.ToggleBoundaryDraw))
-            _fluidRenderer.HideBoundary = !_fluidRenderer.HideBoundary;
-
-        if (inputHandler.HasAction((byte)ActionType.DeleteFluid))
-            ClearFluid();
+        _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
             AddFluidBlock(12, 12, 100);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
-        _liveData.Collect(elapsedMilliseconds);
-        _fluidRenderer.Update();
-        _sensorManager.Update(elapsedMilliseconds);
+
+        if (!_simController.IsPaused)
+        {
+            _liveData.Collect(elapsedMilliseconds);
+            _sensorManager.Update(elapsedMilliseconds);
+        }
+
+        _fluidRenderer.Update(_simController.HideBoundary);
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 
@@ -105,17 +107,6 @@ public class SimulationScreen : Screen
         _fluidRenderer.Draw(_camera3D);
         _sensorManager.Draw(_camera3D);
         base.Draw(spriteBatch);
-    }
-
-    public void ClearFluid()
-    {
-        var fluidCollection = _world.TypeTracker.GetEntitiesWith<FluidTag>();
-        var lifePool = _world.Components.GetOrCreatePool<Lifetime>();
-        foreach (var fluidEntity in fluidCollection)
-        {
-            ref var lifeTime = ref lifePool.Get(fluidEntity.Id);
-            lifeTime.DestroyNow = true;
-        }
     }
 
     private void AddFluidBlock(float width, float depth, float height)
@@ -146,13 +137,13 @@ public class SimulationScreen : Screen
                 particleSize,
                 _simConfig.FluidDensity
             );
-            // position = new Vector3(i, height - particleSize, j);
-            // ParticleFactory.CreateBoundaryParticle(
-            //     _world,
-            //     position,
-            //     particleSize,
-            //     _simConfig.FluidDensity
-            // );
+            position = new Vector3(i, height - particleSize, j);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                _simConfig.FluidDensity
+            );
         }
 
         for (var i = -halfWidth; i < halfWidth; i += particleSize)

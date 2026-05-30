@@ -20,42 +20,46 @@ public class LiveData(World world, Config.SimConfig simConfig)
     public float Cfl { get; private set; }
     public float MaxVelocity { get; private set; }
     public float AvgVelocity { get; private set; }
+    public int IterationCount { get; private set; }
 
     private const int CoolDown = 50;
     private double _currentCoolDown = CoolDown;
+
+    private readonly ComponentPool<FluidComponent> _fluidPool =
+        world.Components.GetOrCreatePool<FluidComponent>();
+    private readonly ComponentPool<MovementComponent> _movementPool =
+        world.Components.GetOrCreatePool<MovementComponent>();
 
     public void Collect(double elapsedMilliseconds)
     {
         _currentCoolDown -= elapsedMilliseconds;
         if (_currentCoolDown > 0)
             return;
-
         _currentCoolDown = CoolDown;
 
-        EntityCount = world.EntityCount;
-        var fluidPool = world.Components.GetOrCreatePool<FluidComponent>();
         var fluidEntityCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
+
         FluidMass = FluidVolume = 0;
         foreach (var entity in fluidEntityCollection)
         {
-            ref var fluid = ref fluidPool.Get(entity.Id);
+            ref var fluid = ref _fluidPool.Get(entity.Id);
             FluidMass += fluid.Mass;
             FluidVolume += fluid.Mass / fluid.Density;
         }
 
-        var fluidComponentsSpan = fluidPool.AsSpan();
+        EntityCount = _fluidPool.Count;
         AbsError = CompressionError = 0;
-        foreach (var fluidComponent in fluidComponentsSpan)
+        foreach (var entity in fluidEntityCollection)
         {
-            var error = (fluidComponent.Density - simConfig.FluidDensity) / simConfig.FluidDensity;
+            ref var fluid = ref _fluidPool.Get(entity.Id);
+            var error = (fluid.Density - simConfig.FluidDensity) / simConfig.FluidDensity;
             CompressionError += float.Max(error, 0);
             AbsError += float.Abs(error);
         }
         AbsError /= EntityCount;
         CompressionError /= EntityCount;
 
-        var movementPool = world.Components.GetOrCreatePool<MovementComponent>();
-        var velocityComponentsSpan = movementPool.AsSpan();
+        var velocityComponentsSpan = _movementPool.AsSpan();
         AvgVelocity = MaxVelocity = 0;
         foreach (var velocityComponent in velocityComponentsSpan)
         {
@@ -67,5 +71,6 @@ public class LiveData(World world, Config.SimConfig simConfig)
         }
         AvgVelocity /= EntityCount;
         Cfl = simConfig.TimeStep * MaxVelocity / simConfig.ParticleSize;
+        IterationCount = Sph.Passes.IiPressurePass.LastIterationCount;
     }
 }

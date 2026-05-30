@@ -3,9 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
+using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
@@ -13,12 +15,16 @@ namespace FlowLab.Sph.Passes;
 public static class WcPressurePass
 {
     public static void RunForEach(
-        IReadOnlyCollection<Entity> fEntities,
+        Partitioner<Entity> fluidEntities,
         SphPassContext context,
         SimConfig config
     )
     {
-        Parallel.ForEach(fEntities, fEntity => ComputeEntity(fEntity, context, config));
+        Parallel.ForEach(
+            fluidEntities,
+            ParallelConfig.Options,
+            fEntity => ComputeEntity(fEntity, context, config)
+        );
     }
 
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)

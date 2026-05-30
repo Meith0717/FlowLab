@@ -47,6 +47,12 @@ public static class DensityPass
             neighbours.Neighbours
         );
 
+        if (neighbours.Neighbours.Count <= 2)
+        {
+            fluid.Density = config.FluidDensity;
+            return;
+        }
+
         var density = 0f;
         foreach (var nEntity in neighbours.Neighbours)
         {

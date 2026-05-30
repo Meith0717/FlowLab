@@ -81,8 +81,8 @@ public class MonitoringWidget(
         );
 
         Stability(100);
-        Solver(230);
-        Fluid(330);
+        Solver(235);
+        Fluid(340);
     }
 
     private void Stability(int y)
@@ -243,7 +243,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{float.NaN} %",
+                TextProvider = () => $"{liveData.IterationCount} / {simConfig.MaxIterations}",
                 Allign = Allign.Right,
                 HSpace = 10,
                 Y = y + 30,
@@ -465,14 +465,18 @@ public class MonitoringWidget(
         var errorColor = ErrorColor(liveData.CompressionError);
         _errorBar.Value = error;
         _errorBar.Color = errorColor;
+
+        var normalizedIterations = (float)liveData.IterationCount / simConfig.MaxIterations;
+        var iterationColor = IterationsColor(normalizedIterations);
+        _iterationsBar.Value = normalizedIterations;
+        _iterationsBar.Color = iterationColor;
     }
 
-    private Color IterationsColor(float iterations)
+    private static Color IterationsColor(float normalizedIterations)
     {
-        var normalizedIterations = iterations / simConfig.MaxIterations;
         return normalizedIterations switch
         {
-            < 0.75f => Color.Lerp(Color.Green, Color.Yellow, normalizedIterations / 0.75f),
+            < 0.75f => Color.Lerp(Color.Lime, Color.Yellow, normalizedIterations / 0.75f),
             < 0.95f => Color.Lerp(Color.Yellow, Color.Red, (normalizedIterations - 0.75f) / 0.2f),
             _ => Color.Red,
         };
@@ -482,7 +486,6 @@ public class MonitoringWidget(
     {
         return cfl switch
         {
-            // Smooth gradient: Lime (0-0.4) -> Yellow (0.4-0.5) -> Red (0.5+)
             < 0.4f => Color.Lerp(Color.Lime, Color.Yellow, cfl / 0.4f),
             < 0.5f => Color.Lerp(Color.Yellow, Color.Red, (cfl - 0.4f) / 0.1f),
             _ => Color.Red,
@@ -493,7 +496,6 @@ public class MonitoringWidget(
     {
         return error switch
         {
-            // Smooth gradient: Lime (0-0.01) -> Yellow (0.01-0.03) -> Red (0.03+)
             < 0.01f => Color.Lerp(Color.Lime, Color.Yellow, error / 0.01f),
             < 0.03f => Color.Lerp(Color.Yellow, Color.Red, (error - 0.01f) / 0.02f),
             _ => Color.Red,
