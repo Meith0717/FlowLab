@@ -26,7 +26,7 @@ namespace FlowLab.Sph
                     4f * (float)System.Math.PI * smoothingLength * smoothingLength * smoothingLength
                 );
 
-            float supportRadius = 2f * smoothingLength;
+            var supportRadius = 2f * smoothingLength;
             _supportRadiusSquared = supportRadius * supportRadius;
         }
 

@@ -1,10 +1,7 @@
 // BoundaryPass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
-// Portions generated or assisted by AI.
 
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
@@ -15,17 +12,23 @@ namespace FlowLab.Sph.Passes;
 public static class BoundaryPass
 {
     public static void RunForEach(
-        Partitioner<Entity> fEntities,
+        EntityChunking chunking,
         ISpatialGrid3D spatialHash3D,
         SphPassContext context,
         Kernels kernels,
         SimConfig config
     )
     {
-        Parallel.ForEach(
-            fEntities,
-            ParallelConfig.Options,
-            fEntity => ComputeEntity(fEntity, spatialHash3D, context, kernels, config)
+        var entities = chunking.Entities;
+        chunking.ParallelForEach(
+            (start, end) =>
+            {
+                for (var i = start; i < end; i++)
+                {
+                    var entity = entities[i];
+                    ComputeEntity(entity, spatialHash3D, context, kernels, config);
+                }
+            }
         );
     }
 
@@ -54,6 +57,10 @@ public static class BoundaryPass
             var nTransform = context.TransformPool.Get(neighbour.Id);
             kernelSum += kernels.CubicSpline(transform.Position, nTransform.Position);
         }
+
+        // Safety check
+        if (kernelSum < 1e-10f)
+            kernelSum = 1e-10f;
 
         var artificialVolume = 1f / kernelSum;
         var artificialMass = config.FluidDensity * artificialVolume;

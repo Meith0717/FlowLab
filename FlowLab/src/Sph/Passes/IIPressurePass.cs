@@ -1,11 +1,8 @@
 // WcPressurePass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
-// Portions generated or assisted by AI.
 
-using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
@@ -19,63 +16,70 @@ public static class IiPressurePass
 
     public static int LastIterationCount { get; private set; } = 0;
 
-    public static void RunForEach(
-        Partitioner<Entity> fluidEntities,
-        int particleCount,
-        SphPassContext context,
-        SimConfig config
-    )
+    public static void RunForEach(EntityChunking chunking, SphPassContext context, SimConfig config)
     {
-        Parallel.ForEach(
-            fluidEntities,
-            ParallelConfig.Options,
-            fEntity =>
+        var entities = chunking.Entities;
+        var particleCount = entities.Length;
+
+        // First pass: Compute source term and diagonal element
+        chunking.ParallelForEach(
+            (start, end) =>
             {
-                ISphUtil.ComputeSourceTerm(fEntity, context, config);
-                ISphUtil.ComputeDiagonalElement(fEntity, context, config);
-
-                ref var fluid = ref context.FluidPool.Get(fEntity.Id);
-                ref var solver = ref context.SolverPool.Get(fEntity.Id);
-                fluid.Pressure =
-                    SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement);
-                fluid.Pressure = float.Max(0, fluid.Pressure);
-            }
-        );
-
-        var i = 0;
-        for (i = 1; i < config.MaxIterations; i++)
-        {
-            PressureAccelerationPass.RunForEach(fluidEntities, context, config);
-
-            var totalDensityError = 0d;
-
-            Parallel.ForEach(
-                fluidEntities,
-                ParallelConfig.Options,
-                () => 0d,
-                (entity, _, localError) =>
+                for (var i = start; i < end; i++)
                 {
-                    ISphUtil.ComputeLaplacian(entity, context, config);
+                    var entity = entities[i];
+                    ISphUtil.ComputeSourceTerm(entity, context, config);
+                    ISphUtil.ComputeDiagonalElement(entity, context, config);
 
                     ref var fluid = ref context.FluidPool.Get(entity.Id);
                     ref var solver = ref context.SolverPool.Get(entity.Id);
 
-                    if (float.Abs(solver.DiagonalElement) > 1e-6f)
-                        fluid.Pressure +=
-                            SimConfig.Relaxation
-                            / solver.DiagonalElement
-                            * (solver.SourceTherm - solver.Laplacian);
-                    else
-                        fluid.Pressure = 0;
+                    // Safety check to prevent division by zero
+                    if (float.Abs(solver.DiagonalElement) < 1e-10f)
+                        solver.DiagonalElement = solver.DiagonalElement < 0 ? -1e-10f : 1e-10f;
 
+                    fluid.Pressure =
+                        SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement);
                     fluid.Pressure = float.Max(0, fluid.Pressure);
+                }
+            }
+        );
 
-                    localError +=
-                        float.Max(solver.Laplacian - solver.SourceTherm, 0)
-                        * config.TimeStep
-                        / config.FluidDensity
-                        * 100;
+        var iteration = 0;
+        for (iteration = 1; iteration < config.MaxIterations; iteration++)
+        {
+            PressureAccelerationPass.RunForEach(chunking, context, config);
 
+            var totalDensityError = 0d;
+
+            chunking.ParallelForEach<double>(
+                () => 0d,
+                (start, end, localError) =>
+                {
+                    for (var j = start; j < end; j++)
+                    {
+                        var entity = entities[j];
+                        ISphUtil.ComputeLaplacian(entity, context, config);
+
+                        ref var fluid = ref context.FluidPool.Get(entity.Id);
+                        ref var solver = ref context.SolverPool.Get(entity.Id);
+
+                        if (float.Abs(solver.DiagonalElement) > 1e-6f)
+                            fluid.Pressure +=
+                                SimConfig.Relaxation
+                                / solver.DiagonalElement
+                                * (solver.SourceTherm - solver.Laplacian);
+                        else
+                            fluid.Pressure = 0;
+
+                        fluid.Pressure = float.Max(0, fluid.Pressure);
+
+                        localError +=
+                            float.Max(solver.Laplacian - solver.SourceTherm, 0)
+                            * config.TimeStep
+                            / config.FluidDensity
+                            * 100;
+                    }
                     return localError;
                 },
                 localError =>
@@ -86,11 +90,11 @@ public static class IiPressurePass
             );
 
             var averageError = totalDensityError / particleCount;
-            if ((averageError < config.MinDensityError && i > 1) || particleCount <= 0)
+            if ((averageError < config.MinDensityError && iteration > 1) || particleCount <= 0)
                 break;
         }
 
-        LastIterationCount = i;
+        LastIterationCount = iteration;
     }
 }
 

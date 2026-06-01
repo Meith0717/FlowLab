@@ -177,13 +177,13 @@ public class FluidRenderer : IDisposable
         var cameraPosition = camera.Position;
 
         // Calculate a reasonable range around the camera
-        int range = 50; // cells in each direction
-        int cellMinX = (int)Math.Floor(cameraPosition.X / _cellSize) - range;
-        int cellMaxX = (int)Math.Floor(cameraPosition.X / _cellSize) + range;
-        int cellMinY = (int)Math.Floor(cameraPosition.Y / _cellSize) - range;
-        int cellMaxY = (int)Math.Floor(cameraPosition.Y / _cellSize) + range;
-        int cellMinZ = (int)Math.Floor(cameraPosition.Z / _cellSize) - range;
-        int cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
+        var range = 50; // cells in each direction
+        var cellMinX = (int)Math.Floor(cameraPosition.X / _cellSize) - range;
+        var cellMaxX = (int)Math.Floor(cameraPosition.X / _cellSize) + range;
+        var cellMinY = (int)Math.Floor(cameraPosition.Y / _cellSize) - range;
+        var cellMaxY = (int)Math.Floor(cameraPosition.Y / _cellSize) + range;
+        var cellMinZ = (int)Math.Floor(cameraPosition.Z / _cellSize) - range;
+        var cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
 
         // Clamp to prevent excessive iteration
         cellMinX = Math.Max(cellMinX, -200);
@@ -197,8 +197,8 @@ public class FluidRenderer : IDisposable
 
         // Draw grid lines (more efficient than individual cells)
         // Draw Y-aligned lines (vertical)
-        for (int x = cellMinX; x <= cellMaxX; x++)
-        for (int z = cellMinZ; z <= cellMaxZ; z++)
+        for (var x = cellMinX; x <= cellMaxX; x++)
+        for (var z = cellMinZ; z <= cellMaxZ; z++)
         {
             var xPos = x * _cellSize;
             var zPos = z * _cellSize;
@@ -211,8 +211,8 @@ public class FluidRenderer : IDisposable
         }
 
         // Draw Z-aligned lines (depth)
-        for (int x = cellMinX; x <= cellMaxX; x++)
-        for (int y = cellMinY; y <= cellMaxY; y++)
+        for (var x = cellMinX; x <= cellMaxX; x++)
+        for (var y = cellMinY; y <= cellMaxY; y++)
         {
             var xPos = x * _cellSize;
             var yPos = y * _cellSize;
@@ -225,8 +225,8 @@ public class FluidRenderer : IDisposable
         }
 
         // Draw X-aligned lines (horizontal)
-        for (int y = cellMinY; y <= cellMaxY; y++)
-        for (int z = cellMinZ; z <= cellMaxZ; z++)
+        for (var y = cellMinY; y <= cellMaxY; y++)
+        for (var z = cellMinZ; z <= cellMaxZ; z++)
         {
             var yPos = y * _cellSize;
             var zPos = z * _cellSize;
@@ -266,7 +266,7 @@ public class FluidRenderer : IDisposable
     {
         unchecked
         {
-            long hash = ((long)x * 73856093L) ^ ((long)y * 19349663L) ^ ((long)z * 83492791L);
+            var hash = ((long)x * 73856093L) ^ ((long)y * 19349663L) ^ ((long)z * 83492791L);
             return activeHashes.Contains(hash)
                 ? new Color(100, 150, 255, 120)
                 : new Color(50, 75, 100, 60);

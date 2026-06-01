@@ -16,7 +16,6 @@ public class SimConfig(float particleSize, float fluidDensity)
     public float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
 
     public float MaxCfl { get; set; }
-    public float Stiffness { get; set; }
     public float Viscosity { get; set; }
     public float TimeStep { get; set; }
     public float Gravity { get; set; }
@@ -27,7 +26,6 @@ public class SimConfig(float particleSize, float fluidDensity)
         new(1, 1)
         {
             MaxCfl = .4f,
-            Stiffness = 200f,
             Viscosity = 2.5f,
             TimeStep = 0.03f,
             Gravity = 0.5f,

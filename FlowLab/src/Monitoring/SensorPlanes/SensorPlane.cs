@@ -119,7 +119,7 @@ public class SensorPlane : IDisposable
         _bounds[PropertyType.Density] = (float.MaxValue, float.MinValue);
         _bounds[PropertyType.Velocity] = (0, _config.MaxCfl);
 
-        object lockObj = new object();
+        var lockObj = new object();
 
         Parallel.For(
             0,
@@ -136,7 +136,7 @@ public class SensorPlane : IDisposable
                     var gridPos = start + right * (x * CellSize) + up * (y * CellSize);
                     var index = y * Resolution + x;
 
-                    if (SamplePoint(gridPos, index, out float p, out float d, out float v))
+                    if (SamplePoint(gridPos, index, out var p, out var d, out var v))
                     {
                         localMinP = Math.Min(localMinP, p);
                         localMaxP = Math.Max(localMaxP, p);

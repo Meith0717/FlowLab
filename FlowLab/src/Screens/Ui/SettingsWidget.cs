@@ -14,7 +14,6 @@ public class SettingsWidget(Config.SimConfig simConfig)
     private UiFrame _settingsFrame;
 
     // Text entry fields for numeric values
-    private UiTextEntry _stiffnessEntry;
     private UiTextEntry _viscosityEntry;
     private UiTextEntry _timeStepEntry;
     private UiTextEntry _gravityEntry;
@@ -56,20 +55,14 @@ public class SettingsWidget(Config.SimConfig simConfig)
         );
 
         AddTextEntrySetting(
-            "Stiffness",
-            60,
-            ref _stiffnessEntry,
-            simConfig.Stiffness.ToString("F2")
-        );
-        AddTextEntrySetting(
             "Viscosity",
-            100,
+            60,
             ref _viscosityEntry,
             simConfig.Viscosity.ToString("F2")
         );
         AddTextEntrySetting(
             "Time Step",
-            140,
+            100,
             ref _timeStepEntry,
             simConfig.TimeStep.ToString("F3")
         );
@@ -116,9 +109,6 @@ public class SettingsWidget(Config.SimConfig simConfig)
     public void Update(InputHandler inputHandler)
     {
         // Sync text entry values to simConfig
-        if (_stiffnessEntry != null && float.TryParse(_stiffnessEntry.Text, out var stiffness))
-            simConfig.Stiffness = MathHelper.Clamp(stiffness, 0, 200);
-
         if (_viscosityEntry != null && float.TryParse(_viscosityEntry.Text, out var viscosity))
             simConfig.Viscosity = MathHelper.Clamp(viscosity, 0, 5);
 
