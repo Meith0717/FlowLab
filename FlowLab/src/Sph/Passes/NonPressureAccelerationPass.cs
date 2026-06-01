@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
@@ -35,8 +34,11 @@ public static class NonPressureAccelerationPass
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
         var nonPressureAccelerations = new Vector3(0, -config.Gravity, 0);
-        foreach (var nEntity in neighbours.Neighbours)
+
+        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
         {
+            var nEntity = neighbours.Neighbours[i];
+
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
@@ -48,10 +50,7 @@ public static class NonPressureAccelerationPass
             var dotVelocityPosition = Vector3.Dot(vIj, xIj);
 
             var nVolume = nFluid.Mass / nFluid.Density;
-            var kernelDerivative = context.Kernels.NablaCubicSpline(
-                transform.Position,
-                nTransform.Position
-            );
+            var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
             var res = nVolume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
             nonPressureAccelerations += 2f * config.Viscosity * res;

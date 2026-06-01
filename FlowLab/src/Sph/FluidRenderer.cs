@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -39,7 +38,12 @@ public class FluidRenderer : IDisposable
 
     public bool ShowSpatialGrids { get; set; }
 
-    public FluidRenderer(GraphicsDevice graphics, World world, ISpatialGrid3D spatialHash, float cellSize)
+    public FluidRenderer(
+        GraphicsDevice graphics,
+        World world,
+        ISpatialGrid3D spatialHash,
+        float cellSize
+    )
     {
         _graphics = graphics;
         _world = world;
@@ -147,12 +151,12 @@ public class FluidRenderer : IDisposable
 
         // Get active cell hashes via reflection
         var activeCellHashes = new HashSet<long>();
-        var activeCellsField = _spatialHash.GetType().GetField(
-            "_activeCells", BindingFlags.NonPublic | BindingFlags.Instance
-        );
-        var gridsField = _spatialHash.GetType().GetField(
-            "_grids", BindingFlags.NonPublic | BindingFlags.Instance
-        );
+        var activeCellsField = _spatialHash
+            .GetType()
+            .GetField("_activeCells", BindingFlags.NonPublic | BindingFlags.Instance);
+        var gridsField = _spatialHash
+            .GetType()
+            .GetField("_grids", BindingFlags.NonPublic | BindingFlags.Instance);
 
         var activeCells = activeCellsField?.GetValue(_spatialHash) as System.Collections.IList;
         var grids = gridsField?.GetValue(_spatialHash) as System.Collections.IDictionary;
@@ -182,9 +186,12 @@ public class FluidRenderer : IDisposable
         int cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
 
         // Clamp to prevent excessive iteration
-        cellMinX = Math.Max(cellMinX, -200); cellMaxX = Math.Min(cellMaxX, 200);
-        cellMinY = Math.Max(cellMinY, -200); cellMaxY = Math.Min(cellMaxY, 200);
-        cellMinZ = Math.Max(cellMinZ, -200); cellMaxZ = Math.Min(cellMaxZ, 200);
+        cellMinX = Math.Max(cellMinX, -200);
+        cellMaxX = Math.Min(cellMaxX, 200);
+        cellMinY = Math.Max(cellMinY, -200);
+        cellMaxY = Math.Min(cellMaxY, 200);
+        cellMinZ = Math.Max(cellMinZ, -200);
+        cellMaxZ = Math.Min(cellMaxZ, 200);
 
         var halfSize = _cellSize / 2f;
 
@@ -260,7 +267,9 @@ public class FluidRenderer : IDisposable
         unchecked
         {
             long hash = ((long)x * 73856093L) ^ ((long)y * 19349663L) ^ ((long)z * 83492791L);
-            return activeHashes.Contains(hash) ? new Color(100, 150, 255, 120) : new Color(50, 75, 100, 60);
+            return activeHashes.Contains(hash)
+                ? new Color(100, 150, 255, 120)
+                : new Color(50, 75, 100, 60);
         }
     }
 

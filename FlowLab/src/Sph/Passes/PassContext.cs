@@ -17,9 +17,8 @@ public class SphPassContext()
     public ComponentPool<NeighbourList> NeighbourPool { get; private set; }
     public ComponentPool<BoundaryTag> BoundaryPool { get; private set; }
     public ComponentPool<SolverComponent> SolverPool { get; private set; }
-    public Kernels Kernels { get; private set; }
 
-    public void Initialize(ComponentManager components, Kernels kernels)
+    public void Initialize(ComponentManager components)
     {
         TransformPool = components.GetOrCreatePool<Transform3D>();
         MovementPool = components.GetOrCreatePool<MovementComponent>();
@@ -27,6 +26,5 @@ public class SphPassContext()
         NeighbourPool = components.GetOrCreatePool<NeighbourList>();
         BoundaryPool = components.GetOrCreatePool<BoundaryTag>();
         SolverPool = components.GetOrCreatePool<SolverComponent>();
-        Kernels = kernels;
     }
 }

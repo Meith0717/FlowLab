@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
@@ -19,13 +18,14 @@ public static class BoundaryPass
         Partitioner<Entity> fEntities,
         ISpatialGrid3D spatialHash3D,
         SphPassContext context,
+        Kernels kernels,
         SimConfig config
     )
     {
         Parallel.ForEach(
             fEntities,
             ParallelConfig.Options,
-            fEntity => ComputeEntity(fEntity, spatialHash3D, context, config)
+            fEntity => ComputeEntity(fEntity, spatialHash3D, context, kernels, config)
         );
     }
 
@@ -33,6 +33,7 @@ public static class BoundaryPass
         Entity entity,
         ISpatialGrid3D spatialHash3D,
         SphPassContext context,
+        Kernels kernels,
         SimConfig config
     )
     {
@@ -51,7 +52,7 @@ public static class BoundaryPass
             if (!context.BoundaryPool.Has(neighbour.Id))
                 continue;
             var nTransform = context.TransformPool.Get(neighbour.Id);
-            kernelSum += context.Kernels.CubicSpline(transform.Position, nTransform.Position);
+            kernelSum += kernels.CubicSpline(transform.Position, nTransform.Position);
         }
 
         var artificialVolume = 1f / kernelSum;

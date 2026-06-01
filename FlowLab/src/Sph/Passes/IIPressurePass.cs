@@ -105,19 +105,15 @@ file static class ISphUtil
         var dii = Vector3.Zero;
         var dij = 0f;
 
-        var kernels = context.Kernels;
-        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var fluid = ref context.FluidPool.Get(entity.Id);
-        ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var solver = ref context.SolverPool.Get(entity.Id);
 
-        foreach (var nEntity in neighbourList.Neighbours)
+        for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
-            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
+            var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-
-            var massKernel =
-                nFluid.Mass * kernels.NablaCubicSpline(transform.Position, nTransform.Position);
+            var massKernel = nFluid.Mass * neighbours.CachedKernels[i].NablaCubicSpline;
             dii += massKernel;
             if (!context.BoundaryPool.Has(nEntity.Id))
                 dij += Vector3.Dot(massKernel, massKernel);
@@ -129,27 +125,19 @@ file static class ISphUtil
 
     public static void ComputeSourceTerm(Entity entity, SphPassContext context, SimConfig config)
     {
-        var kernels = context.Kernels;
-        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var movement = ref context.MovementPool.Get(entity.Id);
         ref var fluid = ref context.FluidPool.Get(entity.Id);
-        ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var solver = ref context.SolverPool.Get(entity.Id);
 
         var sum = 0f;
-        foreach (var nEntity in neighbourList.Neighbours)
+        for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
+            var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
-
             var velDif = movement.Velocity - nMovement.Velocity;
-            sum +=
-                nFluid.Mass
-                * Vector3.Dot(
-                    velDif,
-                    kernels.NablaCubicSpline(transform.Position, nTransform.Position)
-                );
+            sum += nFluid.Mass * Vector3.Dot(velDif, neighbours.CachedKernels[i].NablaCubicSpline);
         }
 
         var predDensity = fluid.Density + config.TimeStep * sum;
@@ -158,27 +146,18 @@ file static class ISphUtil
 
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)
     {
-        var kernels = context.Kernels;
-        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
-        ref var transform = ref context.TransformPool.Get(entity.Id);
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var solver = ref context.SolverPool.Get(entity.Id);
         ref var movement = ref context.MovementPool.Get(entity.Id);
 
         var sum = 0f;
-        foreach (var nEntity in neighbourList.Neighbours)
+        for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
+            var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
-            ref var nSolver = ref context.SolverPool.Get(nEntity.Id);
             ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
-
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;
-            sum +=
-                nFluid.Mass
-                * Vector3.Dot(
-                    accDif,
-                    kernels.NablaCubicSpline(transform.Position, nTransform.Position)
-                );
+            sum += nFluid.Mass * Vector3.Dot(accDif, neighbours.CachedKernels[i].NablaCubicSpline);
         }
 
         solver.Laplacian = config.TimeStep * sum;

@@ -4,28 +4,29 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FlowLab.Config;
+using FlowLab.Ecs.Components;
 using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
 
 namespace FlowLab.Sph.Passes;
 
-public static class DensityPass
+public static class NeighboursAndDensityPass
 {
     public static void RunForEach(
         Partitioner<Entity> fEntities,
         ISpatialGrid3D spatialHash3D,
         SphPassContext context,
+        Kernels kernels,
         SimConfig config
     )
     {
         Parallel.ForEach(
             fEntities,
             ParallelConfig.Options,
-            fEntity => ComputeEntity(fEntity, spatialHash3D, context, config)
+            fEntity => ComputeEntity(fEntity, spatialHash3D, context, kernels, config)
         );
     }
 
@@ -33,6 +34,7 @@ public static class DensityPass
         Entity entity,
         ISpatialGrid3D spatialHash3D,
         SphPassContext context,
+        Kernels kernels,
         SimConfig config
     )
     {
@@ -46,22 +48,28 @@ public static class DensityPass
             config.SpatialHashQueryRadius,
             neighbours.Neighbours
         );
-
-        if (neighbours.Neighbours.Count <= 2)
-        {
-            fluid.Density = config.FluidDensity;
-            return;
-        }
+        for (var i = 0; i < neighbours.Neighbours.Count; i++)
+            neighbours.CachedKernels.Add(default);
 
         var density = 0f;
-        foreach (var nEntity in neighbours.Neighbours)
+        for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
+            var nEntity = neighbours.Neighbours[i];
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            density +=
-                nFluid.Mass * context.Kernels.CubicSpline(transform.Position, nTransform.Position);
+
+            var cachedKernel = new CachedKernel
+            {
+                CubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position),
+                NablaCubicSpline = kernels.NablaCubicSpline(
+                    transform.Position,
+                    nTransform.Position
+                ),
+            };
+            neighbours.CachedKernels[i] = cachedKernel;
+            density += nFluid.Mass * cachedKernel.CubicSpline;
         }
 
-        fluid.Density = density;
+        fluid.Density = neighbours.Neighbours.Count < 2 ? config.FluidDensity : density;
     }
 }

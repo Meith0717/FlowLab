@@ -31,10 +31,10 @@ public class SimulationSystem(
     public void Initialize(World world)
     {
         _tracker = world.TypeTracker;
-        _context.Initialize(world.Components, kernels);
+        _context.Initialize(world.Components);
 
         var bPartitioner = Partitioner.Create(_tracker.GetEntitiesWith<BoundaryTag>());
-        BoundaryPass.RunForEach(bPartitioner, spatialHash3D, _context, config);
+        BoundaryPass.RunForEach(bPartitioner, spatialHash3D, _context, kernels, config);
     }
 
     public void Update(
@@ -51,7 +51,13 @@ public class SimulationSystem(
         var fluid = _tracker.GetEntitiesWith<FluidTag>();
         var fPartitioner = Partitioner.Create(fluid);
 
-        DensityPass.RunForEach(allPartitioner, spatialHash3D, _context, config);
+        NeighboursAndDensityPass.RunForEach(
+            allPartitioner,
+            spatialHash3D,
+            _context,
+            kernels,
+            config
+        );
         NonPressureAccelerationPass.RunForEach(fPartitioner, _context, config);
         IiPressurePass.RunForEach(fPartitioner, fluid.Count, _context, config);
         // WcPressurePass.RunForEach(fPartitioner, _context, config);

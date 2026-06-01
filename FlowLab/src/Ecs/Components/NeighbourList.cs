@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Ecs.Components;
@@ -11,9 +12,17 @@ namespace FlowLab.Ecs.Components;
 public struct NeighbourList()
 {
     public List<Entity> Neighbours = [];
+    public List<CachedKernel> CachedKernels = [];
 
     public void Clear()
     {
         Neighbours.Clear();
+        CachedKernels.Clear();
     }
+}
+
+public struct CachedKernel
+{
+    public float CubicSpline;
+    public Vector3 NablaCubicSpline;
 }

@@ -4,8 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
@@ -31,24 +29,20 @@ public static class PressureAccelerationPass
 
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var transform = ref context.TransformPool.Get(entity.Id);
         ref var movement = ref context.MovementPool.Get(entity.Id);
         ref var fluid = ref context.FluidPool.Get(entity.Id);
-        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
         var pressureOverDensity2 = fluid.Pressure / (fluid.Density * fluid.Density);
 
         var pressureAcceleration = Vector3.Zero;
-        foreach (var nEntity in neighbourList.Neighbours)
+        for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
+            var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             var nPressureOverDensity2 = nFluid.Pressure / (nFluid.Density * nFluid.Density);
 
-            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
-            var kernelDerivative = context.Kernels.NablaCubicSpline(
-                transform.Position,
-                nTransform.Position
-            );
+            var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
 
             float combinedPressure;
             if (context.BoundaryPool.Has(nEntity.Id))

@@ -3,8 +3,6 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using Microsoft.Xna.Framework;
-
 namespace FlowLab.Ecs.Components;
 
 public struct SolverComponent
