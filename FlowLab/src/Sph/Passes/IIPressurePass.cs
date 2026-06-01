@@ -48,10 +48,12 @@ public static class IiPressurePass
             PressureAccelerationPass.RunForEach(fluidEntities, context, config);
 
             var totalDensityError = 0d;
+
             Parallel.ForEach(
                 fluidEntities,
                 ParallelConfig.Options,
-                entity =>
+                () => 0d,
+                (entity, _, localError) =>
                 {
                     ISphUtil.ComputeLaplacian(entity, context, config);
 
@@ -65,19 +67,26 @@ public static class IiPressurePass
                             * (solver.SourceTherm - solver.Laplacian);
                     else
                         fluid.Pressure = 0;
+
                     fluid.Pressure = float.Max(0, fluid.Pressure);
 
+                    localError +=
+                        float.Max(solver.Laplacian - solver.SourceTherm, 0)
+                        * config.TimeStep
+                        / config.FluidDensity
+                        * 100;
+
+                    return localError;
+                },
+                localError =>
+                {
                     lock (Lock)
-                        totalDensityError +=
-                            float.Max(solver.Laplacian - solver.SourceTherm, 0)
-                            * config.TimeStep
-                            / config.FluidDensity
-                            * 100;
+                        totalDensityError += localError;
                 }
             );
 
             var averageError = totalDensityError / particleCount;
-            if (averageError < config.MinDensityError && i > 1 || particleCount <= 0)
+            if ((averageError < config.MinDensityError && i > 1) || particleCount <= 0)
                 break;
         }
 

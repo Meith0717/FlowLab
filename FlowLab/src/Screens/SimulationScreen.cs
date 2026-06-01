@@ -52,7 +52,12 @@ public class SimulationScreen : Screen
         );
         _world.Components.Add(_world.WorldEntity, new DebugComponent());
 
-        _fluidRenderer = new FluidRenderer(GraphicsDevice, _world);
+        _fluidRenderer = new FluidRenderer(
+            GraphicsDevice,
+            _world,
+            spatialHashSystem,
+            _simConfig.SpatialHashQueryRadius
+        );
         _liveData = new LiveData(_world, _simConfig);
 
         _sensorManager = new SensorPlaneManager(GraphicsDevice);
@@ -99,6 +104,7 @@ public class SimulationScreen : Screen
         }
 
         _fluidRenderer.Update(_simController.HideBoundary);
+        _fluidRenderer.ShowSpatialGrids = _simController.ShowSpatialGrids;
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 
@@ -137,13 +143,13 @@ public class SimulationScreen : Screen
                 particleSize,
                 _simConfig.FluidDensity
             );
-            position = new Vector3(i, height - particleSize, j);
-            ParticleFactory.CreateBoundaryParticle(
-                _world,
-                position,
-                particleSize,
-                _simConfig.FluidDensity
-            );
+            // position = new Vector3(i, height - particleSize, j);
+            // ParticleFactory.CreateBoundaryParticle(
+            //     _world,
+            //     position,
+            //     particleSize,
+            //     _simConfig.FluidDensity
+            // );
         }
 
         for (var i = -halfWidth; i < halfWidth; i += particleSize)

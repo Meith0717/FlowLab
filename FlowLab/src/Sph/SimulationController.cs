@@ -14,31 +14,42 @@ namespace FlowLab.Sph;
 
 public class SimulationController(World world)
 {
-    private readonly World _world = world;
+    private bool _debugEnabled;
 
-    public bool IsPaused { get; private set; }
+    public bool IsPaused { get; private set; } = false;
     public bool HideBoundary { get; private set; }
+    public bool ShowSpatialGrids { get; private set; }
 
     public void Update(double elapsedMilliseconds, InputHandler inputHandler)
     {
         if (inputHandler.HasAction((byte)ActionType.PauseSimulation))
-            TogglePause();
-
-        if (inputHandler.HasAction((byte)ActionType.HideBoundary))
-            ToggleHideBoundary();
+            IsPaused = !IsPaused;
 
         if (inputHandler.HasAction((byte)ActionType.ClearFluid) && IsPaused)
             ClearFluid();
+
+        if (inputHandler.HasAction((byte)ActionType.HideBoundary))
+            HideBoundary = !HideBoundary;
+
+        if (inputHandler.HasAction((byte)ActionType.ToggleDebug))
+            ToggleDebug();
+
+        if (inputHandler.HasAction((byte)ActionType.ToggleSpatialGrids) && _debugEnabled)
+            ShowSpatialGrids = !ShowSpatialGrids;
     }
 
-    private void TogglePause() => IsPaused = !IsPaused;
-
-    private void ToggleHideBoundary() => HideBoundary = !HideBoundary;
+    private void ToggleDebug()
+    {
+        _debugEnabled = !_debugEnabled;
+        if (_debugEnabled)
+            return;
+        ShowSpatialGrids = false;
+    }
 
     private void ClearFluid()
     {
-        var fluidCollection = _world.TypeTracker.GetEntitiesWith<FluidTag>();
-        var lifePool = _world.Components.GetOrCreatePool<Lifetime>();
+        var fluidCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
+        var lifePool = world.Components.GetOrCreatePool<Lifetime>();
         Parallel.ForEach(
             fluidCollection,
             fluidEntity =>

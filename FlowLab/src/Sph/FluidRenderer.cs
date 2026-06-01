@@ -4,6 +4,9 @@
 // Portions generated or assisted by AI.
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -11,6 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
 using MonoKit.Ecs;
 using MonoKit.Graphics.Camera;
+using MonoKit.Spatial;
 
 namespace FlowLab.Sph;
 
@@ -25,15 +29,22 @@ public class FluidRenderer : IDisposable
     private readonly DynamicVertexBuffer _instanceBufferB;
     private readonly World _world;
     private readonly ParticleShaderData[] _instanceData;
+    private readonly ISpatialGrid3D _spatialHash;
+    private readonly float _cellSize;
     private DynamicVertexBuffer _currentWriteBuffer;
     private DynamicVertexBuffer _currentReadBuffer;
     private Effect _particleShader;
+    private BasicEffect _gridEffect;
     private int _particleCount;
 
-    public FluidRenderer(GraphicsDevice graphics, World world)
+    public bool ShowSpatialGrids { get; set; }
+
+    public FluidRenderer(GraphicsDevice graphics, World world, ISpatialGrid3D spatialHash, float cellSize)
     {
         _graphics = graphics;
         _world = world;
+        _spatialHash = spatialHash;
+        _cellSize = cellSize;
         _instanceData = new ParticleShaderData[Config.SimConfig.MaxParticles];
 
         var quadVertices = new[]
@@ -73,6 +84,13 @@ public class FluidRenderer : IDisposable
         );
         _currentWriteBuffer = _instanceBufferA;
         _currentReadBuffer = _instanceBufferB;
+
+        // Initialize grid rendering
+        _gridEffect = new BasicEffect(graphics)
+        {
+            VertexColorEnabled = true,
+            LightingEnabled = false,
+        };
     }
 
     public void Initialize()
@@ -111,9 +129,144 @@ public class FluidRenderer : IDisposable
         (_currentWriteBuffer, _currentReadBuffer) = (_currentReadBuffer, _currentWriteBuffer);
     }
 
+    private void DrawSpatialGrid(Camera3D camera)
+    {
+        var view = camera.View;
+        var projection = camera.Projection;
+
+        _gridEffect.View = view;
+        _gridEffect.Projection = projection;
+        _gridEffect.World = Matrix.Identity;
+
+        _graphics.BlendState = BlendState.Opaque;
+        _graphics.DepthStencilState = DepthStencilState.Default;
+        _graphics.RasterizerState = RasterizerState.CullNone;
+
+        var activeColor = new Color(100, 150, 255, 80);
+        var inactiveColor = new Color(50, 75, 100, 40);
+
+        // Get active cell hashes via reflection
+        var activeCellHashes = new HashSet<long>();
+        var activeCellsField = _spatialHash.GetType().GetField(
+            "_activeCells", BindingFlags.NonPublic | BindingFlags.Instance
+        );
+        var gridsField = _spatialHash.GetType().GetField(
+            "_grids", BindingFlags.NonPublic | BindingFlags.Instance
+        );
+
+        var activeCells = activeCellsField?.GetValue(_spatialHash) as System.Collections.IList;
+        var grids = gridsField?.GetValue(_spatialHash) as System.Collections.IDictionary;
+
+        if (activeCells != null && grids != null)
+        {
+            foreach (var kvp in (System.Collections.IEnumerable)grids)
+            {
+                var entry = (System.Collections.DictionaryEntry)kvp;
+                if (activeCells.Contains(entry.Value))
+                {
+                    activeCellHashes.Add((long)entry.Key);
+                }
+            }
+        }
+
+        // Calculate visible cell range based on camera position
+        var cameraPosition = camera.Position;
+
+        // Calculate a reasonable range around the camera
+        int range = 50; // cells in each direction
+        int cellMinX = (int)Math.Floor(cameraPosition.X / _cellSize) - range;
+        int cellMaxX = (int)Math.Floor(cameraPosition.X / _cellSize) + range;
+        int cellMinY = (int)Math.Floor(cameraPosition.Y / _cellSize) - range;
+        int cellMaxY = (int)Math.Floor(cameraPosition.Y / _cellSize) + range;
+        int cellMinZ = (int)Math.Floor(cameraPosition.Z / _cellSize) - range;
+        int cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
+
+        // Clamp to prevent excessive iteration
+        cellMinX = Math.Max(cellMinX, -200); cellMaxX = Math.Min(cellMaxX, 200);
+        cellMinY = Math.Max(cellMinY, -200); cellMaxY = Math.Min(cellMaxY, 200);
+        cellMinZ = Math.Max(cellMinZ, -200); cellMaxZ = Math.Min(cellMaxZ, 200);
+
+        var halfSize = _cellSize / 2f;
+
+        // Draw grid lines (more efficient than individual cells)
+        // Draw Y-aligned lines (vertical)
+        for (int x = cellMinX; x <= cellMaxX; x++)
+        for (int z = cellMinZ; z <= cellMaxZ; z++)
+        {
+            var xPos = x * _cellSize;
+            var zPos = z * _cellSize;
+            DrawGridLine(
+                new Vector3(xPos, cellMinY * _cellSize, zPos),
+                new Vector3(xPos, cellMaxY * _cellSize, zPos),
+                GetCellColor(x, cellMinY, z, activeCellHashes),
+                GetCellColor(x, cellMaxY, z, activeCellHashes)
+            );
+        }
+
+        // Draw Z-aligned lines (depth)
+        for (int x = cellMinX; x <= cellMaxX; x++)
+        for (int y = cellMinY; y <= cellMaxY; y++)
+        {
+            var xPos = x * _cellSize;
+            var yPos = y * _cellSize;
+            DrawGridLine(
+                new Vector3(xPos, yPos, cellMinZ * _cellSize),
+                new Vector3(xPos, yPos, cellMaxZ * _cellSize),
+                GetCellColor(x, y, cellMinZ, activeCellHashes),
+                GetCellColor(x, y, cellMaxZ, activeCellHashes)
+            );
+        }
+
+        // Draw X-aligned lines (horizontal)
+        for (int y = cellMinY; y <= cellMaxY; y++)
+        for (int z = cellMinZ; z <= cellMaxZ; z++)
+        {
+            var yPos = y * _cellSize;
+            var zPos = z * _cellSize;
+            DrawGridLine(
+                new Vector3(cellMinX * _cellSize, yPos, zPos),
+                new Vector3(cellMaxX * _cellSize, yPos, zPos),
+                GetCellColor(cellMinX, y, z, activeCellHashes),
+                GetCellColor(cellMaxX, y, z, activeCellHashes)
+            );
+        }
+    }
+
+    private void DrawGridLine(Vector3 start, Vector3 end, Color startColor, Color endColor)
+    {
+        var vertices = new[]
+        {
+            new VertexPositionColor(start, startColor),
+            new VertexPositionColor(end, endColor),
+        };
+
+        var vb = new VertexBuffer(_graphics, typeof(VertexPositionColor), 2, BufferUsage.WriteOnly);
+        vb.SetData(vertices);
+
+        _graphics.SetVertexBuffer(vb);
+        _graphics.Indices = null;
+
+        foreach (var pass in _gridEffect.CurrentTechnique.Passes)
+        {
+            pass.Apply();
+            _graphics.DrawPrimitives(PrimitiveType.LineList, 0, 1);
+        }
+
+        vb.Dispose();
+    }
+
+    private Color GetCellColor(int x, int y, int z, HashSet<long> activeHashes)
+    {
+        unchecked
+        {
+            long hash = ((long)x * 73856093L) ^ ((long)y * 19349663L) ^ ((long)z * 83492791L);
+            return activeHashes.Contains(hash) ? new Color(100, 150, 255, 120) : new Color(50, 75, 100, 60);
+        }
+    }
+
     public void Draw(Camera3D camera)
     {
-        if (_particleCount == 0)
+        if (_particleCount == 0 && !ShowSpatialGrids)
             return;
 
         _particleShader.Parameters["View"].SetValue(camera.View);
@@ -140,6 +293,12 @@ public class FluidRenderer : IDisposable
                 instanceCount: _particleCount
             );
         }
+
+        // Draw spatial grid if enabled
+        if (ShowSpatialGrids)
+        {
+            DrawSpatialGrid(camera);
+        }
     }
 
     public void Dispose()
@@ -148,5 +307,6 @@ public class FluidRenderer : IDisposable
         _quadIndexBuffer?.Dispose();
         _instanceBufferA?.Dispose();
         _instanceBufferB?.Dispose();
+        _gridEffect?.Dispose();
     }
 }

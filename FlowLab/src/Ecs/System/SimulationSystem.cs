@@ -11,6 +11,8 @@ using FlowLab.Sph.Passes;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Querying;
 using MonoKit.Ecs.Systems;
+using MonoKit.Gameplay;
+using MonoKit.Input;
 using MonoKit.Spatial;
 
 namespace FlowLab.Ecs.System;
@@ -35,7 +37,12 @@ public class SimulationSystem(
         BoundaryPass.RunForEach(bPartitioner, spatialHash3D, _context, config);
     }
 
-    public void Update(double elapsedMs, World world)
+    public void Update(
+        double elapsedMs,
+        World world,
+        RuntimeContainer runtimeContainer,
+        InputHandler inputHandler
+    )
     {
         if (controller.IsPaused)
             return;
@@ -47,7 +54,7 @@ public class SimulationSystem(
         DensityPass.RunForEach(allPartitioner, spatialHash3D, _context, config);
         NonPressureAccelerationPass.RunForEach(fPartitioner, _context, config);
         IiPressurePass.RunForEach(fPartitioner, fluid.Count, _context, config);
-        // WcPressurePass.RunForEach(fPartitioner, _context, simConfig);
+        // WcPressurePass.RunForEach(fPartitioner, _context, config);
         PressureAccelerationPass.RunForEach(fPartitioner, _context, config);
         PositionUpdatePass.RunForEach(fPartitioner, _context, config);
     }

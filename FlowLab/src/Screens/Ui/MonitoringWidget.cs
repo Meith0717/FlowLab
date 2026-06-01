@@ -26,7 +26,7 @@ public class MonitoringWidget(
         root.Add(
             _simMonitoring = new UiFrame
             {
-                Allign = Allign.NE,
+                Align = Align.NE,
                 Width = 300,
                 Height = 500,
                 Color = new Color(30, 30, 30, 200),
@@ -38,7 +38,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "MONITORING")
             {
-                Allign = Allign.N,
+                Align = Align.N,
                 HSpace = 5,
                 VSpace = 5,
                 Scale = 0.2f,
@@ -49,7 +49,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = 30,
                 RelWidth = .95f,
                 Height = 4,
@@ -61,7 +61,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"FPS: {(int)frameCounter.CurrentFramesPerSecond}",
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = 40,
                 Scale = 0.15f,
@@ -72,7 +72,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"Entities: #{liveData.EntityCount}",
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = 60,
                 Scale = 0.15f,
@@ -90,7 +90,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "STABILITY")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
@@ -100,7 +100,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = y + 20,
                 RelWidth = .95f,
                 Height = 4,
@@ -111,7 +111,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "CFL")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 30,
                 Scale = 0.15f,
@@ -120,7 +120,7 @@ public class MonitoringWidget(
         );
         _cflBar = new UiSlider(false)
         {
-            Allign = Allign.Right,
+            Align = Align.Right,
             Y = y + 32,
             HSpace = 10,
             Width = 130,
@@ -131,7 +131,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 150,
                 Y = y + 30,
                 Scale = 0.15f,
@@ -143,7 +143,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Time Step")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 50,
                 Scale = 0.15f,
@@ -154,7 +154,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{simConfig.TimeStep}",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 50,
                 Scale = 0.15f,
@@ -165,7 +165,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Max. Vel.")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 70,
                 Scale = 0.15f,
@@ -176,7 +176,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{float.Round(liveData.MaxVelocity, 2)} m/s",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 70,
                 Scale = 0.15f,
@@ -187,7 +187,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Avg. Vel.")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 90,
                 Scale = 0.15f,
@@ -198,7 +198,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{float.Round(liveData.AvgVelocity, 2)} m/s",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 90,
                 Scale = 0.15f,
@@ -212,7 +212,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "SOLVER")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
@@ -222,7 +222,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = y + 20,
                 RelWidth = .95f,
                 Height = 4,
@@ -233,7 +233,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Iterations")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 30,
                 Scale = 0.16f,
@@ -244,7 +244,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{liveData.IterationCount} / {simConfig.MaxIterations}",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 30,
                 Scale = 0.16f,
@@ -254,7 +254,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             _iterationsBar = new UiSlider(false)
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 Y = y + 53,
                 HSpace = 10,
                 RelWidth = 1,
@@ -266,7 +266,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 Text = "2",
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 70,
                 Scale = 0.16f,
@@ -277,7 +277,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{simConfig.MaxIterations}",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 70,
                 Scale = 0.16f,
@@ -291,7 +291,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "FLUID")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
@@ -301,7 +301,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = y + 20,
                 RelWidth = .95f,
                 Height = 4,
@@ -312,7 +312,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Mass")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 30,
                 Scale = 0.15f,
@@ -322,7 +322,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 30,
                 Scale = 0.16f,
@@ -334,7 +334,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Density")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 50,
                 Scale = 0.15f,
@@ -344,7 +344,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 50,
                 Scale = 0.16f,
@@ -356,7 +356,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Init. Volume")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 70,
                 Scale = 0.16f,
@@ -367,7 +367,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{liveData.FluidMass * simConfig.FluidDensity} m\u00B3",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 70,
                 Scale = 0.16f,
@@ -378,7 +378,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Volume")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 90,
                 Scale = 0.16f,
@@ -390,7 +390,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{float.Round(liveData.FluidVolume)} m\u00B3",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 90,
                 Scale = 0.16f,
@@ -401,7 +401,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Abs. Error")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 110,
                 Scale = 0.16f,
@@ -412,7 +412,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{float.Round(liveData.AbsError * 100, 2)} %",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 10,
                 Y = y + 110,
                 Scale = 0.16f,
@@ -423,7 +423,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola", "Error")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y + 130,
                 Scale = 0.16f,
@@ -434,7 +434,7 @@ public class MonitoringWidget(
             new UiText("consola")
             {
                 TextProvider = () => $"{float.Round(liveData.CompressionError * 100, 2)} %",
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 150,
                 Y = y + 130,
                 Scale = 0.16f,
@@ -444,7 +444,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             _errorBar = new UiSlider(false)
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 Y = y + 132,
                 HSpace = 10,
                 Width = 130,

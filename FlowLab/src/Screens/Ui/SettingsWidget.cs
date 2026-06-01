@@ -24,7 +24,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         root.Add(
             _settingsFrame = new UiFrame
             {
-                Allign = Allign.NW,
+                Align = Align.NW,
                 Width = 250,
                 Height = 350,
                 Color = new Color(30, 30, 30, 200),
@@ -36,7 +36,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         _settingsFrame.Add(
             new UiText("consola", "SETTINGS")
             {
-                Allign = Allign.N,
+                Align = Align.N,
                 HSpace = 5,
                 VSpace = 5,
                 Scale = 0.2f,
@@ -47,7 +47,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         _settingsFrame.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = 30,
                 RelWidth = .95f,
                 Height = 4,
@@ -86,7 +86,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         _settingsFrame.Add(
             new UiText("consola", label)
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = y,
                 Scale = 0.15f,
@@ -96,7 +96,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
 
         field = new UiTextEntry("consola")
         {
-            Allign = Allign.Right,
+            Align = Align.Right,
             Y = y,
             HSpace = 10,
             Width = 120,

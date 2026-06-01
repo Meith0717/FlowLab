@@ -37,7 +37,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         root.Add(
             _sensorFrame = new UiFrame
             {
-                Allign = Allign.SW, // Bottom-left
+                Align = Align.SW, // Bottom-left
                 Width = 300,
                 Height = 420, // Increased height for better spacing
                 Color = new Color(30, 30, 30, 200),
@@ -50,7 +50,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola", "SENSOR PLANE")
             {
-                Allign = Allign.N,
+                Align = Align.N,
                 HSpace = 5,
                 VSpace = 5,
                 Scale = 0.2f,
@@ -62,7 +62,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = 30,
                 RelWidth = .95f,
                 Height = 4,
@@ -74,7 +74,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             _textureFrame = new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = 50,
                 RelWidth = 0.975f,
                 Height = 250,
@@ -86,7 +86,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola", "Plane:")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = 320, // +15px
                 Scale = 0.15f,
@@ -98,7 +98,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola")
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 80,
                 Y = 320, // +15px
                 Scale = 0.15f,
@@ -114,7 +114,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiFrame
             {
-                Allign = Allign.CenterV,
+                Align = Align.CenterV,
                 Y = 355, // +15px
                 RelWidth = .95f,
                 Height = 2,
@@ -126,7 +126,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola", "Property:")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = 365, // +15px
                 Scale = 0.15f,
@@ -138,7 +138,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola")
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 80,
                 Y = 365, // +15px
                 Scale = 0.15f,
@@ -154,7 +154,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola", "Color:")
             {
-                Allign = Allign.Left,
+                Align = Align.Left,
                 HSpace = 10,
                 Y = 395, // +15px
                 Scale = 0.15f,
@@ -166,7 +166,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         _sensorFrame.Add(
             new UiText("consola")
             {
-                Allign = Allign.Right,
+                Align = Align.Right,
                 HSpace = 80,
                 Y = 395, // +15px
                 Scale = 0.15f,
@@ -194,7 +194,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
             {
                 _planeSprite = new UiSprite(texture, scale: 2f, color: Color.White)
                 {
-                    Allign = Allign.Center,
+                    Align = Align.Center,
                     FillScale = FillScale.Fit,
                 };
                 _textureFrame.Add(_planeSprite);
@@ -206,7 +206,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
     {
         var buttonText = new UiText("consola", text)
         {
-            Allign = Allign.Center,
+            Align = Align.Center,
             Width = 50,
             Height = 20,
             Scale = 0.13f,
@@ -217,7 +217,7 @@ public class SensorPlaneWidget(SensorPlaneManager sensorPlaneManager)
         {
             OnClickAction = onClick,
             UiText = buttonText,
-            Allign = Allign.Right,
+            Align = Align.Right,
             HSpace = 10,
             Y = y,
             Width = 52,

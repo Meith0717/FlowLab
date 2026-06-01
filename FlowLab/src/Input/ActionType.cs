@@ -16,5 +16,7 @@ namespace FlowLab.Input
         // Controller
         PauseSimulation,
         ClearFluid,
+        ToggleDebug,
+        ToggleSpatialGrids,
     }
 }

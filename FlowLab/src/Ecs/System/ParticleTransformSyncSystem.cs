@@ -9,6 +9,8 @@ using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;
 using MonoKit.Ecs.Systems;
+using MonoKit.Gameplay;
+using MonoKit.Input;
 
 namespace FlowLab.Ecs.System;
 
@@ -27,7 +29,12 @@ public class ParticleTransformSyncSystem : ISystem
         _shaderDataPool = world.Components.GetOrCreatePool<ParticleShaderData>();
     }
 
-    public void Update(double elapsedMs, World world)
+    public void Update(
+        double elapsedMs,
+        World world,
+        RuntimeContainer runtimeContainer,
+        InputHandler inputHandler
+    )
     {
         var entities = _tracker.GetEntitiesWith<ParticleTag>();
 
