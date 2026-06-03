@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
@@ -69,6 +70,17 @@ public class SimulationScreen : Screen
         _liveData = new LiveData(_world, _simConfig);
 
         _sensorManager = new SensorPlaneManager(GraphicsDevice);
+        var sensorPlane = new SensorPlane(
+            _world,
+            spatialHashSystem,
+            kernels,
+            _simConfig,
+            new Vector3(0, 25, 0),
+            Vector3.UnitX,
+            new Size(60, 60),
+            120
+        );
+        _sensorManager.Add("Plane 1", sensorPlane);
 
         SpawnBox(25, 25, 60, 1f);
     }
@@ -141,13 +153,6 @@ public class SimulationScreen : Screen
                 particleSize,
                 _simConfig.FluidDensity
             );
-            // position = new Vector3(i, height - particleSize, j);
-            // ParticleFactory.CreateBoundaryParticle(
-            //     _world,
-            //     position,
-            //     particleSize,
-            //     _simConfig.FluidDensity
-            // );
         }
 
         for (var i = -halfWidth; i < halfWidth; i += particleSize)
@@ -194,5 +199,6 @@ public class SimulationScreen : Screen
         _fluidRenderer.Dispose();
         _sensorManager.Dispose();
         base.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

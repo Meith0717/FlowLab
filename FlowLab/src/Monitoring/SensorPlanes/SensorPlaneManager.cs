@@ -5,8 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Graphics.Camera;
@@ -16,22 +15,25 @@ namespace FlowLab.Monitoring.SensorPlanes;
 public class SensorPlaneManager : IDisposable
 {
     private const double CoolDown = 1000 / 30d;
+    private double _actualCoolDown = CoolDown;
 
+    [CanBeNull]
+    private string _currentPlaneId;
+    private readonly Dictionary<
+        string,
+        (SensorPlane sensorPlane, Texture2D texture2D)
+    > _dictionary = [];
     private readonly GraphicsDevice _graphics;
-    private readonly List<SensorPlane> _planes = [];
-    private readonly List<Texture2D> _textures = [];
-    private readonly Dictionary<string, int> _dictionary = [];
     private readonly RasterizerState _wireframeRasterizerState;
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
     private readonly BasicEffect _sharedEffect;
-    private double _actualCoolDown = CoolDown;
 
     public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
-    public ImmutableArray<string> PlaneIds => [.. _dictionary.Keys];
-    public int CurrentPlaneIndex { get; set; }
+
     public int Count { get; private set; }
+    public string[] PlaneIds => [.. _dictionary.Keys];
 
     public SensorPlaneManager(GraphicsDevice graphics)
     {
@@ -79,33 +81,53 @@ public class SensorPlaneManager : IDisposable
     public void Add(string id, SensorPlane plane)
     {
         plane.Initialize();
-        _dictionary.Add(id, _planes.Count);
-        _planes.Add(plane);
-        _textures.Add(new Texture2D(_graphics, plane.Resolution, plane.Resolution));
+        var texture = new Texture2D(_graphics, plane.Resolution, plane.Resolution);
+        _dictionary.Add(id, (plane, texture));
+        _currentPlaneId = id;
         Count++;
     }
 
-    public Color[] GetTextureData(string id)
+    public bool TryAdd(string id, SensorPlane plane)
     {
-        if (!_dictionary.TryGetValue(id, out var count))
-            throw new KeyNotFoundException();
-        var texture = _planes[count];
-        return texture.TextureData;
-    }
-
-    public bool TrySetCurrentTexture(string id)
-    {
-        if (!_dictionary.TryGetValue(id, out var count))
+        if (_dictionary.ContainsKey(id))
             return false;
-        CurrentPlaneIndex = count;
+        Add(id, plane);
         return true;
     }
 
-    public Texture2D GetCurrentTexture()
+    public bool TryRemove(string id)
     {
-        if (CurrentPlaneIndex < 0 || CurrentPlaneIndex >= _textures.Count)
-            return null;
-        return _textures[CurrentPlaneIndex];
+        return _dictionary.Remove(id);
+    }
+
+    public bool TrySetCurrentPlane(string id)
+    {
+        if (!_dictionary.ContainsKey(id))
+            return false;
+        _currentPlaneId = id;
+        return true;
+    }
+
+    public bool TryGetCurrentSensorPlane(out SensorPlane sensorPlane)
+    {
+        sensorPlane = null;
+        if (_currentPlaneId == null)
+            return false;
+        if (!_dictionary.TryGetValue(_currentPlaneId, out var entry))
+            return false;
+        (sensorPlane, _) = entry;
+        return true;
+    }
+
+    public bool GetCurrentTexture(out Texture2D texture)
+    {
+        texture = null;
+        if (_currentPlaneId == null)
+            return false;
+        if (!_dictionary.TryGetValue(_currentPlaneId, out var entry))
+            return false;
+        (_, texture) = entry;
+        return true;
     }
 
     public void Update(double elapsedMilliseconds)
@@ -114,16 +136,19 @@ public class SensorPlaneManager : IDisposable
         if (_actualCoolDown > CoolDown)
             return;
         _actualCoolDown = CoolDown;
-        for (var i = 0; i < _planes.Count; i++)
-        {
-            _planes[i].Update(PropertyType, ColorScheme);
-            _textures[i].SetData(_planes[i].TextureData);
-        }
+
+        if (_currentPlaneId == null)
+            return;
+        if (!_dictionary.TryGetValue(_currentPlaneId, out var entry))
+            return;
+
+        entry.sensorPlane.Update(PropertyType, ColorScheme);
+        entry.texture2D.SetData(entry.sensorPlane.TextureData);
     }
 
     public void Draw(Camera3D camera)
     {
-        if (_planes.Count == 0)
+        if (Count == 0)
             return;
 
         _graphics.SetVertexBuffer(_vertexBuffer);
@@ -138,19 +163,25 @@ public class SensorPlaneManager : IDisposable
         _sharedEffect.TextureEnabled = false;
         _sharedEffect.DiffuseColor = Vector3.One;
 
-        for (var i = 0; i < _planes.Count; i++)
+        foreach (var (sensorPlane, _) in _dictionary.Values)
         {
-            var plane = _planes[i];
-
-            var scaleMatrix = Matrix.CreateScale(plane.Size.Width, plane.Size.Height, 1f);
+            var scaleMatrix = Matrix.CreateScale(
+                sensorPlane.Size.Width,
+                sensorPlane.Size.Height,
+                1f
+            );
 
             var upVector = Vector3.Up;
-            if (MathF.Abs(Vector3.Dot(plane.Normal, upVector)) > 0.99f)
+            if (MathF.Abs(Vector3.Dot(sensorPlane.Normal, upVector)) > 0.99f)
             {
                 upVector = Vector3.Forward;
             }
 
-            var worldMatrix = Matrix.CreateWorld(plane.Position, plane.Normal, upVector);
+            var worldMatrix = Matrix.CreateWorld(
+                sensorPlane.Position,
+                sensorPlane.Normal,
+                upVector
+            );
             _sharedEffect.World = scaleMatrix * worldMatrix;
 
             foreach (var pass in _sharedEffect.CurrentTechnique.Passes)
@@ -167,13 +198,13 @@ public class SensorPlaneManager : IDisposable
         _indexBuffer?.Dispose();
         _sharedEffect?.Dispose();
 
-        for (var i = 0; i < _planes.Count; i++)
+        foreach (var (sensorPlane, texture) in _dictionary.Values)
         {
-            _planes[i].Dispose();
-            _textures[i].Dispose();
+            sensorPlane.Dispose();
+            texture.Dispose();
         }
 
-        _planes.Clear();
-        _textures.Clear();
+        _dictionary.Clear();
+        GC.SuppressFinalize(this);
     }
 }

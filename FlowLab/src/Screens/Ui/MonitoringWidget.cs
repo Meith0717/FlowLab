@@ -461,7 +461,7 @@ public class MonitoringWidget(
                 RelWidth = 1,
                 TextScale = 0.15f,
                 TextColor = Color.LightGray,
-                OnClickAction = value => sensorPlaneManager.TrySetCurrentTexture(value),
+                OnClickAction = value => sensorPlaneManager.TrySetCurrentPlane(value),
             }
         );
 
@@ -548,11 +548,9 @@ public class MonitoringWidget(
 
     private void CreatePlaneSprite()
     {
-        if (_planeSprite != null)
+        if (!sensorPlaneManager.GetCurrentTexture(out var texture) && _planeSprite != null)
             return;
-        var texture = sensorPlaneManager.GetCurrentTexture();
-        if (texture == null || texture.IsDisposed)
-            return;
+
         _planeSprite = new UiSprite(texture, scale: 2f, color: Color.White)
         {
             Align = Align.Center,
@@ -563,12 +561,11 @@ public class MonitoringWidget(
 
     private void UpdatePlaneSprite()
     {
-        var texture = sensorPlaneManager.GetCurrentTexture();
-        if (texture == null || texture.IsDisposed)
+        if (!sensorPlaneManager.GetCurrentTexture(out var texture))
             return;
+
         CreatePlaneSprite();
-        if (_planeSprite != null)
-            _planeSprite.SpriteTexture = texture;
+        _planeSprite.SpriteTexture = texture;
     }
 
     private static Color IterationsColor(float normalizedIterations)
