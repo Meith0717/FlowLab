@@ -52,7 +52,10 @@ public static class NonPressureAccelerationPass
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
             var res = nVolume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
-            nonPressureAccelerations += 2f * config.Viscosity * res;
+            var viscosity = context.BoundaryPool.Has(nEntity.Id)
+                ? config.BViscosity
+                : config.FViscosity;
+            nonPressureAccelerations += 2f * viscosity * res;
         }
 
         nonPressureAccelerations *= config.TimeStep;

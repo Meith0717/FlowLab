@@ -32,6 +32,7 @@ public class SimulationScreen : Screen
     private readonly LiveData _liveData;
     private readonly SensorPlaneManager _sensorManager;
     private readonly SimulationController _simController;
+    private readonly SimulationTracker _simTracker;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
@@ -40,6 +41,7 @@ public class SimulationScreen : Screen
         _simRuntime = new GameRuntime3D(GraphicsDevice, _simConfig.SpatialHashQueryRadius);
         _world = _simRuntime.Services.Get<World>();
         _simController = new SimulationController(_world);
+        _simTracker = new SimulationTracker(_simConfig);
         _camera3D = _simRuntime.Services.Get<Camera3D>();
         _camera3D.AddBehaviour(new MoveByMouse());
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
@@ -48,7 +50,13 @@ public class SimulationScreen : Screen
         var kernels = new Kernels(_simConfig.ParticleSize);
         var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
         _world.Systems.Add(
-            new SimulationSystem(spatialHashSystem, kernels, _simConfig, _simController)
+            new SimulationSystem(
+                spatialHashSystem,
+                kernels,
+                _simConfig,
+                _simController,
+                _simTracker
+            )
         );
         _world.Components.Add(_world.WorldEntity, new DebugComponent());
 
@@ -61,17 +69,6 @@ public class SimulationScreen : Screen
         _liveData = new LiveData(_world, _simConfig);
 
         _sensorManager = new SensorPlaneManager(GraphicsDevice);
-        var sensorPlane = new SensorPlane(
-            _world,
-            spatialHashSystem,
-            kernels,
-            _simConfig,
-            new Vector3(0, 25, 0),
-            Vector3.UnitX,
-            new Size(60, 60),
-            120
-        );
-        _sensorManager.Add("Plane 1", sensorPlane);
 
         SpawnBox(25, 25, 60, 1f);
     }
@@ -79,7 +76,9 @@ public class SimulationScreen : Screen
     public override void Initialize()
     {
         _fluidRenderer.Initialize();
-        ScreenManager.AddScreen(new HudScreen(AppServices, _simConfig, _liveData, _sensorManager));
+        ScreenManager.AddScreen(
+            new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
+        );
         base.Initialize();
     }
 
@@ -98,11 +97,10 @@ public class SimulationScreen : Screen
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
 
         if (!_simController.IsPaused)
-        {
-            _liveData.Collect(elapsedMilliseconds);
-            _sensorManager.Update(elapsedMilliseconds);
-        }
+            _simTracker.UpdateRealTime(elapsedMilliseconds);
 
+        _liveData.Collect(elapsedMilliseconds);
+        _sensorManager.Update(elapsedMilliseconds);
         _fluidRenderer.Update(_simController.HideBoundary);
         _fluidRenderer.ShowSpatialGrids = _simController.ShowSpatialGrids;
         base.Update(elapsedMilliseconds, inputHandler, uiScale);

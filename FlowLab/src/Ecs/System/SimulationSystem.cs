@@ -5,6 +5,7 @@
 using System;
 using FlowLab.Config;
 using FlowLab.Ecs.Tags;
+using FlowLab.Monitoring;
 using FlowLab.Sph;
 using FlowLab.Sph.Passes;
 using FlowLab.Sph.Passes.Utilities;
@@ -22,12 +23,13 @@ public class SimulationSystem(
     ISpatialGrid3D spatialHash3D,
     Kernels kernels,
     SimConfig config,
-    SimulationController controller
+    SimulationController controller,
+    SimulationTracker simulationTracker
 ) : ISystem
 {
     public int Priority => 1;
     private readonly SphPassContext _context = new();
-    private EntityTypeTracker _tracker;
+    private EntityTypeTracker _entityTypeTracker;
 
     // Reusable entity arrays - materialized once per frame
     private Entity[] _allEntities = Array.Empty<Entity>();
@@ -38,7 +40,7 @@ public class SimulationSystem(
 
     public void Initialize(World world)
     {
-        _tracker = world.TypeTracker;
+        _entityTypeTracker = world.TypeTracker;
         _context.Initialize(world.Components);
 
         MaterializeEntities();
@@ -66,12 +68,14 @@ public class SimulationSystem(
         IiPressurePass.RunForEach(fluidChunking, _context, config);
         PressureAccelerationPass.RunForEach(fluidChunking, _context, config);
         PositionUpdatePass.RunForEach(fluidChunking, _context, config);
+
+        simulationTracker.Step();
     }
 
     private void MaterializeEntities()
     {
         // Materialize all particles
-        var allSet = _tracker.GetEntitiesWith<ParticleTag>();
+        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleTag>();
         if (allSet.Count > _allEntities.Length)
             _allEntities = new Entity[allSet.Count];
         var idx = 0;
@@ -79,7 +83,7 @@ public class SimulationSystem(
             _allEntities[idx++] = e;
 
         // Materialize fluid particles
-        var fluidSet = _tracker.GetEntitiesWith<FluidTag>();
+        var fluidSet = _entityTypeTracker.GetEntitiesWith<FluidTag>();
         if (fluidSet.Count > _fluidEntities.Length)
             _fluidEntities = new Entity[fluidSet.Count];
         idx = 0;
@@ -87,7 +91,7 @@ public class SimulationSystem(
             _fluidEntities[idx++] = e;
 
         // Materialize boundary particles
-        var boundarySet = _tracker.GetEntitiesWith<BoundaryTag>();
+        var boundarySet = _entityTypeTracker.GetEntitiesWith<BoundaryTag>();
         if (boundarySet.Count > _boundaryEntities.Length)
             _boundaryEntities = new Entity[boundarySet.Count];
         idx = 0;

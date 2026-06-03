@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,7 +15,7 @@ namespace FlowLab.Monitoring.SensorPlanes;
 
 public class SensorPlaneManager : IDisposable
 {
-    private const double CoolDown = 1000 / 60d;
+    private const double CoolDown = 1000 / 30d;
 
     private readonly GraphicsDevice _graphics;
     private readonly List<SensorPlane> _planes = [];
@@ -28,8 +29,9 @@ public class SensorPlaneManager : IDisposable
 
     public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
-    public IReadOnlyList<string> PlaneIds => _dictionary.Keys.ToList();
+    public ImmutableArray<string> PlaneIds => [.. _dictionary.Keys];
     public int CurrentPlaneIndex { get; set; }
+    public int Count { get; private set; }
 
     public SensorPlaneManager(GraphicsDevice graphics)
     {
@@ -80,6 +82,7 @@ public class SensorPlaneManager : IDisposable
         _dictionary.Add(id, _planes.Count);
         _planes.Add(plane);
         _textures.Add(new Texture2D(_graphics, plane.Resolution, plane.Resolution));
+        Count++;
     }
 
     public Color[] GetTextureData(string id)
@@ -88,6 +91,14 @@ public class SensorPlaneManager : IDisposable
             throw new KeyNotFoundException();
         var texture = _planes[count];
         return texture.TextureData;
+    }
+
+    public bool TrySetCurrentTexture(string id)
+    {
+        if (!_dictionary.TryGetValue(id, out var count))
+            return false;
+        CurrentPlaneIndex = count;
+        return true;
     }
 
     public Texture2D GetCurrentTexture()
@@ -100,6 +111,8 @@ public class SensorPlaneManager : IDisposable
     public void Update(double elapsedMilliseconds)
     {
         _actualCoolDown -= elapsedMilliseconds;
+        if (_actualCoolDown > CoolDown)
+            return;
         _actualCoolDown = CoolDown;
         for (var i = 0; i < _planes.Count; i++)
         {

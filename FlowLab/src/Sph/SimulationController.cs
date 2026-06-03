@@ -16,9 +16,11 @@ public class SimulationController(World world)
 {
     private bool _debugEnabled;
 
-    public bool IsPaused { get; private set; } = false;
+    public bool IsPaused { get; private set; } = true;
     public bool HideBoundary { get; private set; }
     public bool ShowSpatialGrids { get; private set; }
+
+    public void TogglePause() => IsPaused = !IsPaused;
 
     public void Update(double elapsedMilliseconds, InputHandler inputHandler)
     {
@@ -38,15 +40,7 @@ public class SimulationController(World world)
             ShowSpatialGrids = !ShowSpatialGrids;
     }
 
-    private void ToggleDebug()
-    {
-        _debugEnabled = !_debugEnabled;
-        if (_debugEnabled)
-            return;
-        ShowSpatialGrids = false;
-    }
-
-    private void ClearFluid()
+    public void ClearFluid()
     {
         var fluidCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
         var lifePool = world.Components.GetOrCreatePool<Lifetime>();
@@ -58,5 +52,13 @@ public class SimulationController(World world)
                 lifeTime.DestroyNow = true;
             }
         );
+    }
+
+    private void ToggleDebug()
+    {
+        _debugEnabled = !_debugEnabled;
+        if (_debugEnabled)
+            return;
+        ShowSpatialGrids = false;
     }
 }

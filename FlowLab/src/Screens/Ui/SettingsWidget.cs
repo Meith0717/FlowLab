@@ -14,7 +14,8 @@ public class SettingsWidget(Config.SimConfig simConfig)
     private UiFrame _settingsFrame;
 
     // Text entry fields for numeric values
-    private UiTextEntry _viscosityEntry;
+    private UiTextEntry _fViscosityEntry;
+    private UiTextEntry _bViscosityEntry;
     private UiTextEntry _timeStepEntry;
     private UiTextEntry _gravityEntry;
 
@@ -23,7 +24,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         root.Add(
             _settingsFrame = new UiFrame
             {
-                Align = Align.NW,
+                Align = Align.NE,
                 Width = 250,
                 Height = 350,
                 Color = new Color(30, 30, 30, 200),
@@ -55,18 +56,19 @@ public class SettingsWidget(Config.SimConfig simConfig)
         );
 
         AddTextEntrySetting(
-            "Viscosity",
+            "Fluid Vis.",
             60,
-            ref _viscosityEntry,
-            simConfig.Viscosity.ToString("F2")
+            ref _fViscosityEntry,
+            simConfig.FViscosity.ToString()
         );
         AddTextEntrySetting(
-            "Time Step",
-            100,
-            ref _timeStepEntry,
-            simConfig.TimeStep.ToString("F3")
+            "Boundary Vis.",
+            90,
+            ref _bViscosityEntry,
+            simConfig.BViscosity.ToString()
         );
-        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, simConfig.Gravity.ToString("F3"));
+        AddTextEntrySetting("Time Step", 120, ref _timeStepEntry, simConfig.TimeStep.ToString());
+        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, simConfig.Gravity.ToString());
     }
 
     private void AddTextEntrySetting(
@@ -93,8 +95,8 @@ public class SettingsWidget(Config.SimConfig simConfig)
             Y = y,
             HSpace = 10,
             Width = 120,
-            Height = 24,
-            Scale = 0.15f,
+            Height = 20,
+            Scale = 0.12f,
             Color = Color.White,
             BgColor = new Color(40, 40, 40, 200),
             FocusedBgColor = new Color(60, 60, 80, 220),
@@ -109,8 +111,11 @@ public class SettingsWidget(Config.SimConfig simConfig)
     public void Update(InputHandler inputHandler)
     {
         // Sync text entry values to simConfig
-        if (_viscosityEntry != null && float.TryParse(_viscosityEntry.Text, out var viscosity))
-            simConfig.Viscosity = MathHelper.Clamp(viscosity, 0, 5);
+        if (_fViscosityEntry != null && float.TryParse(_fViscosityEntry.Text, out var bViscosity))
+            simConfig.FViscosity = MathHelper.Clamp(bViscosity, 0, 5);
+
+        if (_bViscosityEntry != null && float.TryParse(_bViscosityEntry.Text, out var fViscosity))
+            simConfig.BViscosity = MathHelper.Clamp(fViscosity, 0, 5);
 
         if (_timeStepEntry != null && float.TryParse(_timeStepEntry.Text, out var timeStep))
             simConfig.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);

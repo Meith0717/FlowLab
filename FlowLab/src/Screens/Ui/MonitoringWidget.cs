@@ -3,7 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
+using System.Linq;
+using FlowLab.Config;
 using FlowLab.Monitoring;
+using FlowLab.Monitoring.SensorPlanes;
 using Microsoft.Xna.Framework;
 using MonoKit.Core.Diagnostics;
 using MonoKit.Ui;
@@ -12,23 +16,27 @@ namespace FlowLab.Screens.Ui;
 
 public class MonitoringWidget(
     FrameCounter frameCounter,
-    Config.SimConfig simConfig,
-    LiveData liveData
+    SimConfig config,
+    LiveData liveData,
+    SensorPlaneManager sensorPlaneManager
 )
 {
     private UiFrame _simMonitoring;
     private UiSlider _cflBar;
     private UiSlider _errorBar;
     private UiSlider _iterationsBar;
+    private UiFrame _sensorTextureFrame;
+    private UiText _sensorTextureComment;
+    private UiSprite _planeSprite;
 
     public void Build(UiFrame root)
     {
         root.Add(
             _simMonitoring = new UiFrame
             {
-                Align = Align.NE,
-                Width = 300,
-                Height = 500,
+                Align = Align.NW,
+                Width = 375,
+                RelHeight = 1,
                 Color = new Color(30, 30, 30, 200),
                 HSpace = 15,
                 VSpace = 12,
@@ -74,37 +82,28 @@ public class MonitoringWidget(
                 TextProvider = () => $"Entities: #{liveData.EntityCount}",
                 Align = Align.Left,
                 HSpace = 10,
-                Y = 60,
+                Y = 70,
                 Scale = 0.15f,
                 Color = Color.White,
             }
         );
 
         Stability(100);
-        Solver(235);
-        Fluid(340);
+        Fluid(250);
+        Solver(470);
+        Sensors(580);
     }
 
     private void Stability(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "STABILITY")
+            new UiText("consola", "----STABILITY----")
             {
-                Align = Align.Left,
+                Align = Align.CenterV,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
                 Color = Color.White,
-            }
-        );
-        _simMonitoring.Add(
-            new UiFrame
-            {
-                Align = Align.CenterV,
-                Y = y + 20,
-                RelWidth = .95f,
-                Height = 4,
-                Color = Color.DimGray,
             }
         );
 
@@ -145,7 +144,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 50,
+                Y = y + 60,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -153,10 +152,10 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{simConfig.TimeStep}",
+                TextProvider = () => $"{config.TimeStep}",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 50,
+                Y = y + 60,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -167,7 +166,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 70,
+                Y = y + 90,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -178,7 +177,7 @@ public class MonitoringWidget(
                 TextProvider = () => $"{float.Round(liveData.MaxVelocity, 2)} m/s",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 70,
+                Y = y + 90,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -189,7 +188,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 90,
+                Y = y + 120,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -200,7 +199,7 @@ public class MonitoringWidget(
                 TextProvider = () => $"{float.Round(liveData.AvgVelocity, 2)} m/s",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 90,
+                Y = y + 120,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -210,23 +209,13 @@ public class MonitoringWidget(
     private void Solver(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "SOLVER")
+            new UiText("consola", "----SOLVER----")
             {
-                Align = Align.Left,
+                Align = Align.CenterV,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
                 Color = Color.White,
-            }
-        );
-        _simMonitoring.Add(
-            new UiFrame
-            {
-                Align = Align.CenterV,
-                Y = y + 20,
-                RelWidth = .95f,
-                Height = 4,
-                Color = Color.DimGray,
             }
         );
 
@@ -243,7 +232,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{liveData.IterationCount} / {simConfig.MaxIterations}",
+                TextProvider = () => $"{liveData.IterationCount} / {config.MaxIterations}",
                 Align = Align.Right,
                 HSpace = 10,
                 Y = y + 30,
@@ -255,7 +244,7 @@ public class MonitoringWidget(
             _iterationsBar = new UiSlider(false)
             {
                 Align = Align.Left,
-                Y = y + 53,
+                Y = y + 63,
                 HSpace = 10,
                 RelWidth = 1,
                 Height = 15,
@@ -268,7 +257,7 @@ public class MonitoringWidget(
                 Text = "2",
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 70,
+                Y = y + 80,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -276,10 +265,10 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{simConfig.MaxIterations}",
+                TextProvider = () => $"{config.MaxIterations}",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 70,
+                Y = y + 80,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -289,23 +278,13 @@ public class MonitoringWidget(
     private void Fluid(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "FLUID")
+            new UiText("consola", "----FLUID----")
             {
-                Align = Align.Left,
+                Align = Align.CenterV,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
                 Color = Color.White,
-            }
-        );
-        _simMonitoring.Add(
-            new UiFrame
-            {
-                Align = Align.CenterV,
-                Y = y + 20,
-                RelWidth = .95f,
-                Height = 4,
-                Color = Color.DimGray,
             }
         );
 
@@ -336,7 +315,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 50,
+                Y = y + 60,
                 Scale = 0.15f,
                 Color = Color.LightGray,
             }
@@ -346,10 +325,10 @@ public class MonitoringWidget(
             {
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 50,
+                Y = y + 60,
                 Scale = 0.16f,
                 Color = Color.White,
-                TextProvider = () => $"{simConfig.FluidDensity} kg/m\u00B3",
+                TextProvider = () => $"{config.FluidDensity} kg/m\u00B3",
             }
         );
 
@@ -358,7 +337,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 70,
+                Y = y + 90,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -366,10 +345,10 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("consola")
             {
-                TextProvider = () => $"{liveData.FluidMass * simConfig.FluidDensity} m\u00B3",
+                TextProvider = () => $"{liveData.FluidMass * config.FluidDensity} m\u00B3",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 70,
+                Y = y + 90,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -380,7 +359,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 90,
+                Y = y + 120,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -392,7 +371,7 @@ public class MonitoringWidget(
                 TextProvider = () => $"{float.Round(liveData.FluidVolume)} m\u00B3",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 90,
+                Y = y + 120,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -403,7 +382,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 110,
+                Y = y + 150,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -414,7 +393,7 @@ public class MonitoringWidget(
                 TextProvider = () => $"{float.Round(liveData.AbsError * 100, 2)} %",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 110,
+                Y = y + 150,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -425,7 +404,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 130,
+                Y = y + 180,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -436,7 +415,7 @@ public class MonitoringWidget(
                 TextProvider = () => $"{float.Round(liveData.CompressionError * 100, 2)} %",
                 Align = Align.Right,
                 HSpace = 150,
-                Y = y + 130,
+                Y = y + 180,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -445,11 +424,101 @@ public class MonitoringWidget(
             _errorBar = new UiSlider(false)
             {
                 Align = Align.Right,
-                Y = y + 132,
+                Y = y + 182,
                 HSpace = 10,
                 Width = 130,
                 Height = 15,
                 BgColor = Color.Gray,
+            }
+        );
+    }
+
+    public void Sensors(int y)
+    {
+        _simMonitoring.Add(
+            new UiText("consola", "----SENSORS----")
+            {
+                Align = Align.CenterV,
+                Y = y,
+                HSpace = 10,
+                Scale = 0.175f,
+                Color = Color.White,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiVariableSelector<string>(
+                "arrowL",
+                "arrowR",
+                "consola",
+                sensorPlaneManager.PlaneIds.ToArray()
+            )
+            {
+                Align = Align.CenterV,
+                HSpace = 10,
+                Y = y + 30,
+                ButtonScale = .75f,
+                RelWidth = 1,
+                TextScale = 0.15f,
+                TextColor = Color.LightGray,
+                OnClickAction = value => sensorPlaneManager.TrySetCurrentTexture(value),
+            }
+        );
+
+        _simMonitoring.Add(
+            _sensorTextureFrame = new UiFrame
+            {
+                Align = Align.CenterV,
+                Y = y + 70,
+                Width = 350,
+                Height = 350,
+                Color = Color.DimGray,
+            }
+        );
+        _sensorTextureFrame.Add(
+            _sensorTextureComment = new UiText("consola")
+            {
+                Align = Align.Center,
+                Text = "No Sensor Plane Set",
+                Color = Color.LightGray,
+                Scale = .15f,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiVariableSelector<PropertyType>(
+                "arrowL",
+                "arrowR",
+                "consola",
+                Enum.GetValues<PropertyType>()
+            )
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = y + 430,
+                RelWidth = .45f,
+                ButtonScale = .75f,
+                TextScale = 0.15f,
+                TextColor = Color.LightGray,
+                OnClickAction = value => sensorPlaneManager.PropertyType = value,
+            }
+        );
+        _simMonitoring.Add(
+            new UiVariableSelector<ColorScheme>(
+                "arrowL",
+                "arrowR",
+                "consola",
+                Enum.GetValues<ColorScheme>()
+            )
+            {
+                Align = Align.Right,
+                HSpace = 10,
+                Y = y + 430,
+                RelWidth = .45f,
+                ButtonScale = .75f,
+                TextScale = 0.15f,
+                TextColor = Color.LightGray,
+                OnClickAction = value => sensorPlaneManager.ColorScheme = value,
             }
         );
     }
@@ -466,10 +535,40 @@ public class MonitoringWidget(
         _errorBar.Value = error;
         _errorBar.Color = errorColor;
 
-        var normalizedIterations = (float)liveData.IterationCount / simConfig.MaxIterations;
+        var normalizedIterations = (float)liveData.IterationCount / config.MaxIterations;
         var iterationColor = IterationsColor(normalizedIterations);
         _iterationsBar.Value = normalizedIterations;
         _iterationsBar.Color = iterationColor;
+
+        _sensorTextureComment.Color =
+            sensorPlaneManager.Count <= 0 ? Color.LightGray : Color.Transparent;
+
+        UpdatePlaneSprite();
+    }
+
+    private void CreatePlaneSprite()
+    {
+        if (_planeSprite != null)
+            return;
+        var texture = sensorPlaneManager.GetCurrentTexture();
+        if (texture == null || texture.IsDisposed)
+            return;
+        _planeSprite = new UiSprite(texture, scale: 2f, color: Color.White)
+        {
+            Align = Align.Center,
+            FillScale = FillScale.Fit,
+        };
+        _sensorTextureFrame.Add(_planeSprite);
+    }
+
+    private void UpdatePlaneSprite()
+    {
+        var texture = sensorPlaneManager.GetCurrentTexture();
+        if (texture == null || texture.IsDisposed)
+            return;
+        CreatePlaneSprite();
+        if (_planeSprite != null)
+            _planeSprite.SpriteTexture = texture;
     }
 
     private static Color IterationsColor(float normalizedIterations)

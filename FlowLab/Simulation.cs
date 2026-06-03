@@ -75,6 +75,7 @@ public class Simulation : Game
     {
         ContentProvider.Container<Effect>().LoadContent(Content, "Shaders");
         ContentProvider.Container<SpriteFont>().LoadContent(Content, "Fonts");
+        ContentProvider.Container<Texture2D>().LoadContent(Content, "Textures");
         _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("consola"));
         _serviceContainer.AddService(_frameCounter);
         _screenManager.AddScreen(new SimulationScreen(_serviceContainer));

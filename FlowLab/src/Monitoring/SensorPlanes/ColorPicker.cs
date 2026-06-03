@@ -12,7 +12,7 @@ public static class ColorPicker
     public static Color GetJetColor(float value)
     {
         if (value == 0)
-            return Color.Transparent;
+            return Color.Black;
         if (value < 0.125f)
             return new Color((byte)0, (byte)(127.5f + 127.5f * (4f * value)), (byte)255);
         if (value < 0.375f)

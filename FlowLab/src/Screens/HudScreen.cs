@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using FlowLab.Config;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
 using FlowLab.Screens.Ui;
@@ -17,25 +18,31 @@ public class HudScreen : Screen
 {
     private readonly MonitoringWidget _monitoringWidget;
     private readonly SettingsWidget _settingsWidget;
-    private readonly SensorPlaneWidget _sensorPlaneWidget;
+    private readonly TopBarWidget _topBarWidget;
 
     public HudScreen(
         GameServiceContainer appServices,
-        Config.SimConfig simConfig,
+        SimConfig simConfig,
         LiveData liveData,
+        SimulationTracker simulationTracker,
         SensorPlaneManager sensorPlaneManager
     )
         : base(appServices, true, true)
     {
         var frameCounter = appServices.GetService<FrameCounter>();
-        _monitoringWidget = new MonitoringWidget(frameCounter, simConfig, liveData);
+        _monitoringWidget = new MonitoringWidget(
+            frameCounter,
+            simConfig,
+            liveData,
+            sensorPlaneManager
+        );
         _monitoringWidget.Build(UiRoot);
 
         _settingsWidget = new SettingsWidget(simConfig);
         _settingsWidget.Build(UiRoot);
 
-        _sensorPlaneWidget = new SensorPlaneWidget(sensorPlaneManager);
-        _sensorPlaneWidget.Build(UiRoot);
+        _topBarWidget = new TopBarWidget(simConfig, simulationTracker);
+        _topBarWidget.Build(UiRoot);
     }
 
     public override void Update(
@@ -46,7 +53,6 @@ public class HudScreen : Screen
     {
         _monitoringWidget.Update();
         _settingsWidget.Update(inputHandler);
-        _sensorPlaneWidget.Update(inputHandler);
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 }

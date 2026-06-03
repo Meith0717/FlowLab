@@ -34,5 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Fonts\" />
+    <Folder Include="Content\Textures\" />
   </ItemGroup>
 </Project>
