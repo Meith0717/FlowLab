@@ -27,7 +27,7 @@ public class SensorPlaneManager : IDisposable
     private readonly RasterizerState _wireframeRasterizerState;
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
-    private readonly BasicEffect _sharedEffect;
+    private readonly BasicEffect _basicEffect;
 
     public ColorScheme ColorScheme { get; set; } = ColorScheme.Jet;
     public PropertyType PropertyType { get; set; } = PropertyType.Velocity;
@@ -64,7 +64,7 @@ public class SensorPlaneManager : IDisposable
         );
         _indexBuffer.SetData(indices);
 
-        _sharedEffect = new BasicEffect(_graphics)
+        _basicEffect = new BasicEffect(_graphics)
         {
             TextureEnabled = true,
             LightingEnabled = false,
@@ -81,7 +81,7 @@ public class SensorPlaneManager : IDisposable
     public void Add(string id, SensorPlane plane)
     {
         plane.Initialize();
-        var texture = new Texture2D(_graphics, plane.Resolution, plane.Resolution);
+        var texture = plane.NewTexture(_graphics);
         _dictionary.Add(id, (plane, texture));
         _currentPlaneId = id;
         Count++;
@@ -158,45 +158,20 @@ public class SensorPlaneManager : IDisposable
 
         _graphics.RasterizerState = _wireframeRasterizerState;
 
-        _sharedEffect.View = camera.View;
-        _sharedEffect.Projection = camera.Projection;
-        _sharedEffect.TextureEnabled = false;
-        _sharedEffect.DiffuseColor = Vector3.One;
+        _basicEffect.View = camera.View;
+        _basicEffect.Projection = camera.Projection;
+        _basicEffect.TextureEnabled = false;
+        _basicEffect.DiffuseColor = Vector3.One;
 
         foreach (var (sensorPlane, _) in _dictionary.Values)
-        {
-            var scaleMatrix = Matrix.CreateScale(
-                sensorPlane.Size.Width,
-                sensorPlane.Size.Height,
-                1f
-            );
-
-            var upVector = Vector3.Up;
-            if (MathF.Abs(Vector3.Dot(sensorPlane.Normal, upVector)) > 0.99f)
-            {
-                upVector = Vector3.Forward;
-            }
-
-            var worldMatrix = Matrix.CreateWorld(
-                sensorPlane.Position,
-                sensorPlane.Normal,
-                upVector
-            );
-            _sharedEffect.World = scaleMatrix * worldMatrix;
-
-            foreach (var pass in _sharedEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                _graphics.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
-            }
-        }
+            sensorPlane.Draw(_graphics, _basicEffect);
     }
 
     public void Dispose()
     {
         _vertexBuffer?.Dispose();
         _indexBuffer?.Dispose();
-        _sharedEffect?.Dispose();
+        _basicEffect?.Dispose();
 
         foreach (var (sensorPlane, texture) in _dictionary.Values)
         {
