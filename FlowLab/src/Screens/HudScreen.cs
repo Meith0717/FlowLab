@@ -11,7 +11,6 @@ using Microsoft.Xna.Framework;
 using MonoKit.Core.Diagnostics;
 using MonoKit.Input;
 using MonoKit.Screens;
-using MonoKit.Ui;
 
 namespace FlowLab.Screens;
 

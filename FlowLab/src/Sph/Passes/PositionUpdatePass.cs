@@ -4,7 +4,6 @@
 
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
-using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
 

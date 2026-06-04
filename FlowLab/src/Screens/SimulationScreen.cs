@@ -69,47 +69,24 @@ public class SimulationScreen : Screen
         );
         _liveData = new LiveData(_world, _simConfig);
 
-        _sensorManager = new SensorPlaneManager(GraphicsDevice);
-        _sensorManager.Add(
+        _sensorManager = new SensorPlaneManager(
+            GraphicsDevice,
+            _world,
+            spatialHashSystem,
+            kernels,
+            _simConfig
+        );
+        _sensorManager.TryAdd(
             "Plane 1",
-            new SensorPlane(
-                _world,
-                spatialHashSystem,
-                kernels,
-                _simConfig,
-                new Vector3(0, 25, 0),
-                Vector3.UnitX,
-                new Size(30, 100),
-                new Size(60, 200)
-            )
+            new SensorPlaneData(new Vector3(0, 40, 0), Vector3.UnitX, 30, 100, 60, 200)
         );
-
-        _sensorManager.Add(
+        _sensorManager.TryAdd(
             "Plane 2",
-            new SensorPlane(
-                _world,
-                spatialHashSystem,
-                kernels,
-                _simConfig,
-                new Vector3(0, 25, 0),
-                Vector3.UnitY,
-                new Size(30, 30),
-                new Size(60, 60)
-            )
+            new SensorPlaneData(new Vector3(0, 40, 0), Vector3.UnitZ, 30, 100, 60, 200)
         );
-
-        _sensorManager.Add(
+        _sensorManager.TryAdd(
             "Plane 3",
-            new SensorPlane(
-                _world,
-                spatialHashSystem,
-                kernels,
-                _simConfig,
-                new Vector3(0, 25, 0),
-                Vector3.UnitZ,
-                new Size(30, 100),
-                new Size(60, 200)
-            )
+            new SensorPlaneData(new Vector3(0, 10, 0), Vector3.UnitY, 30, 30, 60, 60)
         );
 
         SpawnBox(25, 25, 60, 1f);

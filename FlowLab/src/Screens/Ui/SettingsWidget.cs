@@ -34,7 +34,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         );
 
         _settingsFrame.Add(
-            new UiText("consola", "SETTINGS")
+            new UiText("defaultFont", "SETTINGS")
             {
                 Align = Align.N,
                 HSpace = 5,
@@ -79,7 +79,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
     )
     {
         _settingsFrame.Add(
-            new UiText("consola", label)
+            new UiText("defaultFont", label)
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -89,7 +89,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
             }
         );
 
-        field = new UiTextEntry("consola")
+        field = new UiTextEntry("defaultFont")
         {
             Align = Align.Right,
             Y = y,

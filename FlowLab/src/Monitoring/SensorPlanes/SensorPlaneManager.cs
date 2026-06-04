@@ -5,10 +5,14 @@
 
 using System;
 using System.Collections.Generic;
+using FlowLab.Config;
+using FlowLab.Sph;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoKit.Ecs;
 using MonoKit.Graphics.Camera;
+using MonoKit.Spatial;
 
 namespace FlowLab.Monitoring.SensorPlanes;
 
@@ -24,6 +28,10 @@ public class SensorPlaneManager : IDisposable
         (SensorPlane sensorPlane, Texture2D texture2D)
     > _dictionary = [];
     private readonly GraphicsDevice _graphics;
+    private readonly World _world;
+    private readonly ISpatialGrid3D _spatialGrid3D;
+    private readonly Kernels _kernels;
+    private readonly SimConfig _config;
     private readonly RasterizerState _wireframeRasterizerState;
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
@@ -35,9 +43,19 @@ public class SensorPlaneManager : IDisposable
     public int Count { get; private set; }
     public string[] PlaneIds => [.. _dictionary.Keys];
 
-    public SensorPlaneManager(GraphicsDevice graphics)
+    public SensorPlaneManager(
+        GraphicsDevice graphics,
+        World world,
+        ISpatialGrid3D spatialHash,
+        Kernels kernels,
+        SimConfig config
+    )
     {
         _graphics = graphics;
+        _world = world;
+        _spatialGrid3D = spatialHash;
+        _kernels = kernels;
+        _config = config;
 
         var vertices = new VertexPositionTexture[4]
         {
@@ -78,20 +96,20 @@ public class SensorPlaneManager : IDisposable
         };
     }
 
-    public void Add(string id, SensorPlane plane)
+    private void Add(string id, SensorPlaneData data)
     {
-        plane.Initialize();
+        var plane = new SensorPlane(_world, _spatialGrid3D, _kernels, _config, data);
         var texture = plane.NewTexture(_graphics);
         _dictionary.Add(id, (plane, texture));
         _currentPlaneId = id;
         Count++;
     }
 
-    public bool TryAdd(string id, SensorPlane plane)
+    public bool TryAdd(string id, SensorPlaneData data, bool @override = false)
     {
-        if (_dictionary.ContainsKey(id))
+        if (_dictionary.ContainsKey(id) && !@override)
             return false;
-        Add(id, plane);
+        Add(id, data);
         return true;
     }
 

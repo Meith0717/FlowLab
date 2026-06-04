@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System;
-using System.Globalization;
 using FlowLab.Config;
 using FlowLab.Monitoring;
 using Microsoft.Xna.Framework;
@@ -40,7 +39,7 @@ public class TopBarWidget(SimConfig config, SimulationTracker simulationTracker)
         );
 
         _topBar.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Align = Align.CenterH,
                 RelX = .51f,
@@ -51,7 +50,7 @@ public class TopBarWidget(SimConfig config, SimulationTracker simulationTracker)
         );
 
         _topBar.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Align = Align.CenterH,
                 RelX = .7f,
@@ -63,7 +62,7 @@ public class TopBarWidget(SimConfig config, SimulationTracker simulationTracker)
         );
 
         _topBar.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Align = Align.CenterH,
                 RelX = 0.9f,

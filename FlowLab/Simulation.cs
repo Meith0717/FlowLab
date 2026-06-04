@@ -14,7 +14,6 @@ using MonoKit.Core.Diagnostics;
 using MonoKit.Graphics;
 using MonoKit.Input;
 using MonoKit.Screens;
-using Myra.Graphics2D.UI;
 using InputEventType = MonoKit.Input.InputEventType;
 
 namespace FlowLab;
@@ -78,7 +77,7 @@ public class Simulation : Game
         ContentProvider.Container<Effect>().LoadContent(Content, "Shaders");
         ContentProvider.Container<SpriteFont>().LoadContent(Content, "Fonts");
         ContentProvider.Container<Texture2D>().LoadContent(Content, "Textures");
-        _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("consola"));
+        _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("defaultFont"));
         _serviceContainer.AddService(_frameCounter);
         _screenManager.AddScreen(new SimulationScreen(_serviceContainer));
         base.LoadContent();

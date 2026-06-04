@@ -21,6 +21,26 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Monitoring.SensorPlanes;
 
+public readonly struct SensorPlaneData(
+    Vector3 position,
+    Vector3 normal,
+    int width,
+    int height,
+    int xResolution,
+    int yResolution
+)
+{
+    public readonly Vector3 Position = position;
+    public readonly Vector3 Normal = normal;
+    public readonly int Width = width;
+    public readonly int Height = height;
+    public readonly int XResolution = xResolution;
+    public readonly int YResolution = yResolution;
+
+    public static SensorPlaneData Default =>
+        new SensorPlaneData(Vector3.Zero, Vector3.Up, 10, 10, 10, 10);
+}
+
 public class SensorPlane : IDisposable
 {
     private readonly ThreadLocal<List<Entity>> _neighborsBuffer = new(() => new List<Entity>(128));
@@ -31,19 +51,18 @@ public class SensorPlane : IDisposable
     private readonly Vector3 _normal;
     private readonly World _world;
     private readonly Size _size;
-    private readonly Size _resolution;
+    private readonly Point _resolution;
     private readonly bool[] _hasDataGrid;
     private readonly float[] _pressureGrid;
     private readonly float[] _velocityGrid;
     private readonly float[] _densityGrid;
+    private readonly ComponentPool<Transform3D> _transformPool;
+    private readonly ComponentPool<FluidComponent> _fluidPool;
+    private readonly ComponentPool<MovementComponent> _movementPool;
+    private readonly ComponentPool<BoundaryTag> _boundaryPool;
 
-    private ComponentPool<Transform3D> _transformPool;
-    private ComponentPool<FluidComponent> _fluidPool;
-    private ComponentPool<MovementComponent> _movementPool;
-    private ComponentPool<BoundaryTag> _boundaryPool;
-
-    private float CellSizeX => _size.Width / (float)_resolution.Width;
-    private float CellSizeY => _size.Height / (float)_resolution.Height;
+    private float CellSizeX => _size.Width / (float)_resolution.X;
+    private float CellSizeY => _size.Height / (float)_resolution.Y;
 
     public Color[] TextureData { get; }
 
@@ -59,31 +78,25 @@ public class SensorPlane : IDisposable
         ISpatialGrid3D spatialHash,
         Kernels kernels,
         SimConfig config,
-        Vector3 position,
-        Vector3 normal,
-        Size size,
-        Size resolution
+        SensorPlaneData sensorData
     )
     {
         _world = world;
         _spatialHash = spatialHash;
         _kernels = kernels;
         _config = config;
-        _position = position;
-        _normal = normal;
-        _size = size;
-        _resolution = resolution;
+        _position = sensorData.Position;
+        _normal = sensorData.Normal;
+        _size = new Size(sensorData.Width, sensorData.Height);
+        _resolution = new Point(sensorData.XResolution, sensorData.YResolution);
 
-        var gridSize = resolution.Width * resolution.Height;
+        var gridSize = _resolution.X * _resolution.Y;
         _pressureGrid = new float[gridSize];
         _velocityGrid = new float[gridSize];
         _densityGrid = new float[gridSize];
         _hasDataGrid = new bool[gridSize];
         TextureData = new Color[gridSize];
-    }
 
-    public void Initialize()
-    {
         _transformPool = _world.Components.GetOrCreatePool<Transform3D>();
         _fluidPool = _world.Components.GetOrCreatePool<FluidComponent>();
         _movementPool = _world.Components.GetOrCreatePool<MovementComponent>();
@@ -96,11 +109,11 @@ public class SensorPlane : IDisposable
 
         Parallel.For(
             0,
-            _resolution.Height,
+            _resolution.Y,
             y =>
             {
-                var uy = y * _resolution.Width;
-                for (var x = 0; x < _resolution.Width; x++)
+                var uy = y * _resolution.X;
+                for (var x = 0; x < _resolution.X; x++)
                 {
                     var index = uy + x;
                     var normalized = GetNormalizedValue(index, property);
@@ -112,7 +125,7 @@ public class SensorPlane : IDisposable
 
     public Texture2D NewTexture(GraphicsDevice device)
     {
-        return new Texture2D(device, _resolution.Width, _resolution.Height);
+        return new Texture2D(device, _resolution.X, _resolution.Y);
     }
 
     public void Draw(GraphicsDevice graphics, BasicEffect basicEffect)
@@ -151,7 +164,7 @@ public class SensorPlane : IDisposable
 
         Parallel.For(
             0,
-            _resolution.Height,
+            _resolution.Y,
             y =>
             {
                 float localMinP = float.MaxValue,
@@ -159,8 +172,8 @@ public class SensorPlane : IDisposable
                 float localMinD = float.MaxValue,
                     localMaxD = float.MinValue;
 
-                var uy = y * _resolution.Width;
-                for (var x = 0; x < _resolution.Width; x++)
+                var uy = y * _resolution.X;
+                for (var x = 0; x < _resolution.X; x++)
                 {
                     var gridPos = start + right * (x * CellSizeX) + up * (y * CellSizeY);
                     var index = uy + x;

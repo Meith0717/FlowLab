@@ -9,6 +9,7 @@ using FlowLab.Config;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Core.Diagnostics;
 using MonoKit.Ui;
 
@@ -44,13 +45,13 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "MONITORING")
+            new UiText("defaultFont", "MONITORING")
             {
                 Align = Align.N,
                 HSpace = 5,
                 VSpace = 5,
                 Scale = 0.2f,
-                Color = Color.MonoGameOrange,
+                Color = Color.Red,
             }
         );
 
@@ -66,7 +67,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"FPS: {(int)frameCounter.CurrentFramesPerSecond}",
                 Align = Align.Left,
@@ -77,7 +78,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"Entities: #{liveData.EntityCount}",
                 Align = Align.Left,
@@ -97,18 +98,18 @@ public class MonitoringWidget(
     private void Stability(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "----STABILITY----")
+            new UiText("defaultFont", "STABILITY")
             {
-                Align = Align.CenterV,
+                Align = Align.Right,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
-                Color = Color.White,
+                Color = Color.Red,
             }
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "CFL")
+            new UiText("defaultFont", "CFL")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -128,7 +129,7 @@ public class MonitoringWidget(
         };
         _simMonitoring.Add(_cflBar);
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Align = Align.Right,
                 HSpace = 150,
@@ -140,7 +141,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Time Step")
+            new UiText("defaultFont", "Time Step")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -150,7 +151,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{config.TimeStep}",
                 Align = Align.Right,
@@ -162,7 +163,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Max. Vel.")
+            new UiText("defaultFont", "Max. Vel.")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -172,7 +173,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{float.Round(liveData.MaxVelocity, 2)} m/s",
                 Align = Align.Right,
@@ -184,7 +185,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Avg. Vel.")
+            new UiText("defaultFont", "Avg. Vel.")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -194,7 +195,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{float.Round(liveData.AvgVelocity, 2)} m/s",
                 Align = Align.Right,
@@ -209,18 +210,18 @@ public class MonitoringWidget(
     private void Solver(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "----SOLVER----")
+            new UiText("defaultFont", "SOLVER")
             {
-                Align = Align.CenterV,
+                Align = Align.Right,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
-                Color = Color.White,
+                Color = Color.Red,
             }
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Iterations")
+            new UiText("defaultFont", "Iterations")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -230,7 +231,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{liveData.IterationCount} / {config.MaxIterations}",
                 Align = Align.Right,
@@ -252,7 +253,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Text = "2",
                 Align = Align.Left,
@@ -263,7 +264,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{config.MaxIterations}",
                 Align = Align.Right,
@@ -278,18 +279,18 @@ public class MonitoringWidget(
     private void Fluid(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "----FLUID----")
+            new UiText("defaultFont", "FLUID")
             {
-                Align = Align.CenterV,
+                Align = Align.Right,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
-                Color = Color.White,
+                Color = Color.Red,
             }
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Mass")
+            new UiText("defaultFont", "Mass")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -299,7 +300,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Align = Align.Right,
                 HSpace = 10,
@@ -311,7 +312,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Density")
+            new UiText("defaultFont", "Density")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -321,7 +322,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 Align = Align.Right,
                 HSpace = 10,
@@ -333,7 +334,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Init. Volume")
+            new UiText("defaultFont", "Init. Volume")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -343,7 +344,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{liveData.FluidMass * config.FluidDensity} m\u00B3",
                 Align = Align.Right,
@@ -355,7 +356,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Volume")
+            new UiText("defaultFont", "Volume")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -366,7 +367,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{float.Round(liveData.FluidVolume)} m\u00B3",
                 Align = Align.Right,
@@ -378,7 +379,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Abs. Error")
+            new UiText("defaultFont", "Abs. Error")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -388,7 +389,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{float.Round(liveData.AbsError * 100, 2)} %",
                 Align = Align.Right,
@@ -400,7 +401,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("consola", "Error")
+            new UiText("defaultFont", "Compression")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -410,7 +411,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("consola")
+            new UiText("defaultFont")
             {
                 TextProvider = () => $"{float.Round(liveData.CompressionError * 100, 2)} %",
                 Align = Align.Right,
@@ -433,16 +434,16 @@ public class MonitoringWidget(
         );
     }
 
-    public void Sensors(int y)
+    private void Sensors(int y)
     {
         _simMonitoring.Add(
-            new UiText("consola", "----SENSORS----")
+            new UiText("defaultFont", "SENSORS")
             {
-                Align = Align.CenterV,
+                Align = Align.Right,
                 Y = y,
                 HSpace = 10,
                 Scale = 0.175f,
-                Color = Color.White,
+                Color = Color.Red,
             }
         );
 
@@ -450,7 +451,7 @@ public class MonitoringWidget(
             new UiVariableSelector<string>(
                 "arrowL",
                 "arrowR",
-                "consola",
+                "defaultFont",
                 sensorPlaneManager.PlaneIds.ToArray()
             )
             {
@@ -472,11 +473,11 @@ public class MonitoringWidget(
                 Y = y + 60,
                 Width = 350,
                 Height = 350,
-                Color = Color.DimGray,
+                Color = Color.Transparent,
             }
         );
         _sensorTextureFrame.Add(
-            _sensorTextureComment = new UiText("consola")
+            _sensorTextureComment = new UiText("defaultFont")
             {
                 Align = Align.Center,
                 Text = "No Sensor Plane Set",
@@ -489,7 +490,7 @@ public class MonitoringWidget(
             new UiVariableSelector<PropertyType>(
                 "arrowL",
                 "arrowR",
-                "consola",
+                "defaultFont",
                 Enum.GetValues<PropertyType>()
             )
             {
@@ -507,7 +508,7 @@ public class MonitoringWidget(
             new UiVariableSelector<ColorScheme>(
                 "arrowL",
                 "arrowR",
-                "consola",
+                "defaultFont",
                 Enum.GetValues<ColorScheme>()
             )
             {
@@ -521,6 +522,7 @@ public class MonitoringWidget(
                 OnClickAction = value => sensorPlaneManager.ColorScheme = value,
             }
         );
+        CreatePlaneSprite();
     }
 
     public void Update()
@@ -548,10 +550,10 @@ public class MonitoringWidget(
 
     private void CreatePlaneSprite()
     {
-        if (!sensorPlaneManager.GetCurrentTexture(out var texture) && _planeSprite != null)
+        if (_planeSprite != null)
             return;
 
-        _planeSprite = new UiSprite(texture, scale: 2f, color: Color.White)
+        _planeSprite = new UiSprite((Texture2D)null, scale: 2f, color: Color.White)
         {
             Align = Align.Center,
             FillScale = FillScale.Fit,
@@ -564,7 +566,6 @@ public class MonitoringWidget(
         if (!sensorPlaneManager.GetCurrentTexture(out var texture))
             return;
 
-        CreatePlaneSprite();
         _planeSprite.SpriteTexture = texture;
     }
 
