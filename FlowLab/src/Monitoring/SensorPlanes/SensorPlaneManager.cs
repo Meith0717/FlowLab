@@ -101,7 +101,7 @@ public class SensorPlaneManager : IDisposable
         var plane = new SensorPlane(_world, _spatialGrid3D, _kernels, _config, data);
         var texture = plane.NewTexture(_graphics);
         _dictionary.Add(id, (plane, texture));
-        _currentPlaneId = id;
+        _currentPlaneId ??= id;
         Count++;
     }
 

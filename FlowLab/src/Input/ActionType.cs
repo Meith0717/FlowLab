@@ -18,5 +18,8 @@ namespace FlowLab.Input
         ClearFluid,
         ToggleDebug,
         ToggleSpatialGrids,
+
+        // Test
+        Test,
     }
 }

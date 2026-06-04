@@ -65,6 +65,7 @@ public class SensorPlane : IDisposable
     private float CellSizeY => _size.Height / (float)_resolution.Y;
 
     public Color[] TextureData { get; }
+    public SensorPlaneData SensorPlaneDataData { get; }
 
     private readonly Dictionary<PropertyType, (float Min, float Max)> _bounds = new()
     {
@@ -89,6 +90,7 @@ public class SensorPlane : IDisposable
         _normal = sensorData.Normal;
         _size = new Size(sensorData.Width, sensorData.Height);
         _resolution = new Point(sensorData.XResolution, sensorData.YResolution);
+        SensorPlaneDataData = sensorData;
 
         var gridSize = _resolution.X * _resolution.Y;
         _pressureGrid = new float[gridSize];

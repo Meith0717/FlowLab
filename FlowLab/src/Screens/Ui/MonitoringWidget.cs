@@ -59,7 +59,7 @@ public class MonitoringWidget(
             new UiFrame
             {
                 Align = Align.CenterV,
-                Y = 30,
+                Y = 35,
                 RelWidth = .95f,
                 Height = 4,
                 Color = Color.DimGray,

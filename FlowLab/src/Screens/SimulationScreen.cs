@@ -111,6 +111,10 @@ public class SimulationScreen : Screen
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
             AddFluidBlock(12, 12, 100);
+        if (inputHandler.HasAction((byte)ActionType.Test))
+            ScreenManager.AddScreen(
+                new SensorPlaneForm(AppServices, SensorPlaneData.Default, _sensorManager)
+            );
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);

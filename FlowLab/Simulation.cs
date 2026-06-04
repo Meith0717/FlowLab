@@ -39,6 +39,7 @@ public class Simulation : Game
         var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
         {
             { (Keys.Space, InputEventType.Released), (byte)ActionType.PauseSimulation },
+            { (Keys.T, InputEventType.Released), (byte)ActionType.Test },
             { (Keys.Tab, InputEventType.Released), (byte)ActionType.SpawnBlock },
             { (Keys.H, InputEventType.Released), (byte)ActionType.HideBoundary },
             { (Keys.Delete, InputEventType.Released), (byte)ActionType.ClearFluid },
