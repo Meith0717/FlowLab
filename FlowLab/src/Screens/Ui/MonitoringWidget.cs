@@ -34,12 +34,12 @@ public class MonitoringWidget(
         root.Add(
             _simMonitoring = new UiFrame
             {
-                Align = Align.NW,
+                Align = Align.SW,
                 Width = 375,
-                RelHeight = 1,
+                RelHeight = 0.955f,
+                HSpace = 7,
+                VSpace = 10,
                 Color = new Color(30, 30, 30, 200),
-                HSpace = 15,
-                VSpace = 12,
             }
         );
 
@@ -469,7 +469,7 @@ public class MonitoringWidget(
             _sensorTextureFrame = new UiFrame
             {
                 Align = Align.CenterV,
-                Y = y + 70,
+                Y = y + 60,
                 Width = 350,
                 Height = 350,
                 Color = Color.DimGray,
@@ -495,7 +495,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 430,
+                Y = y + 420,
                 RelWidth = .45f,
                 ButtonScale = .75f,
                 TextScale = 0.15f,
@@ -513,7 +513,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 430,
+                Y = y + 420,
                 RelWidth = .45f,
                 ButtonScale = .75f,
                 TextScale = 0.15f,

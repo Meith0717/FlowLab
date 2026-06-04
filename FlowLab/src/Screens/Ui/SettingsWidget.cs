@@ -24,7 +24,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         root.Add(
             _settingsFrame = new UiFrame
             {
-                Align = Align.NE,
+                Align = Align.SE,
                 Width = 250,
                 Height = 350,
                 Color = new Color(30, 30, 30, 200),

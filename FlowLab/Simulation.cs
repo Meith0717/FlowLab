@@ -14,6 +14,8 @@ using MonoKit.Core.Diagnostics;
 using MonoKit.Graphics;
 using MonoKit.Input;
 using MonoKit.Screens;
+using Myra.Graphics2D.UI;
+using InputEventType = MonoKit.Input.InputEventType;
 
 namespace FlowLab;
 

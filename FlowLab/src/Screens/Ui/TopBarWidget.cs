@@ -22,9 +22,8 @@ public class TopBarWidget(SimConfig config, SimulationTracker simulationTracker)
             _topBar = new UiFrame
             {
                 Align = Align.N,
-                Width = 900,
-                Height = 55,
-                VSpace = 12,
+                RelWidth = 1,
+                RelHeight = .03f,
                 Color = new Color(30, 30, 30, 200),
             }
         );
@@ -41,68 +40,36 @@ public class TopBarWidget(SimConfig config, SimulationTracker simulationTracker)
         );
 
         _topBar.Add(
-            new UiText("consola", "Real Time:")
-            {
-                Align = Align.Top,
-                RelX = .58f,
-                VSpace = 7,
-                Scale = 0.15f,
-                Color = Color.Gray,
-            }
-        );
-        _topBar.Add(
             new UiText("consola")
             {
-                Align = Align.Top,
-                RelX = .71f,
-                VSpace = 7,
-                Scale = 0.15f,
-                Color = Color.White,
-                TextProvider = () => FormatTime(simulationTracker.RealTimeSeconds),
-            }
-        );
-
-        _topBar.Add(
-            new UiText("consola", "Simulation Time:")
-            {
-                Align = Align.Bottom,
+                Align = Align.CenterH,
                 RelX = .51f,
-                VSpace = 7,
                 Scale = 0.15f,
-                Color = Color.Gray,
-            }
-        );
-        _topBar.Add(
-            new UiText("consola")
-            {
-                Align = Align.Bottom,
-                RelX = .71f,
-                VSpace = 7,
-                Scale = 0.15f,
-                Color = Color.White,
-                TextProvider = () => FormatTime(simulationTracker.SimulationTime),
+                Color = Color.LightGray,
+                TextProvider = () => $"Time {FormatTime(simulationTracker.RealTimeSeconds)}",
             }
         );
 
         _topBar.Add(
-            new UiText("consola", "Time Step:")
+            new UiText("consola")
             {
-                Align = Align.Top,
-                RelX = 0.82f,
-                VSpace = 7,
+                Align = Align.CenterH,
+                RelX = .7f,
                 Scale = 0.15f,
-                Color = Color.Gray,
+                Color = Color.LightGray,
+                TextProvider = () =>
+                    $"Simulation Time {FormatTime(simulationTracker.SimulationTime)}",
             }
         );
+
         _topBar.Add(
             new UiText("consola")
             {
-                Align = Align.NE,
-                HSpace = 7,
-                VSpace = 7,
+                Align = Align.CenterH,
+                RelX = 0.9f,
                 Scale = 0.15f,
                 Color = Color.White,
-                TextProvider = () => $"{config.TimeStep}",
+                TextProvider = () => $"Time Step: {config.TimeStep}",
             }
         );
     }
@@ -110,7 +77,7 @@ public class TopBarWidget(SimConfig config, SimulationTracker simulationTracker)
     private static string FormatTime(double seconds)
     {
         var ts = TimeSpan.FromSeconds(seconds);
-        return $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}";
+        return $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}:{ts.Milliseconds:D3}";
     }
 
     public void Update() { }

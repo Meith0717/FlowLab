@@ -11,38 +11,38 @@ using Microsoft.Xna.Framework;
 using MonoKit.Core.Diagnostics;
 using MonoKit.Input;
 using MonoKit.Screens;
+using MonoKit.Ui;
 
 namespace FlowLab.Screens;
 
 public class HudScreen : Screen
 {
     private readonly MonitoringWidget _monitoringWidget;
-    private readonly SettingsWidget _settingsWidget;
     private readonly TopBarWidget _topBarWidget;
+    private readonly SettingsWidget _settingsWidget;
 
     public HudScreen(
         GameServiceContainer appServices,
-        SimConfig simConfig,
+        SimConfig config,
         LiveData liveData,
         SimulationTracker simulationTracker,
         SensorPlaneManager sensorPlaneManager
     )
         : base(appServices, true, true)
     {
-        var frameCounter = appServices.GetService<FrameCounter>();
         _monitoringWidget = new MonitoringWidget(
-            frameCounter,
-            simConfig,
+            appServices.GetService<FrameCounter>(),
+            config,
             liveData,
             sensorPlaneManager
         );
         _monitoringWidget.Build(UiRoot);
 
-        _settingsWidget = new SettingsWidget(simConfig);
-        _settingsWidget.Build(UiRoot);
-
-        _topBarWidget = new TopBarWidget(simConfig, simulationTracker);
+        _topBarWidget = new TopBarWidget(config, simulationTracker);
         _topBarWidget.Build(UiRoot);
+
+        _settingsWidget = new SettingsWidget(config);
+        _settingsWidget.Build(UiRoot);
     }
 
     public override void Update(
