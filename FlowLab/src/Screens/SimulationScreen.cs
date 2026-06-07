@@ -76,18 +76,6 @@ public class SimulationScreen : Screen
             kernels,
             _simConfig
         );
-        _sensorManager.TryAdd(
-            "Plane 1",
-            new SensorPlaneData(new Vector3(0, 40, 0), Vector3.UnitX, 30, 100, 60, 200)
-        );
-        _sensorManager.TryAdd(
-            "Plane 2",
-            new SensorPlaneData(new Vector3(0, 40, 0), Vector3.UnitZ, 30, 100, 60, 200)
-        );
-        _sensorManager.TryAdd(
-            "Plane 3",
-            new SensorPlaneData(new Vector3(0, 10, 0), Vector3.UnitY, 30, 30, 60, 60)
-        );
 
         SpawnBox(25, 25, 60, 1f);
     }
@@ -112,9 +100,7 @@ public class SimulationScreen : Screen
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
             AddFluidBlock(12, 12, 100);
         if (inputHandler.HasAction((byte)ActionType.Test))
-            ScreenManager.AddScreen(
-                new SensorPlaneForm(AppServices, SensorPlaneData.Default, _sensorManager)
-            );
+            ScreenManager.AddScreen(new SensorPlaneForm(AppServices, null, _sensorManager));
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);

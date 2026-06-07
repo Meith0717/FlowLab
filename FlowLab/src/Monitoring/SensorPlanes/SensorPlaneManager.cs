@@ -96,20 +96,20 @@ public class SensorPlaneManager : IDisposable
         };
     }
 
-    private void Add(string id, SensorPlaneData data)
+    private void Add(SensorPlaneData data)
     {
         var plane = new SensorPlane(_world, _spatialGrid3D, _kernels, _config, data);
         var texture = plane.NewTexture(_graphics);
-        _dictionary.Add(id, (plane, texture));
-        _currentPlaneId ??= id;
+        _dictionary[data.Id] = (plane, texture);
+        _currentPlaneId ??= data.Id;
         Count++;
     }
 
-    public bool TryAdd(string id, SensorPlaneData data, bool @override = false)
+    public bool TryAdd(SensorPlaneData data, bool @override = false)
     {
-        if (_dictionary.ContainsKey(id) && !@override)
+        if (_dictionary.ContainsKey(data.Id) && !@override)
             return false;
-        Add(id, data);
+        Add(data);
         return true;
     }
 
@@ -126,14 +126,15 @@ public class SensorPlaneManager : IDisposable
         return true;
     }
 
-    public bool TryGetCurrentSensorPlane(out SensorPlane sensorPlane)
+    public bool TryGetCurrentSensorPlaneData(out SensorPlaneData? data)
     {
-        sensorPlane = null;
+        data = null;
         if (_currentPlaneId == null)
             return false;
         if (!_dictionary.TryGetValue(_currentPlaneId, out var entry))
             return false;
-        (sensorPlane, _) = entry;
+        var (sensorPlane, _) = entry;
+        data = sensorPlane.SensorPlaneDataData;
         return true;
     }
 

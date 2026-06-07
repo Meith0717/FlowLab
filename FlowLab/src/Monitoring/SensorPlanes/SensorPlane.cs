@@ -22,23 +22,23 @@ using MonoKit.Spatial;
 namespace FlowLab.Monitoring.SensorPlanes;
 
 public readonly struct SensorPlaneData(
+    string id,
     Vector3 position,
     Vector3 normal,
     int width,
     int height,
-    int xResolution,
-    int yResolution
+    int resolution
 )
 {
+    public readonly string Id = id;
     public readonly Vector3 Position = position;
     public readonly Vector3 Normal = normal;
     public readonly int Width = width;
     public readonly int Height = height;
-    public readonly int XResolution = xResolution;
-    public readonly int YResolution = yResolution;
+    public readonly int Resolution = resolution;
 
     public static SensorPlaneData Default =>
-        new SensorPlaneData(Vector3.Zero, Vector3.Up, 10, 10, 10, 10);
+        new SensorPlaneData("New Plane", Vector3.Zero, Vector3.Up, 10, 10, 1);
 }
 
 public class SensorPlane : IDisposable
@@ -49,7 +49,6 @@ public class SensorPlane : IDisposable
     private readonly SimConfig _config;
     private readonly Vector3 _position;
     private readonly Vector3 _normal;
-    private readonly World _world;
     private readonly Size _size;
     private readonly Point _resolution;
     private readonly bool[] _hasDataGrid;
@@ -82,14 +81,13 @@ public class SensorPlane : IDisposable
         SensorPlaneData sensorData
     )
     {
-        _world = world;
         _spatialHash = spatialHash;
         _kernels = kernels;
         _config = config;
         _position = sensorData.Position;
         _normal = sensorData.Normal;
         _size = new Size(sensorData.Width, sensorData.Height);
-        _resolution = new Point(sensorData.XResolution, sensorData.YResolution);
+        _resolution = _size * sensorData.Resolution;
         SensorPlaneDataData = sensorData;
 
         var gridSize = _resolution.X * _resolution.Y;
@@ -99,10 +97,10 @@ public class SensorPlane : IDisposable
         _hasDataGrid = new bool[gridSize];
         TextureData = new Color[gridSize];
 
-        _transformPool = _world.Components.GetOrCreatePool<Transform3D>();
-        _fluidPool = _world.Components.GetOrCreatePool<FluidComponent>();
-        _movementPool = _world.Components.GetOrCreatePool<MovementComponent>();
-        _boundaryPool = _world.Components.GetOrCreatePool<BoundaryTag>();
+        _transformPool = world.Components.GetOrCreatePool<Transform3D>();
+        _fluidPool = world.Components.GetOrCreatePool<FluidComponent>();
+        _movementPool = world.Components.GetOrCreatePool<MovementComponent>();
+        _boundaryPool = world.Components.GetOrCreatePool<BoundaryTag>();
     }
 
     public void Update(PropertyType property, ColorScheme scheme)

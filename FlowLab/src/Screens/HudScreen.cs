@@ -30,6 +30,8 @@ public class HudScreen : Screen
         : base(appServices, true, true)
     {
         _monitoringWidget = new MonitoringWidget(
+            appServices,
+            ScreenManager,
             appServices.GetService<FrameCounter>(),
             config,
             liveData,

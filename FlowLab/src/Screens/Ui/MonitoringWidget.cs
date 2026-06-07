@@ -11,11 +11,14 @@ using FlowLab.Monitoring.SensorPlanes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Core.Diagnostics;
+using MonoKit.Screens;
 using MonoKit.Ui;
 
 namespace FlowLab.Screens.Ui;
 
 public class MonitoringWidget(
+    GameServiceContainer services,
+    ScreenManager screenManager,
     FrameCounter frameCounter,
     SimConfig config,
     LiveData liveData,
@@ -444,6 +447,39 @@ public class MonitoringWidget(
                 HSpace = 10,
                 Scale = 0.175f,
                 Color = Color.Red,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiButton.Sprite("edit")
+            {
+                Align = Align.Left,
+                Y = y,
+                HSpace = 10,
+                Scale = 0.75f,
+                OnClickAction = () =>
+                {
+                    if (sensorPlaneManager.TryGetCurrentSensorPlaneData(out var data))
+                        screenManager.AddScreen(
+                            new SensorPlaneForm(services, data, sensorPlaneManager)
+                        );
+                },
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiButton.Sprite("add")
+            {
+                Align = Align.Left,
+                Y = y,
+                HSpace = 10 + 10 + 32,
+                Scale = 0.75f,
+                OnClickAction = () =>
+                {
+                    screenManager.AddScreen(
+                        new SensorPlaneForm(services, null, sensorPlaneManager)
+                    );
+                },
             }
         );
 
