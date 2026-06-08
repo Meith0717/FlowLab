@@ -13,7 +13,6 @@ using FlowLab.Monitoring.SensorPlanes;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using MonoKit.Ecs;
 using MonoKit.Gameplay;
 using MonoKit.Graphics.Camera;
@@ -78,7 +77,7 @@ public class SimulationScreen : Screen
             _simConfig
         );
 
-        SpawnBox(25, 25, 60, 1f, 1);
+        SpawnBox(25, 25, 60, 1f, 10);
     }
 
     public override void Initialize()
@@ -99,7 +98,10 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(20, 20, 20);
+            AddFluidBlock(20, 20, 10, 1, Color.Yellow);
+
+        if (inputHandler.HasAction((byte)ActionType.Test))
+            AddFluidBlock(20, 20, 30, 10, Color.Blue);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -121,20 +123,23 @@ public class SimulationScreen : Screen
         base.Draw(spriteBatch);
     }
 
-    private void AddFluidBlock(float width, float depth, float height)
+    private void AddFluidBlock(
+        float width,
+        float depth,
+        float height,
+        float restDensity,
+        Color color
+    )
     {
         var halfWidth = width / 2;
         var halfDepth = depth / 2;
-
-        var color = new Color(_random.Next(0, 255), _random.Next(0, 255), _random.Next(0, 255));
-        var restDensity = _random.NextSingle(.5f, 1.5f);
 
         for (var x = -halfWidth; x <= halfWidth; x++)
         for (var z = -halfDepth; z <= halfDepth; z++)
         for (var y = 0; y <= height; y++)
             ParticleFactory.CreateFluidParticle(
                 _world,
-                new Vector3(x, y + 10, z),
+                new Vector3(x, y + 15, z),
                 _simConfig,
                 restDensity,
                 color
@@ -158,6 +163,8 @@ public class SimulationScreen : Screen
         for (var j = -halfDepth; j < halfDepth; j += particleSize)
         {
             position = new Vector3(i, 0, j);
+            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            position = new Vector3(i, height, j);
             ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
         }
 

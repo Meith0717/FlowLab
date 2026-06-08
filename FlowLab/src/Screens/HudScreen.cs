@@ -8,7 +8,6 @@ using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
 using FlowLab.Screens.Ui;
 using Microsoft.Xna.Framework;
-using MonoKit.Core.Diagnostics;
 using MonoKit.Input;
 using MonoKit.Screens;
 
