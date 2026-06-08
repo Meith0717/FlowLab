@@ -19,7 +19,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
     private UiTextEntry _timeStepEntry;
     private UiTextEntry _gravityEntry;
 
-    public void Build(UiFrame root)
+    public SettingsWidget Build(UiFrame root)
     {
         root.Add(
             _settingsFrame = new UiFrame
@@ -69,6 +69,8 @@ public class SettingsWidget(Config.SimConfig simConfig)
         );
         AddTextEntrySetting("Time Step", 120, ref _timeStepEntry, simConfig.TimeStep.ToString());
         AddTextEntrySetting("Gravity", 180, ref _gravityEntry, simConfig.Gravity.ToString());
+
+        return this;
     }
 
     private void AddTextEntrySetting(

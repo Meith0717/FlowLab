@@ -77,7 +77,7 @@ public static class IiPressurePass
                         localError +=
                             float.Max(solver.Laplacian - solver.SourceTherm, 0)
                             * config.TimeStep
-                            / config.FluidDensity
+                            / fluid.RestDensity
                             * 100;
                     }
                     return localError;
@@ -145,7 +145,7 @@ file static class ISphUtil
         }
 
         var predDensity = fluid.Density + config.TimeStep * sum;
-        solver.SourceTherm = (config.FluidDensity - predDensity) / config.TimeStep;
+        solver.SourceTherm = (fluid.RestDensity - predDensity) / config.TimeStep;
     }
 
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)

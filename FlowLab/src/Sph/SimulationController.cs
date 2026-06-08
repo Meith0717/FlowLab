@@ -27,7 +27,7 @@ public class SimulationController(World world)
         if (inputHandler.HasAction((byte)ActionType.PauseSimulation))
             IsPaused = !IsPaused;
 
-        if (inputHandler.HasAction((byte)ActionType.ClearFluid) && IsPaused)
+        if (inputHandler.HasAction((byte)ActionType.ClearFluid))
             ClearFluid();
 
         if (inputHandler.HasAction((byte)ActionType.HideBoundary))
@@ -44,6 +44,7 @@ public class SimulationController(World world)
     {
         var fluidCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
         var lifePool = world.Components.GetOrCreatePool<Lifetime>();
+
         Parallel.ForEach(
             fluidCollection,
             fluidEntity =>

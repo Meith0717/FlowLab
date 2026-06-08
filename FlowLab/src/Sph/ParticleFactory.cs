@@ -19,25 +19,24 @@ public static class ParticleFactory
         World world,
         Vector3 position,
         float size,
-        float density
+        float restDensity
     )
     {
         var color = new Color(25, 25, 25);
-        var entity = CreateParticle(world, position, color, size, density);
+        var entity = CreateParticle(world, position, color, size, restDensity);
         world.Components.Add(entity, new BoundaryTag());
         return entity;
     }
 
-    public static Entity CreateFluidParticle(World world, Vector3 position, SimConfig config)
+    public static Entity CreateFluidParticle(
+        World world,
+        Vector3 position,
+        SimConfig config,
+        float restDensity,
+        Color color
+    )
     {
-        var color = Color.DodgerBlue;
-        var entity = CreateParticle(
-            world,
-            position,
-            color,
-            config.ParticleSize,
-            config.FluidDensity
-        );
+        var entity = CreateParticle(world, position, color, config.ParticleSize, restDensity);
         world.Components.Add(entity, new FluidTag());
         world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         return entity;
@@ -48,14 +47,14 @@ public static class ParticleFactory
         Vector3 position,
         Color color,
         float size,
-        float density
+        float restDensity
     )
     {
         var entity = world.CreateEntity();
 
         var movement = new MovementComponent();
         var transform = new Transform3D { Position = position };
-        var fluidComponent = new FluidComponent(size * size * size * density, density);
+        var fluidComponent = new FluidComponent(size * size * size * restDensity, restDensity);
         var shaderData = new ParticleShaderData
         {
             Color = color,

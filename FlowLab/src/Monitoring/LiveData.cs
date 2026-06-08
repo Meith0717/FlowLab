@@ -52,7 +52,7 @@ public class LiveData(World world, Config.SimConfig simConfig)
         foreach (var entity in fluidEntityCollection)
         {
             ref var fluid = ref _fluidPool.Get(entity.Id);
-            var error = (fluid.Density - simConfig.FluidDensity) / simConfig.FluidDensity;
+            var error = (fluid.Density - fluid.RestDensity) / fluid.RestDensity;
             CompressionError += float.Max(error, 0);
             AbsError += float.Abs(error);
         }

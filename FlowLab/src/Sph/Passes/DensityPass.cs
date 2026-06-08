@@ -77,6 +77,6 @@ public static class NeighboursAndDensityPass
             density += nFluid.Mass * cachedKernel.CubicSpline;
         }
 
-        fluid.Density = neighbours.Neighbours.Count < 2 ? config.FluidDensity : density;
+        fluid.Density = neighbours.Neighbours.Count < 2 ? fluid.RestDensity : density;
     }
 }

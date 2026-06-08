@@ -29,21 +29,15 @@ public class HudScreen : Screen
     )
         : base(appServices, true, true)
     {
+        new TopBarWidget(appServices, config, simulationTracker).Build(UiRoot);
         _monitoringWidget = new MonitoringWidget(
             appServices,
             ScreenManager,
-            appServices.GetService<FrameCounter>(),
             config,
             liveData,
             sensorPlaneManager
-        );
-        _monitoringWidget.Build(UiRoot);
-
-        _topBarWidget = new TopBarWidget(config, simulationTracker);
-        _topBarWidget.Build(UiRoot);
-
-        _settingsWidget = new SettingsWidget(config);
-        _settingsWidget.Build(UiRoot);
+        ).Build(UiRoot);
+        _settingsWidget = new SettingsWidget(config).Build(UiRoot);
     }
 
     public override void Update(

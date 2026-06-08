@@ -1,0 +1,6 @@
+# TODO
+
+- Gliederung
+  - Naachbarschaftssuche
+  - Optimierung
+  - 

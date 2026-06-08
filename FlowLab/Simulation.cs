@@ -86,12 +86,6 @@ public class Simulation : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (
-            GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
-            || Keyboard.GetState().IsKeyDown(Keys.Escape)
-        )
-            Exit();
-
         var elapsedMilliseconds = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
         _inputHandler.Update(elapsedMilliseconds);
         _screenManager.Update(

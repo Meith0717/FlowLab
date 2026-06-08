@@ -41,6 +41,7 @@ public static class BoundaryPass
     )
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
+        ref var fluid = ref context.FluidPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
         spatialHash3D.GetInRadius(
@@ -63,7 +64,7 @@ public static class BoundaryPass
             kernelSum = 1e-10f;
 
         var artificialVolume = 1f / kernelSum;
-        var artificialMass = config.FluidDensity * artificialVolume;
+        var artificialMass = fluid.RestDensity * artificialVolume;
         context.FluidPool.Get(entity.Id).Mass = artificialMass;
     }
 }

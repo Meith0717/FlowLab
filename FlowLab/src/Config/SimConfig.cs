@@ -11,7 +11,6 @@ public class SimConfig(float particleSize, float fluidDensity)
     public const float Relaxation = .5f;
 
     public readonly float ParticleSize = particleSize;
-    public readonly float FluidDensity = fluidDensity;
     public float SpatialHashQueryRadius => ParticleSize * 2f;
     public float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
 

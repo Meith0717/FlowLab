@@ -19,7 +19,6 @@ namespace FlowLab.Screens.Ui;
 public class MonitoringWidget(
     GameServiceContainer services,
     ScreenManager screenManager,
-    FrameCounter frameCounter,
     SimConfig config,
     LiveData liveData,
     SensorPlaneManager sensorPlaneManager
@@ -32,8 +31,9 @@ public class MonitoringWidget(
     private UiFrame _sensorTextureFrame;
     private UiText _sensorTextureComment;
     private UiSprite _planeSprite;
+    private UiVariableSelector<string> _sensorSelector;
 
-    public void Build(UiFrame root)
+    public MonitoringWidget Build(UiFrame root)
     {
         root.Add(
             _simMonitoring = new UiFrame
@@ -69,6 +69,7 @@ public class MonitoringWidget(
             }
         );
 
+        var frameCounter = services.GetService<FrameCounter>();
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
@@ -96,6 +97,8 @@ public class MonitoringWidget(
         Fluid(250);
         Solver(470);
         Sensors(580);
+
+        return this;
     }
 
     private void Stability(int y)
@@ -315,33 +318,11 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Density")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 60,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText("defaultFont")
-            {
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 60,
-                Scale = 0.16f,
-                Color = Color.White,
-                TextProvider = () => $"{config.FluidDensity} kg/m\u00B3",
-            }
-        );
-
-        _simMonitoring.Add(
             new UiText("defaultFont", "Init. Volume")
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 90,
+                Y = y + 60,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -349,10 +330,10 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{liveData.FluidMass * config.FluidDensity} m\u00B3",
+                TextProvider = () => $"{float.NaN} m\u00B3",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 90,
+                Y = y + 60,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -363,7 +344,7 @@ public class MonitoringWidget(
             {
                 Align = Align.Left,
                 HSpace = 10,
-                Y = y + 120,
+                Y = y + 90,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -375,7 +356,7 @@ public class MonitoringWidget(
                 TextProvider = () => $"{float.Round(liveData.FluidVolume)} m\u00B3",
                 Align = Align.Right,
                 HSpace = 10,
-                Y = y + 120,
+                Y = y + 90,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -461,7 +442,7 @@ public class MonitoringWidget(
                 {
                     if (sensorPlaneManager.TryGetCurrentSensorPlaneData(out var data))
                         screenManager.AddScreen(
-                            new SensorPlaneForm(services, data, sensorPlaneManager)
+                            new SensorPlaneForm(services, data, sensorPlaneManager, _sensorSelector)
                         );
                 },
             }
@@ -477,14 +458,14 @@ public class MonitoringWidget(
                 OnClickAction = () =>
                 {
                     screenManager.AddScreen(
-                        new SensorPlaneForm(services, null, sensorPlaneManager)
+                        new SensorPlaneForm(services, null, sensorPlaneManager, _sensorSelector)
                     );
                 },
             }
         );
 
         _simMonitoring.Add(
-            new UiVariableSelector<string>(
+            _sensorSelector = new UiVariableSelector<string>(
                 "arrowL",
                 "arrowR",
                 "defaultFont",

@@ -11,6 +11,7 @@ namespace FlowLab.Screens;
 
 public class SensorPlaneForm : Screen
 {
+    private readonly UiVariableSelector<string> _sensorPlaneSelector;
     private readonly SensorPlaneManager _sensorPlaneManager;
     private readonly SensorPlaneData _sensorPlaneData;
     private readonly UiFrame _rootFrame;
@@ -30,10 +31,12 @@ public class SensorPlaneForm : Screen
     public SensorPlaneForm(
         GameServiceContainer appServices,
         SensorPlaneData? sensorData,
-        SensorPlaneManager sensorPlaneManager
+        SensorPlaneManager sensorPlaneManager,
+        UiVariableSelector<string> sensorPlaneSelector
     )
         : base(appServices, false, true)
     {
+        _sensorPlaneSelector = sensorPlaneSelector;
         _sensorPlaneData = sensorData ?? SensorPlaneData.Default;
         _sensorPlaneManager = sensorPlaneManager;
         _override = sensorData != null;
@@ -278,5 +281,6 @@ public class SensorPlaneForm : Screen
         _sensorPlaneManager.TryAdd(data, _override);
         _sensorPlaneManager.TrySetCurrentPlane(data.Id);
         ScreenManager.PopScreen();
+        _sensorPlaneSelector.Items = _sensorPlaneManager.PlaneIds;
     }
 }
