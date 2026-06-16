@@ -330,7 +330,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{float.NaN} m\u00B3",
+                TextProvider = () => $"{liveData.FluidInitVolume} m\u00B3",
                 Align = Align.Right,
                 HSpace = 10,
                 Y = y + 60,

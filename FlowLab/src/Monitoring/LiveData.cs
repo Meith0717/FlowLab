@@ -14,6 +14,7 @@ public class LiveData(World world, Config.SimConfig simConfig)
 {
     public int EntityCount { get; private set; }
     public float FluidMass { get; private set; }
+    public float FluidInitVolume { get; private set; }
     public float FluidVolume { get; private set; }
     public float CompressionError { get; private set; }
     public float AbsError { get; private set; }
@@ -39,12 +40,13 @@ public class LiveData(World world, Config.SimConfig simConfig)
 
         var fluidEntityCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
 
-        FluidMass = FluidVolume = 0;
+        FluidMass = FluidVolume = FluidInitVolume = 0;
         foreach (var entity in fluidEntityCollection)
         {
             ref var fluid = ref _fluidPool.Get(entity.Id);
             FluidMass += fluid.Mass;
-            FluidVolume += fluid.Mass / fluid.Density;
+            FluidInitVolume += fluid.RestVolume;
+            FluidVolume += fluid.Volume;
         }
 
         EntityCount = _fluidPool.Count;
@@ -52,7 +54,7 @@ public class LiveData(World world, Config.SimConfig simConfig)
         foreach (var entity in fluidEntityCollection)
         {
             ref var fluid = ref _fluidPool.Get(entity.Id);
-            var error = (fluid.Density - fluid.RestDensity) / fluid.RestDensity;
+            var error = (fluid.RestVolume - fluid.Volume) / fluid.RestVolume;
             CompressionError += float.Max(error, 0);
             AbsError += float.Abs(error);
         }

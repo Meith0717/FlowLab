@@ -18,10 +18,7 @@ public static class NonPressureAccelerationPass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                {
-                    var entity = entities[i];
-                    ComputeEntity(entity, context, config);
-                }
+                    ComputeEntity(entities[i], context, config);
             }
         );
     }
@@ -48,9 +45,9 @@ public static class NonPressureAccelerationPass
             var vIj = movement.Velocity - nMovement.Velocity;
             var dotVelocityPosition = Vector3.Dot(vIj, xIj);
 
-            var nVolume = nFluid.Mass / nFluid.Density;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
-            var res = nVolume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
+            var res =
+                nFluid.Volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
             var viscosity = context.BoundaryPool.Has(nEntity.Id)
                 ? config.BViscosity

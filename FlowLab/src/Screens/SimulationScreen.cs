@@ -98,10 +98,10 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(20, 20, 10, 1, Color.Yellow);
+            AddFluidBlock(15, 15, 10, 1, Color.Yellow);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(20, 20, 30, 10, Color.Blue);
+            AddFluidBlock(15, 15, 10, 10, Color.Blue);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);

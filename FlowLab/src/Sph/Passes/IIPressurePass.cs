@@ -34,27 +34,26 @@ public static class IiPressurePass
                     ref var fluid = ref context.FluidPool.Get(entity.Id);
                     ref var solver = ref context.SolverPool.Get(entity.Id);
 
-                    // Safety check to prevent division by zero
                     if (float.Abs(solver.DiagonalElement) < 1e-10f)
-                        solver.DiagonalElement = solver.DiagonalElement < 0 ? -1e-10f : 1e-10f;
+                        solver.DiagonalElement += 1e-10f;
 
-                    fluid.Pressure =
-                        SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement);
-                    fluid.Pressure = float.Max(0, fluid.Pressure);
+                    fluid.Pressure = float.Max(
+                        SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement),
+                        0
+                    );
                 }
             }
         );
 
-        var iteration = 0;
+        int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
             PressureAccelerationPass.RunForEach(chunking, context, config);
 
-            var totalDensityError = 0d;
-
-            chunking.ParallelForEach<double>(
+            var totalVolumeError = 0d;
+            chunking.ParallelForEach(
                 () => 0d,
-                (start, end, localError) =>
+                (start, end, residual) =>
                 {
                     for (var j = start; j < end; j++)
                     {
@@ -74,23 +73,19 @@ public static class IiPressurePass
 
                         fluid.Pressure = float.Max(0, fluid.Pressure);
 
-                        localError +=
-                            float.Max(solver.Laplacian - solver.SourceTherm, 0)
-                            * config.TimeStep
-                            / fluid.RestDensity
-                            * 100;
+                        residual += float.Max(solver.Laplacian - solver.SourceTherm, 0);
                     }
-                    return localError;
+                    return residual;
                 },
-                localError =>
+                residual =>
                 {
                     lock (Lock)
-                        totalDensityError += localError;
+                        totalVolumeError += residual;
                 }
             );
 
-            var averageError = totalDensityError / particleCount;
-            if ((averageError < config.MinDensityError && iteration > 1) || particleCount <= 0)
+            var averageError = totalVolumeError / particleCount * 100;
+            if ((averageError < config.MinVolumeError && iteration > 1) || particleCount <= 0)
                 break;
         }
 
@@ -106,7 +101,7 @@ file static class ISphUtil
         SimConfig simConfig
     )
     {
-        var dii = Vector3.Zero;
+        var diiSum = Vector3.Zero;
         var dij = 0f;
 
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
@@ -117,14 +112,19 @@ file static class ISphUtil
         {
             var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            var massKernel = nFluid.Mass * neighbours.CachedKernels[i].NablaCubicSpline;
-            dii += massKernel;
+
+            var nablaKernel = neighbours.CachedKernels[i].NablaCubicSpline;
+            diiSum += nFluid.Volume * nablaKernel;
+
             if (!context.BoundaryPool.Has(nEntity.Id))
-                dij += Vector3.Dot(massKernel, massKernel);
+                dij +=
+                    nFluid.Volume
+                    * (nFluid.Volume / nFluid.Mass)
+                    * Vector3.Dot(nablaKernel, nablaKernel);
         }
 
-        solver.DiagonalElement =
-            -simConfig.TimeStep / (fluid.Density * fluid.Density) * (dij + Vector3.Dot(dii, dii));
+        var dii = (1f / fluid.Mass) * Vector3.Dot(diiSum, diiSum);
+        solver.DiagonalElement = -simConfig.TimeStepSquared * fluid.Volume * (dii + dij);
     }
 
     public static void ComputeSourceTerm(Entity entity, SphPassContext context, SimConfig config)
@@ -140,12 +140,14 @@ file static class ISphUtil
             var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
+
             var velDif = movement.Velocity - nMovement.Velocity;
-            sum += nFluid.Mass * Vector3.Dot(velDif, neighbours.CachedKernels[i].NablaCubicSpline);
+            sum +=
+                nFluid.Volume * Vector3.Dot(velDif, neighbours.CachedKernels[i].NablaCubicSpline);
         }
 
-        var predDensity = fluid.Density + config.TimeStep * sum;
-        solver.SourceTherm = (fluid.RestDensity - predDensity) / config.TimeStep;
+        var predVolume = config.TimeStep * sum;
+        solver.SourceTherm = 1 - fluid.RestVolume / fluid.Volume + predVolume;
     }
 
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)
@@ -161,9 +163,10 @@ file static class ISphUtil
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;
-            sum += nFluid.Mass * Vector3.Dot(accDif, neighbours.CachedKernels[i].NablaCubicSpline);
+            sum +=
+                nFluid.Volume * Vector3.Dot(accDif, neighbours.CachedKernels[i].NablaCubicSpline);
         }
 
-        solver.Laplacian = config.TimeStep * sum;
+        solver.Laplacian = config.TimeStepSquared * sum;
     }
 }

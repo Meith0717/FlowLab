@@ -32,26 +32,32 @@ public static class PressureAccelerationPass
         ref var fluid = ref context.FluidPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        var pressureOverDensity2 = fluid.Pressure / (fluid.Density * fluid.Density);
-
         var pressureAcceleration = Vector3.Zero;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            var nPressureOverDensity2 = nFluid.Pressure / (nFluid.Density * nFluid.Density);
-
+            var pSum = fluid.Pressure + nFluid.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
+            pressureAcceleration -= nFluid.Volume * pSum * kernelDerivative;
 
-            float combinedPressure;
-            if (context.BoundaryPool.Has(nEntity.Id))
-                combinedPressure = 2 * pressureOverDensity2;
-            else
-                combinedPressure = pressureOverDensity2 + nPressureOverDensity2;
-
-            pressureAcceleration -= nFluid.Mass * combinedPressure * kernelDerivative;
+            var newAcc = pressureAcceleration.Length();
+            var oldAcc = movement.PressureAcceleration.Length();
+            if (newAcc / oldAcc > 1_000_000 && oldAcc > 1)
+                System.Diagnostics.Debugger.Break();
         }
 
         movement.PressureAcceleration = pressureAcceleration;
+
+        if (
+            float.IsNaN(movement.PressureAcceleration.X)
+            || float.IsInfinity(movement.PressureAcceleration.X)
+        )
+            System.Diagnostics.Debugger.Break();
+        if (
+            float.IsNaN(movement.PressureAcceleration.Y)
+            || float.IsInfinity(movement.PressureAcceleration.Y)
+        )
+            System.Diagnostics.Debugger.Break();
     }
 }

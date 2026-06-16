@@ -237,11 +237,10 @@ public class SensorPlane : IDisposable
             var weight = _kernels.CubicSpline(gridPosNum, transform.Position.ToNumerics());
             ref var fluid = ref _fluidPool.Get(entity.Id);
 
-            var massOverDensity = fluid.Mass / fluid.Density;
-            var particleWeight = massOverDensity * weight;
+            var particleWeight = fluid.Volume * weight;
 
             pressureSum += fluid.Pressure * particleWeight;
-            densitySum += fluid.Density * particleWeight;
+            densitySum += fluid.Volume * particleWeight;
             sumWeight += particleWeight;
 
             if (_movementPool.Has(entity.Id))

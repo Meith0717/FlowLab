@@ -36,10 +36,6 @@ public class SimulationSystem(
     {
         _entityTypeTracker = world.TypeTracker;
         _context.Initialize(world.Components);
-
-        var boundarySet = _entityTypeTracker.GetEntitiesWith<BoundaryTag>().ToArray();
-        var boundaryChunking = new EntityChunking(boundarySet, ChunkSize);
-        BoundaryPass.RunForEach(boundaryChunking, spatialHash3D, _context, kernels, config);
     }
 
     public void Update(
@@ -57,7 +53,7 @@ public class SimulationSystem(
         var allChunking = new EntityChunking(allSet, ChunkSize);
         var fluidChunking = new EntityChunking(fluidSet, ChunkSize);
 
-        NeighboursAndDensityPass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
+        VolumePass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
         NonPressureAccelerationPass.RunForEach(fluidChunking, _context, config);
         IiPressurePass.RunForEach(fluidChunking, _context, config);
         PressureAccelerationPass.RunForEach(fluidChunking, _context, config);

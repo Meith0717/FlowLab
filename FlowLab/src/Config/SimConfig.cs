@@ -18,19 +18,20 @@ public class SimConfig(float particleSize, float fluidDensity)
     public float FViscosity { get; set; }
     public float BViscosity { get; set; }
     public float TimeStep { get; set; }
+    public float TimeStepSquared => TimeStep * TimeStep;
     public float Gravity { get; set; }
     public int MaxIterations { get; set; }
-    public double MinDensityError { get; set; }
+    public double MinVolumeError { get; set; }
 
     public static SimConfig Default =>
         new(1, 1)
         {
             MaxCfl = 0.4f,
-            FViscosity = 1,
+            FViscosity = .5f,
             BViscosity = 0,
             TimeStep = 0.03f,
             Gravity = 0.5f,
             MaxIterations = 100,
-            MinDensityError = 0.1f,
+            MinVolumeError = 0.1f,
         };
 }
