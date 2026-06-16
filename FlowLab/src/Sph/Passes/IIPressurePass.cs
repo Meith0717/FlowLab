@@ -21,7 +21,6 @@ public static class IiPressurePass
         var entities = chunking.Entities;
         var particleCount = entities.Length;
 
-        // First pass: Compute source term and diagonal element
         chunking.ParallelForEach(
             (start, end) =>
             {
@@ -34,8 +33,9 @@ public static class IiPressurePass
                     ref var fluid = ref context.FluidPool.Get(entity.Id);
                     ref var solver = ref context.SolverPool.Get(entity.Id);
 
-                    if (float.Abs(solver.DiagonalElement) < 1e-10f)
-                        solver.DiagonalElement += 1e-10f;
+                    // if (float.Abs(solver.DiagonalElement) < 1e-10f)
+                    //     solver.DiagonalElement +=
+                    //         1e-10f * (float.IsNegative(solver.DiagonalElement) ? -1 : 1);
 
                     fluid.Pressure = float.Max(
                         SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement),
@@ -72,7 +72,6 @@ public static class IiPressurePass
                             fluid.Pressure = 0;
 
                         fluid.Pressure = float.Max(0, fluid.Pressure);
-
                         residual += float.Max(solver.Laplacian - solver.SourceTherm, 0);
                     }
                     return residual;
@@ -117,13 +116,19 @@ file static class ISphUtil
             diiSum += nFluid.Volume * nablaKernel;
 
             if (!context.BoundaryPool.Has(nEntity.Id))
+            {
+                // Cache mass inversion safely
+                var invMass = nFluid.Mass > 1e-8f ? 1f / nFluid.Mass : 0f;
                 dij +=
                     nFluid.Volume
-                    * (nFluid.Volume / nFluid.Mass)
+                    * (nFluid.Volume * invMass)
                     * Vector3.Dot(nablaKernel, nablaKernel);
+            }
         }
 
-        var dii = (1f / fluid.Mass) * Vector3.Dot(diiSum, diiSum);
+        var fluidInvMass = fluid.Mass > 1e-8f ? 1f / fluid.Mass : 0f;
+        var dii = fluidInvMass * Vector3.Dot(diiSum, diiSum);
+
         solver.DiagonalElement = -simConfig.TimeStepSquared * fluid.Volume * (dii + dij);
     }
 
@@ -147,7 +152,7 @@ file static class ISphUtil
         }
 
         var predVolume = config.TimeStep * sum;
-        solver.SourceTherm = 1 - fluid.RestVolume / fluid.Volume + predVolume;
+        solver.SourceTherm = 1f - (fluid.RestVolume / fluid.Volume) - predVolume;
     }
 
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)

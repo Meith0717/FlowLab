@@ -216,6 +216,9 @@ public class SensorPlane : IDisposable
         neighbors.Clear();
         _spatialHash.GetInRadius(gridPos, _config.SpatialHashQueryRadius, neighbors);
 
+        if (neighbors.Count <= 4)
+            goto FALSE;
+
         var sumWeight = 0f;
         var pressureSum = 0f;
         var densitySum = 0f;
@@ -224,9 +227,6 @@ public class SensorPlane : IDisposable
 
         foreach (var entity in neighbors)
         {
-            if (_boundaryPool.Has(entity.Id))
-                continue;
-
             ref var transform = ref _transformPool.Get(entity.Id);
             var distSq = Vector3.DistanceSquared(gridPos, transform.Position);
             var radius = _config.SpatialHashQueryRadius;
@@ -264,6 +264,7 @@ public class SensorPlane : IDisposable
             return true;
         }
 
+        FALSE:
         _pressureGrid[index] = 0;
         _densityGrid[index] = 0;
         _velocityGrid[index] = 0;

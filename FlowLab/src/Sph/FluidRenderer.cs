@@ -146,9 +146,6 @@ public class FluidRenderer : IDisposable
         _graphics.DepthStencilState = DepthStencilState.Default;
         _graphics.RasterizerState = RasterizerState.CullNone;
 
-        var activeColor = new Color(100, 150, 255, 80);
-        var inactiveColor = new Color(50, 75, 100, 40);
-
         // Get active cell hashes via reflection
         var activeCellHashes = new HashSet<long>();
         var activeCellsField = _spatialHash

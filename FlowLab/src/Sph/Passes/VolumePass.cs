@@ -60,12 +60,10 @@ public static class VolumePass
         neighbours.CachedKernels.Clear();
         neighbours.CachedKernels.Capacity = neighbours.Neighbours.Count;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
-            neighbours.CachedKernels.Add(default);
-
-        for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
-            var nEntity = neighbours.Neighbours[i];
-            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
+            ref var nTransform = ref context.TransformPool.Get(neighbours.Neighbours[i].Id);
+
+            neighbours.CachedKernels.Add(default);
             neighbours.CachedKernels[i] = new CachedKernel
             {
                 CubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position),
@@ -82,24 +80,19 @@ public static class VolumePass
         ref var fluid = ref context.FluidPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
-        var bSum = 0f; // compute rest volume
+        var bSum = 0f; // rest volume
+        var fSum = 0f; // volume
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
         {
             var nEntity = neighbourList.Neighbours[i];
-            // Iterate over Boundary
-            if (!context.BoundaryPool.Has(nEntity.id))
-                continue;
-            bSum += neighbourList.CachedKernels[i].CubicSpline;
-        }
-        fluid.RestVolume = 1 / bSum;
 
-        var fSum = 0f; // compute volume
-        for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-        {
-            var nEntity = neighbourList.Neighbours[i];
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             fSum += nFluid.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
+
+            if (context.BoundaryPool.Has(nEntity.id))
+                bSum += neighbourList.CachedKernels[i].CubicSpline;
         }
+        fluid.RestVolume = 1f / bSum;
         fluid.Volume = fluid.RestVolume / fSum;
     }
 
