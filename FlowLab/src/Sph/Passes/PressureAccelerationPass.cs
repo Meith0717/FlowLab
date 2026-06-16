@@ -39,25 +39,9 @@ public static class PressureAccelerationPass
             ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
             var pSum = fluid.Pressure + nFluid.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
-            pressureAcceleration -= nFluid.Volume * pSum * kernelDerivative;
-
-            var newAcc = pressureAcceleration.Length();
-            var oldAcc = movement.PressureAcceleration.Length();
-            if (newAcc / oldAcc > 1_000_000 && oldAcc > 1)
-                System.Diagnostics.Debugger.Break();
+            pressureAcceleration += nFluid.Volume * pSum * kernelDerivative;
         }
 
-        movement.PressureAcceleration = pressureAcceleration;
-
-        if (
-            float.IsNaN(movement.PressureAcceleration.X)
-            || float.IsInfinity(movement.PressureAcceleration.X)
-        )
-            System.Diagnostics.Debugger.Break();
-        if (
-            float.IsNaN(movement.PressureAcceleration.Y)
-            || float.IsInfinity(movement.PressureAcceleration.Y)
-        )
-            System.Diagnostics.Debugger.Break();
+        movement.PressureAcceleration = -fluid.Volume / fluid.Mass * pressureAcceleration;
     }
 }
