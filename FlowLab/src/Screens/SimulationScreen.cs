@@ -24,7 +24,6 @@ namespace FlowLab.Screens;
 
 public class SimulationScreen : Screen
 {
-    private readonly Random _random = new Random();
     private readonly SimConfig _simConfig;
     private readonly Camera3D _camera3D;
     private readonly World _world;

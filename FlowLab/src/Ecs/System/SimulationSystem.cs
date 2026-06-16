@@ -55,7 +55,7 @@ public class SimulationSystem(
 
         VolumePass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
         NonPressureAccelerationPass.RunForEach(fluidChunking, _context, config);
-        IiPressurePass.RunForEach(fluidChunking, _context, config);
+        IiPressurePass.RunForEach(allChunking, fluidChunking, _context, config);
         PressureAccelerationPass.RunForEach(fluidChunking, _context, config);
         PositionUpdatePass.RunForEach(fluidChunking, _context, config);
 

@@ -92,8 +92,8 @@ public static class VolumePass
             if (context.BoundaryPool.Has(nEntity.id))
                 bSum += neighbourList.CachedKernels[i].CubicSpline;
         }
-        fluid.RestVolume = 1f / bSum;
-        fluid.Volume = fluid.RestVolume / fSum;
+        fluid.RestVolume = .7f / bSum;
+        fluid.Volume = fluid.RestVolume / (fSum + 0.15f);
     }
 
     private static void ComputeFluidEntity(Entity entity, SphPassContext context)
