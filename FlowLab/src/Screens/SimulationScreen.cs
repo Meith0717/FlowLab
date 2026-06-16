@@ -97,10 +97,10 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(20, 20, 10, 9, Color.Yellow);
+            AddFluidBlock(20, 20, 20, 1, Color.Yellow);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(20, 20, 10, 10, Color.Blue);
+            AddFluidBlock(20, 20, 20, 10, Color.Blue);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -138,7 +138,7 @@ public class SimulationScreen : Screen
         for (var y = 0; y <= height; y++)
             ParticleFactory.CreateFluidParticle(
                 _world,
-                new Vector3(x, y + 15, z),
+                new Vector3(x, y + 25, z),
                 _simConfig,
                 restDensity,
                 color
