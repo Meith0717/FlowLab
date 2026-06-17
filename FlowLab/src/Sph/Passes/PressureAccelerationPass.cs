@@ -42,6 +42,6 @@ public static class PressureAccelerationPass
             pressureAcceleration += nFluid.Volume * pSum * kernelDerivative;
         }
 
-        movement.PressureAcceleration = -(fluid.Volume / fluid.Mass) * pressureAcceleration;
+        movement.PressureAcceleration = -(fluid.Volume * pressureAcceleration) / fluid.Mass;
     }
 }

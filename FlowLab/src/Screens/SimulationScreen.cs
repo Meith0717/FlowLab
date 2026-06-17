@@ -81,7 +81,7 @@ public class SimulationScreen : Screen
             _simConfig
         );
 
-        SpawnBox(25, 25, 100, 1f, 10);
+        SpawnBox(20, 20, 100, 1f, 10);
     }
 
     public override void Initialize()
@@ -102,13 +102,13 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(8, 8, 50, 1, new Vector3(0, 30, 0), Color.Yellow);
+            AddFluidBlock(8, 8, 50, 1, new Vector3(0, 60, 0), Color.Yellow);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
             AddFluidBlock(
                 8,
                 8,
-                20,
+                50,
                 _random.Next(2, 10),
                 new Vector3(0, 60, 0),
                 new Color(_random.NextSingle(), _random.NextSingle(), _random.NextSingle())
