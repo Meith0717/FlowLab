@@ -31,7 +31,7 @@ public class DomainSystem(BoundingBox simulationDomain)
     )
     {
         var containmentType = _simulationDomain.Contains(transform.Position);
-        if (containmentType == ContainmentType.Disjoint)
+        if (containmentType == ContainmentType.Contains)
             return;
         lifetime.CoolDown = 0;
         lifetime.DestroyNow = true;

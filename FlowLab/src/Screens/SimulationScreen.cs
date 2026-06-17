@@ -24,6 +24,7 @@ namespace FlowLab.Screens;
 
 public class SimulationScreen : Screen
 {
+    private readonly Random _random = new Random();
     private readonly SimConfig _simConfig;
     private readonly Camera3D _camera3D;
     private readonly World _world;
@@ -33,6 +34,7 @@ public class SimulationScreen : Screen
     private readonly SensorPlaneManager _sensorManager;
     private readonly SimulationController _simController;
     private readonly SimulationTracker _simTracker;
+    private readonly BoundingBoxRenderer _boundingBoxRenderer;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
@@ -58,8 +60,11 @@ public class SimulationScreen : Screen
                 _simTracker
             )
         );
+        var domain = new BoundingBox(new Vector3(-20, -10, -20), new Vector3(20, 100, 20));
+        _world.Systems.Add(new DomainSystem(domain));
         _world.Components.Add(_world.WorldEntity, new DebugComponent());
 
+        _boundingBoxRenderer = new BoundingBoxRenderer(GraphicsDevice, domain);
         _fluidRenderer = new FluidRenderer(
             GraphicsDevice,
             _world,
@@ -76,7 +81,7 @@ public class SimulationScreen : Screen
             _simConfig
         );
 
-        SpawnBox(25, 25, 60, 1f, 1);
+        SpawnBox(25, 25, 100, 1f, 10);
     }
 
     public override void Initialize()
@@ -97,10 +102,17 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(20, 20, 20, 1, Color.Yellow);
+            AddFluidBlock(8, 8, 50, 1, new Vector3(0, 30, 0), Color.Yellow);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(20, 20, 20, 10, Color.Blue);
+            AddFluidBlock(
+                8,
+                8,
+                20,
+                _random.Next(2, 10),
+                new Vector3(0, 60, 0),
+                new Color(_random.NextSingle(), _random.NextSingle(), _random.NextSingle())
+            );
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -118,6 +130,7 @@ public class SimulationScreen : Screen
     public override void Draw(SpriteBatch spriteBatch)
     {
         _fluidRenderer.Draw(_camera3D);
+        _boundingBoxRenderer.Draw(_camera3D);
         _sensorManager.Draw(_camera3D);
         base.Draw(spriteBatch);
     }
@@ -127,19 +140,30 @@ public class SimulationScreen : Screen
         float depth,
         float height,
         float restDensity,
+        Vector3 position,
         Color color
     )
     {
+        var particleSize = _simConfig.ParticleSize;
+        var halfParticleSize = particleSize / 2f;
         var halfWidth = width / 2;
         var halfDepth = depth / 2;
+        var halfHeight = height / 2;
 
-        for (var x = -halfWidth; x <= halfWidth; x++)
-        for (var z = -halfDepth; z <= halfDepth; z++)
-        for (var y = 0; y <= height; y++)
+        var startWidth = halfWidth - halfParticleSize;
+        var stopWidth = halfWidth + halfParticleSize;
+        var startDepth = halfDepth - halfParticleSize;
+        var stopDepth = halfDepth + halfParticleSize;
+        var startHeight = halfHeight - halfParticleSize;
+        var stopHeight = halfHeight + halfParticleSize;
+
+        for (var x = -startWidth; x < stopWidth; x += particleSize)
+        for (var z = -startDepth; z < stopDepth; z += particleSize)
+        for (var y = -startHeight; y < stopHeight; y += particleSize)
             ParticleFactory.CreateFluidParticle(
                 _world,
-                new Vector3(x, y + 25, z),
-                _simConfig,
+                position + new Vector3(x, y, z),
+                particleSize,
                 restDensity,
                 color
             );
@@ -154,34 +178,40 @@ public class SimulationScreen : Screen
     )
     {
         Vector3 position;
+        var halfParticleSize = particleSize / 2f;
         var halfWidth = width / 2;
         var halfDepth = depth / 2;
 
+        var startWidth = halfWidth - halfParticleSize;
+        var stopWidth = halfWidth + halfParticleSize;
+        var startDepth = halfDepth - halfParticleSize;
+        var stopDepth = halfDepth + halfParticleSize;
+
         // Top & Bottom
-        for (var i = -halfWidth; i < halfWidth; i += particleSize)
-        for (var j = -halfDepth; j < halfDepth; j += particleSize)
+        for (var i = -startWidth; i < stopWidth; i += particleSize)
+        for (var j = -startDepth; j < stopDepth; j += particleSize)
         {
             position = new Vector3(i, 0, j);
             ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
-            position = new Vector3(i, height, j);
+            // position = new Vector3(i, height, j);
+            // ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+        }
+
+        for (var i = -startWidth; i < stopWidth; i += particleSize)
+        for (var j = 0f; j < height; j += particleSize)
+        {
+            position = new Vector3(i, j, -startDepth);
+            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            position = new Vector3(i, j, startDepth);
             ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
         }
 
-        for (var i = -halfWidth; i < halfWidth; i += particleSize)
+        for (var i = -startDepth; i < stopDepth; i += particleSize)
         for (var j = 0f; j < height; j += particleSize)
         {
-            position = new Vector3(i, j, -halfDepth);
+            position = new Vector3(-startWidth, j, i);
             ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
-            position = new Vector3(i, j, halfDepth - particleSize);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
-        }
-
-        for (var i = -halfDepth; i < halfDepth; i += particleSize)
-        for (var j = 0f; j < height; j += particleSize)
-        {
-            position = new Vector3(-halfWidth, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
-            position = new Vector3(halfWidth - particleSize, j, i);
+            position = new Vector3(startWidth, j, i);
             ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
         }
     }

@@ -31,12 +31,12 @@ public static class ParticleFactory
     public static Entity CreateFluidParticle(
         World world,
         Vector3 position,
-        SimConfig config,
+        float size,
         float restDensity,
         Color color
     )
     {
-        var entity = CreateParticle(world, position, color, config.ParticleSize, restDensity);
+        var entity = CreateParticle(world, position, color, size, restDensity);
         world.Components.Add(entity, new FluidTag());
         world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         return entity;

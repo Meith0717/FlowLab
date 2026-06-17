@@ -64,13 +64,15 @@ public static class VolumePass
             ref var nTransform = ref context.TransformPool.Get(neighbours.Neighbours[i].Id);
 
             neighbours.CachedKernels.Add(default);
+            var cubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position);
+            var nablaCubicSpline = kernels.NablaCubicSpline(
+                transform.Position,
+                nTransform.Position
+            );
             neighbours.CachedKernels[i] = new CachedKernel
             {
-                CubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position),
-                NablaCubicSpline = kernels.NablaCubicSpline(
-                    transform.Position,
-                    nTransform.Position
-                ),
+                CubicSpline = cubicSpline < 10e-10f ? 10e-10f : cubicSpline,
+                NablaCubicSpline = nablaCubicSpline,
             };
         }
     }
@@ -85,30 +87,21 @@ public static class VolumePass
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
         {
             var nEntity = neighbourList.Neighbours[i];
-
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            fSum += nFluid.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
-
+            fSum += neighbourList.CachedKernels[i].CubicSpline;
             if (context.BoundaryPool.Has(nEntity.id))
                 bSum += neighbourList.CachedKernels[i].CubicSpline;
         }
         fluid.RestVolume = .7f / bSum;
-        fluid.Volume = fluid.RestVolume / (fSum + 0.15f);
+        fluid.Volume = 1f / fSum;
     }
 
     private static void ComputeFluidEntity(Entity entity, SphPassContext context)
     {
         ref var fluid = ref context.FluidPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
-
         var sum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-        {
-            var nEntity = neighbourList.Neighbours[i];
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            sum += nFluid.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
-        }
-
-        fluid.Volume = fluid.RestVolume / sum;
+            sum += neighbourList.CachedKernels[i].CubicSpline;
+        fluid.Volume = 1f / sum;
     }
 }
