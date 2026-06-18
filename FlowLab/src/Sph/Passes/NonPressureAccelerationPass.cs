@@ -26,7 +26,7 @@ public static class NonPressureAccelerationPass
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var transform = ref context.TransformPool.Get(entity.Id);
-        ref var movement = ref context.MovementPool.Get(entity.Id);
+        ref var movement = ref context.KinematicPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
         var nonPressureAccelerations = new Vector3(0, -config.Gravity, 0);
@@ -36,8 +36,8 @@ public static class NonPressureAccelerationPass
             var nEntity = neighbours.Neighbours[i];
 
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
+            ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
 
             var xIj = transform.Position - nTransform.Position;
             var dotPositionPosition = Vector3.Dot(xIj, xIj) + config.ScaledParticleDiameter2;

@@ -27,11 +27,11 @@ public class SimConfig(float particleSize, float fluidDensity)
         new(1, 1)
         {
             MaxCfl = 0.4f,
-            FViscosity = .5f,
+            FViscosity = .1f,
             BViscosity = 0,
             TimeStep = 0.03f,
             Gravity = 0.5f,
             MaxIterations = 100,
-            MinVolumeError = 0.1f,
+            MinVolumeError = .1f,
         };
 }

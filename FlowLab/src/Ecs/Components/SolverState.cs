@@ -5,8 +5,9 @@
 
 namespace FlowLab.Ecs.Components;
 
-public struct SolverComponent
+public struct SolverState
 {
+    public float Pressure;
     public float DiagonalElement;
     public float SourceTherm;
     public float Laplacian;

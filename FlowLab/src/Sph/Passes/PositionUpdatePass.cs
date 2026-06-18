@@ -19,7 +19,7 @@ public static class PositionUpdatePass
                 {
                     var entity = entities[i];
                     ref var transform = ref context.TransformPool.Get(entity.Id);
-                    ref var movement = ref context.MovementPool.Get(entity.Id);
+                    ref var movement = ref context.KinematicPool.Get(entity.Id);
 
                     movement.PressureAcceleration *= config.TimeStep;
                     movement.Velocity += movement.PressureAcceleration;

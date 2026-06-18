@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Ecs.Components;
 
-public struct MovementComponent
+public struct KinematicState
 {
     public Vector3 Velocity;
     public Vector3 PressureAcceleration;

@@ -32,13 +32,12 @@ public static class IiPressurePass
                 for (var i = start; i < end; i++)
                 {
                     var entity = allEntities[i];
+                    ref var solver = ref context.SolverState.Get(entity.Id);
+                    
                     ISphUtil.ComputeSourceTerm(entity, context, config);
                     ISphUtil.ComputeDiagonalElement(entity, context, config);
-
-                    ref var fluid = ref context.FluidPool.Get(entity.Id);
-                    ref var solver = ref context.SolverPool.Get(entity.Id);
-
-                    fluid.Pressure = float.Max(
+                    
+                    solver.Pressure = float.Max(
                         SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement),
                         0
                     );
@@ -59,21 +58,19 @@ public static class IiPressurePass
                     for (var j = start; j < end; j++)
                     {
                         var entity = allEntities[j];
+                        ref var solver = ref context.SolverState.Get(entity.Id);
 
                         ISphUtil.ComputeLaplacian(entity, context, config);
 
-                        ref var fluid = ref context.FluidPool.Get(entity.Id);
-                        ref var solver = ref context.SolverPool.Get(entity.Id);
-
                         if (float.Abs(solver.DiagonalElement) > 1e-6f)
-                            fluid.Pressure +=
+                            solver.Pressure +=
                                 SimConfig.Relaxation
                                 / solver.DiagonalElement
                                 * (solver.SourceTherm - solver.Laplacian);
                         else
-                            fluid.Pressure = 0;
+                            solver.Pressure = 0;
 
-                        fluid.Pressure = float.Max(0, fluid.Pressure);
+                        solver.Pressure = float.Max(0, solver.Pressure);
                         residual += float.Max(solver.Laplacian - solver.SourceTherm, 0);
                     }
                     return residual;
@@ -105,19 +102,19 @@ file static class ISphUtil
         var diiSum = Vector3.Zero;
         var dij = 0f;
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
-        ref var fluid = ref context.FluidPool.Get(entity.Id);
-        ref var solver = ref context.SolverPool.Get(entity.Id);
+        ref var fluid = ref context.MaterialPool.Get(entity.Id);
+        ref var solver = ref context.SolverState.Get(entity.Id);
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
+            ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             var nablaKernel = neighbours.CachedKernels[i].NablaCubicSpline;
-            diiSum += nFluid.Volume * nablaKernel;
+            diiSum += nMaterial.Volume * nablaKernel;
             if (context.BoundaryPool.Has(nEntity.Id))
                 continue;
             dij +=
-                nFluid.Volume
-                * (nFluid.Volume * (1f / nFluid.Mass))
+                nMaterial.Volume
+                * (nMaterial.Volume * (1f / nMaterial.Mass))
                 * Vector3.Dot(nablaKernel, nablaKernel);
         }
 
@@ -134,9 +131,9 @@ file static class ISphUtil
     {
         var isBoundary = context.BoundaryPool.Has(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
-        ref var movement = ref context.MovementPool.Get(entity.Id);
-        ref var fluid = ref context.FluidPool.Get(entity.Id);
-        ref var solver = ref context.SolverPool.Get(entity.Id);
+        ref var movement = ref context.KinematicPool.Get(entity.Id);
+        ref var fluid = ref context.MaterialPool.Get(entity.Id);
+        ref var solver = ref context.SolverState.Get(entity.Id);
 
         var sum = 0f;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
@@ -146,8 +143,8 @@ file static class ISphUtil
             if (isBoundary && context.BoundaryPool.Has(nEntity.Id))
                 continue;
 
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
+            ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
 
             var velDif = movement.Velocity - nMovement.Velocity;
             sum +=
@@ -162,16 +159,16 @@ file static class ISphUtil
     {
         var isBoundary = context.BoundaryPool.Has(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
-        ref var solver = ref context.SolverPool.Get(entity.Id);
-        ref var movement = ref context.MovementPool.Get(entity.Id);
+        ref var solver = ref context.SolverState.Get(entity.Id);
+        ref var movement = ref context.KinematicPool.Get(entity.Id);
         var sum = 0f;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
             if (isBoundary && context.BoundaryPool.Has(nEntity.Id))
                 continue;
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            ref var nMovement = ref context.MovementPool.Get(nEntity.Id);
+            ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;
             sum +=
                 nFluid.Volume * Vector3.Dot(accDif, neighbours.CachedKernels[i].NablaCubicSpline);

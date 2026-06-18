@@ -26,10 +26,10 @@ public class LiveData(World world, Config.SimConfig simConfig)
     private const int CoolDown = 50;
     private double _currentCoolDown = CoolDown;
 
-    private readonly ComponentPool<FluidComponent> _fluidPool =
-        world.Components.GetOrCreatePool<FluidComponent>();
-    private readonly ComponentPool<MovementComponent> _movementPool =
-        world.Components.GetOrCreatePool<MovementComponent>();
+    private readonly ComponentPool<MaterialComponent> _fluidPool =
+        world.Components.GetOrCreatePool<MaterialComponent>();
+    private readonly ComponentPool<KinematicState> _movementPool =
+        world.Components.GetOrCreatePool<KinematicState>();
 
     public void Collect(double elapsedMilliseconds)
     {

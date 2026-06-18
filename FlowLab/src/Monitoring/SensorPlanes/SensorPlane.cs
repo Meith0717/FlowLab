@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
-using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -54,11 +53,12 @@ public class SensorPlane : IDisposable
     private readonly bool[] _hasDataGrid;
     private readonly float[] _pressureGrid;
     private readonly float[] _velocityGrid;
-    private readonly float[] _densityGrid;
+    private readonly float[] _volumeErrorGrid;
+    private readonly float[] _density;
     private readonly ComponentPool<Transform3D> _transformPool;
-    private readonly ComponentPool<FluidComponent> _fluidPool;
-    private readonly ComponentPool<MovementComponent> _movementPool;
-    private readonly ComponentPool<BoundaryTag> _boundaryPool;
+    private readonly ComponentPool<MaterialComponent> _materialPool;
+    private readonly ComponentPool<KinematicState> _kinematicPool;
+    private readonly ComponentPool<SolverState> _solverPool;
 
     private float CellSizeX => _size.Width / (float)_resolution.X;
     private float CellSizeY => _size.Height / (float)_resolution.Y;
@@ -69,8 +69,9 @@ public class SensorPlane : IDisposable
     private readonly Dictionary<PropertyType, (float Min, float Max)> _bounds = new()
     {
         { PropertyType.Pressure, (float.MaxValue, float.MinValue) },
-        { PropertyType.Density, (float.MaxValue, float.MinValue) },
+        { PropertyType.VolumeError, (0, 1) },
         { PropertyType.Velocity, (float.MaxValue, float.MinValue) },
+        { PropertyType.Density, (float.MaxValue, float.MinValue) },
     };
 
     public SensorPlane(
@@ -93,14 +94,15 @@ public class SensorPlane : IDisposable
         var gridSize = _resolution.X * _resolution.Y;
         _pressureGrid = new float[gridSize];
         _velocityGrid = new float[gridSize];
-        _densityGrid = new float[gridSize];
+        _volumeErrorGrid = new float[gridSize];
         _hasDataGrid = new bool[gridSize];
+        _density = new float[gridSize];
         TextureData = new Color[gridSize];
 
         _transformPool = world.Components.GetOrCreatePool<Transform3D>();
-        _fluidPool = world.Components.GetOrCreatePool<FluidComponent>();
-        _movementPool = world.Components.GetOrCreatePool<MovementComponent>();
-        _boundaryPool = world.Components.GetOrCreatePool<BoundaryTag>();
+        _materialPool = world.Components.GetOrCreatePool<MaterialComponent>();
+        _kinematicPool = world.Components.GetOrCreatePool<KinematicState>();
+        _solverPool = world.Components.GetOrCreatePool<SolverState>();
     }
 
     public void Update(PropertyType property, ColorScheme scheme)
@@ -157,8 +159,8 @@ public class SensorPlane : IDisposable
         var start = _position - right * (_size.Width / 2f) - up * (_size.Height / 2f);
 
         _bounds[PropertyType.Pressure] = (float.MaxValue, float.MinValue);
-        _bounds[PropertyType.Density] = (0, float.MaxValue);
         _bounds[PropertyType.Velocity] = (0, _config.MaxCfl);
+        _bounds[PropertyType.Density] = (float.MaxValue, float.MinValue);
 
         var lockObj = new object();
 
@@ -178,12 +180,12 @@ public class SensorPlane : IDisposable
                     var gridPos = start + right * (x * CellSizeX) + up * (y * CellSizeY);
                     var index = uy + x;
 
-                    if (SamplePoint(gridPos, index, out var p, out var d, out var v))
+                    if (SamplePoint(gridPos, index, out var p, out var vE, out var v, out var d))
                     {
                         localMinP = Math.Min(localMinP, p);
                         localMaxP = Math.Max(localMaxP, p);
-                        localMinD = Math.Min(localMinD, d);
-                        localMaxD = Math.Max(localMaxD, d);
+                        localMinD = Math.Min(localMinD, vE);
+                        localMaxD = Math.Max(localMaxD, vE);
                     }
                 }
 
@@ -194,8 +196,13 @@ public class SensorPlane : IDisposable
                         Math.Min(pB.Min, localMinP),
                         Math.Max(pB.Max, localMaxP)
                     );
+                    var veB = _bounds[PropertyType.VolumeError];
+                    _bounds[PropertyType.VolumeError] = (
+                        Math.Min(veB.Min, localMinD),
+                        Math.Max(veB.Max, localMaxD)
+                    );
                     var dB = _bounds[PropertyType.Density];
-                    _bounds[PropertyType.Density] = (
+                    _bounds[PropertyType.VolumeError] = (
                         Math.Min(dB.Min, localMinD),
                         Math.Max(dB.Max, localMaxD)
                     );
@@ -208,8 +215,9 @@ public class SensorPlane : IDisposable
         Vector3 gridPos,
         int index,
         out float pressure,
-        out float density,
-        out float velocityMag
+        out float volumeError,
+        out float velocityMag,
+        out float density
     )
     {
         var neighbors = _neighborsBuffer.Value;
@@ -221,6 +229,7 @@ public class SensorPlane : IDisposable
 
         var sumWeight = 0f;
         var pressureSum = 0f;
+        var volumeErrorSum = 0f;
         var densitySum = 0f;
         var velocitySum = System.Numerics.Vector3.Zero;
         var gridPosNum = gridPos.ToNumerics();
@@ -234,42 +243,46 @@ public class SensorPlane : IDisposable
             if (distSq >= radius * radius)
                 continue;
 
-            var weight = _kernels.CubicSpline(gridPosNum, transform.Position.ToNumerics());
-            ref var fluid = ref _fluidPool.Get(entity.Id);
+            ref var fluid = ref _materialPool.Get(entity.Id);
+            ref var movement = ref _kinematicPool.Get(entity.Id);
+            ref var solver = ref _solverPool.Get(entity.Id);
 
-            var particleWeight = fluid.Volume * weight;
+            var weight =
+                fluid.Volume * _kernels.CubicSpline(gridPosNum, transform.Position.ToNumerics());
 
-            pressureSum += fluid.Pressure * particleWeight;
-            densitySum += fluid.Volume * particleWeight;
-            sumWeight += particleWeight;
+            pressureSum += solver.Pressure * weight;
+            volumeErrorSum += ((fluid.RestVolume - fluid.Volume) / fluid.RestVolume) * weight;
+            densitySum += fluid.Mass / fluid.Volume * weight;
+            sumWeight += weight;
 
-            if (_movementPool.Has(entity.Id))
-            {
-                ref var movement = ref _movementPool.Get(entity.Id);
-                velocitySum += movement.Velocity.ToNumerics() * particleWeight;
-            }
+            if (!_kinematicPool.Has(entity.Id))
+                continue;
+            velocitySum += movement.Velocity.ToNumerics() * weight;
         }
 
         if (sumWeight > 0)
         {
             pressure = pressureSum / sumWeight;
-            density = densitySum / sumWeight;
+            volumeError = volumeErrorSum / sumWeight;
             velocityMag =
                 _config.TimeStep * (velocitySum / sumWeight).Length() / _config.ParticleSize;
+            density = densitySum / sumWeight;
 
             _pressureGrid[index] = pressure;
-            _densityGrid[index] = density;
+            _volumeErrorGrid[index] = volumeError;
             _velocityGrid[index] = velocityMag;
+            _density[index] = density;
             _hasDataGrid[index] = true;
             return true;
         }
 
         FALSE:
         _pressureGrid[index] = 0;
-        _densityGrid[index] = 0;
+        _volumeErrorGrid[index] = 0;
         _velocityGrid[index] = 0;
+        _density[index] = 0;
         _hasDataGrid[index] = false;
-        pressure = density = velocityMag = 0f;
+        pressure = volumeError = velocityMag = density = 0f;
         return false;
     }
 
@@ -285,8 +298,9 @@ public class SensorPlane : IDisposable
         var value = property switch
         {
             PropertyType.Pressure => _pressureGrid[index],
-            PropertyType.Density => _densityGrid[index],
+            PropertyType.VolumeError => _volumeErrorGrid[index],
             PropertyType.Velocity => _velocityGrid[index],
+            PropertyType.Density => _density[index],
             _ => _pressureGrid[index],
         };
 

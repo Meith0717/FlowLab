@@ -28,20 +28,24 @@ public static class PressureAccelerationPass
 
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var movement = ref context.MovementPool.Get(entity.Id);
-        ref var fluid = ref context.FluidPool.Get(entity.Id);
+        ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
+        ref var material = ref context.MaterialPool.Get(entity.Id);
+        ref var solver = ref context.SolverState.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
         var pressureAcceleration = Vector3.Zero;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-            ref var nFluid = ref context.FluidPool.Get(nEntity.Id);
-            var pSum = fluid.Pressure + nFluid.Pressure;
+            ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nSolver = ref context.SolverState.Get(nEntity.Id);
+            
+            var pSum = solver.Pressure + nSolver.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
-            pressureAcceleration += nFluid.Volume * pSum * kernelDerivative;
+            
+            pressureAcceleration += nMaterial.Volume * pSum * kernelDerivative;
         }
 
-        movement.PressureAcceleration = -(fluid.Volume * pressureAcceleration) / fluid.Mass;
+        kinematicState.PressureAcceleration = -(material.Volume * pressureAcceleration) / material.Mass;
     }
 }

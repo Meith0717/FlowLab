@@ -79,7 +79,7 @@ public static class VolumePass
 
     private static void ComputeBoundaryEntity(Entity entity, SphPassContext context)
     {
-        ref var fluid = ref context.FluidPool.Get(entity.Id);
+        ref var fluid = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
         var bSum = 0f; // rest volume
@@ -97,7 +97,7 @@ public static class VolumePass
 
     private static void ComputeFluidEntity(Entity entity, SphPassContext context)
     {
-        ref var fluid = ref context.FluidPool.Get(entity.Id);
+        ref var fluid = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         var sum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)

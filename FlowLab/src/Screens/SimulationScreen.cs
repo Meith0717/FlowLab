@@ -62,7 +62,6 @@ public class SimulationScreen : Screen
         );
         var domain = new BoundingBox(new Vector3(-20, -10, -20), new Vector3(20, 100, 20));
         _world.Systems.Add(new DomainSystem(domain));
-        _world.Components.Add(_world.WorldEntity, new DebugComponent());
 
         _boundingBoxRenderer = new BoundingBoxRenderer(GraphicsDevice, domain);
         _fluidRenderer = new FluidRenderer(
@@ -80,8 +79,15 @@ public class SimulationScreen : Screen
             kernels,
             _simConfig
         );
+        _sensorManager.TryAdd(
+            new SensorPlaneData("Plane 1", new(0, 45, 0), new(1, 0, 1), 20, 100, 2)
+        );
 
-        SpawnBox(20, 20, 100, 1f, 10);
+        SpawnBox(12, 12, 100, 1f, 4);
+        AddFluidBlock(10, 10, 10, 1f, new Vector3(0, 6, 0), Color.White);
+        AddFluidBlock(10, 10, 10, 2f, new Vector3(0, 16, 0), Color.DodgerBlue);
+        AddFluidBlock(10, 10, 10, 3f, new Vector3(0, 26, 0), Color.Orange);
+        AddFluidBlock(10, 10, 10, 4f, new Vector3(0, 36, 0), Color.SaddleBrown);
     }
 
     public override void Initialize()
@@ -101,18 +107,7 @@ public class SimulationScreen : Screen
     {
         _simController.Update(elapsedMilliseconds, inputHandler);
 
-        if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(8, 8, 50, 1, new Vector3(0, 60, 0), Color.Yellow);
-
-        if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(
-                8,
-                8,
-                50,
-                _random.Next(2, 10),
-                new Vector3(0, 60, 0),
-                new Color(_random.NextSingle(), _random.NextSingle(), _random.NextSingle())
-            );
+        if (inputHandler.HasAction((byte)ActionType.SpawnBlock)) { }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -154,8 +149,8 @@ public class SimulationScreen : Screen
         var stopWidth = halfWidth + halfParticleSize;
         var startDepth = halfDepth - halfParticleSize;
         var stopDepth = halfDepth + halfParticleSize;
-        var startHeight = halfHeight - halfParticleSize;
-        var stopHeight = halfHeight + halfParticleSize;
+        var startHeight = halfHeight;
+        var stopHeight = halfHeight;
 
         for (var x = -startWidth; x < stopWidth; x += particleSize)
         for (var z = -startDepth; z < stopDepth; z += particleSize)

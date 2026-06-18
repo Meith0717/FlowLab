@@ -51,9 +51,9 @@ public static class ParticleFactory
     )
     {
         var volume = float.Pow(size, 3);
-        var fluidComponent = new FluidComponent(volume, restDensity);
+        var fluidComponent = new MaterialComponent(volume, restDensity);
         var transform = new Transform3D { Position = position };
-        var movement = new MovementComponent();
+        var movement = new KinematicState();
         var shaderData = new ParticleShaderData
         {
             Color = color,
@@ -68,7 +68,7 @@ public static class ParticleFactory
         world.Components.Add(entity, shaderData);
         world.Components.Add(entity, new ParticleTag());
         world.Components.Add(entity, new NeighbourList());
-        world.Components.Add(entity, new SolverComponent());
+        world.Components.Add(entity, new SolverState());
         world.Components.Add(entity, new Collider3D(Vector3.Zero));
         return entity;
     }

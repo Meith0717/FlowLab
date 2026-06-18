@@ -5,9 +5,8 @@
 
 namespace FlowLab.Ecs.Components;
 
-public struct FluidComponent(float volume, float restDensity)
+public struct MaterialComponent(float volume, float restDensity)
 {
-    public float Pressure;
     public float Volume = volume;
     public float RestVolume = volume;
     public readonly float Mass => RestVolume * restDensity;

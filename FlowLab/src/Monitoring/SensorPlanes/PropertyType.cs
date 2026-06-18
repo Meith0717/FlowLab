@@ -8,6 +8,7 @@ namespace FlowLab.Monitoring.SensorPlanes;
 public enum PropertyType
 {
     Pressure,
-    Density,
+    VolumeError,
     Velocity,
+    Density,
 }
