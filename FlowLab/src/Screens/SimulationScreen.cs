@@ -49,7 +49,7 @@ public class SimulationScreen : Screen
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
 
         _world.Systems.Add(new ParticleTransformSyncSystem());
-        var kernels = new Kernels(_simConfig.ParticleSize);
+        var kernels = new Kernels(_simConfig.MaxParticleSize);
         var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
         _world.Systems.Add(
             new SimulationSystem(
@@ -102,8 +102,8 @@ public class SimulationScreen : Screen
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
         {
-            AddFluidBlock(30, 30, 20, 10, new Vector3(0, 11, 0), Color.DodgerBlue, 0);
-            AddFluidBlock(12, 12, 60, 5, new Vector3(0, 80, 0), Color.Orange, 1);
+            AddFluidBlock(30, 30, 10, 100, new Vector3(0, 6, 0), Color.DodgerBlue, 0);
+            AddFluidBlock(12, 12, 50, 1, new Vector3(0, 80, 0), Color.Orange, 1);
         }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
@@ -137,7 +137,7 @@ public class SimulationScreen : Screen
         float materialId
     )
     {
-        var particleSize = _simConfig.ParticleSize;
+        var particleSize = _simConfig.MaxParticleSize;
         var halfParticleSize = particleSize / 2f;
         var halfWidth = width / 2;
         var halfDepth = depth / 2;

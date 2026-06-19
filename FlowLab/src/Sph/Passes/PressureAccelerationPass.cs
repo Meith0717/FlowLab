@@ -1,6 +1,7 @@
 // PressureAccelerationPass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
+// Portions generated or assisted by AI.
 
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
@@ -39,13 +40,14 @@ public static class PressureAccelerationPass
             var nEntity = neighbours.Neighbours[i];
             ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-            
+
             var pSum = solver.Pressure + nSolver.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
-            
+
             pressureAcceleration += nMaterial.Volume * pSum * kernelDerivative;
         }
 
-        kinematicState.PressureAcceleration = -(material.Volume * pressureAcceleration) / material.Mass;
+        kinematicState.PressureAcceleration =
+            -(material.Volume * pressureAcceleration) / material.Mass;
     }
 }

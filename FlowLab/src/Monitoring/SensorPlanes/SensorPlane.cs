@@ -265,7 +265,7 @@ public class SensorPlane : IDisposable
             pressure = pressureSum / sumWeight;
             volumeError = volumeErrorSum / sumWeight;
             velocityMag =
-                _config.TimeStep * (velocitySum / sumWeight).Length() / _config.ParticleSize;
+                _config.TimeStep * (velocitySum / sumWeight).Length() / _config.MaxParticleSize;
             density = densitySum / sumWeight;
 
             _pressureGrid[index] = pressure;

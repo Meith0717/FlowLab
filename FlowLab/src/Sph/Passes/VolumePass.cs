@@ -1,6 +1,7 @@
-// DensityPass.cs
+// VolumePass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
+// Portions generated or assisted by AI.
 
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
@@ -27,14 +28,18 @@ public static class VolumePass
                 for (var i = start; i < end; i++)
                 {
                     var entity = entities[i];
-                    var isBoundary = context.BoundaryPool.Has(entity.Id);
                     GetNeighboursAndKernels(entity, spatialHash3D, context, kernels, config);
-
-                    if (isBoundary)
-                        ComputeBoundaryEntity(entity, context);
-                    else
-                        ComputeFluidEntity(entity, context);
+                    if (context.BoundaryPool.Has(entity.Id))
+                        ComputeBoundaryRestVolume(entity, context);
                 }
+            }
+        );
+
+        chunking.ParallelForEach(
+            (start, end) =>
+            {
+                for (var i = start; i < end; i++)
+                    ComputeVolume(entities[i], context, config);
             }
         );
     }
@@ -64,44 +69,41 @@ public static class VolumePass
             ref var nTransform = ref context.TransformPool.Get(neighbours.Neighbours[i].Id);
 
             neighbours.CachedKernels.Add(default);
-            var cubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position);
-            var nablaCubicSpline = kernels.NablaCubicSpline(
-                transform.Position,
-                nTransform.Position
-            );
             neighbours.CachedKernels[i] = new CachedKernel
             {
-                CubicSpline = cubicSpline < 10e-10f ? 10e-10f : cubicSpline,
-                NablaCubicSpline = nablaCubicSpline,
+                CubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position),
+                NablaCubicSpline = kernels.NablaCubicSpline(
+                    transform.Position,
+                    nTransform.Position
+                ),
             };
         }
     }
 
-    private static void ComputeBoundaryEntity(Entity entity, SphPassContext context)
+    private static void ComputeBoundaryRestVolume(Entity entity, SphPassContext context)
     {
-        ref var fluid = ref context.MaterialPool.Get(entity.Id);
+        ref var material = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
-        var bSum = 0f; // rest volume
-        var fSum = 0f; // volume
+        var bSum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-        {
-            var nEntity = neighbourList.Neighbours[i];
-            fSum += neighbourList.CachedKernels[i].CubicSpline;
-            if (context.BoundaryPool.Has(nEntity.id))
+            if (context.BoundaryPool.Has(neighbourList.Neighbours[i].id))
                 bSum += neighbourList.CachedKernels[i].CubicSpline;
-        }
-        fluid.RestVolume = .7f / bSum;
-        fluid.Volume = 1f / fSum;
+        material.RestVolume = .7f / bSum;
     }
 
-    private static void ComputeFluidEntity(Entity entity, SphPassContext context)
+    private static void ComputeVolume(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var fluid = ref context.MaterialPool.Get(entity.Id);
+        ref var material = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         var sum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-            sum += neighbourList.CachedKernels[i].CubicSpline;
-        fluid.Volume = 1f / sum;
+        {
+            ref var nMaterial = ref context.MaterialPool.Get(neighbourList.Neighbours[i].Id);
+            sum += nMaterial.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
+        }
+
+        sum += context.BoundaryPool.Has(entity.Id) ? config.VolumeBeta : 0;
+        material.Volume = material.RestVolume / sum;
     }
 }

@@ -40,7 +40,7 @@ public static class ParticleFactory
     {
         var entity = CreateParticle(world, position, color, size, restDensity, materialId);
         world.Components.Add(entity, new FluidTag());
-        world.Components.Add(entity, new InterfaceState(1f));
+        world.Components.Add(entity, new InterfaceState());
         world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         return entity;
     }
@@ -54,7 +54,7 @@ public static class ParticleFactory
         float materialId
     )
     {
-        var volume = float.Pow(size, 3);
+        var volume = size * size * size;
         var fluidComponent = new MaterialComponent(materialId, volume, restDensity);
         var transform = new Transform3D { Position = position };
         var movement = new KinematicState();

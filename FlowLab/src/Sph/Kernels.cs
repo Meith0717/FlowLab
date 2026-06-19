@@ -1,4 +1,9 @@
-﻿using System.Numerics;
+﻿// Kernels.cs
+// Copyright (c) 2023-2026 Thierry Meiers
+// All rights reserved.
+// Portions generated or assisted by AI.
+
+using System.Numerics;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace FlowLab.Sph

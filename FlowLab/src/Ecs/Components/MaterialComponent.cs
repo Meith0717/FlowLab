@@ -1,4 +1,4 @@
-// FluidComponent.cs
+// MaterialComponent.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -18,12 +18,11 @@ public struct MaterialComponent
     {
         if (colorId is < 0 or > 1)
             throw new ArgumentException("Id needs to be normalized");
-            
+
         ColorId = colorId;
         _restDensity = restDensity;
         Volume = volume;
         RestVolume = volume;
-        
     }
 
     public readonly float Mass => RestVolume * _restDensity;

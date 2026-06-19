@@ -5,14 +5,16 @@
 
 namespace FlowLab.Config;
 
-public class SimConfig(float particleSize, float fluidDensity)
+public class SimConfig(float maxParticleSize, float fluidDensity)
 {
     public const int MaxParticles = 1_000_000;
     public const float Relaxation = .5f;
 
-    public readonly float ParticleSize = particleSize;
-    public float SpatialHashQueryRadius => ParticleSize * 2f;
-    public float ScaledParticleDiameter2 => 0.01f * (ParticleSize * ParticleSize);
+    public readonly float MaxParticleSize = maxParticleSize;
+    public readonly float VolumeBeta = .15f * (maxParticleSize * maxParticleSize * maxParticleSize);
+    public readonly float SpatialHashQueryRadius = maxParticleSize * 2f;
+    public readonly float TensionEpsilon = 1e-3f / maxParticleSize;
+    public readonly float ScaledParticleDiameter2 = 0.01f * (maxParticleSize * maxParticleSize);
 
     public float MaxCfl { get; set; }
     public float FViscosity { get; set; }
@@ -22,16 +24,18 @@ public class SimConfig(float particleSize, float fluidDensity)
     public float Gravity { get; set; }
     public int MaxIterations { get; set; }
     public double MinVolumeError { get; set; }
+    public float InterfaceTension { get; set; }
 
     public static SimConfig Default =>
         new(1, 1)
         {
             MaxCfl = 0.4f,
-            FViscosity = .1f,
+            FViscosity = .5f,
             BViscosity = 0,
-            TimeStep = 0.03f,
+            TimeStep = 0.06f,
             Gravity = 0.5f,
             MaxIterations = 100,
             MinVolumeError = .1f,
+            InterfaceTension = 0f,
         };
 }

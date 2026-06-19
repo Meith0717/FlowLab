@@ -7,9 +7,8 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Ecs.Components;
 
-public struct InterfaceState(float tension)
+public struct InterfaceState
 {
-    public readonly float Tension = tension;
     public float SmoothedColor;
     public Vector3 Normal;
     public float Curvature;

@@ -1,6 +1,7 @@
 // NonPressureAccelerationPass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
+// Portions generated or assisted by AI.
 
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
@@ -111,7 +112,7 @@ public static class NonPressureAccelerationPass
 
         var tensionForce =
             material.Volume
-            * interfaceState.Tension
+            * config.InterfaceTension
             * interfaceState.Curvature
             * interfaceState.Normal;
 
@@ -174,7 +175,8 @@ public static class NonPressureAccelerationPass
             normal += nMaterial.Volume * colorDiff * nablaKernel;
         }
         var lenSq = normal.LengthSquared();
-        interfaceState.Normal = lenSq < 1e-12f ? Vector3.Zero : Vector3.Normalize(normal);
+        interfaceState.Normal =
+            lenSq < config.TensionEpsilon ? Vector3.Zero : Vector3.Normalize(normal);
     }
 
     private static void ComputeInterfaceCurvature(
@@ -202,11 +204,6 @@ public static class NonPressureAccelerationPass
             var normalDiff = nInterface.Normal - interfaceState.Normal;
             sum1 -= nMaterial.Volume * Vector3.Dot(normalDiff, nablaKernel);
             sum2 += nMaterial.Volume * kernel;
-        }
-        if (sum2 < 10e-10)
-        {
-            interfaceState.Curvature = 0;
-            return;
         }
         interfaceState.Curvature = sum1 / sum2;
     }

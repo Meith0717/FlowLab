@@ -72,7 +72,7 @@ public class LiveData(World world, Config.SimConfig simConfig)
             MaxVelocity = velocity;
         }
         AvgVelocity /= EntityCount;
-        Cfl = simConfig.TimeStep * MaxVelocity / simConfig.ParticleSize;
+        Cfl = simConfig.TimeStep * MaxVelocity / simConfig.MaxParticleSize;
         IterationCount = Sph.Passes.IiPressurePass.LastIterationCount;
     }
 }

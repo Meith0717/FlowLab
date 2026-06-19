@@ -1,6 +1,7 @@
-// WcPressurePass.cs
+// IIPressurePass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
+// Portions generated or assisted by AI.
 
 using System.Threading;
 using FlowLab.Config;
@@ -33,10 +34,10 @@ public static class IiPressurePass
                 {
                     var entity = allEntities[i];
                     ref var solver = ref context.SolverState.Get(entity.Id);
-                    
+
                     ISphUtil.ComputeSourceTerm(entity, context, config);
                     ISphUtil.ComputeDiagonalElement(entity, context, config);
-                    
+
                     solver.Pressure = float.Max(
                         SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement),
                         0
