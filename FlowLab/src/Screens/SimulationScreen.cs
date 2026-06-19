@@ -79,15 +79,8 @@ public class SimulationScreen : Screen
             kernels,
             _simConfig
         );
-        _sensorManager.TryAdd(
-            new SensorPlaneData("Plane 1", new(0, 45, 0), new(1, 0, 1), 20, 100, 2)
-        );
 
-        SpawnBox(12, 12, 100, 1f, 4);
-        AddFluidBlock(10, 10, 10, 1f, new Vector3(0, 6, 0), Color.White);
-        AddFluidBlock(10, 10, 10, 2f, new Vector3(0, 16, 0), Color.DodgerBlue);
-        AddFluidBlock(10, 10, 10, 3f, new Vector3(0, 26, 0), Color.Orange);
-        AddFluidBlock(10, 10, 10, 4f, new Vector3(0, 36, 0), Color.SaddleBrown);
+        SpawnBox(32, 32, 100, 1f, 1, 0);
     }
 
     public override void Initialize()
@@ -107,7 +100,11 @@ public class SimulationScreen : Screen
     {
         _simController.Update(elapsedMilliseconds, inputHandler);
 
-        if (inputHandler.HasAction((byte)ActionType.SpawnBlock)) { }
+        if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
+        {
+            AddFluidBlock(30, 30, 20, 10, new Vector3(0, 11, 0), Color.DodgerBlue, 0);
+            AddFluidBlock(12, 12, 60, 5, new Vector3(0, 80, 0), Color.Orange, 1);
+        }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -136,7 +133,8 @@ public class SimulationScreen : Screen
         float height,
         float restDensity,
         Vector3 position,
-        Color color
+        Color color,
+        float materialId
     )
     {
         var particleSize = _simConfig.ParticleSize;
@@ -160,7 +158,8 @@ public class SimulationScreen : Screen
                 position + new Vector3(x, y, z),
                 particleSize,
                 restDensity,
-                color
+                color,
+                materialId
             );
     }
 
@@ -169,7 +168,8 @@ public class SimulationScreen : Screen
         float depth,
         float height,
         float particleSize,
-        float restDensity
+        float restDensity,
+        float materialId
     )
     {
         Vector3 position;
@@ -187,27 +187,63 @@ public class SimulationScreen : Screen
         for (var j = -startDepth; j < stopDepth; j += particleSize)
         {
             position = new Vector3(i, 0, j);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                restDensity,
+                materialId
+            );
             // position = new Vector3(i, height, j);
-            // ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            // ParticleFactory.CreateBoundaryParticle(
+            //     _world,
+            //     position,
+            //     particleSize,
+            //     restDensity,
+            //     materialId
+            // );
         }
 
         for (var i = -startWidth; i < stopWidth; i += particleSize)
         for (var j = 0f; j < height; j += particleSize)
         {
             position = new Vector3(i, j, -startDepth);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                restDensity,
+                materialId
+            );
             position = new Vector3(i, j, startDepth);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                restDensity,
+                materialId
+            );
         }
 
         for (var i = -startDepth; i < stopDepth; i += particleSize)
         for (var j = 0f; j < height; j += particleSize)
         {
             position = new Vector3(-startWidth, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                restDensity,
+                materialId
+            );
             position = new Vector3(startWidth, j, i);
-            ParticleFactory.CreateBoundaryParticle(_world, position, particleSize, restDensity);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                restDensity,
+                materialId
+            );
         }
     }
 

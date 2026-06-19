@@ -3,6 +3,8 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
+using System.Collections.Generic;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using MonoKit.Ecs.Components;
@@ -17,6 +19,7 @@ public class SphPassContext()
     public ComponentPool<NeighbourList> NeighbourPool { get; private set; }
     public ComponentPool<BoundaryTag> BoundaryPool { get; private set; }
     public ComponentPool<SolverState> SolverState { get; private set; }
+    public ComponentPool<InterfaceState> InterfaceState { get; private set; }
 
     public void Initialize(ComponentManager components)
     {
@@ -26,5 +29,6 @@ public class SphPassContext()
         NeighbourPool = components.GetOrCreatePool<NeighbourList>();
         BoundaryPool = components.GetOrCreatePool<BoundaryTag>();
         SolverState = components.GetOrCreatePool<SolverState>();
+        InterfaceState = components.GetOrCreatePool<InterfaceState>();
     }
 }

@@ -19,11 +19,12 @@ public static class ParticleFactory
         World world,
         Vector3 position,
         float size,
-        float restDensity
+        float restDensity,
+        float materialId
     )
     {
         var color = new Color(25, 25, 25);
-        var entity = CreateParticle(world, position, color, size, restDensity);
+        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
         world.Components.Add(entity, new BoundaryTag());
         return entity;
     }
@@ -33,11 +34,13 @@ public static class ParticleFactory
         Vector3 position,
         float size,
         float restDensity,
-        Color color
+        Color color,
+        float materialId
     )
     {
-        var entity = CreateParticle(world, position, color, size, restDensity);
+        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
         world.Components.Add(entity, new FluidTag());
+        world.Components.Add(entity, new InterfaceState(1f));
         world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         return entity;
     }
@@ -47,11 +50,12 @@ public static class ParticleFactory
         Vector3 position,
         Color color,
         float size,
-        float restDensity
+        float restDensity,
+        float materialId
     )
     {
         var volume = float.Pow(size, 3);
-        var fluidComponent = new MaterialComponent(volume, restDensity);
+        var fluidComponent = new MaterialComponent(materialId, volume, restDensity);
         var transform = new Transform3D { Position = position };
         var movement = new KinematicState();
         var shaderData = new ParticleShaderData

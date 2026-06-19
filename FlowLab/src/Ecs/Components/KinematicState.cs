@@ -10,5 +10,6 @@ namespace FlowLab.Ecs.Components;
 public struct KinematicState
 {
     public Vector3 Velocity;
+    public Vector3 NonPressureAccelerations;
     public Vector3 PressureAcceleration;
 }
