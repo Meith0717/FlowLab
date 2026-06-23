@@ -131,7 +131,6 @@ file static class ISphUtil
 
     public static void ComputeSourceTerm(Entity entity, SphPassContext context, SimConfig config)
     {
-        var isBoundary = context.BoundaryPool.Has(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var movement = ref context.KinematicPool.Get(entity.Id);
         ref var fluid = ref context.MaterialPool.Get(entity.Id);
@@ -141,9 +140,6 @@ file static class ISphUtil
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-
-            if (isBoundary && context.BoundaryPool.Has(nEntity.Id))
-                continue;
 
             ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
@@ -159,7 +155,6 @@ file static class ISphUtil
 
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)
     {
-        var isBoundary = context.BoundaryPool.Has(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
         ref var movement = ref context.KinematicPool.Get(entity.Id);
@@ -167,8 +162,6 @@ file static class ISphUtil
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-            if (isBoundary && context.BoundaryPool.Has(nEntity.Id))
-                continue;
             ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;

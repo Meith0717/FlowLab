@@ -34,8 +34,6 @@ public static class PressureAccelerationPass
         ref var solver = ref context.SolverState.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        // Adapted (Monaghan-style, density-contrast) pressure acceleration:
-        //   a_f^p = -(1/m_f) * sum_j ( V_j^2 * p_j + V_f^2 * p_f ) * grad W_fj
         var fVolumeSquared = material.Volume * material.Volume;
 
         var pressureAcceleration = Vector3.Zero;

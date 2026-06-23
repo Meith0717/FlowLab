@@ -98,14 +98,10 @@ public static class VolumePass
         ref var material = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
-        var sum = 0f;
+        var numberDensity = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-        {
-            ref var nMaterial = ref context.MaterialPool.Get(neighbourList.Neighbours[i].Id);
-            sum += nMaterial.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
-        }
+            numberDensity += neighbourList.CachedKernels[i].CubicSpline;
 
-        sum += context.BoundaryPool.Has(entity.Id) ? config.VolumeBeta : 0;
-        material.Volume = material.RestVolume / sum;
+        material.Volume = 1f / numberDensity;
     }
 }

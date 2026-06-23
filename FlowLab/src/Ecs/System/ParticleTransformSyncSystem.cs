@@ -21,7 +21,9 @@ public class ParticleTransformSyncSystem : ISystem
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<ParticleShaderData> _shaderDataPool;
     private ComponentPool<SolverState> _solverPool;
+    private ComponentPool<MaterialComponent> _materialPool;
     private EntityTypeTracker _tracker;
+    private float maxValue;
 
     public void Initialize(World world)
     {
@@ -30,6 +32,7 @@ public class ParticleTransformSyncSystem : ISystem
         _transformPool = world.Components.GetOrCreatePool<Transform3D>();
         _shaderDataPool = world.Components.GetOrCreatePool<ParticleShaderData>();
         _solverPool = world.Components.GetOrCreatePool<SolverState>();
+        _materialPool = world.Components.GetOrCreatePool<MaterialComponent>();
     }
 
     public void Update(
@@ -47,9 +50,10 @@ public class ParticleTransformSyncSystem : ISystem
             ref var transform = ref _transformPool.Get(e.Id);
             shaderData.Position = transform.Position;
 
-            var pressure = _solverPool.Get(e.Id).Pressure;
-            var normPressure = pressure / 50;
-            //            shaderData.Color = ColorPicker.GetHotColor(normPressure);
+            var value = _materialPool.Get(e.Id).Volume;
+            maxValue = float.Max(maxValue, maxValue);
+            var normPressure = float.Max(value / 2f, 0);
+            // shaderData.Color = ColorPicker.GetHotColor(normPressure);
         }
     }
 }
