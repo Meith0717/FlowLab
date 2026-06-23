@@ -18,16 +18,16 @@ public static class IiPressurePass
     public static int LastIterationCount { get; private set; } = 0;
 
     public static void RunForEach(
-        EntityChunking all,
+        EntityChunking boundaryChunk,
         EntityChunking fluidChunk,
         SphPassContext context,
         SimConfig config
     )
     {
-        var allEntities = all.Entities;
+        var allEntities = fluidChunk.Entities;
         var particleCount = allEntities.Length;
 
-        all.ParallelForEach(
+        fluidChunk.ParallelForEach(
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
@@ -49,10 +49,11 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
+            PressureExtrapolation.RunForEach(boundaryChunk, context, config);
             PressureAccelerationPass.RunForEach(fluidChunk, context, config);
 
             var totalVolumeError = 0d;
-            all.ParallelForEach(
+            fluidChunk.ParallelForEach(
                 () => 0d,
                 (start, end, residual) =>
                 {

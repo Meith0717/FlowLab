@@ -80,15 +80,15 @@ public class SimulationScreen : Screen
             _simConfig
         );
 
-        SpawnBox(32, 32, 100, 1f, 1, 0);
+        SpawnBox(22, 22, 100, 1f, 1, 0);
     }
 
     public override void Initialize()
     {
         _fluidRenderer.Initialize();
-        ScreenManager.AddScreen(
-            new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
-        );
+        // ScreenManager.AddScreen(
+        //     new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
+        // );
         base.Initialize();
     }
 
@@ -102,8 +102,7 @@ public class SimulationScreen : Screen
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
         {
-            AddFluidBlock(30, 30, 10, 100, new Vector3(0, 6, 0), Color.DodgerBlue, 0);
-            AddFluidBlock(12, 12, 50, 1, new Vector3(0, 80, 0), Color.Orange, 1);
+            AddFluidBlock(20, 20, 20, 1, new Vector3(0, 40, 0), Color.DodgerBlue, 0);
         }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);

@@ -5,6 +5,7 @@
 
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
+using FlowLab.Monitoring.SensorPlanes;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;
@@ -19,6 +20,7 @@ public class ParticleTransformSyncSystem : ISystem
     public int Priority { get; } = 10;
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<ParticleShaderData> _shaderDataPool;
+    private ComponentPool<SolverState> _solverPool;
     private EntityTypeTracker _tracker;
 
     public void Initialize(World world)
@@ -27,6 +29,7 @@ public class ParticleTransformSyncSystem : ISystem
 
         _transformPool = world.Components.GetOrCreatePool<Transform3D>();
         _shaderDataPool = world.Components.GetOrCreatePool<ParticleShaderData>();
+        _solverPool = world.Components.GetOrCreatePool<SolverState>();
     }
 
     public void Update(
@@ -43,6 +46,10 @@ public class ParticleTransformSyncSystem : ISystem
             ref var shaderData = ref _shaderDataPool.Get(e.Id);
             ref var transform = ref _transformPool.Get(e.Id);
             shaderData.Position = transform.Position;
+
+            var pressure = _solverPool.Get(e.Id).Pressure;
+            var normPressure = pressure / 50;
+            shaderData.Color = ColorPicker.GetHotColor(normPressure);
         }
     }
 }

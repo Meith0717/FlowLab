@@ -53,15 +53,17 @@ public class SimulationSystem(
             return;
 
         var allSet = _entityTypeTracker.GetEntitiesWith<ParticleTag>().ToArray();
-        var fluidSet = _entityTypeTracker.GetEntitiesWith<FluidTag>().ToArray();
+        var fSet = _entityTypeTracker.GetEntitiesWith<FluidTag>().ToArray();
+        var bSet = _entityTypeTracker.GetEntitiesWith<BoundaryTag>().ToArray();
         var allChunking = new EntityChunking(allSet, ChunkSize);
-        var fluidChunking = new EntityChunking(fluidSet, ChunkSize);
+        var fChunking = new EntityChunking(fSet, ChunkSize);
+        var bChunking = new EntityChunking(bSet, ChunkSize);
 
         VolumePass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
-        NonPressureAccelerationPass.RunForEach(fluidChunking, _context, config);
-        IiPressurePass.RunForEach(allChunking, fluidChunking, _context, config);
-        PressureAccelerationPass.RunForEach(fluidChunking, _context, config);
-        PositionUpdatePass.RunForEach(fluidChunking, _context, config);
+        NonPressureAccelerationPass.RunForEach(fChunking, _context, config);
+        IiPressurePass.RunForEach(bChunking, fChunking, _context, config);
+        PressureAccelerationPass.RunForEach(fChunking, _context, config);
+        PositionUpdatePass.RunForEach(fChunking, _context, config);
 
         simulationTracker.Step();
     }
