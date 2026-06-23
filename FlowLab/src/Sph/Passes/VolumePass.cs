@@ -85,17 +85,19 @@ public static class VolumePass
         ref var material = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
-        var bSum = 0f;
+        var boundaryKernelSum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
             if (context.BoundaryPool.Has(neighbourList.Neighbours[i].id))
-                bSum += neighbourList.CachedKernels[i].CubicSpline;
-        material.RestVolume = 1f / bSum;
+                boundaryKernelSum += neighbourList.CachedKernels[i].CubicSpline;
+
+        material.SetRestVolume(1f / boundaryKernelSum);
     }
 
     private static void ComputeVolume(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var material = ref context.MaterialPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+
         var sum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
         {

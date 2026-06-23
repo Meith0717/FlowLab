@@ -3,8 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System.Numerics;
-using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using Microsoft.Xna.Framework;
 
 namespace FlowLab.Sph
 {
@@ -15,67 +14,47 @@ namespace FlowLab.Sph
     /// h = smoothing length
     /// support radius = 2h
     /// </summary>
-    public sealed class Kernels
+    public class Kernels(float particleDiameter)
     {
-        private const float EpsilonSquared = 1e-12f;
-        private readonly float _hInverse;
-        private readonly float _alpha3D;
-        private readonly float _supportRadiusSquared;
+        private readonly float _particleDiameterInverse = 1f / particleDiameter;
 
-        public Kernels(float smoothingLength)
+        private readonly float _cubicSplineAlpha =
+            1f / (4f * float.Pi * (particleDiameter * particleDiameter * particleDiameter));
+
+        private float DistanceOverH(Vector3 pos1, Vector3 pos2)
         {
-            _hInverse = 1f / smoothingLength;
-            _alpha3D =
-                1f
-                / (
-                    4f * (float)System.Math.PI * smoothingLength * smoothingLength * smoothingLength
-                );
+            var dx = pos1.X - pos2.X;
+            var dy = pos1.Y - pos2.Y;
+            var dz = pos1.Z - pos2.Z; // Account for the Z-axis
 
-            var supportRadius = 2f * smoothingLength;
-            _supportRadiusSquared = supportRadius * supportRadius;
+            return float.Sqrt(dx * dx + dy * dy + dz * dz) * _particleDiameterInverse;
         }
 
         public float CubicSpline(Vector3 position1, Vector3 position2)
         {
-            var r = position1 - position2;
-            var distanceSquared = r.LengthSquared();
-
-            if (distanceSquared >= _supportRadiusSquared)
-                return 0f;
-
-            var distance = (float)System.Math.Sqrt(distanceSquared);
-            var q = distance * _hInverse;
-
-            var t1 = System.Math.Max(1f - q, 0f);
-            var t2 = 2f - q;
-
-            return _alpha3D * ((t2 * t2 * t2) - 4f * (t1 * t1 * t1));
+            var alpha = _cubicSplineAlpha;
+            var distanceOverH = DistanceOverH(position1, position2);
+            var t1 = float.Max(1 - distanceOverH, 0);
+            var t2 = float.Max(2 - distanceOverH, 0);
+            var t3 = (t2 * t2 * t2) - 4 * (t1 * t1 * t1);
+            return alpha * t3;
         }
 
         public Vector3 NablaCubicSpline(Vector3 position1, Vector3 position2)
         {
-            var r = position1 - position2;
-            var distanceSquared = r.LengthSquared();
+            var positionDifference = position1 - position2;
+            var distanceOverH = DistanceOverH(position1, position2);
 
-            if (distanceSquared >= _supportRadiusSquared || distanceSquared < EpsilonSquared)
+            if (distanceOverH == 0)
                 return Vector3.Zero;
 
-            var distance = (float)System.Math.Sqrt(distanceSquared);
-            var q = distance * _hInverse;
+            var t1 = float.Max(1 - distanceOverH, 0);
+            var t2 = float.Max(2 - distanceOverH, 0);
+            var t3 = (-3 * t2 * t2) + (12 * t1 * t1);
 
-            var t1 = System.Math.Max(1f - q, 0f);
-            var t2 = 2f - q;
-
-            var derivative = (-3f * t2 * t2) + (12f * t1 * t1);
-            var factor = _alpha3D * derivative * _hInverse;
-
-            return (factor / distance) * r;
+            return _cubicSplineAlpha
+                * (positionDifference / (positionDifference.Length() * particleDiameter))
+                * t3;
         }
-
-        public float CubicSpline(XnaVector3 position1, XnaVector3 position2) =>
-            CubicSpline(position1.ToNumerics(), position2.ToNumerics());
-
-        public XnaVector3 NablaCubicSpline(XnaVector3 position1, XnaVector3 position2) =>
-            NablaCubicSpline(position1.ToNumerics(), position2.ToNumerics()).ToXna();
     }
 }

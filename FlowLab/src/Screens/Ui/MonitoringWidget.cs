@@ -497,7 +497,7 @@ public class MonitoringWidget(
             _sensorTextureComment = new UiText("defaultFont")
             {
                 Align = Align.Center,
-                Text = "No Sensor Plane Set",
+                Text = "No Sensor Plane SetRestVolume",
                 Color = Color.LightGray,
                 Scale = .15f,
             }

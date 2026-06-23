@@ -24,7 +24,6 @@ namespace FlowLab.Screens;
 
 public class SimulationScreen : Screen
 {
-    private readonly Random _random = new Random();
     private readonly SimConfig _simConfig;
     private readonly Camera3D _camera3D;
     private readonly World _world;
@@ -86,9 +85,9 @@ public class SimulationScreen : Screen
     public override void Initialize()
     {
         _fluidRenderer.Initialize();
-        // ScreenManager.AddScreen(
-        //     new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
-        // );
+        ScreenManager.AddScreen(
+            new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
+        );
         base.Initialize();
     }
 
@@ -102,7 +101,7 @@ public class SimulationScreen : Screen
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
         {
-            AddFluidBlock(20, 20, 20, 1, new Vector3(0, 40, 0), Color.DodgerBlue, 0);
+            AddFluidBlock(19, 19, 20, 1, new Vector3(0, 40, 0), Color.DodgerBlue, 0);
         }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);

@@ -9,21 +9,26 @@ namespace FlowLab.Ecs.Components;
 
 public struct MaterialComponent
 {
-    public float Volume;
-    public float RestVolume;
-    public readonly float ColorId;
     private readonly float _restDensity;
+
+    public readonly float ColorId;
+    public float RestVolume { get; private set; }
+    public float Mass { get; private set; }
+    public float Volume { get; set; }
 
     public MaterialComponent(float colorId, float volume, float restDensity)
     {
         if (colorId is < 0 or > 1)
             throw new ArgumentException("Id needs to be normalized");
 
-        ColorId = colorId;
         _restDensity = restDensity;
-        Volume = volume;
-        RestVolume = volume;
+        ColorId = colorId;
+        SetRestVolume(volume);
     }
 
-    public readonly float Mass => RestVolume * _restDensity;
+    public void SetRestVolume(float volume)
+    {
+        RestVolume = volume;
+        Mass = volume * _restDensity;
+    }
 }

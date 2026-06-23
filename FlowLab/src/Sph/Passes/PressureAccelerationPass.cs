@@ -34,6 +34,10 @@ public static class PressureAccelerationPass
         ref var solver = ref context.SolverState.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
+        // Adapted (Monaghan-style, density-contrast) pressure acceleration:
+        //   a_f^p = -(1/m_f) * sum_j ( V_j^2 * p_j + V_f^2 * p_f ) * grad W_fj
+        var fVolumeSquared = material.Volume * material.Volume;
+
         var pressureAcceleration = Vector3.Zero;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
@@ -41,13 +45,13 @@ public static class PressureAccelerationPass
             ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
 
-            var pSum = solver.Pressure + nSolver.Pressure;
+            var nVolumeSquared = nMaterial.Volume * nMaterial.Volume;
+            var pTerm = nVolumeSquared * nSolver.Pressure + fVolumeSquared * solver.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
 
-            pressureAcceleration += nMaterial.Volume * pSum * kernelDerivative;
+            pressureAcceleration += pTerm * kernelDerivative;
         }
 
-        kinematicState.PressureAcceleration =
-            -(material.Volume * pressureAcceleration) / material.Mass;
+        kinematicState.PressureAcceleration = -pressureAcceleration / material.Mass;
     }
 }
