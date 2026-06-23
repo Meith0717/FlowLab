@@ -56,7 +56,7 @@ public static class VolumePass
         ref var transform = ref context.TransformPool.Get(entity.Id);
 
         neighbours.Clear();
-        spatialHash3D.GetInRadiusFast(
+        spatialHash3D.GetInRadius(
             transform.Position,
             config.SpatialHashQueryRadius,
             neighbours.Neighbours

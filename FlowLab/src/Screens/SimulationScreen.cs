@@ -85,9 +85,9 @@ public class SimulationScreen : Screen
     public override void Initialize()
     {
         _fluidRenderer.Initialize();
-        ScreenManager.AddScreen(
-            new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
-        );
+        // ScreenManager.AddScreen(
+        //     new HudScreen(AppServices, _simConfig, _liveData, _simTracker, _sensorManager)
+        // );
         base.Initialize();
     }
 

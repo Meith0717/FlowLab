@@ -49,7 +49,7 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
-            //PressureExtrapolation.RunForEach(boundaryChunk, context, config);
+            // PressureExtrapolation.RunForEach(boundaryChunk, context, config);
             PressureAccelerationPass.RunForEach(fluidChunk, context, config);
 
             var totalVolumeError = 0d;
@@ -101,16 +101,8 @@ file static class ISphUtil
         SimConfig simConfig
     )
     {
-        // Diagonal element for the adapted (Monaghan-style) pressure acceleration:
-        //   a_ff = -dt^2 * (V_f^2/m_f) * (sum_j grad W_fj) . (sum_j V_j grad W_fj)
-        //          -dt^2 * V_f^2 * sum_{f_f} (V_{f_f}/m_{f_f}) |grad W_{f,f_f}|^2
-        //
-        // Note the swapped volume powers compared to the symmetric formulation:
-        // here V_f appears squared as the shared prefactor, while each neighbour
-        // contributes only a single power of its own volume.
-        var gradientSum = Vector3.Zero; // sum_j grad W_fj             (all neighbours)
-        var weightedGradientSum = Vector3.Zero; // sum_j V_j grad W_fj (all neighbours)
-        var dij = 0f; // sum_{f_f} (V_{f_f}/m_{f_f}) |grad W|^2        (fluid neighbours only)
+        var diiSum = Vector3.Zero;
+        var dij = 0f;
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var fluid = ref context.MaterialPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
@@ -119,21 +111,21 @@ file static class ISphUtil
             var nEntity = neighbours.Neighbours[i];
             ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             var nablaKernel = neighbours.CachedKernels[i].NablaCubicSpline;
-            gradientSum += nablaKernel;
-            weightedGradientSum += nMaterial.Volume * nablaKernel;
+            diiSum += nMaterial.Volume * nablaKernel;
             if (context.BoundaryPool.Has(nEntity.Id))
                 continue;
-            dij += nMaterial.Volume * (1f / nMaterial.Mass) * Vector3.Dot(nablaKernel, nablaKernel);
+            dij +=
+                nMaterial.Volume
+                * (nMaterial.Volume * (1f / nMaterial.Mass))
+                * Vector3.Dot(nablaKernel, nablaKernel);
         }
 
-        var fluidVolumeSquared = fluid.Volume * fluid.Volume;
-
         if (context.BoundaryPool.Has(entity.Id))
-            solver.DiagonalElement = -simConfig.TimeStepSquared * fluidVolumeSquared * dij;
+            solver.DiagonalElement = -simConfig.TimeStepSquared * fluid.Volume * dij;
         else
         {
-            var dii = 1f / fluid.Mass * Vector3.Dot(gradientSum, weightedGradientSum);
-            solver.DiagonalElement = -simConfig.TimeStepSquared * fluidVolumeSquared * (dii + dij);
+            var dii = 1f / fluid.Mass * Vector3.Dot(diiSum, diiSum);
+            solver.DiagonalElement = -simConfig.TimeStepSquared * fluid.Volume * (dii + dij);
         }
     }
 
