@@ -20,7 +20,7 @@ public static class NonPressureAccelerationPass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                    ComputeInterfaceSmoothedColor(entities[i], context, config);
+                    ComputeInterfaceSmoothedColor(entities[i], context);
             }
         );
 
@@ -36,7 +36,7 @@ public static class NonPressureAccelerationPass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                    ComputeInterfaceCurvature(entities[i], context, config);
+                    ComputeInterfaceCurvature(entities[i], context);
             }
         );
 
@@ -119,11 +119,7 @@ public static class NonPressureAccelerationPass
         kinematic.NonPressureAccelerations += tensionForce / material.Mass;
     }
 
-    private static void ComputeInterfaceSmoothedColor(
-        Entity entity,
-        SphPassContext context,
-        SimConfig config
-    )
+    private static void ComputeInterfaceSmoothedColor(Entity entity, SphPassContext context)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
@@ -179,11 +175,7 @@ public static class NonPressureAccelerationPass
             lenSq < config.TensionEpsilon ? Vector3.Zero : Vector3.Normalize(normal);
     }
 
-    private static void ComputeInterfaceCurvature(
-        Entity entity,
-        SphPassContext context,
-        SimConfig config
-    )
+    private static void ComputeInterfaceCurvature(Entity entity, SphPassContext context)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
@@ -204,6 +196,11 @@ public static class NonPressureAccelerationPass
             var normalDiff = nInterface.Normal - interfaceState.Normal;
             sum1 -= nMaterial.Volume * Vector3.Dot(normalDiff, nablaKernel);
             sum2 += nMaterial.Volume * kernel;
+        }
+        if (sum2 < 1e-10f)
+        {
+            interfaceState.Curvature = 0f;
+            return;
         }
         interfaceState.Curvature = sum1 / sum2;
     }

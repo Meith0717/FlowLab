@@ -46,8 +46,13 @@ public static class PressureAccelerationPass
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
 
             var nVolumeSquared = nMaterial.Volume * nMaterial.Volume;
-            var pTerm = nVolumeSquared * nSolver.Pressure + fVolumeSquared * solver.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
+
+            var pTerm = 0f;
+            if (context.BoundaryPool.Has(nEntity.Id))
+                pTerm = 2 * (fVolumeSquared * solver.Pressure);
+            else
+                pTerm = nVolumeSquared * nSolver.Pressure + fVolumeSquared * solver.Pressure;
 
             pressureAcceleration += pTerm * kernelDerivative;
         }

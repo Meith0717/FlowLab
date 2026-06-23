@@ -49,7 +49,7 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
-            PressureExtrapolation.RunForEach(boundaryChunk, context, config);
+            //PressureExtrapolation.RunForEach(boundaryChunk, context, config);
             PressureAccelerationPass.RunForEach(fluidChunk, context, config);
 
             var totalVolumeError = 0d;

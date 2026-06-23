@@ -49,7 +49,7 @@ public class ParticleTransformSyncSystem : ISystem
 
             var pressure = _solverPool.Get(e.Id).Pressure;
             var normPressure = pressure / 50;
-            shaderData.Color = ColorPicker.GetHotColor(normPressure);
+            //            shaderData.Color = ColorPicker.GetHotColor(normPressure);
         }
     }
 }
