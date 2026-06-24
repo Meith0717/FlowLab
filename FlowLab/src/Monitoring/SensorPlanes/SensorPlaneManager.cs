@@ -29,7 +29,7 @@ public class SensorPlaneManager : IDisposable
     > _dictionary = [];
     private readonly GraphicsDevice _graphics;
     private readonly World _world;
-    private readonly ISpatialGrid3D _spatialGrid3D;
+    private readonly EcsSpatialHash3D _spatialGrid3D;
     private readonly Kernels _kernels;
     private readonly SimConfig _config;
     private readonly RasterizerState _wireframeRasterizerState;
@@ -46,7 +46,7 @@ public class SensorPlaneManager : IDisposable
     public SensorPlaneManager(
         GraphicsDevice graphics,
         World world,
-        ISpatialGrid3D spatialHash,
+        EcsSpatialHash3D spatialHash,
         Kernels kernels,
         SimConfig config
     )

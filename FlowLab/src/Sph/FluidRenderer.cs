@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -28,7 +27,7 @@ public class FluidRenderer : IDisposable
     private readonly DynamicVertexBuffer _instanceBufferB;
     private readonly World _world;
     private readonly ParticleShaderData[] _instanceData;
-    private readonly ISpatialGrid3D _spatialHash;
+    private readonly EcsSpatialHash3D _spatialHash;
     private readonly float _cellSize;
     private DynamicVertexBuffer _currentWriteBuffer;
     private DynamicVertexBuffer _currentReadBuffer;
@@ -41,7 +40,7 @@ public class FluidRenderer : IDisposable
     public FluidRenderer(
         GraphicsDevice graphics,
         World world,
-        ISpatialGrid3D spatialHash,
+        EcsSpatialHash3D spatialHash,
         float cellSize
     )
     {
@@ -146,35 +145,15 @@ public class FluidRenderer : IDisposable
         _graphics.DepthStencilState = DepthStencilState.Default;
         _graphics.RasterizerState = RasterizerState.CullNone;
 
-        // Get active cell hashes via reflection
-        var activeCellHashes = new HashSet<long>();
-        var activeCellsField = _spatialHash
-            .GetType()
-            .GetField("_activeCells", BindingFlags.NonPublic | BindingFlags.Instance);
-        var gridsField = _spatialHash
-            .GetType()
-            .GetField("_grids", BindingFlags.NonPublic | BindingFlags.Instance);
+        // Get active grid positions from spatial hash
+        var activePositions = _spatialHash.ActiveGridPositions;
+        
+        if (activePositions.Count == 0)
+            return;
 
-        var activeCells = activeCellsField?.GetValue(_spatialHash) as System.Collections.IList;
-        var grids = gridsField?.GetValue(_spatialHash) as System.Collections.IDictionary;
-
-        if (activeCells != null && grids != null)
-        {
-            foreach (var kvp in (System.Collections.IEnumerable)grids)
-            {
-                var entry = (System.Collections.DictionaryEntry)kvp;
-                if (activeCells.Contains(entry.Value))
-                {
-                    activeCellHashes.Add((long)entry.Key);
-                }
-            }
-        }
-
-        // Calculate visible cell range based on camera position
+        // Calculate camera frustum bounds for culling
         var cameraPosition = camera.Position;
-
-        // Calculate a reasonable range around the camera
-        var range = 50; // cells in each direction
+        var range = 100; // cells in each direction from camera
         var cellMinX = (int)Math.Floor(cameraPosition.X / _cellSize) - range;
         var cellMaxX = (int)Math.Floor(cameraPosition.X / _cellSize) + range;
         var cellMinY = (int)Math.Floor(cameraPosition.Y / _cellSize) - range;
@@ -182,57 +161,47 @@ public class FluidRenderer : IDisposable
         var cellMinZ = (int)Math.Floor(cameraPosition.Z / _cellSize) - range;
         var cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
 
-        // Clamp to prevent excessive iteration
-        cellMinX = Math.Max(cellMinX, -200);
-        cellMaxX = Math.Min(cellMaxX, 200);
-        cellMinY = Math.Max(cellMinY, -200);
-        cellMaxY = Math.Min(cellMaxY, 200);
-        cellMinZ = Math.Max(cellMinZ, -200);
-        cellMaxZ = Math.Min(cellMaxZ, 200);
-
         var halfSize = _cellSize / 2f;
+        var activeColor = new Color(100, 150, 255, 200);
 
-        // Draw grid lines (more efficient than individual cells)
-        // Draw Y-aligned lines (vertical)
-        for (var x = cellMinX; x <= cellMaxX; x++)
-        for (var z = cellMinZ; z <= cellMaxZ; z++)
+        // Draw each active cell as a cube/wireframe
+        foreach (var gridPos in activePositions)
         {
-            var xPos = x * _cellSize;
-            var zPos = z * _cellSize;
-            DrawGridLine(
-                new Vector3(xPos, cellMinY * _cellSize, zPos),
-                new Vector3(xPos, cellMaxY * _cellSize, zPos),
-                GetCellColor(x, cellMinY, z, activeCellHashes),
-                GetCellColor(x, cellMaxY, z, activeCellHashes)
-            );
-        }
-
-        // Draw Z-aligned lines (depth)
-        for (var x = cellMinX; x <= cellMaxX; x++)
-        for (var y = cellMinY; y <= cellMaxY; y++)
-        {
+            var x = (int)gridPos.X;
+            var y = (int)gridPos.Y;
+            var z = (int)gridPos.Z;
+            
+            // Cull cells outside view range
+            if (x < cellMinX || x > cellMaxX || y < cellMinY || y > cellMaxY || z < cellMinZ || z > cellMaxZ)
+                continue;
+            
             var xPos = x * _cellSize;
             var yPos = y * _cellSize;
-            DrawGridLine(
-                new Vector3(xPos, yPos, cellMinZ * _cellSize),
-                new Vector3(xPos, yPos, cellMaxZ * _cellSize),
-                GetCellColor(x, y, cellMinZ, activeCellHashes),
-                GetCellColor(x, y, cellMaxZ, activeCellHashes)
-            );
-        }
-
-        // Draw X-aligned lines (horizontal)
-        for (var y = cellMinY; y <= cellMaxY; y++)
-        for (var z = cellMinZ; z <= cellMaxZ; z++)
-        {
-            var yPos = y * _cellSize;
             var zPos = z * _cellSize;
-            DrawGridLine(
-                new Vector3(cellMinX * _cellSize, yPos, zPos),
-                new Vector3(cellMaxX * _cellSize, yPos, zPos),
-                GetCellColor(cellMinX, y, z, activeCellHashes),
-                GetCellColor(cellMaxX, y, z, activeCellHashes)
-            );
+            
+            // Draw cell as a wireframe cube
+            var minCorner = new Vector3(xPos, yPos, zPos);
+            var maxCorner = new Vector3(xPos + _cellSize, yPos + _cellSize, zPos + _cellSize);
+            
+            // Bottom face
+            DrawGridLine(minCorner, new Vector3(xPos + _cellSize, yPos, zPos), activeColor, activeColor);
+            DrawGridLine(minCorner, new Vector3(xPos, yPos, zPos + _cellSize), activeColor, activeColor);
+            DrawGridLine(new Vector3(xPos + _cellSize, yPos, zPos), maxCorner, activeColor, activeColor);
+            DrawGridLine(new Vector3(xPos, yPos, zPos + _cellSize), maxCorner, activeColor, activeColor);
+            
+            // Top face
+            var topMin = new Vector3(xPos, yPos + _cellSize, zPos);
+            var topMax = maxCorner;
+            DrawGridLine(topMin, new Vector3(xPos + _cellSize, yPos + _cellSize, zPos), activeColor, activeColor);
+            DrawGridLine(topMin, new Vector3(xPos, yPos + _cellSize, zPos + _cellSize), activeColor, activeColor);
+            DrawGridLine(new Vector3(xPos + _cellSize, yPos + _cellSize, zPos), topMax, activeColor, activeColor);
+            DrawGridLine(new Vector3(xPos, yPos + _cellSize, zPos + _cellSize), topMax, activeColor, activeColor);
+            
+            // Vertical edges
+            DrawGridLine(minCorner, topMin, activeColor, activeColor);
+            DrawGridLine(new Vector3(xPos + _cellSize, yPos, zPos), new Vector3(xPos + _cellSize, yPos + _cellSize, zPos), activeColor, activeColor);
+            DrawGridLine(new Vector3(xPos, yPos, zPos + _cellSize), new Vector3(xPos, yPos + _cellSize, zPos + _cellSize), activeColor, activeColor);
+            DrawGridLine(maxCorner, topMax, activeColor, activeColor);
         }
     }
 

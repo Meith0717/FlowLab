@@ -20,7 +20,7 @@ using MonoKit.Spatial;
 namespace FlowLab.Ecs.System;
 
 public class SimulationSystem(
-    ISpatialGrid3D spatialHash3D,
+    EcsSpatialHash3D spatialHash3D,
     Kernels kernels,
     SimConfig config,
     SimulationController controller,

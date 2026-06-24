@@ -43,7 +43,7 @@ public readonly struct SensorPlaneData(
 public class SensorPlane : IDisposable
 {
     private readonly ThreadLocal<List<Entity>> _neighborsBuffer = new(() => new List<Entity>(128));
-    private readonly ISpatialGrid3D _spatialHash;
+    private readonly EcsSpatialHash3D _spatialHash;
     private readonly Kernels _kernels;
     private readonly SimConfig _config;
     private readonly Vector3 _position;
@@ -76,7 +76,7 @@ public class SensorPlane : IDisposable
 
     public SensorPlane(
         World world,
-        ISpatialGrid3D spatialHash,
+        EcsSpatialHash3D spatialHash,
         Kernels kernels,
         SimConfig config,
         SensorPlaneData sensorData

@@ -15,7 +15,7 @@ public static class VolumePass
 {
     public static void RunForEach(
         EntityChunking chunking,
-        ISpatialGrid3D spatialHash3D,
+        EcsSpatialHash3D spatialHash3D,
         SphPassContext context,
         Kernels kernels,
         SimConfig config
@@ -46,7 +46,7 @@ public static class VolumePass
 
     private static void GetNeighboursAndKernels(
         Entity entity,
-        ISpatialGrid3D spatialHash3D,
+        EcsSpatialHash3D spatialHash3D,
         SphPassContext context,
         Kernels kernels,
         SimConfig config
