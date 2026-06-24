@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Runtime.CompilerServices;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Sph.Passes.Utilities;
@@ -80,6 +81,7 @@ public static class VolumePass
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeBoundaryRestVolume(Entity entity, SphPassContext context)
     {
         ref var material = ref context.MaterialPool.Get(entity.Id);
@@ -93,6 +95,7 @@ public static class VolumePass
         material.SetRestVolume(boundaryKernelSum > 1e-6f ? 1f / boundaryKernelSum : 0f);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeVolume(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var material = ref context.MaterialPool.Get(entity.Id);

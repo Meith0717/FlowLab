@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System;
+using System.Collections.Specialized;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
@@ -59,7 +60,7 @@ public class SimulationScreen : Screen
                 _simTracker
             )
         );
-        var domain = new BoundingBox(new Vector3(-20, -10, -20), new Vector3(20, 100, 20));
+        var domain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
         _world.Systems.Add(new DomainSystem(domain));
 
         _boundingBoxRenderer = new BoundingBoxRenderer(GraphicsDevice, domain);
@@ -79,7 +80,8 @@ public class SimulationScreen : Screen
             _simConfig
         );
 
-        SpawnBox(22, 22, 100, 1f, 1, 0);
+        SpawnBox(40, 40, 200, 1f, 1, 1);
+        AddFluidBlock(25, 25, 60, 1f, new Vector3(0, 40, 0), Color.DodgerBlue, 1);
     }
 
     public override void Initialize()
@@ -100,10 +102,7 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(20, 20, 6, .01f, new Vector3(0, 4, 0), Color.Orange, 0);
-
-        if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(20, 20, 6, 1f, new Vector3(0, 10, 0), Color.DeepSkyBlue, 1);
+            AddFluidBlock(15, 15, 40, 1f, new Vector3(0, 30, 0), Color.DodgerBlue, 1);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -124,6 +123,39 @@ public class SimulationScreen : Screen
         _boundingBoxRenderer.Draw(_camera3D);
         _sensorManager.Draw(_camera3D);
         base.Draw(spriteBatch);
+    }
+
+    private void AddMovingFluidBlock(
+        float width,
+        float depth,
+        float restDensity,
+        Vector3 position,
+        Color color,
+        float materialId,
+        Vector3 velocity
+    )
+    {
+        var particleSize = _simConfig.MaxParticleSize;
+        var halfParticleSize = particleSize / 2f;
+        var halfWidth = width / 2;
+        var halfDepth = depth / 2;
+
+        var startWidth = halfWidth - halfParticleSize;
+        var stopWidth = halfWidth + halfParticleSize;
+        var startDepth = halfDepth - halfParticleSize;
+        var stopDepth = halfDepth + halfParticleSize;
+
+        for (var x = -startWidth; x < stopWidth; x += particleSize)
+        for (var z = -startDepth; z < stopDepth; z += particleSize)
+            ParticleFactory.CreateMovingFluidParticle(
+                _world,
+                position + new Vector3(x, 0, z),
+                particleSize,
+                restDensity,
+                color,
+                materialId,
+                velocity
+            );
     }
 
     private void AddFluidBlock(

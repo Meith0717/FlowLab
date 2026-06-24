@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Runtime.CompilerServices;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
@@ -16,7 +17,7 @@ public static class NonPressureAccelerationPass
     {
         var entities = chunking.Entities;
 
-        chunking.ParallelForEach(
+        /*chunking.ParallelForEach(
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
@@ -38,7 +39,7 @@ public static class NonPressureAccelerationPass
                 for (var i = start; i < end; i++)
                     ComputeInterfaceCurvature(entities[i], context);
             }
-        );
+        );*/
 
         chunking.ParallelForEach(
             (start, end) =>
@@ -48,7 +49,7 @@ public static class NonPressureAccelerationPass
                     var entity = entities[i];
                     SetGravityAcceleration(entity, context, config);
                     ComputeViscosity(entity, context, config);
-                    ComputeInterfaceTensionAcceleration(entity, context, config);
+                    //  ComputeInterfaceTensionAcceleration(entity, context, config);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
                     kinematic.NonPressureAccelerations *= config.TimeStep;
@@ -59,6 +60,7 @@ public static class NonPressureAccelerationPass
         );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void SetGravityAcceleration(
         Entity entity,
         SphPassContext context,

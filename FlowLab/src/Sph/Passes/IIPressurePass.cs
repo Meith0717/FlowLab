@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Runtime.CompilerServices;
 using System.Threading;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
@@ -98,6 +99,7 @@ public static class IiPressurePass
 
 file static class ISphUtil
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ComputeDiagonalElement(
         Entity entity,
         SphPassContext context,
@@ -128,6 +130,7 @@ file static class ISphUtil
         solver.DiagonalElement = -simConfig.TimeStepSquared * fluidVolumeSquared * (dii + dij);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ComputeSourceTerm(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
@@ -152,6 +155,7 @@ file static class ISphUtil
         solver.SourceTherm = 1f - (fluid.RestVolume / fluid.Volume) - predVolume;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);

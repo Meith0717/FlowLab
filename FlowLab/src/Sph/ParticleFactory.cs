@@ -45,6 +45,25 @@ public static class ParticleFactory
         return entity;
     }
 
+    public static Entity CreateMovingFluidParticle(
+        World world,
+        Vector3 position,
+        float size,
+        float restDensity,
+        Color color,
+        float materialId,
+        Vector3 velocity
+    )
+    {
+        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
+        world.Components.Add(entity, new FluidTag());
+        world.Components.Add(entity, new InterfaceState());
+        world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
+        world.Components.Add(entity, new KinematicState { Velocity = velocity });
+
+        return entity;
+    }
+
     private static Entity CreateParticle(
         World world,
         Vector3 position,
@@ -57,7 +76,7 @@ public static class ParticleFactory
         var volume = size * size * size;
         var fluidComponent = new MaterialComponent(materialId, volume, restDensity);
         var transform = new Transform3D { Position = position };
-        var movement = new KinematicState();
+        var kinematics = new KinematicState();
         var shaderData = new ParticleShaderData
         {
             Color = color,
@@ -66,14 +85,13 @@ public static class ParticleFactory
         };
 
         var entity = world.CreateEntity();
-        world.Components.Add(entity, movement);
+        world.Components.Add(entity, kinematics);
         world.Components.Add(entity, transform);
         world.Components.Add(entity, fluidComponent);
         world.Components.Add(entity, shaderData);
         world.Components.Add(entity, new ParticleTag());
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new SolverState());
-        world.Components.Add(entity, new Collider3D(Vector3.Zero));
         return entity;
     }
 }

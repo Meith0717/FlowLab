@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MonoKit.Ecs.Entities;
 
@@ -19,6 +20,7 @@ public class EntityChunking(Entity[] entities, int size = 512)
 
     public Entity[] Entities { get; } = entities;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ParallelForEach(Action<int, int> chunkAction)
     {
         var entities = Entities;
@@ -36,23 +38,7 @@ public class EntityChunking(Entity[] entities, int size = 512)
         );
     }
 
-    public void ParallelForEach(Action<int, int, int> chunkAction)
-    {
-        var entities = Entities;
-        var chunkSize = size;
-
-        Parallel.For(
-            0,
-            _numChunks,
-            i =>
-            {
-                var start = i * chunkSize;
-                var end = Math.Min(start + chunkSize, entities.Length);
-                chunkAction(start, end, i);
-            }
-        );
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ParallelForEach<TLocal>(
         Func<TLocal> localInit,
         Func<int, int, TLocal, TLocal> chunkAction,
@@ -61,30 +47,6 @@ public class EntityChunking(Entity[] entities, int size = 512)
     {
         var entities = Entities;
         var chunkSize = size;
-        var numChunks = _numChunks;
-
-        Parallel.For(
-            0,
-            numChunks,
-            localInit,
-            (i, _, localState) =>
-            {
-                var start = i * chunkSize;
-                var end = Math.Min(start + chunkSize, entities.Length);
-                return chunkAction(start, end, localState);
-            },
-            localFinally
-        );
-    }
-
-    public void ParallelForEach<TLocal>(
-        Func<TLocal> localInit,
-        Func<int, int, int, TLocal, TLocal> chunkAction,
-        Action<TLocal> localFinally
-    )
-    {
-        var entities = Entities;
-        var chunkSize = size;
 
         Parallel.For(
             0,
@@ -94,7 +56,7 @@ public class EntityChunking(Entity[] entities, int size = 512)
             {
                 var start = i * chunkSize;
                 var end = Math.Min(start + chunkSize, entities.Length);
-                return chunkAction(start, end, i, localState);
+                return chunkAction(start, end, localState);
             },
             localFinally
         );

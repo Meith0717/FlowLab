@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Sph
@@ -21,6 +22,7 @@ namespace FlowLab.Sph
         private readonly float _cubicSplineAlpha =
             1f / (4f * float.Pi * (particleDiameter * particleDiameter * particleDiameter));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float DistanceOverH(Vector3 pos1, Vector3 pos2)
         {
             var dx = pos1.X - pos2.X;
@@ -30,6 +32,7 @@ namespace FlowLab.Sph
             return float.Sqrt(dx * dx + dy * dy + dz * dz) * _particleDiameterInverse;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float CubicSpline(Vector3 position1, Vector3 position2)
         {
             var alpha = _cubicSplineAlpha;
@@ -40,6 +43,7 @@ namespace FlowLab.Sph
             return alpha * t3;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 NablaCubicSpline(Vector3 position1, Vector3 position2)
         {
             var positionDifference = position1 - position2;

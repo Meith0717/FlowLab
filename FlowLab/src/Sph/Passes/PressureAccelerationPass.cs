@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Runtime.CompilerServices;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
@@ -27,6 +28,7 @@ public static class PressureAccelerationPass
         );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
