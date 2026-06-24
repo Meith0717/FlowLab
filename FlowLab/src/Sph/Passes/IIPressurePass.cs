@@ -38,10 +38,13 @@ public static class IiPressurePass
                     ISphUtil.ComputeSourceTerm(entity, context, config);
                     ISphUtil.ComputeDiagonalElement(entity, context, config);
 
-                    solver.Pressure = float.Max(
-                        SimConfig.Relaxation / solver.DiagonalElement * solver.SourceTherm,
-                        0
-                    );
+                    if (float.Abs(solver.DiagonalElement) > 1e-6f)
+                        solver.Pressure = float.Max(
+                            SimConfig.Relaxation / solver.DiagonalElement * solver.SourceTherm,
+                            0
+                        );
+                    else
+                        solver.Pressure = 0;
                 }
             }
         );
@@ -101,9 +104,9 @@ file static class ISphUtil
         SimConfig simConfig
     )
     {
-        var gradientSum = Vector3.Zero; // sum_j grad W_fj             (all neighbours)
-        var weightedGradientSum = Vector3.Zero; // sum_j V_j grad W_fj (all neighbours)
-        var dij = 0f; // sum_{f_f} (V_{f_f}/m_{f_f}) |grad W|^2        (fluid neighbours only)
+        var gradientSum = Vector3.Zero;
+        var weightedGradientSum = Vector3.Zero;
+        var dij = 0f;
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var fluid = ref context.MaterialPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);

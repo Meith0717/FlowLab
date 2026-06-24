@@ -147,7 +147,7 @@ public class FluidRenderer : IDisposable
 
         // Get active grid positions from spatial hash
         var activePositions = _spatialHash.ActiveGridPositions;
-        
+
         if (activePositions.Count == 0)
             return;
 
@@ -162,7 +162,7 @@ public class FluidRenderer : IDisposable
         var cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
 
         var halfSize = _cellSize / 2f;
-        var activeColor = new Color(100, 150, 255, 200);
+        var activeColor = Color.Red;
 
         // Draw each active cell as a cube/wireframe
         foreach (var gridPos in activePositions)
@@ -170,37 +170,94 @@ public class FluidRenderer : IDisposable
             var x = (int)gridPos.X;
             var y = (int)gridPos.Y;
             var z = (int)gridPos.Z;
-            
+
             // Cull cells outside view range
-            if (x < cellMinX || x > cellMaxX || y < cellMinY || y > cellMaxY || z < cellMinZ || z > cellMaxZ)
+            if (
+                x < cellMinX
+                || x > cellMaxX
+                || y < cellMinY
+                || y > cellMaxY
+                || z < cellMinZ
+                || z > cellMaxZ
+            )
                 continue;
-            
+
             var xPos = x * _cellSize;
             var yPos = y * _cellSize;
             var zPos = z * _cellSize;
-            
+
             // Draw cell as a wireframe cube
             var minCorner = new Vector3(xPos, yPos, zPos);
             var maxCorner = new Vector3(xPos + _cellSize, yPos + _cellSize, zPos + _cellSize);
-            
+
             // Bottom face
-            DrawGridLine(minCorner, new Vector3(xPos + _cellSize, yPos, zPos), activeColor, activeColor);
-            DrawGridLine(minCorner, new Vector3(xPos, yPos, zPos + _cellSize), activeColor, activeColor);
-            DrawGridLine(new Vector3(xPos + _cellSize, yPos, zPos), maxCorner, activeColor, activeColor);
-            DrawGridLine(new Vector3(xPos, yPos, zPos + _cellSize), maxCorner, activeColor, activeColor);
-            
+            DrawGridLine(
+                minCorner,
+                new Vector3(xPos + _cellSize, yPos, zPos),
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                minCorner,
+                new Vector3(xPos, yPos, zPos + _cellSize),
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                new Vector3(xPos + _cellSize, yPos, zPos),
+                maxCorner,
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                new Vector3(xPos, yPos, zPos + _cellSize),
+                maxCorner,
+                activeColor,
+                activeColor
+            );
+
             // Top face
             var topMin = new Vector3(xPos, yPos + _cellSize, zPos);
             var topMax = maxCorner;
-            DrawGridLine(topMin, new Vector3(xPos + _cellSize, yPos + _cellSize, zPos), activeColor, activeColor);
-            DrawGridLine(topMin, new Vector3(xPos, yPos + _cellSize, zPos + _cellSize), activeColor, activeColor);
-            DrawGridLine(new Vector3(xPos + _cellSize, yPos + _cellSize, zPos), topMax, activeColor, activeColor);
-            DrawGridLine(new Vector3(xPos, yPos + _cellSize, zPos + _cellSize), topMax, activeColor, activeColor);
-            
+            DrawGridLine(
+                topMin,
+                new Vector3(xPos + _cellSize, yPos + _cellSize, zPos),
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                topMin,
+                new Vector3(xPos, yPos + _cellSize, zPos + _cellSize),
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                new Vector3(xPos + _cellSize, yPos + _cellSize, zPos),
+                topMax,
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                new Vector3(xPos, yPos + _cellSize, zPos + _cellSize),
+                topMax,
+                activeColor,
+                activeColor
+            );
+
             // Vertical edges
             DrawGridLine(minCorner, topMin, activeColor, activeColor);
-            DrawGridLine(new Vector3(xPos + _cellSize, yPos, zPos), new Vector3(xPos + _cellSize, yPos + _cellSize, zPos), activeColor, activeColor);
-            DrawGridLine(new Vector3(xPos, yPos, zPos + _cellSize), new Vector3(xPos, yPos + _cellSize, zPos + _cellSize), activeColor, activeColor);
+            DrawGridLine(
+                new Vector3(xPos + _cellSize, yPos, zPos),
+                new Vector3(xPos + _cellSize, yPos + _cellSize, zPos),
+                activeColor,
+                activeColor
+            );
+            DrawGridLine(
+                new Vector3(xPos, yPos, zPos + _cellSize),
+                new Vector3(xPos, yPos + _cellSize, zPos + _cellSize),
+                activeColor,
+                activeColor
+            );
             DrawGridLine(maxCorner, topMax, activeColor, activeColor);
         }
     }

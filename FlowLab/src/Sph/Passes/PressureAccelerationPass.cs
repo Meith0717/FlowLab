@@ -51,6 +51,10 @@ public static class PressureAccelerationPass
             pressureAcceleration += pTerm * kernelDerivative;
         }
 
-        kinematicState.PressureAcceleration = -pressureAcceleration / material.Mass;
+        var result = -pressureAcceleration / material.Mass;
+        kinematicState.PressureAcceleration =
+            float.IsFinite(result.X) && float.IsFinite(result.Y) && float.IsFinite(result.Z)
+                ? result
+                : Vector3.Zero;
     }
 }

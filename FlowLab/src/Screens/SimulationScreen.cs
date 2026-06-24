@@ -100,10 +100,10 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(20, 20, 10, 1f, new Vector3(0, 6, 0), Color.DodgerBlue, 0);
+            AddFluidBlock(20, 20, 6, .01f, new Vector3(0, 4, 0), Color.Orange, 0);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(10, 10, 40, .01f, new Vector3(0, 40, 0), Color.Orange, 1);
+            AddFluidBlock(20, 20, 6, 1f, new Vector3(0, 10, 0), Color.DeepSkyBlue, 1);
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
@@ -193,14 +193,14 @@ public class SimulationScreen : Screen
                 restDensity,
                 materialId
             );
-            // position = new Vector3(i, height, j);
-            // ParticleFactory.CreateBoundaryParticle(
-            //     _world,
-            //     position,
-            //     particleSize,
-            //     restDensity,
-            //     materialId
-            // );
+            position = new Vector3(i, height, j);
+            ParticleFactory.CreateBoundaryParticle(
+                _world,
+                position,
+                particleSize,
+                restDensity,
+                materialId
+            );
         }
 
         for (var i = -startWidth; i < stopWidth; i += particleSize)
