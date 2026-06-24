@@ -87,7 +87,7 @@ public static class VolumePass
 
         var boundaryKernelSum = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-            if (context.BoundaryPool.Has(neighbourList.Neighbours[i].id))
+            if (context.BoundaryPool.Has(neighbourList.Neighbours[i].Id))
                 boundaryKernelSum += neighbourList.CachedKernels[i].CubicSpline;
 
         material.SetRestVolume(1f / boundaryKernelSum);

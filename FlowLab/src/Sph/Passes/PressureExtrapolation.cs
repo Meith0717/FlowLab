@@ -1,4 +1,4 @@
-// PressureExtrapolation.cs
+// PressureExtrapolationPass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -13,7 +13,7 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Sph.Passes;
 
-public static class PressureExtrapolation
+public static class PressureExtrapolationPass
 {
     public static void RunForEach(EntityChunking chunking, SphPassContext context, SimConfig config)
     {
@@ -37,7 +37,7 @@ public static class PressureExtrapolation
         ref var transform = ref context.TransformPool.Get(entity.Id);
 
         solver.Pressure = 0;
-        if (neighbours.Neighbours.All(e => !context.BoundaryPool.Has(e.id)))
+        if (neighbours.Neighbours.All(e => !context.BoundaryPool.Has(e.Id)))
             return;
 
         var sum1 = 0f;

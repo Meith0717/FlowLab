@@ -18,16 +18,16 @@ public static class IiPressurePass
     public static int LastIterationCount { get; private set; } = 0;
 
     public static void RunForEach(
-        EntityChunking boundaryChunk,
-        EntityChunking fluidChunk,
+        EntityChunking fChunk,
+        EntityChunking bChunk,
         SphPassContext context,
         SimConfig config
     )
     {
-        var allEntities = fluidChunk.Entities;
+        var allEntities = fChunk.Entities;
         var particleCount = allEntities.Length;
 
-        fluidChunk.ParallelForEach(
+        fChunk.ParallelForEach(
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
@@ -39,7 +39,7 @@ public static class IiPressurePass
                     ISphUtil.ComputeDiagonalElement(entity, context, config);
 
                     solver.Pressure = float.Max(
-                        SimConfig.Relaxation * (solver.SourceTherm / solver.DiagonalElement),
+                        SimConfig.Relaxation / solver.DiagonalElement * solver.SourceTherm,
                         0
                     );
                 }
@@ -49,11 +49,11 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
-            // PressureExtrapolation.RunForEach(boundaryChunk, context, config);
-            PressureAccelerationPass.RunForEach(fluidChunk, context, config);
+            PressureExtrapolationPass.RunForEach(bChunk, context, config);
+            PressureAccelerationPass.RunForEach(fChunk, context, config);
 
             var totalVolumeError = 0d;
-            fluidChunk.ParallelForEach(
+            fChunk.ParallelForEach(
                 () => 0d,
                 (start, end, residual) =>
                 {
@@ -101,8 +101,9 @@ file static class ISphUtil
         SimConfig simConfig
     )
     {
-        var diiSum = Vector3.Zero;
-        var dij = 0f;
+        var gradientSum = Vector3.Zero; // sum_j grad W_fj             (all neighbours)
+        var weightedGradientSum = Vector3.Zero; // sum_j V_j grad W_fj (all neighbours)
+        var dij = 0f; // sum_{f_f} (V_{f_f}/m_{f_f}) |grad W|^2        (fluid neighbours only)
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var fluid = ref context.MaterialPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
@@ -111,22 +112,17 @@ file static class ISphUtil
             var nEntity = neighbours.Neighbours[i];
             ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             var nablaKernel = neighbours.CachedKernels[i].NablaCubicSpline;
-            diiSum += nMaterial.Volume * nablaKernel;
+            gradientSum += nablaKernel;
+            weightedGradientSum += nMaterial.Volume * nablaKernel;
             if (context.BoundaryPool.Has(nEntity.Id))
                 continue;
-            dij +=
-                nMaterial.Volume
-                * (nMaterial.Volume * (1f / nMaterial.Mass))
-                * Vector3.Dot(nablaKernel, nablaKernel);
+            dij += nMaterial.Volume * (1f / nMaterial.Mass) * Vector3.Dot(nablaKernel, nablaKernel);
         }
 
-        if (context.BoundaryPool.Has(entity.Id))
-            solver.DiagonalElement = -simConfig.TimeStepSquared * fluid.Volume * dij;
-        else
-        {
-            var dii = 1f / fluid.Mass * Vector3.Dot(diiSum, diiSum);
-            solver.DiagonalElement = -simConfig.TimeStepSquared * fluid.Volume * (dii + dij);
-        }
+        var fluidVolumeSquared = fluid.Volume * fluid.Volume;
+
+        var dii = (1f / fluid.Mass) * Vector3.Dot(gradientSum, weightedGradientSum);
+        solver.DiagonalElement = -simConfig.TimeStepSquared * fluidVolumeSquared * (dii + dij);
     }
 
     public static void ComputeSourceTerm(Entity entity, SphPassContext context, SimConfig config)

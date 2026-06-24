@@ -50,10 +50,10 @@ public class ParticleTransformSyncSystem : ISystem
             ref var transform = ref _transformPool.Get(e.Id);
             shaderData.Position = transform.Position;
 
-            var value = _materialPool.Get(e.Id).Volume;
+            var value = _solverPool.Get(e.Id).Pressure;
             maxValue = float.Max(maxValue, maxValue);
-            var normPressure = float.Max(value / 2f, 0);
-            // shaderData.Color = ColorPicker.GetHotColor(normPressure);
+            var normValue = float.Max(value / 5f, 0);
+            //shaderData.Color = ColorPicker.GetHotColor(normValue);
         }
     }
 }

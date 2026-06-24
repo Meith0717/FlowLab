@@ -100,7 +100,7 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(19, 19, 10, 1f, new Vector3(0, 6, 0), Color.DodgerBlue, 0);
+            AddFluidBlock(20, 20, 10, 1f, new Vector3(0, 6, 0), Color.DodgerBlue, 0);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
             AddFluidBlock(10, 10, 40, .01f, new Vector3(0, 40, 0), Color.Orange, 1);

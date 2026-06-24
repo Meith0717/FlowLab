@@ -1,4 +1,4 @@
-// WcPressure.cs
+// WcPressurePass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -9,7 +9,7 @@ using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Sph.Passes;
 
-public class WcPressure
+public class WcPressurePass
 {
     public static void RunForEach(EntityChunking chunking, SphPassContext context, SimConfig config)
     {
@@ -26,7 +26,7 @@ public class WcPressure
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var solver = ref context.SolverState.Get(entity.Id);
-        ref var material = ref context.MaterialPool.Get(entity.id);
+        ref var material = ref context.MaterialPool.Get(entity.Id);
 
         solver.Pressure = 500 * ((material.RestVolume / material.Volume) - 1);
         solver.Pressure = float.Max(solver.Pressure, 0);
