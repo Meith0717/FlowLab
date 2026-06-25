@@ -36,8 +36,6 @@ public static class PressureAccelerationPass
         ref var solver = ref context.SolverState.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        var fVolumeSquared = material.Volume * material.Volume;
-
         var pressureAcceleration = Vector3.Zero;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
@@ -45,15 +43,14 @@ public static class PressureAccelerationPass
             ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
 
-            var nVolumeSquared = nMaterial.Volume * nMaterial.Volume;
+            var pSum = solver.Pressure + nSolver.Pressure;
             var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
 
-            var pTerm = nVolumeSquared * nSolver.Pressure + fVolumeSquared * solver.Pressure;
-
-            pressureAcceleration += pTerm * kernelDerivative;
+            pressureAcceleration += nMaterial.Volume * pSum * kernelDerivative;
         }
 
-        var result = -pressureAcceleration / material.Mass;
+        var result=
+            -(material.Volume * pressureAcceleration) / material.Mass;
         kinematicState.PressureAcceleration =
             float.IsFinite(result.X) && float.IsFinite(result.Y) && float.IsFinite(result.Z)
                 ? result

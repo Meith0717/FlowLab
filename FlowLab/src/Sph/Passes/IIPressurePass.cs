@@ -106,8 +106,7 @@ file static class ISphUtil
         SimConfig simConfig
     )
     {
-        var gradientSum = Vector3.Zero;
-        var weightedGradientSum = Vector3.Zero;
+        var diiSum = Vector3.Zero;
         var dij = 0f;
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var fluid = ref context.MaterialPool.Get(entity.Id);
@@ -117,17 +116,18 @@ file static class ISphUtil
             var nEntity = neighbours.Neighbours[i];
             ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
             var nablaKernel = neighbours.CachedKernels[i].NablaCubicSpline;
-            gradientSum += nablaKernel;
-            weightedGradientSum += nMaterial.Volume * nablaKernel;
+            diiSum += nMaterial.Volume * nablaKernel;
             if (context.BoundaryPool.Has(nEntity.Id))
                 continue;
-            dij += nMaterial.Volume * (1f / nMaterial.Mass) * Vector3.Dot(nablaKernel, nablaKernel);
+            dij +=
+                nMaterial.Volume
+                * (nMaterial.Volume / nMaterial.Mass)
+                * Vector3.Dot(nablaKernel, nablaKernel);
         }
-
-        var fluidVolumeSquared = fluid.Volume * fluid.Volume;
-
-        var dii = (1f / fluid.Mass) * Vector3.Dot(gradientSum, weightedGradientSum);
-        solver.DiagonalElement = -simConfig.TimeStepSquared * fluidVolumeSquared * (dii + dij);
+        
+        var dii = Vector3.Dot(diiSum, diiSum);
+        solver.DiagonalElement = -simConfig.TimeStepSquared * (fluid.Volume / fluid.Mass) * dii -
+                                 simConfig.TimeStepSquared * fluid.Volume * dij;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

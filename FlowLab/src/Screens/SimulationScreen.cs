@@ -81,7 +81,6 @@ public class SimulationScreen : Screen
         );
 
         SpawnBox(40, 40, 200, 1f, 1, 1);
-        AddFluidBlock(25, 25, 60, 1f, new Vector3(0, 40, 0), Color.DodgerBlue, 1);
     }
 
     public override void Initialize()
@@ -102,7 +101,14 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(15, 15, 40, 1f, new Vector3(0, 30, 0), Color.DodgerBlue, 1);
+        {
+            AddFluidBlock(10, 10, 50, 1f, new Vector3(10, 30, 10), Color.DodgerBlue, 1);
+        }
+
+        if (inputHandler.HasAction((byte)ActionType.Test))
+        {
+            AddFluidBlock(10, 10, 50, .01f, new Vector3(-10, 30, -10), Color.Orange, 1);
+        }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
