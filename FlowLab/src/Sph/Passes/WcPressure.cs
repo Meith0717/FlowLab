@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Diagnostics;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
@@ -30,5 +31,9 @@ public static class WcPressurePass
 
         solver.Pressure = 200 * ((material.RestVolume / material.Volume) - 1);
         solver.Pressure = float.Max(solver.Pressure, 0);
+        
+        if (float.IsNaN(solver.Pressure))
+            Debugger.Break();
+        
     }
 }

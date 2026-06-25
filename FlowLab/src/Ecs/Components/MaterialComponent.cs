@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System;
+using Microsoft.Xna.Framework;
 
 namespace FlowLab.Ecs.Components;
 
@@ -12,17 +13,19 @@ public struct MaterialComponent
     private readonly float _restDensity;
 
     public readonly float ColorId;
+    public readonly Color Color;
     public float RestVolume { get; private set; }
     public float Mass { get; private set; }
     public float Volume { get; set; }
 
-    public MaterialComponent(float colorId, float volume, float restDensity)
+    public MaterialComponent(Color color, float colorId, float volume, float restDensity)
     {
         if (colorId is < 0 or > 1)
             throw new ArgumentException("Id needs to be normalized");
 
         _restDensity = restDensity;
         ColorId = colorId;
+        Color = color;
         SetRestVolume(volume);
     }
 

@@ -103,8 +103,11 @@ public static class VolumePass
 
         var numberDensity = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-            numberDensity += neighbourList.CachedKernels[i].CubicSpline;
+        {
+            ref var nMaterial = ref context.MaterialPool.Get(neighbourList.Neighbours[i].Id);
+            numberDensity += nMaterial.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
+        }
 
-        material.Volume = numberDensity > 1e-6f ? 1f / numberDensity : 0f;
+        material.Volume = numberDensity > 1e-6f ? material.RestVolume / numberDensity : 0f;
     }
 }

@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using FlowLab.Config;
@@ -78,6 +79,9 @@ public static class IiPressurePass
 
                         solver.Pressure = float.Max(0, solver.Pressure);
                         residual += float.Max(solver.Laplacian - solver.SourceTherm, 0);
+                        
+                        if (float.IsNaN(solver.Pressure))
+                            Debugger.Break();
                     }
                     return residual;
                 },

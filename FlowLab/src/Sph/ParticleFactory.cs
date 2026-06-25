@@ -74,15 +74,10 @@ public static class ParticleFactory
     )
     {
         var volume = size * size * size;
-        var fluidComponent = new MaterialComponent(materialId, volume, restDensity);
+        var fluidComponent = new MaterialComponent(color, materialId, volume, restDensity);
         var transform = new Transform3D { Position = position };
         var kinematics = new KinematicState();
-        var shaderData = new ParticleShaderData
-        {
-            Color = color,
-            Position = position,
-            Size = size,
-        };
+        var shaderData = new ParticleShaderData { Size = size };
 
         var entity = world.CreateEntity();
         world.Components.Add(entity, kinematics);
