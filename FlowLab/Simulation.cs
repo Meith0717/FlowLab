@@ -4,6 +4,8 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
+using System.IO;
+using FlowLab.Geometry;
 using FlowLab.Input;
 using FlowLab.Screens;
 using Microsoft.Xna.Framework;

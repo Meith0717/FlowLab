@@ -5,9 +5,11 @@
 
 using System;
 using System.Collections.Specialized;
+using System.IO;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
+using FlowLab.Geometry;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
@@ -35,6 +37,8 @@ public class SimulationScreen : Screen
     private readonly SimulationController _simController;
     private readonly SimulationTracker _simTracker;
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
+    private readonly WireframeRenderer _wireframeRenderer;
+    private readonly AxisRenderer _axisRenderer;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
@@ -62,8 +66,10 @@ public class SimulationScreen : Screen
         );
         var domain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
         _world.Systems.Add(new DomainSystem(domain));
+        _world.Systems.Add(new DiagnosticSystem(_simConfig, _simController));
 
         _boundingBoxRenderer = new BoundingBoxRenderer(GraphicsDevice, domain);
+        _axisRenderer = new AxisRenderer(GraphicsDevice) { AxisLength = 10f };
         _fluidRenderer = new FluidRenderer(
             GraphicsDevice,
             _world,
@@ -80,7 +86,26 @@ public class SimulationScreen : Screen
             _simConfig
         );
 
-        SpawnBox(30, 30, 200, 1f, 1, 1);
+        // SpawnBox(30, 30, 200, 1f, 1, 1);
+        var model = ObjLoader.Load(Path.Combine("Content", "Models", "Sphere.obj"));
+
+        var transform = Matrix.CreateScale(20f);
+        _wireframeRenderer = new WireframeRenderer(GraphicsDevice, model)
+        {
+            World = transform,
+            Color = Color.Orange
+        };
+
+        var lst = MeshParticleSampler.SampleSurface(
+            model,
+            _simConfig.MaxParticleSize / 2f,
+            _simConfig.MaxParticleSize,
+            transform: transform);
+        foreach (var vector4 in lst)
+        {
+            var position = new Vector3(vector4.X, vector4.Y, vector4.Z);
+            ParticleFactory.CreateBoundaryParticle(_world, position, vector4.W, 1, 1);
+        }
     }
 
     public override void Initialize()
@@ -102,7 +127,7 @@ public class SimulationScreen : Screen
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
         {
-            AddFluidBlock(10, 10, 50, 1f, new Vector3(5, 30, 5), Color.DodgerBlue, 1);
+            AddFluidBlock(10, 10, 25, 1f, new Vector3(0, 0, 0), Color.DodgerBlue, 1);
         }
 
         if (inputHandler.HasAction((byte)ActionType.Test))
@@ -127,6 +152,8 @@ public class SimulationScreen : Screen
     {
         _fluidRenderer.Draw(_camera3D);
         _boundingBoxRenderer.Draw(_camera3D);
+        _axisRenderer.Draw(_camera3D);
+        _wireframeRenderer.Draw(_camera3D);
         _sensorManager.Draw(_camera3D);
         base.Draw(spriteBatch);
     }
@@ -288,6 +315,8 @@ public class SimulationScreen : Screen
     {
         _fluidRenderer.Dispose();
         _sensorManager.Dispose();
+        _wireframeRenderer.Dispose();
+        _axisRenderer.Dispose();
         base.Dispose();
         GC.SuppressFinalize(this);
     }

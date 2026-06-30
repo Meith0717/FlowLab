@@ -22,6 +22,8 @@ public class SimulationController(World world)
 
     public void TogglePause() => IsPaused = !IsPaused;
 
+    public void Pause() => IsPaused = true;
+
     public void Update(double elapsedMilliseconds, InputHandler inputHandler)
     {
         if (inputHandler.HasAction((byte)ActionType.PauseSimulation))

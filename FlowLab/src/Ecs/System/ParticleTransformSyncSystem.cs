@@ -21,7 +21,7 @@ namespace FlowLab.Ecs.System;
 
 public class ParticleTransformSyncSystem : ISystem
 {
-    public int Priority { get; } = 10;
+    public int Priority => 2;
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<ParticleShaderData> _shaderDataPool;
     private ComponentPool<SolverState> _solverPool;
@@ -88,7 +88,6 @@ public class ParticleTransformSyncSystem : ISystem
 
         _index %= _colorCodes.Length;
         var colorCode = _colorCodes[_index];
-        Console.WriteLine($"{colorCode} Min: {_minValue}, Max: {_maxValue}");
 
         foreach (var e in entities)
         {

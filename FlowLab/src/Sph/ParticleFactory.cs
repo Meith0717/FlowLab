@@ -87,6 +87,7 @@ public static class ParticleFactory
         world.Components.Add(entity, new ParticleTag());
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new SolverState());
+        world.Components.Add(entity, new DiagnosticComponent());
         return entity;
     }
 }
