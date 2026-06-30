@@ -1,61 +1,16 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Geometry;
 
 public static class MeshParticleSampler
 {
-    public static List<Vector3> FillVolume(
+    public static Vector4[] SampleSurface(
         ObjModel model,
-        float spacing,
-        float jitter = 0f,
-        Matrix? transform = null
-    )
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(spacing, 0f);
-
-        var triangles = transform.HasValue
-            ? model.GetTransformedTriangles(transform.Value)
-            : model.Triangles;
-        if (triangles.Count == 0)
-            return new List<Vector3>();
-
-        Vector3 min,
-            max;
-        if (transform.HasValue)
-            ObjModel.ComputeBounds(triangles, out min, out max);
-        else
-        {
-            min = model.BoundsMin;
-            max = model.BoundsMax;
-        }
-
-        var particles = new List<Vector3>();
-        var rng = jitter > 0f ? new Random(12345) : null;
-        var nx = Math.Max(1, (int)Math.Ceiling((max.X - min.X) / spacing));
-        var ny = Math.Max(1, (int)Math.Ceiling((max.Y - min.Y) / spacing));
-        var nz = Math.Max(1, (int)Math.Ceiling((max.Z - min.Z) / spacing));
-        for (var ix = 0; ix <= nx; ix++)
-        for (var iy = 0; iy <= ny; iy++)
-        for (var iz = 0; iz <= nz; iz++)
-        {
-            var p = new Vector3(min.X + ix * spacing, min.Y + iy * spacing, min.Z + iz * spacing);
-            if (rng != null)
-            {
-                p.X += (float)(rng.NextDouble() - 0.5) * spacing * jitter;
-                p.Y += (float)(rng.NextDouble() - 0.5) * spacing * jitter;
-                p.Z += (float)(rng.NextDouble() - 0.5) * spacing * jitter;
-            }
-            if (IsInside(p, triangles))
-                particles.Add(p);
-        }
-        return particles;
-    }
-
-    public static List<Vector4> SampleSurface(
-        ObjModel model,
-        float minSpacing,
         float maxSpacing,
         Matrix? transform = null
     )
@@ -64,182 +19,175 @@ public static class MeshParticleSampler
             ? model.GetTransformedTriangles(transform.Value)
             : model.Triangles;
 
-        var particles = new List<Vector4>();
-        foreach (var tri in triangles)
-            SampleTriangleUniform(tri, particles, minSpacing, maxSpacing);
+        var boundsMax = transform.HasValue
+            ? Vector3.Transform(model.BoundsMax, transform.Value)
+            : model.BoundsMax;
+        var boundsMin = transform.HasValue
+            ? Vector3.Transform(model.BoundsMin, transform.Value)
+            : model.BoundsMin;
 
-        return particles;
+        var (width, height, depth) = boundsMax - boundsMin;
+
+        var particles = new ConcurrentBag<Vector4>();
+
+        foreach (var tri in triangles)
+            SampleTriangle(tri, particles, maxSpacing);
+
+        return particles.ToArray();
     }
 
-    private static void SampleTriangleUniform(
+    private static void SampleTriangle(
         Triangle triangle,
-        List<Vector4> particles,
-        float minSpacing,
-        float maxSpacing
+        ConcurrentBag<Vector4> particles,
+        float spacing
     )
     {
-        var edge1 = triangle.V1 - triangle.V0;
-        var edge2 = triangle.V2 - triangle.V0;
-        var area = 0.5f * Vector3.Cross(edge1, edge2).Length();
+        var halfSpacing = spacing / 2f;
+        var startX = MathF.Floor(triangle.Min.X / spacing) * spacing;
+        var startY = MathF.Floor(triangle.Min.Y / spacing) * spacing;
+        var startZ = MathF.Floor(triangle.Min.Z / spacing) * spacing;
+        var countX = (int)MathF.Ceiling((triangle.Max.X - startX) / spacing) + 1;
 
-        var normalizedArea = area > 1f ? 1f : (area < 0 ? 0 : area);
-        var spacing = maxSpacing + normalizedArea * (minSpacing - maxSpacing);
-        if (spacing < minSpacing)
-            spacing = minSpacing;
-        if (spacing > maxSpacing)
-            spacing = maxSpacing;
-
-        // Find triangle's dominant plane for 2D projection
-        var normal = Vector3.Cross(edge1, edge2);
-        var domAxis = 0;
-        if (Math.Abs(normal.Y) > Math.Abs(normal.X) && Math.Abs(normal.Y) > Math.Abs(normal.Z))
-            domAxis = 1;
-        else if (Math.Abs(normal.Z) > Math.Abs(normal.X) && Math.Abs(normal.Z) > Math.Abs(normal.Y))
-            domAxis = 2;
-
-        var p0 = Project(triangle.V0);
-        var p1 = Project(triangle.V1);
-        var p2 = Project(triangle.V2);
-
-        // Calculate 2D bounding rectangle
-        var xMin = Math.Min(Math.Min(p0.X, p1.X), p2.X);
-        var xMax = Math.Max(Math.Max(p0.X, p1.X), p2.X);
-        var yMin = Math.Min(Math.Min(p0.Y, p1.Y), p2.Y);
-        var yMax = Math.Max(Math.Max(p0.Y, p1.Y), p2.Y);
-
-        var width = xMax - xMin;
-        var height = yMax - yMin;
-
-        // Sample grid in 2D
-        var cols = Math.Max(1, (int)Math.Ceiling(width / spacing));
-        var rows = Math.Max(1, (int)Math.Ceiling(height / spacing));
-
-        for (var i = 0; i <= cols; i++)
-        {
-            for (var j = 0; j <= rows; j++)
+        Parallel.For(
+            0,
+            countX,
+            i =>
             {
-                var x = xMin + i * spacing;
-                var y = yMin + j * spacing;
-                var samplePoint = new Vector2(x, y);
-
-                if (IsPointInTriangle(samplePoint, p0, p1, p2))
+                var x = startX + i * spacing;
+                for (var y = startY; y <= triangle.Max.Y; y += spacing)
+                for (var z = startZ; z <= triangle.Max.Z; z += spacing)
                 {
-                    // Map 2D point back to 3D using barycentric coordinates
-                    var p3d = MapTo3D(
-                        samplePoint,
-                        triangle.V0,
-                        triangle.V1,
-                        triangle.V2,
-                        p0,
-                        p1,
-                        p2,
-                        domAxis
+                    var samplePoint = new Vector3(x, y, z);
+                    var cellCenter = samplePoint + new Vector3(halfSpacing);
+                    if (
+                        !TriangleIntersectsLatticeBox(
+                            cellCenter,
+                            new Vector3(halfSpacing),
+                            triangle
+                        )
+                    )
+                        continue;
+
+                    var closestPoint = ClosestPointOnTriangle(cellCenter, triangle);
+                    particles.Add(
+                        new Vector4(samplePoint.X, samplePoint.Y, samplePoint.Z, spacing)
                     );
-                    particles.Add(new Vector4(p3d.X, p3d.Y, p3d.Z, spacing));
                 }
             }
-        }
+        );
 
-        return;
-
-        // Project triangle vertices to 2D based on dominant plane
-        Vector2 Project(Vector3 v) =>
-            domAxis switch
-            {
-                0 => new Vector2(v.Y, v.Z), // YZ plane
-                1 => new Vector2(v.X, v.Z), // XZ plane
-                _ => new Vector2(v.X, v.Y), // XY plane
-            };
+        var centroid = (triangle.V0 + triangle.V1 + triangle.V2) / 3f;
+        particles.Add(new Vector4(centroid.X, centroid.Y, centroid.Z, spacing));
     }
 
-    private static Vector3 MapTo3D(
-        Vector2 point2D,
-        Vector3 v0,
-        Vector3 v1,
-        Vector3 v2,
-        Vector2 p0,
-        Vector2 p1,
-        Vector2 p2,
-        int domAxis
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static bool TriangleIntersectsLatticeBox(
+        Vector3 boxCenter,
+        Vector3 boxHalfSize,
+        Triangle triangle
     )
     {
-        // Calculate barycentric coordinates in 2D
-        var d00 = Vector2.Dot(p1 - p0, p1 - p0);
-        var d01 = Vector2.Dot(p1 - p0, p2 - p0);
-        var d11 = Vector2.Dot(p2 - p0, p2 - p0);
-        var d20 = Vector2.Dot(point2D - p0, p1 - p0);
-        var d21 = Vector2.Dot(point2D - p0, p2 - p0);
-        var denom = d00 * d11 - d01 * d01;
+        var v0 = triangle.V0 - boxCenter;
+        var v1 = triangle.V1 - boxCenter;
+        var v2 = triangle.V2 - boxCenter;
 
-        if (Math.Abs(denom) < 1e-7f)
-            return v0;
+        var e0 = v1 - v0;
+        var e1 = v2 - v1;
+        var e2 = v0 - v2;
 
-        var v = (d11 * d20 - d01 * d21) / denom;
-        var w = (d00 * d21 - d01 * d20) / denom;
-        var u = 1f - v - w;
+        Span<Vector3> edges = [e0, e1, e2];
+        Span<Vector3> boxAxes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
 
-        return u * v0 + v * v1 + w * v2;
-    }
-
-    private static bool IsPointInTriangle(Vector2 p, Vector2 v0, Vector2 v1, Vector2 v2)
-    {
-        // Barycentric coordinate method
-        var d00 = Vector2.Dot(v1 - v0, v1 - v0);
-        var d01 = Vector2.Dot(v1 - v0, v2 - v0);
-        var d11 = Vector2.Dot(v2 - v0, v2 - v0);
-        var d20 = Vector2.Dot(p - v0, v1 - v0);
-        var d21 = Vector2.Dot(p - v0, v2 - v0);
-        var denom = d00 * d11 - d01 * d01;
-
-        if (Math.Abs(denom) < 1e-7f)
-            return false;
-
-        var baryV = (d11 * d20 - d01 * d21) / denom;
-        var baryW = (d00 * d21 - d01 * d20) / denom;
-        var baryU = 1f - baryV - baryW;
-
-        return baryU >= 0 && baryV >= 0 && baryW >= 0;
-    }
-
-    private static bool IsInside(Vector3 point, List<Triangle> triangles)
-    {
-        var dir = new Vector3(0.9238795f, 0.3826834f, 0.0001f); // arbitrary, avoids axis-aligned coincidences
-        var hitCount = 0;
-        foreach (var tri in triangles)
+        foreach (var edge in edges)
+        foreach (var axis in boxAxes)
         {
-            if (RayIntersectsTriangle(point, dir, tri.V0, tri.V1, tri.V2, out var t) && t > 0f)
-                hitCount++;
+            var a = Vector3.Cross(edge, axis);
+            if (a.LengthSquared() < 1e-12f)
+                continue;
+            if (!OverlapOnAxis(a))
+                return false;
         }
-        return (hitCount % 2) == 1;
+
+        if (!OverlapOnAxis(Vector3.UnitX))
+            return false;
+        if (!OverlapOnAxis(Vector3.UnitY))
+            return false;
+        if (!OverlapOnAxis(Vector3.UnitZ))
+            return false;
+
+        var normal = Vector3.Cross(e0, e1);
+        return OverlapOnAxis(normal);
+
+        bool OverlapOnAxis(Vector3 axis)
+        {
+            var p0 = Vector3.Dot(v0, axis);
+            var p1 = Vector3.Dot(v1, axis);
+            var p2 = Vector3.Dot(v2, axis);
+            var triMin = Math.Min(p0, Math.Min(p1, p2));
+            var triMax = Math.Max(p0, Math.Max(p1, p2));
+
+            var r =
+                boxHalfSize.X * Math.Abs(axis.X)
+                + boxHalfSize.Y * Math.Abs(axis.Y)
+                + boxHalfSize.Z * Math.Abs(axis.Z);
+
+            return triMax >= -r && triMin <= r;
+        }
     }
 
-    private static bool RayIntersectsTriangle(
-        Vector3 origin,
-        Vector3 dir,
-        Vector3 v0,
-        Vector3 v1,
-        Vector3 v2,
-        out float t
-    )
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static Vector3 ClosestPointOnTriangle(Vector3 p, Triangle triangle)
     {
-        const float eps = 1e-7f;
-        t = 0f;
-        var edge1 = v1 - v0;
-        var edge2 = v2 - v0;
-        var h = Vector3.Cross(dir, edge2);
-        var a = Vector3.Dot(edge1, h);
-        if (Math.Abs(a) < eps)
-            return false;
-        var f = 1f / a;
-        var s = origin - v0;
-        var u = f * Vector3.Dot(s, h);
-        if (u is < 0f or > 1f)
-            return false;
-        var q = Vector3.Cross(s, edge1);
-        var v = f * Vector3.Dot(dir, q);
-        if (v < 0f || u + v > 1f)
-            return false;
-        t = f * Vector3.Dot(edge2, q);
-        return t > eps;
+        var triangleV0 = triangle.V0;
+        var triangleV1 = triangle.V1;
+        var triangleV2 = triangle.V2;
+
+        var ab = triangleV1 - triangleV0;
+        var ac = triangleV2 - triangleV0;
+        var ap = p - triangleV0;
+
+        var d1 = Vector3.Dot(ab, ap);
+        var d2 = Vector3.Dot(ac, ap);
+        if (d1 <= 0 && d2 <= 0)
+            return triangleV0; // vertex region A
+
+        var bp = p - triangleV1;
+        var d3 = Vector3.Dot(ab, bp);
+        var d4 = Vector3.Dot(ac, bp);
+        if (d3 >= 0 && d4 <= d3)
+            return triangleV1; // vertex region B
+
+        var vc = d1 * d4 - d3 * d2;
+        if (vc <= 0 && d1 >= 0 && d3 <= 0)
+        {
+            var v = d1 / (d1 - d3);
+            return triangleV0 + v * ab; // edge AB
+        }
+
+        var cp = p - triangleV2;
+        var d5 = Vector3.Dot(ab, cp);
+        var d6 = Vector3.Dot(ac, cp);
+        if (d6 >= 0 && d5 <= d6)
+            return triangleV2; // vertex region C
+
+        var vb = d5 * d2 - d1 * d6;
+        if (vb <= 0 && d2 >= 0 && d6 <= 0)
+        {
+            var w = d2 / (d2 - d6);
+            return triangleV0 + w * ac; // edge AC
+        }
+
+        var va = d3 * d6 - d5 * d4;
+        if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0)
+        {
+            var w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+            return triangleV1 + w * (triangleV2 - triangleV1); // edge BC
+        }
+
+        // interior
+        var denom = 1f / (va + vb + vc);
+        var vv = vb * denom;
+        var ww = vc * denom;
+        return triangleV0 + ab * vv + ac * ww;
     }
 }

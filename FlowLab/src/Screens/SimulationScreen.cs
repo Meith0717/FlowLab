@@ -87,20 +87,20 @@ public class SimulationScreen : Screen
         );
 
         // SpawnBox(30, 30, 200, 1f, 1, 1);
-        var model = ObjLoader.Load(Path.Combine("Content", "Models", "Sphere.obj"));
+        var model = ObjLoader.Load(Path.Combine("Content", "Models", "Cat.obj"));
 
-        var transform = Matrix.CreateScale(20f);
+        var transform = Matrix.CreateScale(.1f);
         _wireframeRenderer = new WireframeRenderer(GraphicsDevice, model)
         {
             World = transform,
-            Color = Color.Orange
+            Color = Color.Orange,
         };
 
         var lst = MeshParticleSampler.SampleSurface(
             model,
             _simConfig.MaxParticleSize / 2f,
-            _simConfig.MaxParticleSize,
-            transform: transform);
+            transform: transform
+        );
         foreach (var vector4 in lst)
         {
             var position = new Vector3(vector4.X, vector4.Y, vector4.Z);
