@@ -89,7 +89,7 @@ public class SimulationScreen : Screen
         // SpawnBox(30, 30, 200, 1f, 1, 1);
         var model = ObjLoader.Load(Path.Combine("Content", "Models", "Cube.obj"));
 
-        var transform = Matrix.CreateScale(new Vector3(12, 20, 12));
+        var transform = Matrix.CreateScale(new Vector3(15, 40 ,15));
         _wireframeRenderer = new WireframeRenderer(GraphicsDevice, model)
         {
             World = transform,

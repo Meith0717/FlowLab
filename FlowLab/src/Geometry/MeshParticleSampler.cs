@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Geometry;
@@ -26,8 +28,8 @@ public static class MeshParticleSampler
             ? Vector3.Transform(model.BoundsMax, transform.Value)
             : model.BoundsMax;
 
-        var sampleTriangles = new List<Triangle>();
-
+        var threadLocalLists = new ThreadLocal<List<Triangle>>(() => []);
+        
         var xMin = Math.Min(startX, boundMax.X);
         var xMax = Math.Max(startX, boundMax.X);
         var yMin = Math.Min(startY, boundMax.Y);
@@ -35,42 +37,50 @@ public static class MeshParticleSampler
         var zMin = Math.Min(startZ, boundMax.Z);
         var zMax = Math.Max(startZ, boundMax.Z);
 
-        for (var x = xMin; x <= xMax; x += spacing)
-        for (var y = yMin; y <= yMax; y += spacing)
-        for (var z = zMin; z <= zMax; z += spacing)
+        var xCount = (int)MathF.Floor((xMax - xMin) / spacing) + 1;
+        Parallel.For(0, xCount, i =>
         {
-            var samplePoint = new Vector3(x, y, z);
-            var closestSurfacePoint = Vector3.Zero;
-            var minSurfacePointDistanceSquared = float.MaxValue;
-
-            triangleHash.GetTriangles(samplePoint, sampleTriangles);
-            foreach (var triangle in sampleTriangles)
+            var x = xMin + spacing * i;
+            var localList = threadLocalLists.Value;
+            
+            for (var y = yMin; y <= yMax; y += spacing)
+            for (var z = zMin; z <= zMax; z += spacing)
             {
-                if (!TriangleIntersectsLatticeBox(samplePoint, new Vector3(halfSpacing), triangle))
+                var samplePoint = new Vector3(x, y, z);
+                var closestSurfacePoint = Vector3.Zero;
+                var minSurfacePointDistanceSquared = float.MaxValue;
+
+                triangleHash.GetTriangles(samplePoint, localList);
+                foreach (var triangle in localList)
+                {
+                    if (!TriangleIntersectsLatticeBox(samplePoint, new Vector3(halfSpacing), triangle))
+                        continue;
+
+                    var closestPoint = ClosestPointOnTriangle(samplePoint, triangle);
+                    var closestPointDistanceSquared = Vector3.DistanceSquared(
+                        closestPoint,
+                        samplePoint
+                    );
+
+                    if (minSurfacePointDistanceSquared < closestPointDistanceSquared)
+                        continue;
+
+                    closestSurfacePoint = samplePoint;
+                    minSurfacePointDistanceSquared = closestPointDistanceSquared;
+                }
+
+                if (Math.Abs(minSurfacePointDistanceSquared - float.MaxValue) < 1e-10)
                     continue;
 
-                var closestPoint = ClosestPointOnTriangle(samplePoint, triangle);
-                var closestPointDistanceSquared = Vector3.DistanceSquared(
-                    closestPoint,
-                    samplePoint
-                );
-
-                if (minSurfacePointDistanceSquared < closestPointDistanceSquared)
-                    continue;
-
-                closestSurfacePoint = closestPoint;
-                minSurfacePointDistanceSquared = closestPointDistanceSquared;
+                particles.Add(new Vector4(closestSurfacePoint, spacing));
             }
-
-            if (Math.Abs(minSurfacePointDistanceSquared - float.MaxValue) < 1e-10)
-                continue;
-
-            particles.Add(new Vector4(closestSurfacePoint, spacing));
-        }
+        });
+       
 
         return particles.ToArray();
     }
 
+    private static readonly Vector3[] BoxAxes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static bool TriangleIntersectsLatticeBox(
         Vector3 boxCenter,
@@ -87,27 +97,23 @@ public static class MeshParticleSampler
         var e2 = v0 - v2;
 
         Span<Vector3> edges = [e0, e1, e2];
-        Span<Vector3> boxAxes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
 
         foreach (var edge in edges)
-        foreach (var axis in boxAxes)
-        {
-            var a = Vector3.Cross(edge, axis);
-            if (a.LengthSquared() < 1e-10f)
-                continue;
-            if (!OverlapOnAxis(a))
-                return false;
-        }
+            for (var i = 0; i < BoxAxes.Length; i++)
+            {
+                var axis = BoxAxes[i];
+                var a = Vector3.Cross(edge, axis);
+                if (a.LengthSquared() < 1e-10f)
+                    continue;
+                if (!OverlapOnAxis(a))
+                    return false;
+            }
 
         if (!OverlapOnAxis(Vector3.UnitX))
             return false;
         if (!OverlapOnAxis(Vector3.UnitY))
             return false;
-        if (!OverlapOnAxis(Vector3.UnitZ))
-            return false;
-
-        var normal = Vector3.Cross(e0, e1);
-        return OverlapOnAxis(normal);
+        return OverlapOnAxis(Vector3.UnitZ) && OverlapOnAxis(triangle.Normal);
 
         bool OverlapOnAxis(Vector3 axis)
         {
@@ -140,103 +146,44 @@ public static class MeshParticleSampler
         var d1 = Vector3.Dot(ab, ap);
         var d2 = Vector3.Dot(ac, ap);
         if (d1 <= 0 && d2 <= 0)
-            return triangleV0; // vertex region A
+            return triangleV0;
 
         var bp = p - triangleV1;
         var d3 = Vector3.Dot(ab, bp);
         var d4 = Vector3.Dot(ac, bp);
         if (d3 >= 0 && d4 <= d3)
-            return triangleV1; // vertex region B
+            return triangleV1;
 
         var vc = d1 * d4 - d3 * d2;
         if (vc <= 0 && d1 >= 0 && d3 <= 0)
         {
             var v = d1 / (d1 - d3);
-            return triangleV0 + v * ab; // edge AB
+            return triangleV0 + v * ab;
         }
 
         var cp = p - triangleV2;
         var d5 = Vector3.Dot(ab, cp);
         var d6 = Vector3.Dot(ac, cp);
         if (d6 >= 0 && d5 <= d6)
-            return triangleV2; // vertex region C
+            return triangleV2;
 
         var vb = d5 * d2 - d1 * d6;
         if (vb <= 0 && d2 >= 0 && d6 <= 0)
         {
             var w = d2 / (d2 - d6);
-            return triangleV0 + w * ac; // edge AC
+            return triangleV0 + w * ac;
         }
 
         var va = d3 * d6 - d5 * d4;
         if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0)
         {
             var w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            return triangleV1 + w * (triangleV2 - triangleV1); // edge BC
+            return triangleV1 + w * (triangleV2 - triangleV1);
         }
 
-        // interior
         var denom = 1f / (va + vb + vc);
         var vv = vb * denom;
         var ww = vc * denom;
         return triangleV0 + ab * vv + ac * ww;
-    }
-
-    public static Vector4[] FilterByMinDistance(Vector4[] candidates, float minDistance)
-    {
-        if (candidates.Length == 0)
-            return candidates;
-
-        var kept = new List<Vector4>();
-        var cellSize = minDistance / MathF.Sqrt(3f);
-        var grid = new Dictionary<Vector3Int, Vector4>();
-
-        foreach (var p in candidates)
-        {
-            var pos = new Vector3(p.X, p.Y, p.Z);
-            var cell = new Vector3Int(
-                (int)Math.Floor(pos.X / cellSize),
-                (int)Math.Floor(pos.Y / cellSize),
-                (int)Math.Floor(pos.Z / cellSize)
-            );
-
-            bool valid = true;
-            for (int dx = -1; dx <= 1 && valid; dx++)
-            for (int dy = -1; dy <= 1 && valid; dy++)
-            for (int dz = -1; dz <= 1 && valid; dz++)
-            {
-                var neighborCell = new Vector3Int(cell.X + dx, cell.Y + dy, cell.Z + dz);
-                if (grid.TryGetValue(neighborCell, out var existing))
-                {
-                    var distSq = Vector3.DistanceSquared(
-                        pos,
-                        new Vector3(existing.X, existing.Y, existing.Z)
-                    );
-                    if (distSq < minDistance * minDistance)
-                        valid = false;
-                }
-            }
-
-            if (valid)
-            {
-                kept.Add(p);
-                grid[cell] = p;
-            }
-        }
-        return kept.ToArray();
-    }
-
-    private struct Vector3Int
-    {
-        public int X;
-        public int Y;
-        public int Z;
-
-        public Vector3Int(int x, int y, int z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
     }
 }

@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
@@ -9,7 +10,7 @@ namespace FlowLab.Geometry;
 
 public class TriangleHash
 {
-    private readonly Dictionary<(int X, int Y, int Z), HashSet<Triangle>> _grids = new();
+    private readonly ConcurrentDictionary<(int X, int Y, int Z), HashSet<Triangle>> _grids = new();
     private readonly float _cellSize;
 
     public TriangleHash(float cellSize, List<Triangle> triangles)
@@ -109,7 +110,7 @@ public class TriangleHash
         }
     }
 
-    public List<Triangle> GetTriangles(Vector3 position, List<Triangle> result)
+    public void GetTriangles(Vector3 position, List<Triangle> result)
     {
         result.Clear();
 
@@ -119,13 +120,8 @@ public class TriangleHash
         for (var y = baseCell.Y - 1; y <= baseCell.Y + 1; y++)
         for (var z = baseCell.Z - 1; z <= baseCell.Z + 1; z++)
         {
-            if (_grids.TryGetValue((x, y, z), out var set))
-            {
-                foreach (var tri in set)
-                    result.Add(tri);
-            }
+            if (!_grids.TryGetValue((x, y, z), out var set)) continue;
+            result.AddRange(set);
         }
-
-        return result;
     }
 }
