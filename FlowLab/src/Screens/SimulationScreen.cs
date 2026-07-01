@@ -87,9 +87,9 @@ public class SimulationScreen : Screen
         );
 
         // SpawnBox(30, 30, 200, 1f, 1, 1);
-        var model = ObjLoader.Load(Path.Combine("Content", "Models", "Cat.obj"));
+        var model = ObjLoader.Load(Path.Combine("Content", "Models", "Cube.obj"));
 
-        var transform = Matrix.CreateScale(.1f);
+        var transform = Matrix.CreateScale(new Vector3(12, 20, 12));
         _wireframeRenderer = new WireframeRenderer(GraphicsDevice, model)
         {
             World = transform,
@@ -98,9 +98,10 @@ public class SimulationScreen : Screen
 
         var lst = MeshParticleSampler.SampleSurface(
             model,
-            _simConfig.MaxParticleSize / 2f,
+            _simConfig.MaxParticleSize / 1f,
             transform: transform
         );
+
         foreach (var vector4 in lst)
         {
             var position = new Vector3(vector4.X, vector4.Y, vector4.Z);
@@ -127,12 +128,12 @@ public class SimulationScreen : Screen
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
         {
-            AddFluidBlock(10, 10, 25, 1f, new Vector3(0, 0, 0), Color.DodgerBlue, 1);
+            AddFluidBlock(10, 10, 25, 1f, Vector3.Zero, Color.DodgerBlue, 1);
         }
 
         if (inputHandler.HasAction((byte)ActionType.Test))
         {
-            AddFluidBlock(10, 10, 50, .01f, new Vector3(-5, 30, -5), Color.Orange, 1);
+            AddFluidBlock(10, 10, 25, .1f, Vector3.Zero, Color.Orange, 1);
         }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);

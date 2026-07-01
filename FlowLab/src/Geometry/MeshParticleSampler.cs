@@ -1,83 +1,74 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Geometry;
 
 public static class MeshParticleSampler
 {
-    public static Vector4[] SampleSurface(
-        ObjModel model,
-        float maxSpacing,
-        Matrix? transform = null
-    )
+    public static Vector4[] SampleSurface(ObjModel model, float spacing, Matrix? transform = null)
     {
+        var particles = new ConcurrentBag<Vector4>();
+        var halfSpacing = spacing / 2f;
+
         var triangles = transform.HasValue
             ? model.GetTransformedTriangles(transform.Value)
             : model.Triangles;
+        var triangleHash = new TriangleHash(spacing, triangles);
 
-        var boundsMax = transform.HasValue
-            ? Vector3.Transform(model.BoundsMax, transform.Value)
-            : model.BoundsMax;
-        var boundsMin = transform.HasValue
+        var (startX, startY, startZ) = transform.HasValue
             ? Vector3.Transform(model.BoundsMin, transform.Value)
             : model.BoundsMin;
 
-        var (width, height, depth) = boundsMax - boundsMin;
+        var boundMax = transform.HasValue
+            ? Vector3.Transform(model.BoundsMax, transform.Value)
+            : model.BoundsMax;
 
-        var particles = new ConcurrentBag<Vector4>();
+        var sampleTriangles = new List<Triangle>();
 
-        foreach (var tri in triangles)
-            SampleTriangle(tri, particles, maxSpacing);
+        var xMin = Math.Min(startX, boundMax.X);
+        var xMax = Math.Max(startX, boundMax.X);
+        var yMin = Math.Min(startY, boundMax.Y);
+        var yMax = Math.Max(startY, boundMax.Y);
+        var zMin = Math.Min(startZ, boundMax.Z);
+        var zMax = Math.Max(startZ, boundMax.Z);
+
+        for (var x = xMin; x <= xMax; x += spacing)
+        for (var y = yMin; y <= yMax; y += spacing)
+        for (var z = zMin; z <= zMax; z += spacing)
+        {
+            var samplePoint = new Vector3(x, y, z);
+            var closestSurfacePoint = Vector3.Zero;
+            var minSurfacePointDistanceSquared = float.MaxValue;
+
+            triangleHash.GetTriangles(samplePoint, sampleTriangles);
+            foreach (var triangle in sampleTriangles)
+            {
+                if (!TriangleIntersectsLatticeBox(samplePoint, new Vector3(halfSpacing), triangle))
+                    continue;
+
+                var closestPoint = ClosestPointOnTriangle(samplePoint, triangle);
+                var closestPointDistanceSquared = Vector3.DistanceSquared(
+                    closestPoint,
+                    samplePoint
+                );
+
+                if (minSurfacePointDistanceSquared < closestPointDistanceSquared)
+                    continue;
+
+                closestSurfacePoint = closestPoint;
+                minSurfacePointDistanceSquared = closestPointDistanceSquared;
+            }
+
+            if (Math.Abs(minSurfacePointDistanceSquared - float.MaxValue) < 1e-10)
+                continue;
+
+            particles.Add(new Vector4(closestSurfacePoint, spacing));
+        }
 
         return particles.ToArray();
-    }
-
-    private static void SampleTriangle(
-        Triangle triangle,
-        ConcurrentBag<Vector4> particles,
-        float spacing
-    )
-    {
-        var halfSpacing = spacing / 2f;
-        var startX = MathF.Floor(triangle.Min.X / spacing) * spacing;
-        var startY = MathF.Floor(triangle.Min.Y / spacing) * spacing;
-        var startZ = MathF.Floor(triangle.Min.Z / spacing) * spacing;
-        var countX = (int)MathF.Ceiling((triangle.Max.X - startX) / spacing) + 1;
-
-        Parallel.For(
-            0,
-            countX,
-            i =>
-            {
-                var x = startX + i * spacing;
-                for (var y = startY; y <= triangle.Max.Y; y += spacing)
-                for (var z = startZ; z <= triangle.Max.Z; z += spacing)
-                {
-                    var samplePoint = new Vector3(x, y, z);
-                    var cellCenter = samplePoint + new Vector3(halfSpacing);
-                    if (
-                        !TriangleIntersectsLatticeBox(
-                            cellCenter,
-                            new Vector3(halfSpacing),
-                            triangle
-                        )
-                    )
-                        continue;
-
-                    var closestPoint = ClosestPointOnTriangle(cellCenter, triangle);
-                    particles.Add(
-                        new Vector4(samplePoint.X, samplePoint.Y, samplePoint.Z, spacing)
-                    );
-                }
-            }
-        );
-
-        var centroid = (triangle.V0 + triangle.V1 + triangle.V2) / 3f;
-        particles.Add(new Vector4(centroid.X, centroid.Y, centroid.Z, spacing));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -102,7 +93,7 @@ public static class MeshParticleSampler
         foreach (var axis in boxAxes)
         {
             var a = Vector3.Cross(edge, axis);
-            if (a.LengthSquared() < 1e-12f)
+            if (a.LengthSquared() < 1e-10f)
                 continue;
             if (!OverlapOnAxis(a))
                 return false;
@@ -189,5 +180,63 @@ public static class MeshParticleSampler
         var vv = vb * denom;
         var ww = vc * denom;
         return triangleV0 + ab * vv + ac * ww;
+    }
+
+    public static Vector4[] FilterByMinDistance(Vector4[] candidates, float minDistance)
+    {
+        if (candidates.Length == 0)
+            return candidates;
+
+        var kept = new List<Vector4>();
+        var cellSize = minDistance / MathF.Sqrt(3f);
+        var grid = new Dictionary<Vector3Int, Vector4>();
+
+        foreach (var p in candidates)
+        {
+            var pos = new Vector3(p.X, p.Y, p.Z);
+            var cell = new Vector3Int(
+                (int)Math.Floor(pos.X / cellSize),
+                (int)Math.Floor(pos.Y / cellSize),
+                (int)Math.Floor(pos.Z / cellSize)
+            );
+
+            bool valid = true;
+            for (int dx = -1; dx <= 1 && valid; dx++)
+            for (int dy = -1; dy <= 1 && valid; dy++)
+            for (int dz = -1; dz <= 1 && valid; dz++)
+            {
+                var neighborCell = new Vector3Int(cell.X + dx, cell.Y + dy, cell.Z + dz);
+                if (grid.TryGetValue(neighborCell, out var existing))
+                {
+                    var distSq = Vector3.DistanceSquared(
+                        pos,
+                        new Vector3(existing.X, existing.Y, existing.Z)
+                    );
+                    if (distSq < minDistance * minDistance)
+                        valid = false;
+                }
+            }
+
+            if (valid)
+            {
+                kept.Add(p);
+                grid[cell] = p;
+            }
+        }
+        return kept.ToArray();
+    }
+
+    private struct Vector3Int
+    {
+        public int X;
+        public int Y;
+        public int Z;
+
+        public Vector3Int(int x, int y, int z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
 }
