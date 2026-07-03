@@ -14,6 +14,22 @@ namespace FlowLab.Sph;
 
 public static class ParticleFactory
 {
+    public static Entity CreateRigidBodyParticle(
+        World world,
+        Vector3 position,
+        Vector3 relativePosition,
+        float size,
+        float restDensity,
+        float materialId
+    )
+    {
+        var color = new Color(25, 25, 25);
+        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
+        world.Components.Add(entity, new BoundaryTag());
+        world.Components.Add(entity, new RigidBodyParticle(relativePosition));
+        return entity;
+    }
+
     public static Entity CreateBoundaryParticle(
         World world,
         Vector3 position,
@@ -87,6 +103,7 @@ public static class ParticleFactory
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new SolverState());
         world.Components.Add(entity, new DiagnosticComponent());
+        world.Components.Add(entity, new Collider3D());
         return entity;
     }
 }

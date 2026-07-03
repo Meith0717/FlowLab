@@ -6,6 +6,7 @@
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Extensions;
+using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
@@ -16,12 +17,14 @@ using MonoKit.Input;
 
 namespace FlowLab.Ecs.System;
 
-public class RigidBodySystem(SimConfig config) : ISystem
+public class RigidBodySystem(SimConfig config, SimulationController simController) : ISystem
 {
     private readonly Entity[] _buffer = new Entity[2048];
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<Velocity3D> _velocityPool;
+    private ComponentPool<KinematicState> _kinematicPool;
     private ComponentPool<RigidBodyComponent> _rigidBodyComponentPool;
+    private ComponentPool<RigidBodyParticle> _rigidBodyParticlePool;
 
     public int Priority => 1;
 
@@ -31,6 +34,8 @@ public class RigidBodySystem(SimConfig config) : ISystem
         _transformPool = componentManager.GetOrCreatePool<Transform3D>();
         _velocityPool = componentManager.GetOrCreatePool<Velocity3D>();
         _rigidBodyComponentPool = componentManager.GetOrCreatePool<RigidBodyComponent>();
+        _rigidBodyParticlePool = componentManager.GetOrCreatePool<RigidBodyParticle>();
+        _kinematicPool = componentManager.GetOrCreatePool<KinematicState>();
     }
 
     public void Update(
@@ -40,6 +45,9 @@ public class RigidBodySystem(SimConfig config) : ISystem
         InputHandler inputHandler
     )
     {
+        if (simController.IsPaused)
+            return;
+
         var entitiesSpan = world.TypeTracker.GetEntitiesWith<RigidBodyComponent>(_buffer);
 
         foreach (var e in entitiesSpan)
@@ -70,6 +78,23 @@ public class RigidBodySystem(SimConfig config) : ISystem
                 * component.LocalInertiaInverse
                 * Matrix.Transpose(transform.Orientation);
             velocity.AngularVelocity = Vector3.Transform(component.AngularMomentum, inertiaInverse);
+
+            // Particle State Update
+            foreach (var pE in component.Particles)
+            {
+                ref var pEComponent = ref _rigidBodyParticlePool.Get(pE.Id);
+                ref var pETransform = ref _transformPool.Get(pE.Id);
+                ref var pEKinematic = ref _kinematicPool.Get(pE.Id);
+
+                var transformedPosition = Vector3.Transform(
+                    pEComponent.RelativePosition,
+                    transform.Orientation
+                );
+                pETransform.Position = transform.Position + transformedPosition;
+                pEKinematic.Velocity =
+                    velocity.LinearVelocity
+                    + Vector3.Cross(-velocity.AngularVelocity, transformedPosition);
+            }
         }
     }
 

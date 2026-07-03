@@ -12,13 +12,13 @@ public static class MeshParticleSampler
 {
     private static readonly Vector3[] BoxAxes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
 
-    public static Vector4[] SampleSurface(ObjModel model, float spacing, Matrix? transform = null)
+    public static Vector3[] SampleSurface(ObjModel model, float spacing, Matrix? transform = null)
     {
         var random = new Random();
         var halfSpacing = spacing / 2f;
         var boxHalfSize = new Vector3(halfSpacing);
-        var surfaceParticles = new ConcurrentBag<Vector4>();
-        var volumeParticles = new ConcurrentBag<Vector4>();
+        var surfaceParticles = new ConcurrentBag<Vector3>();
+        var volumeParticles = new ConcurrentBag<Vector3>();
 
         var triangles = transform.HasValue
             ? model.GetTransformedTriangles(transform.Value)
@@ -49,7 +49,7 @@ public static class MeshParticleSampler
                     if (
                         IsPointInsideMesh(samplePoint, maxBounds.X, triangleHash, localList, random)
                     )
-                        volumeParticles.Add(new Vector4(samplePoint, spacing));
+                        volumeParticles.Add(samplePoint);
 
                     if (
                         TryFindClosestSurfacePoint(
@@ -60,12 +60,12 @@ public static class MeshParticleSampler
                             out var surfacePoint
                         )
                     )
-                        surfaceParticles.Add(new Vector4(surfacePoint, spacing));
+                        surfaceParticles.Add(surfacePoint);
                 }
             }
         );
 
-        return volumeParticles.ToArray();
+        return surfaceParticles.ToArray();
     }
 
     private static (Vector3 Min, Vector3 Max) GetBounds(
@@ -109,7 +109,7 @@ public static class MeshParticleSampler
             if (distanceSq >= minDistanceSq)
                 continue;
 
-            closestSurfacePoint = samplePoint;
+            closestSurfacePoint = closestPoint;
             minDistanceSq = distanceSq;
         }
 

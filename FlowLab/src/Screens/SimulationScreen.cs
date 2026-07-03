@@ -78,7 +78,7 @@ public class SimulationScreen : Screen
 
         world.Systems.Add(new DomainSystem(_boundingBoxRenderer.BoundingBox));
         world.Systems.Add(new DiagnosticSystem(_simConfig, _simController));
-        world.Systems.Add(new RigidBodySystem(_simConfig));
+        world.Systems.Add(new RigidBodySystem(_simConfig, _simController));
         world.Systems.Add(new ParticleTransformSyncSystem());
         world.Systems.Add(
             new SimulationSystem(
@@ -91,14 +91,8 @@ public class SimulationScreen : Screen
         );
 
         // Test
-        var model = ObjLoader.Load(GraphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        var e = world.CreateEntity();
-        world.Components.Add(e, new Transform3D(Vector3.Zero, Matrix.Identity, Vector3.One * 10));
-        world.Components.Add(e, new Velocity3D(Vector3.Zero, Vector3.Zero));
-        world.Components.Add(
-            e,
-            new RigidBodyComponent(model, 10, Matrix.CreateRotationX(0), Vector3.Zero)
-        );
+        var model = ObjLoader.Load(GraphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
+        RigidBodyFactory.Create(world, model, Vector3.Zero, Vector3.One * 30, Matrix.Identity, 1);
     }
 
     public override void Initialize()
