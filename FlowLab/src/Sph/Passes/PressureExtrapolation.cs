@@ -6,11 +6,9 @@
 using System.Diagnostics;
 using System.Linq;
 using FlowLab.Config;
-using FlowLab.Ecs.Components;
 using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
-using MonoKit.Spatial;
 
 namespace FlowLab.Sph.Passes;
 

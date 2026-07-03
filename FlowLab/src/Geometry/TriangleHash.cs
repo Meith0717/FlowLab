@@ -10,35 +10,35 @@ namespace FlowLab.Geometry;
 
 public class TriangleHash
 {
-    private readonly ConcurrentDictionary<(int X, int Y, int Z), HashSet<Triangle>> _grids = new();
-    private readonly float _cellSize;
+    public readonly ConcurrentDictionary<(int X, int Y, int Z), HashSet<Triangle>> Grids = new();
+    public readonly float CellSize;
 
     public TriangleHash(float cellSize, List<Triangle> triangles)
     {
-        _cellSize = cellSize;
+        CellSize = cellSize;
         foreach (var triangle in triangles)
             AddTriangle(triangle);
     }
 
-    private (int X, int Y, int Z) GetHash(Vector3 position)
+    public (int X, int Y, int Z) GetHash(Vector3 position)
     {
         return (
-            (int)float.Floor(position.X / _cellSize),
-            (int)float.Floor(position.Y / _cellSize),
-            (int)float.Floor(position.Z / _cellSize)
+            (int)float.Floor(position.X / CellSize),
+            (int)float.Floor(position.Y / CellSize),
+            (int)float.Floor(position.Z / CellSize)
         );
     }
 
     private void AddToCell((int X, int Y, int Z) cell, Triangle triangle)
     {
-        var cellMin = new Vector3(cell.X * _cellSize, cell.Y * _cellSize, cell.Z * _cellSize);
-        var cellMax = cellMin + new Vector3(_cellSize);
+        var cellMin = new Vector3(cell.X * CellSize, cell.Y * CellSize, cell.Z * CellSize);
+        var cellMax = cellMin + new Vector3(CellSize);
 
         if (!TriangleIntersectsAabb(cellMin, cellMax, triangle))
             return;
 
-        if (!_grids.TryGetValue(cell, out var set))
-            _grids[cell] = set = [];
+        if (!Grids.TryGetValue(cell, out var set))
+            Grids[cell] = set = [];
 
         set.Add(triangle);
     }
@@ -110,7 +110,7 @@ public class TriangleHash
         }
     }
 
-    public void GetTriangles(Vector3 position, List<Triangle> result)
+    public void GetTriangles(Vector3 position, HashSet<Triangle> result)
     {
         result.Clear();
 
@@ -120,8 +120,10 @@ public class TriangleHash
         for (var y = baseCell.Y - 1; y <= baseCell.Y + 1; y++)
         for (var z = baseCell.Z - 1; z <= baseCell.Z + 1; z++)
         {
-            if (!_grids.TryGetValue((x, y, z), out var set)) continue;
-            result.AddRange(set);
+            if (!Grids.TryGetValue((x, y, z), out var set))
+                continue;
+            foreach (var triangle in set)
+                result.Add(triangle);
         }
     }
 }

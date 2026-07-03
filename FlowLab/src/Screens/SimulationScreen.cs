@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System;
-using System.Collections.Specialized;
 using System.IO;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
@@ -13,10 +12,12 @@ using FlowLab.Geometry;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
+using FlowLab.Rigid_Bodies;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Ecs;
+using MonoKit.Ecs.Components;
 using MonoKit.Gameplay;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
@@ -28,34 +29,58 @@ namespace FlowLab.Screens;
 public class SimulationScreen : Screen
 {
     private readonly SimConfig _simConfig;
-    private readonly Camera3D _camera3D;
-    private readonly World _world;
-    private readonly FluidRenderer _fluidRenderer;
     private readonly GameRuntime3D _simRuntime;
+    private readonly Camera3D _camera3D;
+    private readonly FluidRenderer _fluidRenderer;
     private readonly LiveData _liveData;
     private readonly SensorPlaneManager _sensorManager;
     private readonly SimulationController _simController;
     private readonly SimulationTracker _simTracker;
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
-    private readonly WireframeRenderer _wireframeRenderer;
     private readonly AxisRenderer _axisRenderer;
+    private readonly RigidBodyRenderer _rigidBodyRenderer;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
         _simConfig = SimConfig.Default;
         _simRuntime = new GameRuntime3D(GraphicsDevice, _simConfig.SpatialHashQueryRadius);
-        _world = _simRuntime.Services.Get<World>();
-        _simController = new SimulationController(_world);
-        _simTracker = new SimulationTracker(_simConfig);
+        var world = _simRuntime.Services.Get<World>();
+        var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
+        var kernels = new Kernels(_simConfig.MaxParticleSize);
+
         _camera3D = _simRuntime.Services.Get<Camera3D>();
         _camera3D.AddBehaviour(new MoveByMouse());
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
 
-        _world.Systems.Add(new ParticleTransformSyncSystem());
-        var kernels = new Kernels(_simConfig.MaxParticleSize);
-        var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
-        _world.Systems.Add(
+        _simController = new SimulationController(world);
+        _simTracker = new SimulationTracker(_simConfig);
+        _axisRenderer = new AxisRenderer(GraphicsDevice);
+        _boundingBoxRenderer = new BoundingBoxRenderer(
+            GraphicsDevice,
+            new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50))
+        );
+        _fluidRenderer = new FluidRenderer(
+            GraphicsDevice,
+            world,
+            spatialHashSystem,
+            _simConfig.SpatialHashQueryRadius
+        );
+        _rigidBodyRenderer = new RigidBodyRenderer(world, GraphicsDevice);
+        _liveData = new LiveData(world, _simConfig);
+        _sensorManager = new SensorPlaneManager(
+            GraphicsDevice,
+            world,
+            spatialHashSystem,
+            kernels,
+            _simConfig
+        );
+
+        world.Systems.Add(new DomainSystem(_boundingBoxRenderer.BoundingBox));
+        world.Systems.Add(new DiagnosticSystem(_simConfig, _simController));
+        world.Systems.Add(new RigidBodySystem(_simConfig));
+        world.Systems.Add(new ParticleTransformSyncSystem());
+        world.Systems.Add(
             new SimulationSystem(
                 spatialHashSystem,
                 kernels,
@@ -64,49 +89,16 @@ public class SimulationScreen : Screen
                 _simTracker
             )
         );
-        var domain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
-        _world.Systems.Add(new DomainSystem(domain));
-        _world.Systems.Add(new DiagnosticSystem(_simConfig, _simController));
 
-        _boundingBoxRenderer = new BoundingBoxRenderer(GraphicsDevice, domain);
-        _axisRenderer = new AxisRenderer(GraphicsDevice) { AxisLength = 10f };
-        _fluidRenderer = new FluidRenderer(
-            GraphicsDevice,
-            _world,
-            spatialHashSystem,
-            _simConfig.SpatialHashQueryRadius
+        // Test
+        var model = ObjLoader.Load(GraphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        var e = world.CreateEntity();
+        world.Components.Add(e, new Transform3D(Vector3.Zero, Matrix.Identity, Vector3.One * 10));
+        world.Components.Add(e, new Velocity3D(Vector3.Zero, Vector3.Zero));
+        world.Components.Add(
+            e,
+            new RigidBodyComponent(model, 10, Matrix.CreateRotationX(0), Vector3.Zero)
         );
-        _liveData = new LiveData(_world, _simConfig);
-
-        _sensorManager = new SensorPlaneManager(
-            GraphicsDevice,
-            _world,
-            spatialHashSystem,
-            kernels,
-            _simConfig
-        );
-
-        // SpawnBox(30, 30, 200, 1f, 1, 1);
-        var model = ObjLoader.Load(Path.Combine("Content", "Models", "Cube.obj"));
-
-        var transform = Matrix.CreateScale(new Vector3(15, 40 ,15));
-        _wireframeRenderer = new WireframeRenderer(GraphicsDevice, model)
-        {
-            World = transform,
-            Color = Color.Orange,
-        };
-
-        var lst = MeshParticleSampler.SampleSurface(
-            model,
-            _simConfig.MaxParticleSize / 1f,
-            transform: transform
-        );
-
-        foreach (var vector4 in lst)
-        {
-            var position = new Vector3(vector4.X, vector4.Y, vector4.Z);
-            ParticleFactory.CreateBoundaryParticle(_world, position, vector4.W, 1, 1);
-        }
     }
 
     public override void Initialize()
@@ -152,9 +144,9 @@ public class SimulationScreen : Screen
     public override void Draw(SpriteBatch spriteBatch)
     {
         _fluidRenderer.Draw(_camera3D);
+        _rigidBodyRenderer.Draw(_camera3D);
         _boundingBoxRenderer.Draw(_camera3D);
         _axisRenderer.Draw(_camera3D);
-        _wireframeRenderer.Draw(_camera3D);
         _sensorManager.Draw(_camera3D);
         base.Draw(spriteBatch);
     }
@@ -169,6 +161,8 @@ public class SimulationScreen : Screen
         Vector3 velocity
     )
     {
+        var world = _simRuntime.Services.Get<World>();
+
         var particleSize = _simConfig.MaxParticleSize;
         var halfParticleSize = particleSize / 2f;
         var halfWidth = width / 2;
@@ -182,7 +176,7 @@ public class SimulationScreen : Screen
         for (var x = -startWidth; x < stopWidth; x += particleSize)
         for (var z = -startDepth; z < stopDepth; z += particleSize)
             ParticleFactory.CreateMovingFluidParticle(
-                _world,
+                world,
                 position + new Vector3(x, 0, z),
                 particleSize,
                 restDensity,
@@ -202,6 +196,8 @@ public class SimulationScreen : Screen
         float materialId
     )
     {
+        var world = _simRuntime.Services.Get<World>();
+
         var particleSize = _simConfig.MaxParticleSize;
         var halfParticleSize = particleSize / 2f;
         var halfWidth = width / 2;
@@ -219,7 +215,7 @@ public class SimulationScreen : Screen
         for (var z = -startDepth; z < stopDepth; z += particleSize)
         for (var y = -startHeight; y < stopHeight; y += particleSize)
             ParticleFactory.CreateFluidParticle(
-                _world,
+                world,
                 position + new Vector3(x, y, z),
                 particleSize,
                 restDensity,
@@ -237,6 +233,8 @@ public class SimulationScreen : Screen
         float materialId
     )
     {
+        var world = _simRuntime.Services.Get<World>();
+
         Vector3 position;
         var halfParticleSize = particleSize / 2f;
         var halfWidth = width / 2;
@@ -253,7 +251,7 @@ public class SimulationScreen : Screen
         {
             position = new Vector3(i, 0, j);
             ParticleFactory.CreateBoundaryParticle(
-                _world,
+                world,
                 position,
                 particleSize,
                 restDensity,
@@ -261,7 +259,7 @@ public class SimulationScreen : Screen
             );
             position = new Vector3(i, height, j);
             ParticleFactory.CreateBoundaryParticle(
-                _world,
+                world,
                 position,
                 particleSize,
                 restDensity,
@@ -274,7 +272,7 @@ public class SimulationScreen : Screen
         {
             position = new Vector3(i, j, -startDepth);
             ParticleFactory.CreateBoundaryParticle(
-                _world,
+                world,
                 position,
                 particleSize,
                 restDensity,
@@ -282,7 +280,7 @@ public class SimulationScreen : Screen
             );
             position = new Vector3(i, j, startDepth);
             ParticleFactory.CreateBoundaryParticle(
-                _world,
+                world,
                 position,
                 particleSize,
                 restDensity,
@@ -295,7 +293,7 @@ public class SimulationScreen : Screen
         {
             position = new Vector3(-startWidth, j, i);
             ParticleFactory.CreateBoundaryParticle(
-                _world,
+                world,
                 position,
                 particleSize,
                 restDensity,
@@ -303,7 +301,7 @@ public class SimulationScreen : Screen
             );
             position = new Vector3(startWidth, j, i);
             ParticleFactory.CreateBoundaryParticle(
-                _world,
+                world,
                 position,
                 particleSize,
                 restDensity,
@@ -316,7 +314,6 @@ public class SimulationScreen : Screen
     {
         _fluidRenderer.Dispose();
         _sensorManager.Dispose();
-        _wireframeRenderer.Dispose();
         _axisRenderer.Dispose();
         base.Dispose();
         GC.SuppressFinalize(this);

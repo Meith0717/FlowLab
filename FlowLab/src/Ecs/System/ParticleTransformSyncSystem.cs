@@ -4,8 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System;
-using System.Diagnostics;
-using System.Diagnostics.Tracing;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using FlowLab.Input;

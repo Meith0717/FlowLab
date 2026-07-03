@@ -31,14 +31,12 @@ public class SimulationSystem(
     private readonly SphPassContext _context = new();
     private EntityTypeTracker _entityTypeTracker;
 
-    private const int ChunkSize = 512;
-
     public void Initialize(World world)
     {
         _entityTypeTracker = world.TypeTracker;
         _context.Initialize(world.Components);
         var allSet = _entityTypeTracker.GetEntitiesWith<ParticleTag>().ToArray();
-        var allChunking = new EntityChunking(allSet, ChunkSize);
+        var allChunking = new EntityChunking(allSet);
         VolumePass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
     }
 
@@ -53,15 +51,16 @@ public class SimulationSystem(
             return;
 
         var allSet = _entityTypeTracker.GetEntitiesWith<ParticleTag>().ToArray();
+        var allChunk = new EntityChunking(allSet);
+
         var fSet = _entityTypeTracker.GetEntitiesWith<FluidTag>().ToArray();
+        var fChunk = new EntityChunking(fSet);
+
         var bSet = _entityTypeTracker.GetEntitiesWith<BoundaryTag>().ToArray();
-        var allChunk = new EntityChunking(allSet, ChunkSize);
-        var fChunk = new EntityChunking(fSet, ChunkSize);
-        var bChunk = new EntityChunking(bSet, ChunkSize);
+        var bChunk = new EntityChunking(bSet);
 
         VolumePass.RunForEach(allChunk, spatialHash3D, _context, kernels, config);
         NonPressureAccelerationPass.RunForEach(fChunk, _context, config);
-        // WcPressurePass.RunForEach(fChunk, _context, config);
         IiPressurePass.RunForEach(fChunk, bChunk, _context, config);
         PressureExtrapolationPass.RunForEach(bChunk, _context, config);
         PressureAccelerationPass.RunForEach(fChunk, _context, config);

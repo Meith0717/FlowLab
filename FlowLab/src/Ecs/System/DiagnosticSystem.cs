@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
@@ -7,7 +6,6 @@ using FlowLab.Sph;
 using Microsoft.Xna.Framework.Input;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
-using MonoKit.Ecs.Entities;
 using MonoKit.Ecs.Systems;
 using MonoKit.Gameplay;
 using MonoKit.Input;

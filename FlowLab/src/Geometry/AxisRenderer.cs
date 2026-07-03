@@ -14,14 +14,9 @@ public class AxisRenderer : IDisposable
 {
     private readonly GraphicsDevice _graphics;
     private VertexBuffer _vertexBuffer;
-    private BasicEffect _effect;
-    private float _axisLength = 5f;
+    private readonly BasicEffect _effect;
 
-    public float AxisLength
-    {
-        get => _axisLength;
-        set => _axisLength = value;
-    }
+    public float AxisLength { get; init; } = 10f;
 
     public AxisRenderer(GraphicsDevice graphics)
     {
@@ -39,19 +34,14 @@ public class AxisRenderer : IDisposable
 
     private void BuildBuffers()
     {
-        // Create 6 vertices: origin + positive end for each axis
-        // X axis: Red, Y axis: Green, Z axis: Blue
         var vertices = new VertexPositionColor[6]
         {
-            // X axis: Red
-            new VertexPositionColor(new Vector3(0, 0, 0), Color.Red),
-            new VertexPositionColor(new Vector3(_axisLength, 0, 0), Color.Red),
-            // Y axis: Green
-            new VertexPositionColor(new Vector3(0, 0, 0), Color.Green),
-            new VertexPositionColor(new Vector3(0, _axisLength, 0), Color.Green),
-            // Z axis: Blue
-            new VertexPositionColor(new Vector3(0, 0, 0), Color.Blue),
-            new VertexPositionColor(new Vector3(0, 0, _axisLength), Color.Blue),
+            new(new Vector3(0, 0, 0), Color.Red),
+            new(new Vector3(AxisLength, 0, 0), Color.Red),
+            new(new Vector3(0, 0, 0), Color.Green),
+            new(new Vector3(0, AxisLength, 0), Color.Green),
+            new(new Vector3(0, 0, 0), Color.Blue),
+            new(new Vector3(0, 0, AxisLength), Color.Blue),
         };
 
         _vertexBuffer = new VertexBuffer(
@@ -81,11 +71,7 @@ public class AxisRenderer : IDisposable
         foreach (var pass in _effect.CurrentTechnique.Passes)
         {
             pass.Apply();
-            _graphics.DrawPrimitives(
-                PrimitiveType.LineList,
-                0,
-                3  // 3 lines (X, Y, Z axes)
-            );
+            _graphics.DrawPrimitives(PrimitiveType.LineList, 0, 3);
         }
     }
 

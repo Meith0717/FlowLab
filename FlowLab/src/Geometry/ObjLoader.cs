@@ -9,14 +9,14 @@ namespace FlowLab.Geometry;
 
 public static class ObjLoader
 {
-    public static ObjModel Load(string path)
+    public static ObjModel Load(GraphicsDevice graphics, string path)
     {
         using var stream = File.OpenRead(path);
         using var reader = new StreamReader(stream);
-        return Load(reader);
+        return Load(graphics, reader);
     }
 
-    private static ObjModel Load(StreamReader reader)
+    private static ObjModel Load(GraphicsDevice graphics, StreamReader reader)
     {
         var positions = new List<Vector3>();
         var normals = new List<Vector3>();
@@ -117,7 +117,7 @@ public static class ObjLoader
             }
         }
 
-        return new ObjModel(outVertices.ToArray(), outIndices.ToArray(), triangles);
+        return new ObjModel(graphics, outVertices.ToArray(), outIndices.ToArray(), triangles);
 
         int GetOrAddVertex(int posIdx, int texIdx, int normIdx, Vector3 fallbackNormal)
         {
