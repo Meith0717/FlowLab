@@ -57,8 +57,15 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
             ref var component = ref _rigidBodyComponentPool.Get(e.Id);
 
             // External Forces
-            var bodyForce = Vector3.Zero; // TODO
-            var bodyTorque = Vector3.Zero; // TODO
+            var bodyForce = Vector3.Zero;
+            var bodyTorque = Vector3.Zero;
+            foreach (var pE in component.Particles)
+            {
+                ref var pEComponent = ref _rigidBodyParticlePool.Get(pE.Id);
+                bodyForce += pEComponent.AppliedForce;
+                bodyTorque += Vector3.Cross(pEComponent.RelativePosition, pEComponent.AppliedForce);
+                pEComponent.AppliedForce = Vector3.Zero;
+            }
 
             // Translational Motion
             transform.Position += velocity.LinearVelocity * config.TimeStep;

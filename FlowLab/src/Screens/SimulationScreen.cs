@@ -8,6 +8,7 @@ using System.IO;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.System;
+using FlowLab.Extensions;
 using FlowLab.Geometry;
 using FlowLab.Input;
 using FlowLab.Monitoring;
@@ -16,8 +17,10 @@ using FlowLab.Rigid_Bodies;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
+using MonoKit.Ecs.Entities;
 using MonoKit.Gameplay;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
@@ -39,13 +42,15 @@ public class SimulationScreen : Screen
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
     private readonly AxisRenderer _axisRenderer;
     private readonly RigidBodyRenderer _rigidBodyRenderer;
+    private readonly ParticleRayChecker _particleRayChecker;
+    private readonly World _world;
 
     public SimulationScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
         _simConfig = SimConfig.Default;
         _simRuntime = new GameRuntime3D(GraphicsDevice, _simConfig.SpatialHashQueryRadius);
-        var world = _simRuntime.Services.Get<World>();
+        _world = _simRuntime.Services.Get<World>();
         var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
         var kernels = new Kernels(_simConfig.MaxParticleSize);
 
@@ -53,7 +58,7 @@ public class SimulationScreen : Screen
         _camera3D.AddBehaviour(new MoveByMouse());
         _camera3D.AddBehaviour(new ZoomByMouse(.5f));
 
-        _simController = new SimulationController(world);
+        _simController = new SimulationController(_world);
         _simTracker = new SimulationTracker(_simConfig);
         _axisRenderer = new AxisRenderer(GraphicsDevice);
         _boundingBoxRenderer = new BoundingBoxRenderer(
@@ -62,25 +67,26 @@ public class SimulationScreen : Screen
         );
         _fluidRenderer = new FluidRenderer(
             GraphicsDevice,
-            world,
+            _world,
             spatialHashSystem,
             _simConfig.SpatialHashQueryRadius
         );
-        _rigidBodyRenderer = new RigidBodyRenderer(world, GraphicsDevice);
-        _liveData = new LiveData(world, _simConfig);
+        _rigidBodyRenderer = new RigidBodyRenderer(_world, GraphicsDevice);
+        _liveData = new LiveData(_world, _simConfig);
         _sensorManager = new SensorPlaneManager(
             GraphicsDevice,
-            world,
+            _world,
             spatialHashSystem,
             kernels,
             _simConfig
         );
+        _particleRayChecker = new ParticleRayChecker(_world, spatialHashSystem);
 
-        world.Systems.Add(new DomainSystem(_boundingBoxRenderer.BoundingBox));
-        world.Systems.Add(new DiagnosticSystem(_simConfig, _simController));
-        world.Systems.Add(new RigidBodySystem(_simConfig, _simController));
-        world.Systems.Add(new ParticleTransformSyncSystem());
-        world.Systems.Add(
+        _world.Systems.Add(new DomainSystem(_boundingBoxRenderer.BoundingBox));
+        _world.Systems.Add(new DiagnosticSystem(_simConfig, _simController));
+        _world.Systems.Add(new RigidBodySystem(_simConfig, _simController));
+        _world.Systems.Add(new ParticleTransformSyncSystem());
+        _world.Systems.Add(
             new SimulationSystem(
                 spatialHashSystem,
                 kernels,
@@ -92,7 +98,7 @@ public class SimulationScreen : Screen
 
         // Test
         var model = ObjLoader.Load(GraphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
-        RigidBodyFactory.Create(world, model, Vector3.Zero, Vector3.One * 30, Matrix.Identity, 1);
+        RigidBodyFactory.Create(_world, model, Vector3.Zero, Vector3.One * 30, Matrix.Identity, 1);
     }
 
     public override void Initialize()
@@ -113,13 +119,37 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-        {
             AddFluidBlock(10, 10, 25, 1f, Vector3.Zero, Color.DodgerBlue, 1);
-        }
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-        {
             AddFluidBlock(10, 10, 25, .1f, Vector3.Zero, Color.Orange, 1);
+
+        var camRay = MouseHelper.GetMouseRay(
+            _camera3D.Projection,
+            _camera3D.View,
+            GraphicsDevice.Viewport
+        );
+        if (inputHandler.HasAction((byte)ActionType.DragParticle))
+        {
+            if (_particleRayChecker.HitEntity != null)
+            {
+                var entityPosition = _particleRayChecker.Position;
+                var closestPosition = camRay.ClosestPoint(entityPosition);
+                var distance = Vector3.Distance(entityPosition, closestPosition);
+                var rigidBodyParticlePool = _world.Components.GetOrCreatePool<RigidBodyParticle>();
+                if (rigidBodyParticlePool.Has(_particleRayChecker.HitEntity.Value.Id))
+                {
+                    ref var p = ref rigidBodyParticlePool.Get(
+                        _particleRayChecker.HitEntity.Value.Id
+                    );
+                    p.AppliedForce = (entityPosition - closestPosition) * .01f;
+                }
+                Console.WriteLine(distance);
+            }
+        }
+        else
+        {
+            _particleRayChecker.CheckAlongRay(camRay);
         }
 
         _camera3D.Update(elapsedMilliseconds, inputHandler);

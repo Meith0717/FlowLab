@@ -53,6 +53,7 @@ public class Simulation : Game
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
         {
             { (MouseButton.Right, InputEventType.Held), (byte)ActionType.MoveCameraByMouse },
+            { (MouseButton.Left, InputEventType.Held), (byte)ActionType.DragParticle },
         };
 
         _graphicsController.ApplyMode(WindowMode.Windowed);

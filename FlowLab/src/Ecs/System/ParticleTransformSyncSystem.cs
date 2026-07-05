@@ -8,6 +8,8 @@ using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using FlowLab.Input;
 using FlowLab.Monitoring.SensorPlanes;
+using FlowLab.Sph;
+using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;
@@ -93,7 +95,6 @@ public class ParticleTransformSyncSystem : ISystem
             ref var material = ref _materialPool.Get(e.Id);
             ref var transform = ref _transformPool.Get(e.Id);
             shaderData.Position = transform.Position;
-            shaderData.Color = material.Color;
 
             if (colorCode == ColorCode.Color)
                 continue;

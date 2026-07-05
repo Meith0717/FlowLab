@@ -14,6 +14,7 @@ public struct MaterialComponent
 
     public readonly float ColorId;
     public readonly Color Color;
+    public float Size { get; private set; }
     public float RestVolume { get; private set; }
     public float Mass { get; private set; }
     public float Volume { get; set; }
@@ -32,6 +33,7 @@ public struct MaterialComponent
     public void SetRestVolume(float volume)
     {
         RestVolume = volume;
+        Size = float.RootN(volume, 3);
         Mass = volume * _restDensity;
     }
 }
