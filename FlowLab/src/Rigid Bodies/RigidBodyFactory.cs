@@ -32,17 +32,20 @@ public static class RigidBodyFactory
         );
 
         var surfaceEntities = new List<Entity>();
-        foreach (var (x, y, z) in sampleSurface)
+        foreach (var surfacePoint in sampleSurface)
+        {
+            var relativePos = surfacePoint - position;
             surfaceEntities.Add(
                 ParticleFactory.CreateRigidBodyParticle(
                     world,
-                    new Vector3(x, y, z),
-                    new Vector3(x, y, z),
+                    surfacePoint,
+                    relativePos,
                     particleSize,
                     1,
                     1
                 )
             );
+        }
 
         var e = world.CreateEntity();
         world.Components.Add(e, new Transform3D(position, orientation, scale));
@@ -52,7 +55,7 @@ public static class RigidBodyFactory
             new RigidBodyComponent(
                 model,
                 10,
-                Matrix.CreateRotationX(0),
+                Matrix.Identity * 10f,
                 Vector3.Zero,
                 surfaceEntities.ToArray()
             )

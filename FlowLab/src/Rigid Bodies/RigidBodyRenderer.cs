@@ -33,9 +33,9 @@ public class RigidBodyRenderer(World world, GraphicsDevice graphics)
             ref var rigidBody = ref _rigidBodyPool.Get(entity.Id);
 
             var transformMatrix =
-                Matrix.CreateTranslation(transform.Position)
+                Matrix.CreateScale(transform.Scale)
                 * transform.Orientation
-                * Matrix.CreateScale(transform.Scale);
+                * Matrix.CreateTranslation(transform.Position);
 
             rigidBody.Model.Draw(camera, transformMatrix);
         }

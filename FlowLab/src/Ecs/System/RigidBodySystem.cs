@@ -50,57 +50,66 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
 
         var entitiesSpan = world.TypeTracker.GetEntitiesWith<RigidBodyComponent>(_buffer);
 
-        foreach (var e in entitiesSpan)
+        foreach (var rigidBodyEntity in entitiesSpan)
         {
-            ref var transform = ref _transformPool.Get(e.Id);
-            ref var velocity = ref _velocityPool.Get(e.Id);
-            ref var component = ref _rigidBodyComponentPool.Get(e.Id);
+            ref var bodyTransform = ref _transformPool.Get(rigidBodyEntity.Id);
+            ref var bodyVelocity = ref _velocityPool.Get(rigidBodyEntity.Id);
+            ref var bodyComponent = ref _rigidBodyComponentPool.Get(rigidBodyEntity.Id);
 
             // External Forces
-            var bodyForce = Vector3.Zero;
-            var bodyTorque = Vector3.Zero;
-            foreach (var pE in component.Particles)
+            var force = Vector3.Zero;
+            var torque = Vector3.Zero;
+            foreach (var particles in bodyComponent.Particles)
             {
-                ref var pEComponent = ref _rigidBodyParticlePool.Get(pE.Id);
-                bodyForce += pEComponent.AppliedForce;
-                bodyTorque += Vector3.Cross(pEComponent.RelativePosition, pEComponent.AppliedForce);
-                pEComponent.AppliedForce = Vector3.Zero;
+                ref var rigidBodyParticle = ref _rigidBodyParticlePool.Get(particles.Id);
+
+                force += rigidBodyParticle.AppliedForce;
+                torque += Vector3.Cross(
+                    rigidBodyParticle.RelativePosition,
+                    rigidBodyParticle.AppliedForce
+                );
+                rigidBodyParticle.AppliedForce = Vector3.Zero;
             }
 
             // Translational Motion
-            transform.Position += velocity.LinearVelocity * config.TimeStep;
-            velocity.LinearVelocity += config.TimeStep * (bodyForce / component.Mass);
+            bodyTransform.Position += config.TimeStep * bodyVelocity.LinearVelocity;
+            bodyVelocity.LinearVelocity += config.TimeStep * (force / bodyComponent.Mass);
 
             // Rotational Motion
-            transform.Orientation +=
-                velocity.AngularVelocity.ToSkewSymmetricMatrix()
-                * transform.Orientation
+            bodyTransform.Orientation -=
+                bodyVelocity.AngularVelocity.ToSkewSymmetricMatrix()
+                * bodyTransform.Orientation
                 * config.TimeStep;
-            transform.Orientation = OrthoNormalize(transform.Orientation);
+            bodyTransform.Orientation = OrthoNormalize(bodyTransform.Orientation);
 
-            component.AngularMomentum += bodyTorque * config.TimeStep;
+            bodyComponent.AngularMomentum += config.TimeStep * torque;
 
             var inertiaInverse =
-                transform.Orientation
-                * component.LocalInertiaInverse
-                * Matrix.Transpose(transform.Orientation);
-            velocity.AngularVelocity = Vector3.Transform(component.AngularMomentum, inertiaInverse);
+                bodyTransform.Orientation
+                * bodyComponent.LocalInertiaInverse
+                * Matrix.Transpose(bodyTransform.Orientation);
+
+            bodyVelocity.AngularVelocity = Vector3.Transform(
+                bodyComponent.AngularMomentum,
+                inertiaInverse
+            );
 
             // Particle State Update
-            foreach (var pE in component.Particles)
+            foreach (var particles in bodyComponent.Particles)
             {
-                ref var pEComponent = ref _rigidBodyParticlePool.Get(pE.Id);
-                ref var pETransform = ref _transformPool.Get(pE.Id);
-                ref var pEKinematic = ref _kinematicPool.Get(pE.Id);
+                ref var rigidBodyParticle = ref _rigidBodyParticlePool.Get(particles.Id);
+                ref var particleTransform = ref _transformPool.Get(particles.Id);
+                ref var particleKinematic = ref _kinematicPool.Get(particles.Id);
 
-                var transformedPosition = Vector3.Transform(
-                    pEComponent.RelativePosition,
-                    transform.Orientation
+                var worldOffset = Vector3.Transform(
+                    rigidBodyParticle.RelativePosition,
+                    bodyTransform.Orientation
                 );
-                pETransform.Position = transform.Position + transformedPosition;
-                pEKinematic.Velocity =
-                    velocity.LinearVelocity
-                    + Vector3.Cross(-velocity.AngularVelocity, transformedPosition);
+
+                particleTransform.Position = bodyTransform.Position + worldOffset;
+                particleKinematic.Velocity =
+                    bodyVelocity.LinearVelocity
+                    + Vector3.Cross(bodyVelocity.AngularVelocity, worldOffset);
             }
         }
     }

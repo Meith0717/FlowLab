@@ -98,7 +98,14 @@ public class SimulationScreen : Screen
 
         // Test
         var model = ObjLoader.Load(GraphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
-        RigidBodyFactory.Create(_world, model, Vector3.Zero, Vector3.One * 30, Matrix.Identity, 1);
+        RigidBodyFactory.Create(
+            _world,
+            model,
+            Vector3.Zero,
+            new Vector3(6, 20, 6),
+            Matrix.Identity,
+            1
+        );
     }
 
     public override void Initialize()
@@ -119,10 +126,10 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(10, 10, 25, 1f, Vector3.Zero, Color.DodgerBlue, 1);
+            AddFluidBlock(10, 10, 10, 1f, Vector3.Zero, Color.DodgerBlue, 1);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(10, 10, 25, .1f, Vector3.Zero, Color.Orange, 1);
+            AddFluidBlock(10, 10, 10, .1f, Vector3.Zero, Color.Orange, 1);
 
         var camRay = MouseHelper.GetMouseRay(
             _camera3D.Projection,
@@ -133,7 +140,11 @@ public class SimulationScreen : Screen
         {
             if (_particleRayChecker.HitEntity != null)
             {
-                var entityPosition = _particleRayChecker.Position;
+                var transformPool = _world.Components.GetOrCreatePool<Transform3D>();
+
+                var entityPosition = transformPool
+                    .Get(_particleRayChecker.HitEntity.Value.Id)
+                    .Position;
                 var closestPosition = camRay.ClosestPoint(entityPosition);
                 var distance = Vector3.Distance(entityPosition, closestPosition);
                 var rigidBodyParticlePool = _world.Components.GetOrCreatePool<RigidBodyParticle>();
@@ -142,7 +153,7 @@ public class SimulationScreen : Screen
                     ref var p = ref rigidBodyParticlePool.Get(
                         _particleRayChecker.HitEntity.Value.Id
                     );
-                    p.AppliedForce = (entityPosition - closestPosition) * .01f;
+                    p.AppliedForce = (closestPosition - entityPosition) * .001f;
                 }
                 Console.WriteLine(distance);
             }
