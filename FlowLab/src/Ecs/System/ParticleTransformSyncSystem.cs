@@ -8,8 +8,6 @@ using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using FlowLab.Input;
 using FlowLab.Monitoring.SensorPlanes;
-using FlowLab.Sph;
-using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;

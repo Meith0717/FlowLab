@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
-using System.ComponentModel;
 using FlowLab.Ecs.Components;
 using FlowLab.Geometry;
 using FlowLab.Sph;
@@ -55,8 +54,8 @@ public static class RigidBodyFactory
             e,
             new RigidBodyComponent(
                 model,
-                100f,
-                Matrix.Identity * (2 / 5f * 100 * 25),
+                300f,
+                Matrix.Identity * (2 / 5f * 300 * 25),
                 Vector3.Zero,
                 surfaceEntities.ToArray()
             )

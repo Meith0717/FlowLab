@@ -3,19 +3,13 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
-using System;
 using System.Collections.Generic;
-using FlowLab.Config;
 using FlowLab.Ecs.Components;
-using FlowLab.Ecs.Tags;
 using FlowLab.Extensions;
-using FlowLab.Input;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Entities;
-using MonoKit.Graphics.Camera;
 using MonoKit.Spatial;
 
 namespace FlowLab.Sph;
