@@ -96,7 +96,7 @@ public class FluidRenderer : IDisposable
         };
     }
 
-    public void Initialize()
+    public void LoadContent()
     {
         _particleShader = ContentProvider.Get<Effect>("ParticleShader");
     }

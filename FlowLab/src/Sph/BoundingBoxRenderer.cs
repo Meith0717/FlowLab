@@ -16,19 +16,9 @@ public class BoundingBoxRenderer : IDisposable
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
     private readonly BasicEffect _effect;
-    private BoundingBox _boundingBox;
+    private readonly BoundingBox _boundingBox;
     private Color _color = Color.White;
     private float _lineWidth = 1f;
-
-    public BoundingBox BoundingBox
-    {
-        get => _boundingBox;
-        set
-        {
-            _boundingBox = value;
-            UpdateVertices();
-        }
-    }
 
     public Color Color
     {
