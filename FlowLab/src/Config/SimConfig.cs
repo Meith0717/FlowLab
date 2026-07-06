@@ -36,6 +36,6 @@ public class SimConfig(float maxParticleSize, float fluidDensity)
             Gravity = 0.5f,
             MaxIterations = 100,
             MinVolumeError = .1f,
-            InterfaceTension = 0f,
+            InterfaceTension = .1f,
         };
 }

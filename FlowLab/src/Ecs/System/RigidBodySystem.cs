@@ -74,6 +74,7 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
             // Translational Motion
             bodyTransform.Position += config.TimeStep * bodyVelocity.LinearVelocity;
             bodyVelocity.LinearVelocity += config.TimeStep * (force / bodyComponent.Mass);
+            bodyVelocity.LinearVelocity += config.TimeStep * new Vector3(0, -config.Gravity, 0);
 
             // Rotational Motion
             bodyTransform.Orientation -=

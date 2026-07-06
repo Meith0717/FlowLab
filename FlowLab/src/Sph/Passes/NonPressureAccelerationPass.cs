@@ -49,7 +49,7 @@ public static class NonPressureAccelerationPass
                     var entity = entities[i];
                     SetGravityAcceleration(entity, context, config);
                     ComputeViscosity(entity, context, config);
-                    //  ComputeInterfaceTensionAcceleration(entity, context, config);
+                    // ComputeInterfaceTensionAcceleration(entity, context, config);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
                     kinematic.NonPressureAccelerations *= config.TimeStep;

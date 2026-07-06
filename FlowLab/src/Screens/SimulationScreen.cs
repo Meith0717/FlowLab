@@ -98,11 +98,11 @@ public class SimulationScreen : Screen
 
         // Test
         var model = ObjLoader.Load(GraphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
-        RigidBodyFactory.Create(
+        RigidBodyFactory.CreateStatic(
             _world,
             model,
             Vector3.Zero,
-            new Vector3(6, 20, 6),
+            new Vector3(10, 30, 10),
             Matrix.Identity,
             1
         );
@@ -126,10 +126,23 @@ public class SimulationScreen : Screen
         _simController.Update(elapsedMilliseconds, inputHandler);
 
         if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(10, 10, 10, 1f, Vector3.Zero, Color.DodgerBlue, 1);
+            AddFluidBlock(10, 10, 40, 1f, Vector3.Zero, Color.DodgerBlue, 0);
 
         if (inputHandler.HasAction((byte)ActionType.Test))
-            AddFluidBlock(10, 10, 10, .1f, Vector3.Zero, Color.Orange, 1);
+        {
+            var model = ObjLoader.Load(
+                GraphicsDevice,
+                Path.Combine("Content", "Models", "Sphere.obj")
+            );
+            RigidBodyFactory.CreateDynamic(
+                _world,
+                model,
+                Vector3.Zero,
+                new Vector3(5),
+                Matrix.Identity,
+                1
+            );
+        }
 
         var camRay = MouseHelper.GetMouseRay(
             _camera3D.Projection,
