@@ -105,7 +105,7 @@ public class FluidRenderer : IDisposable
     {
         var entities = hideBoundary
             ? _world.TypeTracker.GetEntitiesWith<FluidTag>()
-            : _world.TypeTracker.GetEntitiesWith<ParticleTag>();
+            : _world.TypeTracker.GetEntitiesWith<ParticleProperties>();
 
         var shaderDataPool = _world.Components.GetOrCreatePool<ParticleShaderData>();
         _particleCount = 0;

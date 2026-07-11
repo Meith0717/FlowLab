@@ -1,7 +1,6 @@
 using System.Threading;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
-using FlowLab.Ecs.Tags;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework.Input;
 using MonoKit.Ecs;
@@ -10,20 +9,22 @@ using MonoKit.Ecs.Systems;
 using MonoKit.Gameplay;
 using MonoKit.Input;
 
+namespace FlowLab.Ecs.System;
+
 public class DiagnosticSystem(SimConfig config, SimulationController simController) : ISystem
 {
     public int Priority => 4;
     private ComponentPool<DiagnosticComponent> _diagnosticPool;
     private ComponentPool<SolverState> _solverPool;
     private ComponentPool<KinematicState> _kinematicPool;
-    private ComponentPool<MaterialComponent> _materialPool;
+    private ComponentPool<ParticleProperties> _materialPool;
 
     public void Initialize(World world)
     {
         _diagnosticPool = world.Components.GetOrCreatePool<DiagnosticComponent>();
         _kinematicPool = world.Components.GetOrCreatePool<KinematicState>();
         _solverPool = world.Components.GetOrCreatePool<SolverState>();
-        _materialPool = world.Components.GetOrCreatePool<MaterialComponent>();
+        _materialPool = world.Components.GetOrCreatePool<ParticleProperties>();
     }
 
     public void Update(
@@ -33,7 +34,7 @@ public class DiagnosticSystem(SimConfig config, SimulationController simControll
         InputHandler inputHandler
     )
     {
-        var entities = world.TypeTracker.GetEntitiesWith<ParticleTag>();
+        var entities = world.TypeTracker.GetEntitiesWith<ParticleProperties>();
         var unstableCount = 0;
 
         foreach (var entity in entities)

@@ -26,8 +26,8 @@ public class LiveData(World world, Config.SimConfig simConfig)
     private const int CoolDown = 50;
     private double _currentCoolDown = CoolDown;
 
-    private readonly ComponentPool<MaterialComponent> _fluidPool =
-        world.Components.GetOrCreatePool<MaterialComponent>();
+    private readonly ComponentPool<ParticleProperties> _fluidPool =
+        world.Components.GetOrCreatePool<ParticleProperties>();
     private readonly ComponentPool<KinematicState> _movementPool =
         world.Components.GetOrCreatePool<KinematicState>();
 

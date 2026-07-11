@@ -90,15 +90,32 @@ public class SimulationScene : IDisposable
         );
 
         // Test
+        Build(world);
+    }
+
+    private void Build(World world)
+    {
         var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
         RigidBodyFactory.CreateStatic(
             world,
             model,
             Vector3.Zero,
-            new Vector3(10, 30, 10),
+            new Vector3(5, 30, 5),
             Matrix.Identity,
             1
         );
+
+        AddFluidBlock(9, 9, 24, 1f, new Vector3(0, -17, 0), Color.DodgerBlue, 0);
+
+        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        // RigidBodyFactory.CreateDynamic(
+        //     world,
+        //     model,
+        //     Vector3.Zero,
+        //     new Vector3(1),
+        //     Matrix.Identity,
+        //     1
+        // );
     }
 
     public void LoadContent()
@@ -112,25 +129,6 @@ public class SimulationScene : IDisposable
         var world = _simRuntime.Services.Get<World>();
 
         SimController.Update(elapsedMilliseconds, inputHandler);
-
-        if (inputHandler.HasAction((byte)ActionType.SpawnBlock))
-            AddFluidBlock(10, 10, 40, 1f, Vector3.Zero, Color.DodgerBlue, 0);
-
-        if (inputHandler.HasAction((byte)ActionType.Test))
-        {
-            var model = ObjLoader.Load(
-                _graphicsDevice,
-                Path.Combine("Content", "Models", "Sphere.obj")
-            );
-            RigidBodyFactory.CreateDynamic(
-                world,
-                model,
-                Vector3.Zero,
-                new Vector3(5),
-                Matrix.Identity,
-                1
-            );
-        }
 
         camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);

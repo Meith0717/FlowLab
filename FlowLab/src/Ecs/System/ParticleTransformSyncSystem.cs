@@ -5,7 +5,6 @@
 
 using System;
 using FlowLab.Ecs.Components;
-using FlowLab.Ecs.Tags;
 using FlowLab.Input;
 using FlowLab.Monitoring.SensorPlanes;
 using MonoKit.Ecs;
@@ -23,7 +22,7 @@ public class ParticleTransformSyncSystem : ISystem
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<ParticleShaderData> _shaderDataPool;
     private ComponentPool<SolverState> _solverPool;
-    private ComponentPool<MaterialComponent> _materialPool;
+    private ComponentPool<ParticleProperties> _materialPool;
     private EntityTypeTracker _tracker;
 
     // Track both bounds for historical range normalization
@@ -58,7 +57,7 @@ public class ParticleTransformSyncSystem : ISystem
         _transformPool = world.Components.GetOrCreatePool<Transform3D>();
         _shaderDataPool = world.Components.GetOrCreatePool<ParticleShaderData>();
         _solverPool = world.Components.GetOrCreatePool<SolverState>();
-        _materialPool = world.Components.GetOrCreatePool<MaterialComponent>();
+        _materialPool = world.Components.GetOrCreatePool<ParticleProperties>();
     }
 
     private void Reset()
@@ -74,7 +73,7 @@ public class ParticleTransformSyncSystem : ISystem
         InputHandler inputHandler
     )
     {
-        var entities = _tracker.GetEntitiesWith<ParticleTag>();
+        var entities = _tracker.GetEntitiesWith<ParticleProperties>();
 
         if (inputHandler.HasAction((byte)ActionType.CycleColors))
         {

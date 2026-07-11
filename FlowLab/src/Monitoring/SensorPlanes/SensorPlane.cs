@@ -56,7 +56,7 @@ public class SensorPlane : IDisposable
     private readonly float[] _volumeErrorGrid;
     private readonly float[] _density;
     private readonly ComponentPool<Transform3D> _transformPool;
-    private readonly ComponentPool<MaterialComponent> _materialPool;
+    private readonly ComponentPool<ParticleProperties> _materialPool;
     private readonly ComponentPool<KinematicState> _kinematicPool;
     private readonly ComponentPool<SolverState> _solverPool;
 
@@ -100,7 +100,7 @@ public class SensorPlane : IDisposable
         TextureData = new Color[gridSize];
 
         _transformPool = world.Components.GetOrCreatePool<Transform3D>();
-        _materialPool = world.Components.GetOrCreatePool<MaterialComponent>();
+        _materialPool = world.Components.GetOrCreatePool<ParticleProperties>();
         _kinematicPool = world.Components.GetOrCreatePool<KinematicState>();
         _solverPool = world.Components.GetOrCreatePool<SolverState>();
     }

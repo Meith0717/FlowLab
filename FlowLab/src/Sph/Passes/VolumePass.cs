@@ -5,7 +5,6 @@
 
 using System.Runtime.CompilerServices;
 using FlowLab.Config;
-using FlowLab.Ecs.Components;
 using FlowLab.Sph.Passes.Utilities;
 using MonoKit.Ecs.Entities;
 using MonoKit.Spatial;
@@ -63,51 +62,70 @@ public static class VolumePass
             neighbours.Neighbours
         );
 
-        neighbours.CachedKernels.Clear();
-        neighbours.CachedKernels.Capacity = neighbours.Neighbours.Count;
+        // Sorting Fluid to left and Boundary to right
+        var fluidNeighbourCout = 0;
+        for (var i = 0; i < neighbours.NeighboursCount; i++)
+        {
+            if (context.BoundaryPool.Has(neighbours.Neighbours[i].Id))
+                continue;
+            (neighbours.Neighbours[i], neighbours.Neighbours[fluidNeighbourCout]) = (
+                neighbours.Neighbours[fluidNeighbourCout],
+                neighbours.Neighbours[i]
+            );
+            fluidNeighbourCout++;
+        }
+        neighbours.FluidNeighbourCount = fluidNeighbourCout;
+
+        // Cache Kernels
+        neighbours.CachedKernels.Capacity = neighbours.CachedNablaKernels.Capacity =
+            neighbours.NeighboursCount;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             ref var nTransform = ref context.TransformPool.Get(neighbours.Neighbours[i].Id);
 
-            neighbours.CachedKernels.Add(default);
-            neighbours.CachedKernels[i] = new CachedKernel
-            {
-                CubicSpline = kernels.CubicSpline(transform.Position, nTransform.Position),
-                NablaCubicSpline = kernels.NablaCubicSpline(
-                    transform.Position,
-                    nTransform.Position
-                ),
-            };
+            neighbours.CachedKernels.Add(0);
+            neighbours.CachedNablaKernels.Add(default);
+
+            neighbours.CachedKernels[i] = kernels.CubicSpline(
+                transform.Position,
+                nTransform.Position
+            );
+            neighbours.CachedNablaKernels[i] = kernels.NablaCubicSpline(
+                transform.Position,
+                nTransform.Position
+            );
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeBoundaryRestVolume(Entity entity, SphPassContext context)
     {
-        ref var material = ref context.MaterialPool.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
         var boundaryKernelSum = 0f;
-        for (var i = 0; i < neighbourList.Neighbours.Count; i++)
-            if (context.BoundaryPool.Has(neighbourList.Neighbours[i].Id))
-                boundaryKernelSum += neighbourList.CachedKernels[i].CubicSpline;
+        for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
+            boundaryKernelSum += neighbourList.CachedKernels[i];
 
-        material.SetRestVolume(boundaryKernelSum > 1e-6f ? 1f / boundaryKernelSum : 0f);
+        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? 1f / boundaryKernelSum : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeVolume(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var material = ref context.MaterialPool.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
         var numberDensity = 0f;
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
         {
-            ref var nMaterial = ref context.MaterialPool.Get(neighbourList.Neighbours[i].Id);
-            numberDensity += nMaterial.RestVolume * neighbourList.CachedKernels[i].CubicSpline;
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(
+                neighbourList.Neighbours[i].Id
+            );
+            numberDensity += nParticleProperty.RestVolume * neighbourList.CachedKernels[i];
         }
 
-        material.Volume = numberDensity > 1e-6f ? material.RestVolume / numberDensity : 0f;
+        particleProperty.Volume =
+            numberDensity > 1e-6f ? particleProperty.RestVolume / numberDensity : 0f;
     }
 }

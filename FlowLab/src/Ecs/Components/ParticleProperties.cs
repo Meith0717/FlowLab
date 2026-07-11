@@ -8,18 +8,18 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Ecs.Components;
 
-public struct MaterialComponent
+public struct ParticleProperties
 {
     private readonly float _restDensity;
-
     public readonly float ColorId;
     public readonly Color Color;
+
     public float Size { get; private set; }
     public float RestVolume { get; private set; }
     public float Mass { get; private set; }
     public float Volume { get; set; }
 
-    public MaterialComponent(Color color, float colorId, float volume, float restDensity)
+    public ParticleProperties(Color color, float colorId, float volume, float restDensity)
     {
         if (colorId is < 0 or > 1)
             throw new ArgumentException("Id needs to be normalized");

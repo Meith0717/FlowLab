@@ -32,7 +32,7 @@ public static class PressureAccelerationPass
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
-        ref var material = ref context.MaterialPool.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
@@ -40,16 +40,16 @@ public static class PressureAccelerationPass
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-            ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
 
             var pSum = solver.Pressure + nSolver.Pressure;
-            var kernelDerivative = neighbours.CachedKernels[i].NablaCubicSpline;
+            var kernelDerivative = neighbours.CachedNablaKernels[i];
 
-            sum += nMaterial.Volume * pSum * kernelDerivative;
+            sum += nParticleProperty.Volume * pSum * kernelDerivative;
         }
 
-        var pressureForce = -(material.Volume * sum);
+        var pressureForce = -(particleProperty.Volume * sum);
         pressureForce =
             float.IsFinite(pressureForce.X)
             && float.IsFinite(pressureForce.Y)
@@ -57,7 +57,7 @@ public static class PressureAccelerationPass
                 ? pressureForce
                 : Vector3.Zero;
 
-        var acceleration = pressureForce / material.Mass;
+        var acceleration = pressureForce / particleProperty.Mass;
         kinematicState.PressureAcceleration = acceleration;
 
         if (!context.RigidBodyParticlePool.Has(entity.Id))

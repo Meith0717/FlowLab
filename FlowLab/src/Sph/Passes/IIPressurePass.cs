@@ -54,8 +54,8 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
-            PressureExtrapolationPass.RunForEach(bChunk, context, config);
             PressureAccelerationPass.RunForEach(fChunk, context, config);
+            PressureExtrapolationPass.RunForEach(bChunk, context, config);
 
             var totalVolumeError = 0d;
             fChunk.ParallelForEach(
@@ -79,7 +79,7 @@ public static class IiPressurePass
 
                         solver.Pressure = float.Max(0, solver.Pressure);
                         residual += float.Max(solver.Laplacian - solver.SourceTherm, 0);
-                        
+
                         if (float.IsNaN(solver.Pressure))
                             Debugger.Break();
                     }
@@ -113,25 +113,26 @@ file static class ISphUtil
         var diiSum = Vector3.Zero;
         var dij = 0f;
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
-        ref var fluid = ref context.MaterialPool.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-            ref var nMaterial = ref context.MaterialPool.Get(nEntity.Id);
-            var nablaKernel = neighbours.CachedKernels[i].NablaCubicSpline;
-            diiSum += nMaterial.Volume * nablaKernel;
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            var nablaKernel = neighbours.CachedNablaKernels[i];
+            diiSum += nParticleProperty.Volume * nablaKernel;
             if (context.BoundaryPool.Has(nEntity.Id))
                 continue;
             dij +=
-                nMaterial.Volume
-                * (nMaterial.Volume / nMaterial.Mass)
+                nParticleProperty.Volume
+                * (nParticleProperty.Volume / nParticleProperty.Mass)
                 * Vector3.Dot(nablaKernel, nablaKernel);
         }
-        
+
         var dii = Vector3.Dot(diiSum, diiSum);
-        solver.DiagonalElement = -simConfig.TimeStepSquared * (fluid.Volume / fluid.Mass) * dii -
-                                 simConfig.TimeStepSquared * fluid.Volume * dij;
+        solver.DiagonalElement =
+            -simConfig.TimeStepSquared * (particleProperty.Volume / particleProperty.Mass) * dii
+            - simConfig.TimeStepSquared * particleProperty.Volume * dij;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,7 +140,7 @@ file static class ISphUtil
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
         ref var movement = ref context.KinematicPool.Get(entity.Id);
-        ref var fluid = ref context.MaterialPool.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
 
         var sum = 0f;
@@ -147,16 +148,16 @@ file static class ISphUtil
         {
             var nEntity = neighbours.Neighbours[i];
 
-            ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
 
             var velDif = movement.Velocity - nMovement.Velocity;
-            sum +=
-                nFluid.Volume * Vector3.Dot(velDif, neighbours.CachedKernels[i].NablaCubicSpline);
+            sum += nParticleProperty.Volume * Vector3.Dot(velDif, neighbours.CachedNablaKernels[i]);
         }
 
         var predVolume = config.TimeStep * sum;
-        solver.SourceTherm = 1f - (fluid.RestVolume / fluid.Volume) - predVolume;
+        solver.SourceTherm =
+            1f - (particleProperty.RestVolume / particleProperty.Volume) - predVolume;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -169,11 +170,10 @@ file static class ISphUtil
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
             var nEntity = neighbours.Neighbours[i];
-            ref var nFluid = ref context.MaterialPool.Get(nEntity.Id);
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;
-            sum +=
-                nFluid.Volume * Vector3.Dot(accDif, neighbours.CachedKernels[i].NablaCubicSpline);
+            sum += nParticleProperty.Volume * Vector3.Dot(accDif, neighbours.CachedNablaKernels[i]);
         }
         solver.Laplacian = config.TimeStepSquared * sum;
     }

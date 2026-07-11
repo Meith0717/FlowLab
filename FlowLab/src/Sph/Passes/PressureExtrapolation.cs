@@ -21,10 +21,7 @@ public static class PressureExtrapolationPass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                {
-                    var entity = entities[i];
-                    ComputeEntity(entity, context, config);
-                }
+                    ComputeEntity(entities[i], context, config);
             }
         );
     }
@@ -36,44 +33,33 @@ public static class PressureExtrapolationPass
         ref var transform = ref context.TransformPool.Get(entity.Id);
 
         solver.Pressure = 0;
-        if (neighbours.Neighbours.All(e => !context.BoundaryPool.Has(e.Id)))
+        if (neighbours.FluidNeighbourCount == 0)
             return;
 
         var sum1 = 0f;
-        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i) // Only Fluid
         {
             var nEntity = neighbours.Neighbours[i];
-            if (context.BoundaryPool.Has(nEntity.Id))
-                continue;
-
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-            sum1 += nSolver.Pressure * neighbours.CachedKernels[i].CubicSpline;
+            sum1 += nSolver.Pressure * neighbours.CachedKernels[i];
         }
 
         var sum2 = Vector3.Zero;
-        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i) // Only Fluid
         {
             var nEntity = neighbours.Neighbours[i];
-            if (context.BoundaryPool.Has(nEntity.Id))
-                continue;
-
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             var vDiff = transform.Position - nTransform.Position;
-
-            ref var material = ref context.MaterialPool.Get(nEntity.Id);
             sum2 +=
-                (material.Mass / material.Volume) * vDiff * neighbours.CachedKernels[i].CubicSpline;
+                (nParticleProperty.Mass / nParticleProperty.Volume)
+                * vDiff
+                * neighbours.CachedKernels[i];
         }
 
         var sum3 = 0f;
-        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
-        {
-            var nEntity = neighbours.Neighbours[i];
-            if (context.BoundaryPool.Has(nEntity.Id))
-                continue;
-
-            sum3 += neighbours.CachedKernels[i].CubicSpline;
-        }
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i) // Only Fluid
+            sum3 += neighbours.CachedKernels[i];
 
         var dotProduct = Vector3.Dot(new Vector3(0, -config.Gravity, 0), sum2);
 

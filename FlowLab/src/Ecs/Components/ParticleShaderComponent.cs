@@ -16,7 +16,7 @@ public struct ParticleShaderData
     public Color Color; // 4 bytes
     public float Size; // 4 bytes
 
-    public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration(
+    public static readonly VertexDeclaration VertexDeclaration = new(
         new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 1),
         new VertexElement(12, VertexElementFormat.Color, VertexElementUsage.Color, 1),
         new VertexElement(16, VertexElementFormat.Single, VertexElementUsage.TextureCoordinate, 1) // UsageIndex 1 indicates instance data

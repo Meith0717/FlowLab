@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System.Threading.Tasks;
-using FlowLab.Ecs.Tags;
 using FlowLab.Input;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
@@ -42,13 +41,13 @@ public class SimulationController(World world)
             ShowSpatialGrids = !ShowSpatialGrids;
     }
 
-    public void ClearFluid()
+    private void ClearFluid()
     {
-        var fluidCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
+        var collection = world.TypeTracker.GetEntitiesWith<Lifetime>();
         var lifePool = world.Components.GetOrCreatePool<Lifetime>();
 
         Parallel.ForEach(
-            fluidCollection,
+            collection,
             fluidEntity =>
             {
                 ref var lifeTime = ref lifePool.Get(fluidEntity.Id);

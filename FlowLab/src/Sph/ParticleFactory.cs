@@ -55,8 +55,6 @@ public static class ParticleFactory
     {
         var entity = CreateParticle(world, position, color, size, restDensity, materialId);
         world.Components.Add(entity, new FluidTag());
-        world.Components.Add(entity, new InterfaceState());
-        world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         return entity;
     }
 
@@ -72,7 +70,6 @@ public static class ParticleFactory
     {
         var entity = CreateParticle(world, position, color, size, restDensity, materialId);
         world.Components.Add(entity, new FluidTag());
-        world.Components.Add(entity, new InterfaceState());
         world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         world.Components.Add(entity, new KinematicState { Velocity = velocity });
 
@@ -89,7 +86,7 @@ public static class ParticleFactory
     )
     {
         var volume = size * size * size;
-        var fluidComponent = new MaterialComponent(color, materialId, volume, restDensity);
+        var fluidComponent = new ParticleProperties(color, materialId, volume, restDensity);
         var transform = new Transform3D { Position = position };
         var kinematics = new KinematicState();
         var shaderData = new ParticleShaderData { Size = size };
@@ -99,11 +96,11 @@ public static class ParticleFactory
         world.Components.Add(entity, transform);
         world.Components.Add(entity, fluidComponent);
         world.Components.Add(entity, shaderData);
-        world.Components.Add(entity, new ParticleTag());
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new SolverState());
         world.Components.Add(entity, new DiagnosticComponent());
         world.Components.Add(entity, new Collider3D());
+        world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
         return entity;
     }
 }

@@ -5,6 +5,7 @@
 
 using System.Linq;
 using FlowLab.Config;
+using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using FlowLab.Monitoring;
 using FlowLab.Sph;
@@ -35,7 +36,7 @@ public class SimulationSystem(
     {
         _entityTypeTracker = world.TypeTracker;
         _context.Initialize(world.Components);
-        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleTag>().ToArray();
+        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleProperties>().ToArray();
         var allChunking = new EntityChunking(allSet);
         VolumePass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
     }
@@ -50,7 +51,7 @@ public class SimulationSystem(
         if (controller.IsPaused)
             return;
 
-        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleTag>().ToArray();
+        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleProperties>().ToArray();
         var allChunk = new EntityChunking(allSet);
 
         var fSet = _entityTypeTracker.GetEntitiesWith<FluidTag>().ToArray();
@@ -62,7 +63,6 @@ public class SimulationSystem(
         VolumePass.RunForEach(allChunk, spatialHash3D, _context, kernels, config);
         NonPressureAccelerationPass.RunForEach(fChunk, _context, config);
         IiPressurePass.RunForEach(fChunk, bChunk, _context, config);
-        // WcPressurePass.RunForEach(fChunk, _context, config);
         PressureExtrapolationPass.RunForEach(bChunk, _context, config);
         PressureAccelerationPass.RunForEach(allChunk, _context, config);
         PositionUpdatePass.RunForEach(fChunk, _context, config);

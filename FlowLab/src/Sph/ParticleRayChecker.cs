@@ -20,8 +20,8 @@ public class ParticleRayChecker(World world, EcsSpatialHash3D spatialHash)
 
     private readonly ComponentPool<Transform3D> _transformPool =
         world.Components.GetOrCreatePool<Transform3D>();
-    private readonly ComponentPool<MaterialComponent> _materialPool =
-        world.Components.GetOrCreatePool<MaterialComponent>();
+    private readonly ComponentPool<ParticleProperties> _materialPool =
+        world.Components.GetOrCreatePool<ParticleProperties>();
     private readonly List<Entity> _lst = [];
 
     public Entity? HitEntity { get; private set; }
