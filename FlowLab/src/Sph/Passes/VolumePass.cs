@@ -39,7 +39,7 @@ public static class VolumePass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                    ComputeVolume(entities[i], context, config);
+                    ComputeVolume(entities[i], context);
             }
         );
     }
@@ -58,7 +58,7 @@ public static class VolumePass
         neighbours.Clear();
         spatialHash3D.GetInRadius(
             transform.Position,
-            config.SpatialHashQueryRadius,
+            config.SpatialHashQueryRadius * 1.1f,
             neighbours.Neighbours
         );
 
@@ -107,11 +107,11 @@ public static class VolumePass
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
             boundaryKernelSum += neighbourList.CachedKernels[i];
 
-        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? 1f / boundaryKernelSum : 0f);
+        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? .72f / boundaryKernelSum : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeVolume(Entity entity, SphPassContext context, SimConfig config)
+    private static void ComputeVolume(Entity entity, SphPassContext context)
     {
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);

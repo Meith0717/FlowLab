@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
+using System.Linq;
 using FlowLab.Ecs.Components;
 using FlowLab.Geometry;
 using FlowLab.Sph;
@@ -68,7 +69,9 @@ public static class RigidBodyFactory
         Vector3 position,
         Vector3 scale,
         Matrix orientation,
-        float particleSize
+        float particleSize,
+        float restDensity,
+        float materialId
     )
     {
         var sampleSurface = MeshParticleSampler.SampleSurface(
@@ -77,9 +80,14 @@ public static class RigidBodyFactory
             Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position)
         );
 
-        foreach (var surfacePoint in sampleSurface)
-        {
-            ParticleFactory.CreateBoundaryParticle(world, surfacePoint, particleSize, 1, 1);
-        }
+        var hashSet = sampleSurface.ToHashSet();
+        foreach (var surfacePoint in hashSet)
+            ParticleFactory.CreateBoundaryParticle(
+                world,
+                surfacePoint,
+                particleSize,
+                restDensity,
+                materialId
+            );
     }
 }

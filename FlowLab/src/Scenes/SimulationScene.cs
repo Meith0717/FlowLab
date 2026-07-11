@@ -95,13 +95,18 @@ public class SimulationScene : IDisposable
 
     private void Build(World world)
     {
-        var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
+        var model = ObjLoader.Load(
+            _graphicsDevice,
+            Path.Combine("Content", "Models", "Sphere.obj")
+        );
         RigidBodyFactory.CreateStatic(
             world,
             model,
             Vector3.Zero,
-            new Vector3(5, 30, 5),
+            new Vector3(20, 40, 20),
             Matrix.Identity,
+            .75f,
+            1,
             1
         );
 
