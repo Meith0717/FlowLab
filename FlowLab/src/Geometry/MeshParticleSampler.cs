@@ -15,7 +15,7 @@ namespace FlowLab.Geometry;
 
 public class MeshSampler(SimConfig config)
 {
-    private static readonly Vector3[] BoxAxes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
+    private const byte VolumeFilterThreshold = 2;
 
     private readonly TriangleHash _triangleHash = new(2 * config.MaxParticleSize);
     private readonly List<Triangle> _triangles = [];
@@ -40,12 +40,23 @@ public class MeshSampler(SimConfig config)
 
     public Vector3[] SampleSurface()
     {
+        return MeshSurfaceSampler.SampleInParallel(_latticeBox, _triangleHash, _samplingSize);
+    }
+
+    public Vector3[] SampleVolume()
+    {
         var array = MeshVolumeSampler.ProcessLatticeFaces(
             _latticeBox,
             _triangleHash,
             _samplingSize
         );
-        return MeshVolumeSampler.FilterAndConvertToParticles(array, _latticeBox, _samplingSize, 2);
+        var result = MeshVolumeSampler.FilterAndConvertToParticles(
+            array,
+            _latticeBox,
+            _samplingSize,
+            VolumeFilterThreshold
+        );
+        return result;
     }
 
     private static (Vector3 Min, Vector3 Max) GetBounds(ObjModel model, Matrix transform)

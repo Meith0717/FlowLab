@@ -100,14 +100,14 @@ public class SimulationScene : IDisposable
     private void Build(World world)
     {
         var rigidBodyFactory = _simRuntime.Services.Get<RigidBodyFactory>();
-        var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Boat.obj"));
+        var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cat.obj"));
         rigidBodyFactory.CreateDynamic(
             world,
             model,
             Vector3.Zero,
-            new Vector3(.02f),
+            new Vector3(.1f),
             Matrix.Identity,
-            .3f
+            1
         );
 
         AddFluidBlock(9, 9, 24, 1f, new Vector3(0, -17, 0), Color.DodgerBlue, 0);

@@ -196,7 +196,7 @@ internal static class MeshVolumeSampler
         byte[] latticeGrid,
         BoundingBox latticeBox,
         float samplingSize,
-        byte threshold = 2
+        byte threshold
     )
     {
         var halfSamplingSize = samplingSize / 2f;
