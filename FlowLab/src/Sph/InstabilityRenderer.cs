@@ -1,7 +1,7 @@
 // InstabilityRenderer.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
-// Visualizes unstable particles by drawing their velocity vectors
+// Portions generated or assisted by AI.
 
 using System;
 using FlowLab.Ecs.Components;
