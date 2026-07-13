@@ -4,7 +4,6 @@
 // Portions generated or assisted by AI.
 
 using System.Diagnostics;
-using System.Linq;
 using FlowLab.Config;
 using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;

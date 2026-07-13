@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using FlowLab.Config;
 using FlowLab.Geometry.SamplingHelper;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace FlowLab.Geometry;
 
