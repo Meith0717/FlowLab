@@ -7,10 +7,10 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Geometry;
 
-public readonly struct Triangle(Vector3 v0, Vector3 v1, Vector3 v2)
+public readonly record struct Triangle(Vector3 V0, Vector3 V1, Vector3 V2)
 {
-    public readonly Vector3 V0 = v0,
-        V1 = v1,
-        V2 = v2;
-    public readonly Vector3 Normal = Vector3.Normalize(Vector3.Cross(v1 - v0, v2 - v0));
+    public readonly Vector3 V0 = V0,
+        V1 = V1,
+        V2 = V2;
+    public readonly Vector3 Normal = Vector3.Normalize(Vector3.Cross(V1 - V0, V2 - V0));
 }

@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Geometry;
 using FlowLab.Sph;
@@ -15,9 +16,11 @@ using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Rigid_Bodies;
 
-public static class RigidBodyFactory
+public class RigidBodyFactory(SimConfig config)
 {
-    public static void CreateDynamic(
+    public readonly MeshSampler MeshSampler = new(config);
+
+    public void CreateDynamic(
         World world,
         ObjModel model,
         Vector3 position,
@@ -26,11 +29,9 @@ public static class RigidBodyFactory
         float particleSize
     )
     {
-        var sampleSurface = MeshParticleSampler.SampleSurface(
-            model,
-            particleSize,
-            Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position)
-        );
+        var matrix = Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position);
+        MeshSampler.SetModelAndInitializeSampler(model, particleSize, matrix);
+        var sampleSurface = MeshSampler.SampleSurface();
 
         var surfaceEntities = new List<Entity>();
         foreach (var surfacePoint in sampleSurface)
@@ -63,7 +64,7 @@ public static class RigidBodyFactory
         );
     }
 
-    public static void CreateStatic(
+    public void CreateStatic(
         World world,
         ObjModel model,
         Vector3 position,
@@ -74,11 +75,9 @@ public static class RigidBodyFactory
         float materialId
     )
     {
-        var sampleSurface = MeshParticleSampler.SampleSurface(
-            model,
-            particleSize,
-            Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position)
-        );
+        var matrix = Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position);
+        MeshSampler.SetModelAndInitializeSampler(model, particleSize, matrix);
+        var sampleSurface = MeshSampler.SampleSurface();
 
         var hashSet = sampleSurface.ToHashSet();
         foreach (var surfacePoint in hashSet)

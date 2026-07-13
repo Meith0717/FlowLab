@@ -42,6 +42,7 @@ public class SimulationScene : IDisposable
     private readonly AxisRenderer _axisRenderer;
     private readonly RigidBodyRenderer _rigidBodyRenderer;
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
+    private readonly InstabilityRenderer _instabilityRenderer;
 
     public SimulationScene(GraphicsDevice graphicsDevice)
     {
@@ -62,6 +63,8 @@ public class SimulationScene : IDisposable
         SimTracker = new SimulationTracker(SimConfig);
         _axisRenderer = new AxisRenderer(_graphicsDevice);
 
+        _simRuntime.Services.AddService(new RigidBodyFactory(SimConfig));
+
         _fluidRenderer = new FluidRenderer(
             _graphicsDevice,
             world,
@@ -81,6 +84,7 @@ public class SimulationScene : IDisposable
         var simDomain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
         world.Systems.Add(new DomainSystem(simDomain));
         _boundingBoxRenderer = new BoundingBoxRenderer(_graphicsDevice, simDomain);
+        _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world);
 
         world.Systems.Add(new DiagnosticSystem(SimConfig, SimController));
         world.Systems.Add(new RigidBodySystem(SimConfig, SimController));
@@ -95,19 +99,15 @@ public class SimulationScene : IDisposable
 
     private void Build(World world)
     {
-        var model = ObjLoader.Load(
-            _graphicsDevice,
-            Path.Combine("Content", "Models", "Sphere.obj")
-        );
-        RigidBodyFactory.CreateStatic(
+        var rigidBodyFactory = _simRuntime.Services.Get<RigidBodyFactory>();
+        var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Boat.obj"));
+        rigidBodyFactory.CreateDynamic(
             world,
             model,
             Vector3.Zero,
-            new Vector3(20, 40, 20),
+            new Vector3(.02f),
             Matrix.Identity,
-            .75f,
-            1,
-            1
+            .3f
         );
 
         AddFluidBlock(9, 9, 24, 1f, new Vector3(0, -17, 0), Color.DodgerBlue, 0);
@@ -155,6 +155,7 @@ public class SimulationScene : IDisposable
         _rigidBodyRenderer.Draw(camera3D);
         _boundingBoxRenderer.Draw(camera3D);
         _axisRenderer.Draw(camera3D);
+        _instabilityRenderer.Draw(camera3D);
         SensorManager.Draw(camera3D);
     }
 

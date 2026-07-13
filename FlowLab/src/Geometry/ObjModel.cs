@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Graphics.Camera;
@@ -87,20 +88,16 @@ public class ObjModel
         _indexBuffer.SetData(indices);
     }
 
-    public List<Triangle> GetTransformedTriangles(Matrix transform)
+    public void GetTransformedTriangles(Matrix transform, List<Triangle> triangles)
     {
-        var result = new List<Triangle>(Triangles.Count);
-        foreach (var tri in Triangles)
-        {
-            result.Add(
-                new Triangle(
-                    Vector3.Transform(tri.V0, transform),
-                    Vector3.Transform(tri.V1, transform),
-                    Vector3.Transform(tri.V2, transform)
-                )
-            );
-        }
-        return result;
+        triangles.Clear();
+        triangles.AddRange(
+            Triangles.Select(tri => new Triangle(
+                Vector3.Transform(tri.V0, transform),
+                Vector3.Transform(tri.V1, transform),
+                Vector3.Transform(tri.V2, transform)
+            ))
+        );
     }
 
     public void Draw(Camera3D camera, Matrix transform)

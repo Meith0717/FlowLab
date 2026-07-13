@@ -8,14 +8,14 @@ using Microsoft.Xna.Framework;
 
 namespace FlowLab.Geometry;
 
-public class TriangleHash
+public class TriangleHash(float cellSize)
 {
     public readonly ConcurrentDictionary<(int X, int Y, int Z), HashSet<Triangle>> Grids = new();
-    public readonly float CellSize;
+    public readonly float CellSize = cellSize;
 
-    public TriangleHash(float cellSize, List<Triangle> triangles)
+    public void ClearAndPopulate(List<Triangle> triangles)
     {
-        CellSize = cellSize;
+        Grids.Clear();
         foreach (var triangle in triangles)
             AddTriangle(triangle);
     }
