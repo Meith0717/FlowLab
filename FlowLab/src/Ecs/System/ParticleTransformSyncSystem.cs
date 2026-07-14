@@ -33,6 +33,5 @@ public class ParticleTransformSyncSystem()
     {
         shaderData.Position = transform.Position;
         shaderData.Color = material.Color;
-        shaderData.Size = material.Size;
     }
 }

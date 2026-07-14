@@ -7,8 +7,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Geometry.SamplingHelper;
@@ -26,26 +24,27 @@ internal static class MeshSurfaceSampler
     {
         var boxHalfSize = new Vector3(samplingSize / 2f);
         var surfaceParticles = new ConcurrentBag<Vector3>();
-        var threadLocalLists = new ThreadLocal<HashSet<Triangle>>(() => [], trackAllValues: false);
+        var hashSet = new HashSet<Triangle>();
 
-        ProcessLatticeInParallel(
-            latticeBox,
-            samplingSize,
-            samplePoint =>
-            {
-                var localList = threadLocalLists.Value!;
-                if (
-                    TryFindClosestSurfacePoint(
-                        samplePoint,
-                        boxHalfSize,
-                        triangleHash,
-                        localList,
-                        out var surfacePoint
-                    )
+        latticeBox.Deconstruct(out var minBounds, out var maxBounds);
+
+        for (var x = minBounds.X; x <= maxBounds.X; x += samplingSize)
+        for (var y = minBounds.Y; y <= maxBounds.Y; y += samplingSize)
+        for (var z = minBounds.Z; z <= maxBounds.Z; z += samplingSize)
+        {
+            hashSet.Clear();
+            var samplePoint = new Vector3(x, y, z);
+            if (
+                TryFindClosestSurfacePoint(
+                    samplePoint,
+                    boxHalfSize,
+                    triangleHash,
+                    hashSet,
+                    out var surfacePoint
                 )
-                    surfaceParticles.Add(surfacePoint);
-            }
-        );
+            )
+                surfaceParticles.Add(samplePoint);
+        }
 
         return surfaceParticles.ToArray();
     }
@@ -187,31 +186,5 @@ internal static class MeshSurfaceSampler
             + boxHalfSize.Z * Math.Abs(axis.Z);
 
         return triMax >= -r && triMin <= r;
-    }
-
-    private static void ProcessLatticeInParallel(
-        BoundingBox latticeBox,
-        float samplingSize,
-        Action<Vector3> gridProcess
-    )
-    {
-        latticeBox.Deconstruct(out var minBounds, out var maxBounds);
-        var xCount = (int)MathF.Floor((maxBounds.X - minBounds.X) / samplingSize) + 1;
-
-        Parallel.For(
-            0,
-            xCount,
-            i =>
-            {
-                var x = minBounds.X + samplingSize * i;
-
-                for (var y = minBounds.Y; y <= maxBounds.Y; y += samplingSize)
-                for (var z = minBounds.Z; z <= maxBounds.Z; z += samplingSize)
-                {
-                    var samplePoint = new Vector3(x, y, z);
-                    gridProcess.Invoke(samplePoint);
-                }
-            }
-        );
     }
 }

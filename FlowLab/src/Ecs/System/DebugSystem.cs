@@ -7,17 +7,21 @@ using System;
 using FlowLab.Ecs.Components;
 using FlowLab.Input;
 using FlowLab.Monitoring.SensorPlanes;
+using FlowLab.Sph;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Ecs.Querying;
 using MonoKit.Ecs.Systems;
 using MonoKit.Gameplay;
+using MonoKit.Graphics.Camera;
 using MonoKit.Input;
 
 namespace FlowLab.Ecs.System;
 
-public class DebugSystem : ISystem
+public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker particleRayChecker)
+    : ISystem
 {
     public int Priority => 101;
     private ComponentPool<ParticleShaderData> _shaderDataPool;
@@ -38,7 +42,8 @@ public class DebugSystem : ISystem
         VolumeError,
         Mass,
         Pressure,
-        Neighbours,
+        NeighbourCount,
+        Neighbour,
     }
 
     private int _index;
@@ -50,7 +55,8 @@ public class DebugSystem : ISystem
         ColorCode.VolumeError,
         ColorCode.Mass,
         ColorCode.Pressure,
-        ColorCode.Neighbours,
+        ColorCode.NeighbourCount,
+        ColorCode.Neighbour,
     ];
 
     public void Initialize(World world)
@@ -89,35 +95,55 @@ public class DebugSystem : ISystem
         _index %= _colorCodes.Length;
         var colorCode = _colorCodes[_index];
 
-        foreach (var e in entities)
+        if (colorCode is not ColorCode.Color and not ColorCode.Neighbour)
+        {
+            foreach (var e in entities)
+            {
+                ref var shaderData = ref _shaderDataPool.Get(e.Id);
+                ref var material = ref _materialPool.Get(e.Id);
+                ref var neighbourList = ref _neighboursPool.Get(e.Id);
+
+                ref var solver = ref _solverPool.Get(e.Id);
+
+                var value = colorCode switch
+                {
+                    ColorCode.VolumeError => float.Max(
+                        1f - (material.RestVolume / material.Volume),
+                        0
+                    ),
+                    ColorCode.RestVolume => material.RestVolume,
+                    ColorCode.Volume => material.Volume,
+                    ColorCode.Mass => material.Mass,
+                    ColorCode.Pressure => solver.Pressure,
+                    ColorCode.NeighbourCount => neighbourList.NeighboursCount,
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+
+                _maxValue = float.Max(value, _maxValue);
+                _minValue = float.Min(value, _minValue);
+
+                var range = _maxValue - _minValue;
+                var normValue = range > 0f ? (value - _minValue) / range : 0f;
+
+                shaderData.Color = ColorPicker.GetHotColor(normValue);
+            }
+        }
+
+        if (colorCode != ColorCode.Neighbour)
+            return;
+
+        var camera = runtimeContainer.Get<Camera3D>();
+        var ray = MouseHelper.GetMouseRay(camera.Projection, camera.View, graphicsDevice.Viewport);
+        particleRayChecker.CheckAlongRay(ray);
+        if (!particleRayChecker.HitEntity.HasValue)
+            return;
+
+        var selectedEntity = particleRayChecker.HitEntity.Value;
+        ref var selectedNeighbourList = ref _neighboursPool.Get(selectedEntity.Id);
+        foreach (var e in selectedNeighbourList.Neighbours)
         {
             ref var shaderData = ref _shaderDataPool.Get(e.Id);
-            ref var material = ref _materialPool.Get(e.Id);
-            ref var neighbourList = ref _neighboursPool.Get(e.Id);
-
-            if (colorCode == ColorCode.Color)
-                continue;
-
-            ref var solver = ref _solverPool.Get(e.Id);
-
-            var value = colorCode switch
-            {
-                ColorCode.VolumeError => float.Max(1f - (material.RestVolume / material.Volume), 0),
-                ColorCode.RestVolume => material.RestVolume,
-                ColorCode.Volume => material.Volume,
-                ColorCode.Mass => material.Mass,
-                ColorCode.Pressure => solver.Pressure,
-                ColorCode.Neighbours => neighbourList.NeighboursCount,
-                _ => throw new ArgumentOutOfRangeException(),
-            };
-
-            _maxValue = float.Max(value, _maxValue);
-            _minValue = float.Min(value, _minValue);
-
-            var range = _maxValue - _minValue;
-            var normValue = range > 0f ? (value - _minValue) / range : 0f;
-
-            shaderData.Color = ColorPicker.GetHotColor(normValue);
+            shaderData.Color = Color.Red;
         }
     }
 }

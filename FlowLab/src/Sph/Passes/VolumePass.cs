@@ -58,7 +58,7 @@ public static class VolumePass
         neighbours.Clear();
         spatialHash3D.GetInRadius(
             transform.Position,
-            config.SpatialHashQueryRadius,
+            config.SpatialHashQueryRadius * 1.1f,
             neighbours.Neighbours
         );
 
@@ -108,7 +108,7 @@ public static class VolumePass
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
             boundaryKernelSum += neighbourList.CachedKernels[i];
 
-        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? 1f / boundaryKernelSum : 0f);
+        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? .72f / boundaryKernelSum : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -128,5 +128,6 @@ public static class VolumePass
 
         particleProperty.Volume =
             numberDensity > 1e-6f ? particleProperty.RestVolume / numberDensity : 0f;
+        // articleProperty.Volume = float.Min(particleProperty.Volume, particleProperty.RestVolume);
     }
 }

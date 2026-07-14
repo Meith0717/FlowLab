@@ -31,34 +31,24 @@ public static class PressureAccelerationPass
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
-        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var solver = ref context.SolverState.Get(entity.Id);
-        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
+        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+        ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
+        ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
 
         var sum = Vector3.Zero;
-        for (var i = 0; i < neighbours.Neighbours.Count; i++)
+        for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
-            var nEntity = neighbours.Neighbours[i];
-            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            var nEntity = neighbourList.Neighbours[i];
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             var pSum = solver.Pressure + nSolver.Pressure;
-            var kernelDerivative = neighbours.CachedNablaKernels[i];
-
+            var kernelDerivative = neighbourList.CachedNablaKernels[i];
             sum += nParticleProperty.Volume * pSum * kernelDerivative;
         }
 
-        var pressureForce = -(particleProperty.Volume * sum);
-        pressureForce =
-            float.IsFinite(pressureForce.X)
-            && float.IsFinite(pressureForce.Y)
-            && float.IsFinite(pressureForce.Z)
-                ? pressureForce
-                : Vector3.Zero;
-
-        var acceleration = pressureForce / particleProperty.Mass;
-        kinematicState.PressureAcceleration = acceleration;
+        var pressureForce = -particleProperties.Volume * sum;
+        kinematicState.PressureAcceleration = pressureForce / particleProperties.Mass;
 
         if (!context.RigidBodyParticlePool.Has(entity.Id))
             return;

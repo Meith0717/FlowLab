@@ -86,10 +86,12 @@ public class SimulationScene : IDisposable
         _boundingBoxRenderer = new BoundingBoxRenderer(_graphicsDevice, simDomain);
         _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world, SimConfig);
 
-        world.Systems.Add(new DebugSystem());
         world.Systems.Add(new StabilityChecker(SimConfig, SimController));
         world.Systems.Add(new RigidBodySystem(SimConfig, SimController));
         world.Systems.Add(new ParticleTransformSyncSystem());
+        world.Systems.Add(
+            new DebugSystem(graphicsDevice, new ParticleRayChecker(world, spatialHashSystem))
+        );
         world.Systems.Add(
             new SimulationSystem(spatialHashSystem, kernels, SimConfig, SimController, SimTracker)
         );
@@ -106,7 +108,7 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(40f),
+            new Vector3(10, 35, 10),
             Matrix.Identity,
             1,
             1,
