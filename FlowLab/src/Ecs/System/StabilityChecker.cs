@@ -16,7 +16,7 @@ using MonoKit.Input;
 
 namespace FlowLab.Ecs.System;
 
-public class DiagnosticSystem(SimConfig config, SimulationController simController) : ISystem
+public class StabilityChecker(SimConfig config, SimulationController simController) : ISystem
 {
     public int Priority => 4;
     private ComponentPool<DiagnosticComponent> _diagnosticPool;
@@ -39,6 +39,9 @@ public class DiagnosticSystem(SimConfig config, SimulationController simControll
         InputHandler inputHandler
     )
     {
+        if (simController.IsPaused)
+            return;
+
         var entities = world.TypeTracker.GetEntitiesWith<ParticleProperties>();
         var unstableCount = 0;
 
@@ -46,7 +49,6 @@ public class DiagnosticSystem(SimConfig config, SimulationController simControll
         {
             ref var diagnostic = ref _diagnosticPool.Get(entity.Id);
             ref var kinematic = ref _kinematicPool.Get(entity.Id);
-            ref var material = ref _materialPool.Get(entity.Id);
 
             // NaN check
             if (
@@ -73,9 +75,9 @@ public class DiagnosticSystem(SimConfig config, SimulationController simControll
                 continue;
 
             var cflDiff = diagnostic.Cfl - diagnostic.PreviousCfl;
-            diagnostic.IsStable = cflDiff < 2;
+            diagnostic.IsUnstable = diagnostic.IsUnstable || cflDiff >= 2;
 
-            if (!diagnostic.IsStable)
+            if (diagnostic.IsUnstable)
                 unstableCount++;
         }
 

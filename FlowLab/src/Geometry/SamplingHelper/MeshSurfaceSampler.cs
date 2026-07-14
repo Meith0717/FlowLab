@@ -43,7 +43,7 @@ internal static class MeshSurfaceSampler
                         out var surfacePoint
                     )
                 )
-                    surfaceParticles.Add(samplePoint);
+                    surfaceParticles.Add(surfacePoint);
             }
         );
 

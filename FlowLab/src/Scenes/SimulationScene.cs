@@ -82,11 +82,12 @@ public class SimulationScene : IDisposable
         );
 
         var simDomain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
-        world.Systems.Add(new DomainSystem(simDomain));
+        world.Systems.Add(new OutOfBoundsCleanupSystem(simDomain));
         _boundingBoxRenderer = new BoundingBoxRenderer(_graphicsDevice, simDomain);
-        _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world);
+        _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world, SimConfig);
 
-        world.Systems.Add(new DiagnosticSystem(SimConfig, SimController));
+        world.Systems.Add(new DebugSystem());
+        world.Systems.Add(new StabilityChecker(SimConfig, SimController));
         world.Systems.Add(new RigidBodySystem(SimConfig, SimController));
         world.Systems.Add(new ParticleTransformSyncSystem());
         world.Systems.Add(
@@ -100,17 +101,19 @@ public class SimulationScene : IDisposable
     private void Build(World world)
     {
         var rigidBodyFactory = _simRuntime.Services.Get<RigidBodyFactory>();
-        var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cat.obj"));
-        rigidBodyFactory.CreateDynamic(
+        var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
+        rigidBodyFactory.CreateStatic(
             world,
             model,
             Vector3.Zero,
-            new Vector3(.1f),
+            new Vector3(40f),
             Matrix.Identity,
+            1,
+            1,
             1
         );
 
-        AddFluidBlock(9, 9, 24, 1f, new Vector3(0, -17, 0), Color.DodgerBlue, 0);
+        AddFluidBlock(15, 15, 30, 1f, new Vector3(0, -17, 0), Color.DodgerBlue, 0);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // RigidBodyFactory.CreateDynamic(

@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
@@ -13,13 +14,14 @@ using MonoKit.Input;
 
 namespace FlowLab.Ecs.System;
 
-public class DomainSystem(BoundingBox simulationDomain)
+public class OutOfBoundsCleanupSystem(BoundingBox simulationDomain)
     : System<Transform3D, Lifetime>(int.MaxValue)
 {
     private BoundingBox _simulationDomain = simulationDomain;
 
     protected override void OnInitialize(World world) { }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void ProcessEntity(
         Entity entity,
         ref Transform3D transform,

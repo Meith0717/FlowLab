@@ -23,22 +23,22 @@
 #begin Models/Boat.obj
 /copy:Models/Boat.obj
 
-#begin Models/Cube.obj
-/copy:Models/Cube.obj
-
 #begin Models/Cat.obj
 /copy:Models/Cat.obj
 
-#begin Models/Triangle.obj
-/copy:Models/Triangle.obj
+#begin Models/Cube.obj
+/copy:Models/Cube.obj
 
 #begin Models/Sphere.obj
 /copy:Models/Sphere.obj
 
+#begin Models/Triangle.obj
+/copy:Models/Triangle.obj
+
 #begin Shaders/ParticleShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
-/processorParam:DebugMode=Auto
+/processorParam:DebugMode=Optimize
 /build:Shaders/ParticleShader.fx
 
 #begin Textures/add.png

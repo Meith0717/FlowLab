@@ -28,7 +28,7 @@ public class SimulationSystem(
     SimulationTracker simulationTracker
 ) : ISystem
 {
-    public int Priority => 1;
+    public int Priority => 0;
     private readonly SphPassContext _context = new();
     private EntityTypeTracker _entityTypeTracker;
 

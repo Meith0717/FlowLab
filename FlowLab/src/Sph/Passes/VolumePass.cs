@@ -58,7 +58,7 @@ public static class VolumePass
         neighbours.Clear();
         spatialHash3D.GetInRadius(
             transform.Position,
-            config.SpatialHashQueryRadius * 1.1f,
+            config.SpatialHashQueryRadius,
             neighbours.Neighbours
         );
 
@@ -81,7 +81,8 @@ public static class VolumePass
             neighbours.NeighboursCount;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
-            ref var nTransform = ref context.TransformPool.Get(neighbours.Neighbours[i].Id);
+            var nEntity = neighbours.Neighbours[i];
+            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
 
             neighbours.CachedKernels.Add(0);
             neighbours.CachedNablaKernels.Add(default);
@@ -107,7 +108,7 @@ public static class VolumePass
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
             boundaryKernelSum += neighbourList.CachedKernels[i];
 
-        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? .72f / boundaryKernelSum : 0f);
+        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? 1f / boundaryKernelSum : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -117,7 +118,7 @@ public static class VolumePass
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
         var numberDensity = 0f;
-        for (var i = 0; i < neighbourList.Neighbours.Count; i++)
+        for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
             ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(
                 neighbourList.Neighbours[i].Id

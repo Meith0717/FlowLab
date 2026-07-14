@@ -58,24 +58,6 @@ public static class ParticleFactory
         return entity;
     }
 
-    public static Entity CreateMovingFluidParticle(
-        World world,
-        Vector3 position,
-        float size,
-        float restDensity,
-        Color color,
-        float materialId,
-        Vector3 velocity
-    )
-    {
-        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
-        world.Components.Add(entity, new FluidTag());
-        world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
-        world.Components.Add(entity, new KinematicState { Velocity = velocity });
-
-        return entity;
-    }
-
     private static Entity CreateParticle(
         World world,
         Vector3 position,
