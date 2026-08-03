@@ -108,7 +108,7 @@ public static class VolumePass
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
             boundaryKernelSum += neighbourList.CachedKernels[i];
 
-        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? .72f / boundaryKernelSum : 0f);
+        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? .7f / boundaryKernelSum : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

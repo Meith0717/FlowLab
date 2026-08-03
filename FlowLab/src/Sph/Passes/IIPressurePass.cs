@@ -54,10 +54,10 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
-            PressureAccelerationPass.RunForEach(fChunk, context, config);
             PressureExtrapolationPass.RunForEach(bChunk, context, config);
+            PressureAccelerationPass.RunForEach(fChunk, context, config);
 
-            var totalVolumeError = 0d;
+            var totalResidual = 0d;
             fChunk.ParallelForEach(
                 () => 0d,
                 (start, end, residual) =>
@@ -88,12 +88,12 @@ public static class IiPressurePass
                 residual =>
                 {
                     lock (Lock)
-                        totalVolumeError += residual;
+                        totalResidual += residual;
                 }
             );
 
-            var averageError = totalVolumeError / particleCount * 100;
-            if ((averageError < config.MinVolumeError && iteration > 1) || particleCount <= 0)
+            var averageResidual = totalResidual / particleCount * 100;
+            if ((averageResidual < config.MinVolumeError && iteration > 1) || particleCount <= 0)
                 break;
         }
 
