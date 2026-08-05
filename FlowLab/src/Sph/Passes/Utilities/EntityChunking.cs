@@ -38,7 +38,7 @@ public class EntityChunking(Entity[] entities, int size = 512)
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ParallelForEach<TLocal>(
         Func<TLocal> localInit,
         Func<int, int, TLocal, TLocal> chunkAction,

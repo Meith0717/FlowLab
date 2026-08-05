@@ -43,13 +43,13 @@ public static class PressureAccelerationPass
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
             ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             var pSum =
-                solver.Pressure / (particleProperties.Density * particleProperties.Density)
-                + nSolver.Pressure / (nParticleProperties.Density * nParticleProperties.Density);
+                solver.Pressure / float.Pow(particleProperties.Density, 2)
+                + nSolver.Pressure / float.Pow(nParticleProperties.Density, 2);
             var kernelDerivative = neighbourList.CachedNablaKernels[i];
-            pressureAcceleration -= nParticleProperties.Mass * pSum * kernelDerivative;
+            pressureAcceleration += nParticleProperties.Mass * pSum * kernelDerivative;
         }
 
-        kinematicState.PressureAcceleration = pressureAcceleration;
+        kinematicState.PressureAcceleration = -pressureAcceleration;
 
         if (!context.RigidBodyParticlePool.Has(entity.Id))
             return;

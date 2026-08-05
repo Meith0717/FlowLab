@@ -109,14 +109,14 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(5, 50, 5),
+            new Vector3(20, 15, 20),
             Matrix.Identity,
             1,
             1
         );
 
-        //AddFluidBlock(9, 9, 20, .5f, new Vector3(0, 10, 0), Color.Orange);
-        AddFluidBlock(9, 9, 90, 1f, new Vector3(0, 0, 0), Color.DodgerBlue);
+        AddFluidBlock(39, 39, 10, 1f, new Vector3(0, 3, 0), Color.DeepSkyBlue);
+        AddFluidBlock(39, 39, 10, .5f, new Vector3(0, -7, 0), Color.Orange);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // rigidBodyFactory.CreateDynamic(
@@ -137,8 +137,6 @@ public class SimulationScene : IDisposable
     public void Update(double elapsedMilliseconds, InputHandler inputHandler, float uiScale)
     {
         var camera3D = _simRuntime.Services.Get<Camera3D>();
-        var world = _simRuntime.Services.Get<World>();
-
         SimController.Update(elapsedMilliseconds, inputHandler);
 
         camera3D.Update(elapsedMilliseconds, inputHandler);

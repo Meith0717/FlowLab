@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
 using System.Threading;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
@@ -22,11 +23,13 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
     public int Priority => 4;
     private ComponentPool<DiagnosticComponent> _diagnosticPool;
     private ComponentPool<KinematicState> _kinematicPool;
+    private ComponentPool<SolverState> _solverPool;
 
     public void Initialize(World world)
     {
         _diagnosticPool = world.Components.GetOrCreatePool<DiagnosticComponent>();
         _kinematicPool = world.Components.GetOrCreatePool<KinematicState>();
+        _solverPool = world.Components.GetOrCreatePool<SolverState>();
     }
 
     public void Update(
@@ -57,6 +60,12 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
             {
                 simController.Pause();
                 messageDisplayer.AddMessage($"Invalid values were detected (NaN/Infinity).");
+
+                ref var solver = ref _solverPool.Get(entity.Id);
+                Console.WriteLine($"velocity: {kinematic.Velocity}");
+                Console.WriteLine(
+                    $"pressure: {solver.Pressure}, diagonal: {solver.DiagonalElement}, ap: {solver.Laplacian}, si: {solver.SourceTherm}"
+                );
                 return;
             }
 
