@@ -54,7 +54,7 @@ public static class IiPressurePass
             PressureExtrapolationPass.RunForEach(bChunk, context, config);
             PressureAccelerationPass.RunForEach(fChunk, context, config);
 
-            var totalResidual = 0d;
+            var totalDensityError = 0d;
             fChunk.ParallelForEach(
                 () => 0d,
                 (start, end, densityErrorSum) =>
@@ -79,8 +79,7 @@ public static class IiPressurePass
                         solver.Pressure = float.Max(0, solver.Pressure);
 
                         var densityError =
-                            100
-                            * (solver.Laplacian - solver.SourceTherm)
+                            (solver.Laplacian - solver.SourceTherm)
                             / particleProperties.RestDensity;
                         densityErrorSum += double.Max(densityError, 0);
 
@@ -89,15 +88,15 @@ public static class IiPressurePass
                     }
                     return densityErrorSum;
                 },
-                residual =>
+                densityErrorSum =>
                 {
                     lock (Lock)
-                        totalResidual += residual;
+                        totalDensityError += densityErrorSum;
                 }
             );
 
-            var averageResidual = totalResidual / particleCount * 100;
-            if ((averageResidual < config.MinVolumeError && iteration > 1) || particleCount <= 0)
+            var avgDensityError = totalDensityError / particleCount;
+            if ((avgDensityError < config.MinVolumeError && iteration > 1) || particleCount <= 0)
                 break;
         }
 
