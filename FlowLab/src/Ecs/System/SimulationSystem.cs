@@ -25,7 +25,7 @@ public class SimulationSystem(
     Kernels kernels,
     SimConfig config,
     SimulationController controller,
-    SimulationTracker simulationTracker
+    Watcher watcher
 ) : ISystem
 {
     public int Priority => 0;
@@ -70,6 +70,6 @@ public class SimulationSystem(
 
         PositionUpdatePass.RunForEach(fChunk, _context, config);
 
-        simulationTracker.Step();
+        watcher.Step();
     }
 }

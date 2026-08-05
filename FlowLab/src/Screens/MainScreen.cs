@@ -26,12 +26,12 @@ public class MainScreen : Screen
     {
         _messageDisplayer = new MessageDisplayer(GraphicsDevice, 5000);
         _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer);
-        new TopBarWidget(appServices, _simScene.SimConfig, _simScene.SimTracker).Build(UiRoot);
+        new TopBarWidget(appServices, _simScene.SimConfig, _simScene.Watcher).Build(UiRoot);
         _monitoringWidget = new MonitoringWidget(
             appServices,
             ScreenManager,
             _simScene.SimConfig,
-            _simScene.LiveData,
+            _simScene.Watcher,
             _simScene.SensorManager
         ).Build(UiRoot);
         _settingsWidget = new SettingsWidget(_simScene.SimConfig).Build(UiRoot);

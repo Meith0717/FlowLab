@@ -13,11 +13,7 @@ using MonoKit.Ui;
 
 namespace FlowLab.Screens.Ui;
 
-public class TopBarWidget(
-    GameServiceContainer serviceContainer,
-    SimConfig config,
-    SimulationTracker simulationTracker
-)
+public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig config, Watcher watcher)
 {
     private UiFrame _topBar;
 
@@ -86,7 +82,7 @@ public class TopBarWidget(
                 RelX = .51f,
                 Scale = 0.15f,
                 Color = Color.LightGray,
-                TextProvider = () => $"Time {FormatTime(simulationTracker.RealTimeSeconds)}",
+                TextProvider = () => $"Time {FormatTime(watcher.RealTimeSeconds)}",
             }
         );
 
@@ -97,8 +93,7 @@ public class TopBarWidget(
                 RelX = .7f,
                 Scale = 0.15f,
                 Color = Color.LightGray,
-                TextProvider = () =>
-                    $"Simulation Time {FormatTime(simulationTracker.SimulationTime)}",
+                TextProvider = () => $"Simulation Time {FormatTime(watcher.SimulationTime)}",
             }
         );
 

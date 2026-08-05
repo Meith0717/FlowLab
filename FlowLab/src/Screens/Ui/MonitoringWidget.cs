@@ -20,7 +20,7 @@ public class MonitoringWidget(
     GameServiceContainer services,
     ScreenManager screenManager,
     SimConfig config,
-    LiveData liveData,
+    Watcher watcher,
     SensorPlaneManager sensorPlaneManager
 )
 {
@@ -84,7 +84,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"Entities: #{liveData.EntityCount}",
+                TextProvider = () => $"Entities: #{watcher.EntityCount}",
                 Align = Align.Left,
                 HSpace = 10,
                 Y = 70,
@@ -142,7 +142,7 @@ public class MonitoringWidget(
                 Y = y + 30,
                 Scale = 0.15f,
                 Color = Color.White,
-                TextProvider = () => $"{float.Round(liveData.Cfl, 2)}",
+                TextProvider = () => $"{float.Round(watcher.Cfl, 2)}",
             }
         );
 
@@ -181,7 +181,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{float.Round(liveData.MaxVelocity, 2)} m/s",
+                TextProvider = () => $"{float.Round(watcher.MaxVelocity, 2)} m/s",
                 Align = Align.Right,
                 HSpace = 10,
                 Y = y + 90,
@@ -203,7 +203,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{float.Round(liveData.AvgVelocity, 2)} m/s",
+                TextProvider = () => $"{float.Round(watcher.AvgVelocity, 2)} m/s",
                 Align = Align.Right,
                 HSpace = 10,
                 Y = y + 120,
@@ -239,7 +239,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{liveData.IterationCount} / {config.MaxIterations}",
+                TextProvider = () => $"{watcher.IterationCount} / {config.MaxIterations}",
                 Align = Align.Right,
                 HSpace = 10,
                 Y = y + 30,
@@ -313,7 +313,7 @@ public class MonitoringWidget(
                 Y = y + 30,
                 Scale = 0.16f,
                 Color = Color.White,
-                TextProvider = () => $"{liveData.FluidMass} kg",
+                TextProvider = () => $"{watcher.FluidMass} kg",
             }
         );
 
@@ -330,55 +330,10 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{liveData.FluidInitVolume} m\u00B3",
+                TextProvider = () => $"{watcher.FluidInitVolume} m\u00B3",
                 Align = Align.Right,
                 HSpace = 10,
                 Y = y + 60,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText("defaultFont", "Volume")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 90,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText("defaultFont")
-            {
-                TextProvider = () => $"{float.Round(liveData.FluidVolume)} m\u00B3",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 90,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText("defaultFont", "Abs. Error")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 150,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText("defaultFont")
-            {
-                TextProvider = () => $"{float.Round(liveData.AbsError * 100, 2)} %",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 150,
                 Scale = 0.16f,
                 Color = Color.LightGray,
             }
@@ -397,7 +352,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText("defaultFont")
             {
-                TextProvider = () => $"{float.Round(liveData.CompressionError * 100, 2)} %",
+                TextProvider = () => $"{float.Round(watcher.CompressionError * 100, 2)} %",
                 Align = Align.Right,
                 HSpace = 150,
                 Y = y + 180,
@@ -544,17 +499,17 @@ public class MonitoringWidget(
 
     public void Update()
     {
-        var cfl = float.Clamp(liveData.Cfl, 0, 1);
+        var cfl = float.Clamp(watcher.Cfl, 0, 1);
         var cflColor = CflColor(cfl);
         _cflBar.Value = cfl * 2;
         _cflBar.Color = cflColor;
 
-        var error = float.Clamp(float.RootN(liveData.CompressionError, 3), 0, 1);
-        var errorColor = ErrorColor(liveData.CompressionError);
+        var error = float.Clamp(float.RootN(watcher.CompressionError, 3), 0, 1);
+        var errorColor = ErrorColor(watcher.CompressionError);
         _errorBar.Value = error;
         _errorBar.Color = errorColor;
 
-        var normalizedIterations = (float)liveData.IterationCount / config.MaxIterations;
+        var normalizedIterations = (float)watcher.IterationCount / config.MaxIterations;
         var iterationColor = IterationsColor(normalizedIterations);
         _iterationsBar.Value = normalizedIterations;
         _iterationsBar.Color = iterationColor;

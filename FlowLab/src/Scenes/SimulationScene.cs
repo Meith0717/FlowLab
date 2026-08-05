@@ -34,10 +34,9 @@ public class SimulationScene : IDisposable
     private readonly GameRuntime3D _simRuntime;
 
     // Other Stuff
-    public readonly LiveData LiveData;
+    public readonly Watcher Watcher;
     public readonly SensorPlaneManager SensorManager;
     public readonly SimulationController SimController;
-    public readonly SimulationTracker SimTracker;
 
     // Render Stuff
     private readonly FluidRenderer _fluidRenderer;
@@ -62,7 +61,6 @@ public class SimulationScene : IDisposable
 
         var world = _simRuntime.Services.Get<World>();
         SimController = new SimulationController(world, messageDisplayer);
-        SimTracker = new SimulationTracker(SimConfig);
         _axisRenderer = new AxisRenderer(_graphicsDevice);
 
         _simRuntime.Services.AddService(new RigidBodyFactory(SimConfig));
@@ -75,7 +73,7 @@ public class SimulationScene : IDisposable
             SimConfig.SpatialHashQueryRadius
         );
         _rigidBodyRenderer = new RigidBodyRenderer(world, _graphicsDevice);
-        LiveData = new LiveData(world, SimConfig);
+        Watcher = new Watcher(world, SimConfig);
         SensorManager = new SensorPlaneManager(
             _graphicsDevice,
             world,
@@ -96,7 +94,7 @@ public class SimulationScene : IDisposable
             new DebugSystem(graphicsDevice, new ParticleRayChecker(world, spatialHashSystem))
         );
         world.Systems.Add(
-            new SimulationSystem(spatialHashSystem, kernels, SimConfig, SimController, SimTracker)
+            new SimulationSystem(spatialHashSystem, kernels, SimConfig, SimController, Watcher)
         );
 
         // Test
@@ -111,14 +109,14 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(15, 50, 15),
+            new Vector3(5, 50, 5),
             Matrix.Identity,
             1,
             1
         );
 
         //AddFluidBlock(9, 9, 20, .5f, new Vector3(0, 10, 0), Color.Orange);
-        AddFluidBlock(20, 20, 90, 1f, new Vector3(0, 0, 0), Color.DodgerBlue);
+        AddFluidBlock(9, 9, 90, 1f, new Vector3(0, 0, 0), Color.DodgerBlue);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // rigidBodyFactory.CreateDynamic(
@@ -146,10 +144,10 @@ public class SimulationScene : IDisposable
         camera3D.Update(elapsedMilliseconds, inputHandler);
         _simRuntime.Update(elapsedMilliseconds, inputHandler);
 
+        Watcher.Monitor(elapsedMilliseconds);
         if (!SimController.IsPaused)
-            SimTracker.UpdateRealTime(elapsedMilliseconds);
+            Watcher.UpdateRealTime(elapsedMilliseconds);
 
-        LiveData.Collect(elapsedMilliseconds);
         SensorManager.Update(elapsedMilliseconds);
         _fluidRenderer.Update(SimController.HideBoundary);
         _fluidRenderer.ShowSpatialGrids = SimController.ShowSpatialGrids;
