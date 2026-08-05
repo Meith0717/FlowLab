@@ -8,6 +8,7 @@ using FlowLab.Scenes;
 using FlowLab.Screens.Ui;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoKit.Content;
 using MonoKit.Input;
 using MonoKit.Screens;
 
@@ -18,11 +19,13 @@ public class MainScreen : Screen
     private readonly SimulationScene _simScene;
     private readonly MonitoringWidget _monitoringWidget;
     private readonly SettingsWidget _settingsWidget;
+    private readonly MessageDisplayer _messageDisplayer;
 
     public MainScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
-        _simScene = new SimulationScene(GraphicsDevice);
+        _messageDisplayer = new MessageDisplayer(GraphicsDevice, 2000);
+        _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer);
         new TopBarWidget(appServices, _simScene.SimConfig, _simScene.SimTracker).Build(UiRoot);
         _monitoringWidget = new MonitoringWidget(
             appServices,
@@ -38,6 +41,7 @@ public class MainScreen : Screen
     {
         _simScene.LoadContent();
         base.Initialize();
+        _messageDisplayer.LoadContent(ContentProvider.Get<SpriteFont>("defaultFont"));
     }
 
     public override void Update(
@@ -49,6 +53,7 @@ public class MainScreen : Screen
         _simScene.Update(elapsedMilliseconds, inputHandler, uiScale);
         _monitoringWidget.Update();
         _settingsWidget.Update(inputHandler);
+        _messageDisplayer.Update(elapsedMilliseconds, uiScale);
         base.Update(elapsedMilliseconds, inputHandler, uiScale);
     }
 
@@ -56,6 +61,7 @@ public class MainScreen : Screen
     {
         _simScene.Draw(spriteBatch);
         base.Draw(spriteBatch);
+        _messageDisplayer.Draw(spriteBatch);
     }
 
     public override void Dispose()

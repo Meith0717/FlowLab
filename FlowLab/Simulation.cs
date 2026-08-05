@@ -45,10 +45,11 @@ public class Simulation : Game
             { (Keys.Delete, InputEventType.Released), (byte)ActionType.ClearFluid },
             { (Keys.P, InputEventType.Released), (byte)ActionType.ToggleSensorPlane },
             { (Keys.O, InputEventType.Released), (byte)ActionType.CycleSensorProperty },
+            { (Keys.F1, InputEventType.Released), (byte)ActionType.CycleColorsCodes },
+            { (Keys.F2, InputEventType.Released), (byte)ActionType.CycleColorsSchemes },
+            { (Keys.F3, InputEventType.Released), (byte)ActionType.ResetMinMax },
             { (Keys.F11, InputEventType.Released), (byte)ActionType.ToggleDebug },
             { (Keys.F12, InputEventType.Released), (byte)ActionType.ToggleSpatialGrids },
-            { (Keys.F1, InputEventType.Released), (byte)ActionType.CycleColors },
-            { (Keys.F2, InputEventType.Released), (byte)ActionType.ResetMinMax },
         };
         var mouseBindings = new Dictionary<(MouseButton, InputEventType), byte>()
         {

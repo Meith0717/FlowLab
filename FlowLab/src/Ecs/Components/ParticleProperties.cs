@@ -11,22 +11,17 @@ namespace FlowLab.Ecs.Components;
 public struct ParticleProperties
 {
     private readonly float _restDensity;
-    public readonly float ColorId;
-    public readonly Color Color;
+    public readonly Color ParticleColor;
 
     public float Size { get; private set; }
     public float RestVolume { get; private set; }
     public float Mass { get; private set; }
     public float Volume { get; set; }
 
-    public ParticleProperties(Color color, float colorId, float volume, float restDensity)
+    public ParticleProperties(Color particleColor, float volume, float restDensity)
     {
-        if (colorId is < 0 or > 1)
-            throw new ArgumentException("Id needs to be normalized");
-
         _restDensity = restDensity;
-        ColorId = colorId;
-        Color = color;
+        ParticleColor = particleColor;
         SetRestVolume(volume);
     }
 

@@ -19,12 +19,11 @@ public static class ParticleFactory
         Vector3 position,
         Vector3 relativePosition,
         float size,
-        float restDensity,
-        float materialId
+        float restDensity
     )
     {
         var color = new Color(25, 25, 25);
-        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
+        var entity = CreateParticle(world, position, color, size, restDensity);
         world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new RigidBodyParticle(relativePosition));
         return entity;
@@ -34,12 +33,11 @@ public static class ParticleFactory
         World world,
         Vector3 position,
         float size,
-        float restDensity,
-        float materialId
+        float restDensity
     )
     {
         var color = new Color(25, 25, 25);
-        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
+        var entity = CreateParticle(world, position, color, size, restDensity);
         world.Components.Add(entity, new BoundaryTag());
         return entity;
     }
@@ -49,11 +47,10 @@ public static class ParticleFactory
         Vector3 position,
         float size,
         float restDensity,
-        Color color,
-        float materialId
+        Color color
     )
     {
-        var entity = CreateParticle(world, position, color, size, restDensity, materialId);
+        var entity = CreateParticle(world, position, color, size, restDensity);
         world.Components.Add(entity, new FluidTag());
         return entity;
     }
@@ -63,12 +60,11 @@ public static class ParticleFactory
         Vector3 position,
         Color color,
         float size,
-        float restDensity,
-        float materialId
+        float restDensity
     )
     {
         var volume = size * size * size;
-        var fluidComponent = new ParticleProperties(color, materialId, volume, restDensity);
+        var fluidComponent = new ParticleProperties(color, volume, restDensity);
         var transform = new Transform3D { Position = position };
         var kinematics = new KinematicState();
         var shaderData = new ParticleShaderData { Size = size };

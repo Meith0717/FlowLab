@@ -3,12 +3,25 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
 using Microsoft.Xna.Framework;
 
 namespace FlowLab.Monitoring.SensorPlanes;
 
 public static class ColorPicker
 {
+    public static Color GetColor(float value, ColorScheme colorScheme)
+    {
+        return colorScheme switch
+        {
+            ColorScheme.Jet => ColorPicker.GetJetColor(value),
+            ColorScheme.Grayscale => ColorPicker.GetGrayscaleColor(value),
+            ColorScheme.Hot => ColorPicker.GetHotColor(value),
+            ColorScheme.Viridis => ColorPicker.GetViridisColor(value),
+            _ => throw new ArgumentOutOfRangeException(nameof(colorScheme), colorScheme, null),
+        };
+    }
+
     public static Color GetJetColor(float value)
     {
         if (value == 0)

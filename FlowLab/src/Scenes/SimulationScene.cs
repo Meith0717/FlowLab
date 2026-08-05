@@ -12,9 +12,11 @@ using FlowLab.Input;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
 using FlowLab.Rigid_Bodies;
+using FlowLab.Screens.Ui;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoKit.Content;
 using MonoKit.Ecs;
 using MonoKit.Gameplay;
 using MonoKit.Graphics.Camera;
@@ -44,7 +46,7 @@ public class SimulationScene : IDisposable
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
     private readonly InstabilityRenderer _instabilityRenderer;
 
-    public SimulationScene(GraphicsDevice graphicsDevice)
+    public SimulationScene(GraphicsDevice graphicsDevice, MessageDisplayer messageDisplayer)
     {
         _graphicsDevice = graphicsDevice;
 
@@ -64,6 +66,7 @@ public class SimulationScene : IDisposable
         _axisRenderer = new AxisRenderer(_graphicsDevice);
 
         _simRuntime.Services.AddService(new RigidBodyFactory(SimConfig));
+        _simRuntime.Services.AddService(messageDisplayer);
 
         _fluidRenderer = new FluidRenderer(
             _graphicsDevice,
@@ -108,24 +111,24 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(10, 35, 10),
+            new Vector3(5, 50, 5),
             Matrix.Identity,
-            1,
             1,
             1
         );
 
-        AddFluidBlock(17, 17, 30, 1f, new Vector3(0, -17, 0), Color.DodgerBlue, 0);
+        //AddFluidBlock(19, 39, 15, .5f, new Vector3(0, -11, 0), Color.Orange, 0);
+        AddFluidBlock(9, 9, 90, 1f, new Vector3(0, -0, 0), Color.DodgerBlue);
 
-        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        rigidBodyFactory.CreateDynamic(
-            world,
-            model,
-            new Vector3(0, 10, 0),
-            new Vector3(5),
-            Matrix.Identity,
-            1
-        );
+        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        // rigidBodyFactory.CreateDynamic(
+        //     world,
+        //     model,
+        //     new Vector3(0, 10, 0),
+        //     new Vector3(5),
+        //     Matrix.Identity,
+        //     1
+        // );
     }
 
     public void LoadContent()
@@ -170,8 +173,7 @@ public class SimulationScene : IDisposable
         float height,
         float restDensity,
         Vector3 position,
-        Color color,
-        float materialId
+        Color color
     )
     {
         var world = _simRuntime.Services.Get<World>();
@@ -195,8 +197,7 @@ public class SimulationScene : IDisposable
                 position + new Vector3(x, y, z),
                 particleSize,
                 restDensity,
-                color,
-                materialId
+                color
             );
     }
 

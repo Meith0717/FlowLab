@@ -13,7 +13,8 @@ namespace FlowLab.Input
         SpawnBlock,
         ToggleSensorPlane,
         CycleSensorProperty,
-        CycleColors,
+        CycleColorsCodes,
+        CycleColorsSchemes,
         ResetMinMax,
 
         // Controller

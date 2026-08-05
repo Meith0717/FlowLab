@@ -7,6 +7,7 @@ using System;
 using FlowLab.Ecs.Components;
 using FlowLab.Input;
 using FlowLab.Monitoring.SensorPlanes;
+using FlowLab.Screens.Ui;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,6 +29,7 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
     private ComponentPool<SolverState> _solverPool;
     private ComponentPool<ParticleProperties> _materialPool;
     private ComponentPool<NeighbourList> _neighboursPool;
+    private ComponentPool<DiagnosticComponent> _diagnosticPool;
     private EntityTypeTracker _tracker;
 
     // Track both bounds for historical range normalization
@@ -36,7 +38,9 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
 
     private enum ColorCode
     {
-        Color,
+        ParticleColor,
+        Velocity,
+        DiagonalElement,
         RestVolume,
         Volume,
         VolumeError,
@@ -46,18 +50,10 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
         Neighbour,
     }
 
-    private int _index;
-    private readonly ColorCode[] _colorCodes =
-    [
-        ColorCode.Color,
-        ColorCode.RestVolume,
-        ColorCode.Volume,
-        ColorCode.VolumeError,
-        ColorCode.Mass,
-        ColorCode.Pressure,
-        ColorCode.NeighbourCount,
-        ColorCode.Neighbour,
-    ];
+    private int _colorCodeIndex;
+    private int _colorShemeIndex;
+    private readonly ColorCode[] _colorCodes = [.. Enum.GetValues<ColorCode>()];
+    private readonly ColorScheme[] _colorSchemes = [.. Enum.GetValues<ColorScheme>()];
 
     public void Initialize(World world)
     {
@@ -67,6 +63,7 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
         _solverPool = world.Components.GetOrCreatePool<SolverState>();
         _materialPool = world.Components.GetOrCreatePool<ParticleProperties>();
         _neighboursPool = world.Components.GetOrCreatePool<NeighbourList>();
+        _diagnosticPool = world.Components.GetOrCreatePool<DiagnosticComponent>();
     }
 
     private void Reset()
@@ -82,26 +79,37 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
         InputHandler inputHandler
     )
     {
+        var messageDisplayer = runtimeContainer.Get<MessageDisplayer>();
         var entities = _tracker.GetEntitiesWith<ParticleProperties>();
 
-        if (inputHandler.HasAction((byte)ActionType.CycleColors))
+        if (inputHandler.HasAction((byte)ActionType.CycleColorsCodes))
         {
-            _index++;
+            _colorCodeIndex++;
+            _colorCodeIndex %= _colorCodes.Length;
+            messageDisplayer.AddMessage($"Debug color code set to {_colorCodes[_colorCodeIndex]}");
             Reset();
+        }
+        if (inputHandler.HasAction((byte)ActionType.CycleColorsSchemes))
+        {
+            _colorShemeIndex++;
+            _colorShemeIndex %= _colorSchemes.Length;
+            messageDisplayer.AddMessage(
+                $"Debug color scheme set to {_colorSchemes[_colorShemeIndex]}"
+            );
         }
         if (inputHandler.HasAction((byte)ActionType.ResetMinMax))
             Reset();
 
-        _index %= _colorCodes.Length;
-        var colorCode = _colorCodes[_index];
+        var colorCode = _colorCodes[_colorCodeIndex];
 
-        if (colorCode is not ColorCode.Color and not ColorCode.Neighbour)
+        if (colorCode is not ColorCode.ParticleColor and not ColorCode.Neighbour)
         {
             foreach (var e in entities)
             {
                 ref var shaderData = ref _shaderDataPool.Get(e.Id);
                 ref var material = ref _materialPool.Get(e.Id);
                 ref var neighbourList = ref _neighboursPool.Get(e.Id);
+                ref var kinematicState = ref _diagnosticPool.Get(e.Id);
 
                 ref var solver = ref _solverPool.Get(e.Id);
 
@@ -111,6 +119,8 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
                         1f - (material.RestVolume / material.Volume),
                         0
                     ),
+                    ColorCode.Velocity => kinematicState.Cfl,
+                    ColorCode.DiagonalElement => solver.DiagonalElement,
                     ColorCode.RestVolume => material.RestVolume,
                     ColorCode.Volume => material.Volume,
                     ColorCode.Mass => material.Mass,
@@ -121,11 +131,16 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
 
                 _maxValue = float.Max(value, _maxValue);
                 _minValue = float.Min(value, _minValue);
+                if (colorCode == ColorCode.Velocity)
+                {
+                    _maxValue = 1;
+                    _minValue = 0;
+                }
 
                 var range = _maxValue - _minValue;
                 var normValue = range > 0f ? (value - _minValue) / range : 0f;
 
-                shaderData.Color = ColorPicker.GetHotColor(normValue);
+                shaderData.Color = ColorPicker.GetColor(normValue, _colorSchemes[_colorShemeIndex]);
             }
         }
 

@@ -43,7 +43,6 @@ public class RigidBodyFactory(SimConfig config)
                     surfacePoint,
                     relativePos,
                     particleSize,
-                    1,
                     1
                 )
             );
@@ -71,8 +70,7 @@ public class RigidBodyFactory(SimConfig config)
         Vector3 scale,
         Matrix orientation,
         float particleSize,
-        float restDensity,
-        float materialId
+        float restDensity
     )
     {
         var matrix = Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position);
@@ -81,12 +79,6 @@ public class RigidBodyFactory(SimConfig config)
 
         var hashSet = sampleSurface.ToHashSet();
         foreach (var surfacePoint in hashSet)
-            ParticleFactory.CreateBoundaryParticle(
-                world,
-                surfacePoint,
-                particleSize,
-                restDensity,
-                materialId
-            );
+            ParticleFactory.CreateBoundaryParticle(world, surfacePoint, particleSize, restDensity);
     }
 }

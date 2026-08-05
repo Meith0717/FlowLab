@@ -40,13 +40,10 @@ public static class IiPressurePass
                     ISphUtil.ComputeSourceTerm(entity, context, config);
                     ISphUtil.ComputeDiagonalElement(entity, context, config);
 
-                    if (float.Abs(solver.DiagonalElement) > 1e-6f)
-                        solver.Pressure = float.Max(
-                            SimConfig.Relaxation / solver.DiagonalElement * solver.SourceTherm,
-                            0
-                        );
-                    else
-                        solver.Pressure = 0;
+                    solver.Pressure = float.Max(
+                        SimConfig.Relaxation / solver.DiagonalElement * solver.SourceTherm,
+                        0
+                    );
                 }
             }
         );
@@ -54,7 +51,6 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
-            PressureExtrapolationPass.RunForEach(bChunk, context, config);
             PressureAccelerationPass.RunForEach(fChunk, context, config);
 
             var totalResidual = 0d;
