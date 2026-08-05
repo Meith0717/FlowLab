@@ -107,21 +107,20 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
             foreach (var e in entities)
             {
                 ref var shaderData = ref _shaderDataPool.Get(e.Id);
-                ref var material = ref _materialPool.Get(e.Id);
+                ref var particleProperties = ref _materialPool.Get(e.Id);
                 ref var neighbourList = ref _neighboursPool.Get(e.Id);
-                ref var kinematicState = ref _diagnosticPool.Get(e.Id);
-                ref var diagnostic = ref _diagnosticPool.Get(e.Id);
+                ref var diagnosticComponent = ref _diagnosticPool.Get(e.Id);
 
                 ref var solver = ref _solverPool.Get(e.Id);
 
                 var value = colorCode switch
                 {
-                    ColorCode.DensityError => diagnostic.DensityError,
-                    ColorCode.Velocity => kinematicState.Cfl,
+                    ColorCode.DensityError => particleProperties.DensityError,
+                    ColorCode.Velocity => diagnosticComponent.Cfl,
                     ColorCode.DiagonalElement => solver.DiagonalElement,
-                    ColorCode.RestDensity => material.RestDensity,
-                    ColorCode.Density => material.Density,
-                    ColorCode.Mass => material.Mass,
+                    ColorCode.RestDensity => particleProperties.RestDensity,
+                    ColorCode.Density => particleProperties.Density,
+                    ColorCode.Mass => particleProperties.Mass,
                     ColorCode.Pressure => solver.Pressure,
                     ColorCode.NeighbourCount => neighbourList.NeighboursCount,
                     _ => throw new ArgumentOutOfRangeException(),

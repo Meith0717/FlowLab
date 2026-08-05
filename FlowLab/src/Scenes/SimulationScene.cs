@@ -117,8 +117,8 @@ public class SimulationScene : IDisposable
             1
         );
 
-        //AddFluidBlock(19, 39, 15, .5f, new Vector3(0, -11, 0), Color.Orange, 0);
-        AddFluidBlock(9, 9, 40, 1f, new Vector3(0, -0, 0), Color.DodgerBlue);
+        //AddFluidBlock(9, 9, 20, .5f, new Vector3(0, 10, 0), Color.Orange);
+        AddFluidBlock(9, 9, 45, 1f, new Vector3(0, 0, 0), Color.DodgerBlue);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // rigidBodyFactory.CreateDynamic(

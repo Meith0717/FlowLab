@@ -20,16 +20,12 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
 {
     public int Priority => 4;
     private ComponentPool<DiagnosticComponent> _diagnosticPool;
-    private ComponentPool<SolverState> _solverPool;
     private ComponentPool<KinematicState> _kinematicPool;
-    private ComponentPool<ParticleProperties> _particlePropertiesPool;
 
     public void Initialize(World world)
     {
         _diagnosticPool = world.Components.GetOrCreatePool<DiagnosticComponent>();
         _kinematicPool = world.Components.GetOrCreatePool<KinematicState>();
-        _solverPool = world.Components.GetOrCreatePool<SolverState>();
-        _particlePropertiesPool = world.Components.GetOrCreatePool<ParticleProperties>();
     }
 
     public void Update(
@@ -49,11 +45,6 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
         {
             ref var diagnostic = ref _diagnosticPool.Get(entity.Id);
             ref var kinematic = ref _kinematicPool.Get(entity.Id);
-            ref var particleProperties = ref _particlePropertiesPool.Get(entity.Id);
-
-            diagnostic.DensityError =
-                (particleProperties.Density - particleProperties.RestDensity)
-                / particleProperties.RestDensity;
 
             // NaN check
             if (
