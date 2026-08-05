@@ -38,7 +38,7 @@ public class SimulationSystem(
         _context.Initialize(world.Components);
         var allSet = _entityTypeTracker.GetEntitiesWith<ParticleProperties>().ToArray();
         var allChunking = new EntityChunking(allSet);
-        VolumePass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
+        DensityPass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
     }
 
     public void Update(
@@ -60,13 +60,13 @@ public class SimulationSystem(
         var bSet = _entityTypeTracker.GetEntitiesWith<BoundaryTag>().ToArray();
         var bChunk = new EntityChunking(bSet);
 
-        VolumePass.RunForEach(allChunk, spatialHash3D, _context, kernels, config);
+        DensityPass.RunForEach(allChunk, spatialHash3D, _context, kernels, config);
         NonPressureAccelerationPass.RunForEach(fChunk, _context, config);
 
-        IiPressurePass.RunForEach(fChunk, bChunk, _context, config);
+        WcPressurePass.RunForEach(fChunk, _context, config);
 
         PressureExtrapolationPass.RunForEach(bChunk, _context, config);
-        PressureAccelerationPass.RunForEach(allChunk, _context, config);
+        PressureAccelerationPass.RunForEach(fChunk, _context, config);
 
         PositionUpdatePass.RunForEach(fChunk, _context, config);
 

@@ -45,8 +45,8 @@ public class LiveData(World world, Config.SimConfig simConfig)
         {
             ref var fluid = ref _fluidPool.Get(entity.Id);
             FluidMass += fluid.Mass;
-            FluidInitVolume += fluid.RestVolume;
-            FluidVolume += fluid.Volume;
+            FluidInitVolume += fluid.RestDensity;
+            FluidVolume += fluid.Density;
         }
 
         EntityCount = _fluidPool.Count;
@@ -54,7 +54,7 @@ public class LiveData(World world, Config.SimConfig simConfig)
         foreach (var entity in fluidEntityCollection)
         {
             ref var fluid = ref _fluidPool.Get(entity.Id);
-            var error = (fluid.RestVolume - fluid.Volume) / fluid.RestVolume;
+            var error = (fluid.RestDensity - fluid.Density) / fluid.RestDensity;
             CompressionError += float.Max(error, 0);
             AbsError += float.Abs(error);
         }

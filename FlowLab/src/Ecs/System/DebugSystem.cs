@@ -41,9 +41,9 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
         ParticleColor,
         Velocity,
         DiagonalElement,
-        RestVolume,
-        Volume,
-        VolumeError,
+        RestDensity,
+        Density,
+        DensityError,
         Mass,
         Pressure,
         NeighbourCount,
@@ -110,19 +110,17 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
                 ref var material = ref _materialPool.Get(e.Id);
                 ref var neighbourList = ref _neighboursPool.Get(e.Id);
                 ref var kinematicState = ref _diagnosticPool.Get(e.Id);
+                ref var diagnostic = ref _diagnosticPool.Get(e.Id);
 
                 ref var solver = ref _solverPool.Get(e.Id);
 
                 var value = colorCode switch
                 {
-                    ColorCode.VolumeError => float.Max(
-                        1f - (material.RestVolume / material.Volume),
-                        0
-                    ),
+                    ColorCode.DensityError => diagnostic.DensityError,
                     ColorCode.Velocity => kinematicState.Cfl,
                     ColorCode.DiagonalElement => solver.DiagonalElement,
-                    ColorCode.RestVolume => material.RestVolume,
-                    ColorCode.Volume => material.Volume,
+                    ColorCode.RestDensity => material.RestDensity,
+                    ColorCode.Density => material.Density,
                     ColorCode.Mass => material.Mass,
                     ColorCode.Pressure => solver.Pressure,
                     ColorCode.NeighbourCount => neighbourList.NeighboursCount,

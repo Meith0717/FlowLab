@@ -117,19 +117,19 @@ file static class ISphUtil
             var nEntity = neighbours.Neighbours[i];
             ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             var nablaKernel = neighbours.CachedNablaKernels[i];
-            diiSum += nParticleProperty.Volume * nablaKernel;
+            diiSum += nParticleProperty.Density * nablaKernel;
             if (context.BoundaryPool.Has(nEntity.Id))
                 continue;
             dij +=
-                nParticleProperty.Volume
-                * (nParticleProperty.Volume / nParticleProperty.Mass)
+                nParticleProperty.Density
+                * (nParticleProperty.Density / nParticleProperty.Mass)
                 * Vector3.Dot(nablaKernel, nablaKernel);
         }
 
         var dii = Vector3.Dot(diiSum, diiSum);
         solver.DiagonalElement =
-            -simConfig.TimeStepSquared * (particleProperty.Volume / particleProperty.Mass) * dii
-            - simConfig.TimeStepSquared * particleProperty.Volume * dij;
+            -simConfig.TimeStepSquared * (particleProperty.Density / particleProperty.Mass) * dii
+            - simConfig.TimeStepSquared * particleProperty.Density * dij;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -149,12 +149,13 @@ file static class ISphUtil
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
 
             var velDif = movement.IntermediateVelocity - nMovement.IntermediateVelocity;
-            sum += nParticleProperty.Volume * Vector3.Dot(velDif, neighbours.CachedNablaKernels[i]);
+            sum +=
+                nParticleProperty.Density * Vector3.Dot(velDif, neighbours.CachedNablaKernels[i]);
         }
 
         var predVolume = config.TimeStep * sum;
         solver.SourceTherm =
-            1f - (particleProperty.RestVolume / particleProperty.Volume) - predVolume;
+            1f - (particleProperty.RestDensity / particleProperty.Density) - predVolume;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -170,7 +171,8 @@ file static class ISphUtil
             ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;
-            sum += nParticleProperty.Volume * Vector3.Dot(accDif, neighbours.CachedNablaKernels[i]);
+            sum +=
+                nParticleProperty.Density * Vector3.Dot(accDif, neighbours.CachedNablaKernels[i]);
         }
         solver.Laplacian = config.TimeStepSquared * sum;
     }

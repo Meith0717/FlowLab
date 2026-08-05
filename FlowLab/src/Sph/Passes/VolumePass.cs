@@ -11,7 +11,7 @@ using MonoKit.Spatial;
 
 namespace FlowLab.Sph.Passes;
 
-public static class VolumePass
+public static class DensityPass
 {
     public static void RunForEach(
         EntityChunking chunking,
@@ -30,7 +30,7 @@ public static class VolumePass
                     var entity = entities[i];
                     GetNeighboursAndKernels(entity, spatialHash3D, context, kernels, config);
                     if (context.BoundaryPool.Has(entity.Id))
-                        ComputeBoundaryRestVolume(entity, context);
+                        ComputeBoundaryVolume(entity, context);
                 }
             }
         );
@@ -39,7 +39,11 @@ public static class VolumePass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                    ComputeVolume(entities[i], context);
+                {
+                    var entity = entities[i];
+                    if (!context.BoundaryPool.Has(entity.Id))
+                        ComputeVolume(entities[i], context);
+                }
             }
         );
     }
@@ -99,35 +103,32 @@ public static class VolumePass
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeBoundaryRestVolume(Entity entity, SphPassContext context)
-    {
-        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
-        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
-
-        var boundaryKernelSum = 0f;
-        for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
-            boundaryKernelSum += neighbourList.CachedKernels[i];
-
-        particleProperty.SetRestVolume(boundaryKernelSum > 1e-6f ? .7f / boundaryKernelSum : 0f);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeVolume(Entity entity, SphPassContext context)
+    private static void ComputeBoundaryVolume(Entity entity, SphPassContext context)
     {
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
         var numberDensity = 0f;
+        for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
+            numberDensity += neighbourList.CachedKernels[i];
+
+        particleProperty.SetNewVolume(numberDensity > 1e-6f ? .7f / numberDensity : 0f);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeVolume(Entity entity, SphPassContext context)
+    {
+        var density = 0f;
+        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
-            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(
-                neighbourList.Neighbours[i].Id
-            );
-            numberDensity += nParticleProperty.RestVolume * neighbourList.CachedKernels[i];
+            var nEntity = neighbourList.Neighbours[i];
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            density += nParticleProperty.Mass * neighbourList.CachedKernels[i];
         }
 
-        particleProperty.Volume =
-            numberDensity > 1e-6f ? particleProperty.RestVolume / numberDensity : 0f;
-        // articleProperty.Volume = float.Min(particleProperty.Volume, particleProperty.RestVolume);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
+        particleProperty.Density =
+            density > particleProperty.RestDensity ? density : particleProperty.RestDensity;
     }
 }

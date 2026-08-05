@@ -10,25 +10,23 @@ namespace FlowLab.Ecs.Components;
 
 public struct ParticleProperties
 {
-    private readonly float _restDensity;
     public readonly Color ParticleColor;
 
     public float Size { get; private set; }
-    public float RestVolume { get; private set; }
+    public float RestDensity { get; private set; }
+    public float Density { get; set; }
     public float Mass { get; private set; }
-    public float Volume { get; set; }
 
     public ParticleProperties(Color particleColor, float volume, float restDensity)
     {
-        _restDensity = restDensity;
         ParticleColor = particleColor;
-        SetRestVolume(volume);
+        RestDensity = Density = restDensity;
+        SetNewVolume(volume);
     }
 
-    public void SetRestVolume(float volume)
+    public void SetNewVolume(float volume)
     {
-        RestVolume = volume;
         Size = float.RootN(volume, 3);
-        Mass = volume * _restDensity;
+        Mass = volume * RestDensity;
     }
 }

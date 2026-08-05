@@ -36,24 +36,25 @@ public static class PressureAccelerationPass
         ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
         ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
 
-        var sum = Vector3.Zero;
+        var pressureAcceleration = Vector3.Zero;
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
             var nEntity = neighbourList.Neighbours[i];
             ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
-            var pSum = solver.Pressure + nSolver.Pressure;
+            ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            var pSum =
+                solver.Pressure / (particleProperties.Density * particleProperties.Density)
+                + nSolver.Pressure / (nParticleProperties.Density * nParticleProperties.Density);
             var kernelDerivative = neighbourList.CachedNablaKernels[i];
-            sum += nParticleProperty.Volume * pSum * kernelDerivative;
+            pressureAcceleration -= nParticleProperties.Mass * pSum * kernelDerivative;
         }
 
-        var pressureForce = -particleProperties.Volume * sum;
-        kinematicState.PressureAcceleration = pressureForce / particleProperties.Mass;
+        kinematicState.PressureAcceleration = pressureAcceleration;
 
         if (!context.RigidBodyParticlePool.Has(entity.Id))
             return;
 
         ref var particle = ref context.RigidBodyParticlePool.Get(entity.Id);
-        particle.AppliedForce = pressureForce;
+        particle.AppliedForce = pressureAcceleration * particleProperties.Mass;
     }
 }

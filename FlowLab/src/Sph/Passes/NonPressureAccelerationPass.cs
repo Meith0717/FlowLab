@@ -69,8 +69,8 @@ public static class NonPressureAccelerationPass
             var dotVelocityPosition = Vector3.Dot(vIj, xIj);
 
             var kernelDerivative = neighbours.CachedNablaKernels[i];
-            var res =
-                nMaterial.Volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
+            var volume = nMaterial.Mass / nMaterial.Density;
+            var res = volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
             var viscosity = context.BoundaryPool.Has(nEntity.Id)
                 ? config.BViscosity

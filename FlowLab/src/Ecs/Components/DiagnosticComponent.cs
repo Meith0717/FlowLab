@@ -8,6 +8,7 @@ namespace FlowLab.Ecs.Components;
 public struct DiagnosticComponent()
 {
     public bool IsUnstable = false;
+    public float DensityError;
     public float PreviousCfl;
     public float Cfl;
 }

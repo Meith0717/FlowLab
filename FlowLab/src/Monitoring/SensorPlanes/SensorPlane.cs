@@ -248,11 +248,11 @@ public class SensorPlane : IDisposable
             ref var solver = ref _solverPool.Get(entity.Id);
 
             var weight =
-                fluid.Volume * _kernels.CubicSpline(gridPosNum, transform.Position.ToNumerics());
+                fluid.Density * _kernels.CubicSpline(gridPosNum, transform.Position.ToNumerics());
 
             pressureSum += solver.Pressure * weight;
-            volumeErrorSum += ((fluid.RestVolume - fluid.Volume) / fluid.RestVolume) * weight;
-            densitySum += fluid.Mass / fluid.Volume * weight;
+            volumeErrorSum += ((fluid.RestDensity - fluid.Density) / fluid.RestDensity) * weight;
+            densitySum += fluid.Mass / fluid.Density * weight;
             sumWeight += weight;
 
             if (!_kinematicPool.Has(entity.Id))

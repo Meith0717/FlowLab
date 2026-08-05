@@ -50,10 +50,7 @@ public static class PressureExtrapolationPass
             ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
             ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             var vDiff = transform.Position - nTransform.Position;
-            sum2 +=
-                (nParticleProperty.Mass / nParticleProperty.Volume)
-                * vDiff
-                * neighbours.CachedKernels[i];
+            sum2 += nParticleProperty.Density * vDiff * neighbours.CachedKernels[i];
         }
 
         var sum3 = 0f;
