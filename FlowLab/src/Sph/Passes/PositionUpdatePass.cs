@@ -23,7 +23,8 @@ public static class PositionUpdatePass
                     ref var movement = ref context.KinematicPool.Get(entity.Id);
 
                     movement.PressureAcceleration *= config.TimeStep;
-                    movement.Velocity += movement.PressureAcceleration;
+                    movement.Velocity =
+                        movement.IntermediateVelocity + movement.PressureAcceleration;
                     transform.Position += movement.Velocity * config.TimeStep;
                 }
             }

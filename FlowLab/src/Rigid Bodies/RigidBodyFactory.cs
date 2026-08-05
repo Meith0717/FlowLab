@@ -57,8 +57,7 @@ public class RigidBodyFactory(SimConfig config)
                 model,
                 300f,
                 Matrix.Identity * (2 / 5f * 300 * 25),
-                Vector3.Zero,
-                surfaceEntities.ToArray()
+                [.. surfaceEntities]
             )
         );
     }

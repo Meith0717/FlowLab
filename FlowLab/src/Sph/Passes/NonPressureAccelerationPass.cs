@@ -27,9 +27,11 @@ public static class NonPressureAccelerationPass
                     ComputeViscosity(entity, context, config);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
-                    kinematic.NonPressureAccelerations *= config.TimeStep;
                     ref var movement = ref context.KinematicPool.Get(entity.Id);
-                    movement.Velocity += kinematic.NonPressureAccelerations;
+
+                    kinematic.NonPressureAccelerations *= config.TimeStep;
+                    movement.IntermediateVelocity =
+                        movement.Velocity + kinematic.NonPressureAccelerations;
                 }
             }
         );

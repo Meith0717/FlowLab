@@ -13,14 +13,12 @@ public struct RigidBodyComponent(
     ObjModel model,
     float mass,
     Matrix localInertia,
-    Vector3 localCenterOfMass,
     Entity[] particles
 )
 {
     public readonly ObjModel Model = model;
     public readonly float Mass = mass;
     public readonly Matrix LocalInertiaInverse = Matrix.Invert(localInertia);
-    public readonly Vector3 LocalCenterOfMass = localCenterOfMass;
     public readonly Entity[] Particles = particles;
     public Vector3 AngularMomentum = Vector3.Zero;
 }

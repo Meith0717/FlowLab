@@ -51,6 +51,7 @@ public static class IiPressurePass
         int iteration;
         for (iteration = 1; iteration < config.MaxIterations; iteration++)
         {
+            PressureExtrapolationPass.RunForEach(bChunk, context, config);
             PressureAccelerationPass.RunForEach(fChunk, context, config);
 
             var totalResidual = 0d;
@@ -147,7 +148,7 @@ file static class ISphUtil
             ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
 
-            var velDif = movement.Velocity - nMovement.Velocity;
+            var velDif = movement.IntermediateVelocity - nMovement.IntermediateVelocity;
             sum += nParticleProperty.Volume * Vector3.Dot(velDif, neighbours.CachedNablaKernels[i]);
         }
 
