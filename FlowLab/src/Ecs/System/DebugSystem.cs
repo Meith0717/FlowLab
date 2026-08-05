@@ -130,7 +130,7 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
                 _minValue = float.Min(value, _minValue);
                 if (colorCode == ColorCode.Velocity)
                 {
-                    _maxValue = 1;
+                    _maxValue = .4f;
                     _minValue = 0;
                 }
 

@@ -6,6 +6,7 @@
 using System.Threading;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
+using FlowLab.Screens.Ui;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework.Input;
 using MonoKit.Ecs;
@@ -38,6 +39,7 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
         if (simController.IsPaused)
             return;
 
+        var messageDisplayer = runtimeServices.Get<MessageDisplayer>();
         var entities = world.TypeTracker.GetEntitiesWith<ParticleProperties>();
         var unstableCount = 0;
 
@@ -54,13 +56,8 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
             )
             {
                 simController.Pause();
-                new Thread(() =>
-                    MessageBox.Show(
-                        "Simulation Instability Detected",
-                        $"Invalid values were detected (NaN/Infinity)." + "\n\nSimulation Paused",
-                        ["Ok"]
-                    )
-                ).Start();
+                messageDisplayer.AddMessage($"Invalid values were detected (NaN/Infinity).");
+                return;
             }
 
             diagnostic.PreviousCfl = diagnostic.Cfl;
@@ -81,13 +78,8 @@ public class StabilityChecker(SimConfig config, SimulationController simControll
             return;
 
         simController.Pause();
-        new Thread(() =>
-            MessageBox.Show(
-                "Simulation Instability Detected",
-                $"A total of {unstableCount} particles have exceeded the stability limit."
-                    + "\n\nSimulation Paused",
-                ["Ok"]
-            )
-        ).Start();
+        messageDisplayer.AddMessage(
+            $"A total of {unstableCount} particles have exceeded the stability limit."
+        );
     }
 }

@@ -61,7 +61,7 @@ public class SimulationScene : IDisposable
         camera3D.AddBehaviour(new ZoomByMouse(.5f));
 
         var world = _simRuntime.Services.Get<World>();
-        SimController = new SimulationController(world);
+        SimController = new SimulationController(world, messageDisplayer);
         SimTracker = new SimulationTracker(SimConfig);
         _axisRenderer = new AxisRenderer(_graphicsDevice);
 
@@ -111,14 +111,14 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(5, 25, 5),
+            new Vector3(15, 50, 15),
             Matrix.Identity,
             1,
             1
         );
 
         //AddFluidBlock(9, 9, 20, .5f, new Vector3(0, 10, 0), Color.Orange);
-        AddFluidBlock(9, 9, 45, 1f, new Vector3(0, 0, 0), Color.DodgerBlue);
+        AddFluidBlock(20, 20, 90, 1f, new Vector3(0, 0, 0), Color.DodgerBlue);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // rigidBodyFactory.CreateDynamic(

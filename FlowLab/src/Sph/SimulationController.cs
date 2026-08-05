@@ -5,13 +5,14 @@
 
 using System.Threading.Tasks;
 using FlowLab.Input;
+using FlowLab.Screens.Ui;
 using MonoKit.Ecs;
 using MonoKit.Ecs.Components;
 using MonoKit.Input;
 
 namespace FlowLab.Sph;
 
-public class SimulationController(World world)
+public class SimulationController(World world, MessageDisplayer messageDisplayer)
 {
     private bool _debugEnabled;
 
@@ -21,12 +22,19 @@ public class SimulationController(World world)
 
     public void TogglePause() => IsPaused = !IsPaused;
 
-    public void Pause() => IsPaused = true;
+    public void Pause()
+    {
+        IsPaused = true;
+        messageDisplayer.AddMessage("Simulation Paused");
+    }
 
     public void Update(double elapsedMilliseconds, InputHandler inputHandler)
     {
         if (inputHandler.HasAction((byte)ActionType.PauseSimulation))
+        {
             IsPaused = !IsPaused;
+            messageDisplayer.AddMessage(IsPaused ? "Simulation Paused" : "Simulation Resumed");
+        }
 
         if (inputHandler.HasAction((byte)ActionType.ClearFluid))
             ClearFluid();

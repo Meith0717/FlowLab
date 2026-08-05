@@ -24,7 +24,7 @@ public class MainScreen : Screen
     public MainScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
-        _messageDisplayer = new MessageDisplayer(GraphicsDevice, 2000);
+        _messageDisplayer = new MessageDisplayer(GraphicsDevice, 5000);
         _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer);
         new TopBarWidget(appServices, _simScene.SimConfig, _simScene.SimTracker).Build(UiRoot);
         _monitoringWidget = new MonitoringWidget(
