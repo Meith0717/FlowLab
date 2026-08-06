@@ -41,7 +41,6 @@ public class SimulationScene : IDisposable
     // Render Stuff
     private readonly FluidRenderer _fluidRenderer;
     private readonly AxisRenderer _axisRenderer;
-    private readonly RigidBodyRenderer _rigidBodyRenderer;
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
     private readonly InstabilityRenderer _instabilityRenderer;
 
@@ -72,7 +71,6 @@ public class SimulationScene : IDisposable
             spatialHashSystem,
             SimConfig.SpatialHashQueryRadius
         );
-        _rigidBodyRenderer = new RigidBodyRenderer(world, _graphicsDevice);
         Watcher = new Watcher(world, SimConfig);
         SensorManager = new SensorPlaneManager(
             _graphicsDevice,
@@ -109,24 +107,23 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(20, 15, 20),
+            new Vector3(15, 15, 15),
             Matrix.Identity,
             1,
-            1
+            1f
         );
 
-        AddFluidBlock(39, 39, 10, 1f, new Vector3(0, 3, 0), Color.DeepSkyBlue);
-        AddFluidBlock(39, 39, 10, .1f, new Vector3(0, -7, 0), Color.Orange);
+        AddFluidBlock(29, 29, 20, 1f, new Vector3(0, -4, 0), Color.DeepSkyBlue);
 
-        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        // rigidBodyFactory.CreateDynamic(
-        //     world,
-        //     model,
-        //     new Vector3(0, 10, 0),
-        //     new Vector3(5),
-        //     Matrix.Identity,
-        //     1
-        // );
+        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        rigidBodyFactory.CreateDynamic(
+            world,
+            model,
+            new Vector3(0, 15, 0),
+            new Vector3(5),
+            Matrix.Identity,
+            1
+        );
     }
 
     public void LoadContent()
@@ -156,7 +153,6 @@ public class SimulationScene : IDisposable
         var camera3D = _simRuntime.Services.Get<Camera3D>();
 
         _fluidRenderer.Draw(camera3D);
-        _rigidBodyRenderer.Draw(camera3D);
         _boundingBoxRenderer.Draw(camera3D);
         _axisRenderer.Draw(camera3D);
         _instabilityRenderer.Draw(camera3D);

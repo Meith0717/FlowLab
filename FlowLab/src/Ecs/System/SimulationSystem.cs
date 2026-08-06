@@ -66,7 +66,7 @@ public class SimulationSystem(
         IiPressurePass.RunForEach(fChunk, bChunk, _context, config);
 
         PressureExtrapolationPass.RunForEach(bChunk, _context, config);
-        PressureAccelerationPass.RunForEach(fChunk, _context, config);
+        PressureAccelerationPass.RunForEach(allChunk, _context, config);
 
         PositionUpdatePass.RunForEach(fChunk, _context, config);
 

@@ -55,6 +55,6 @@ public static class PressureAccelerationPass
             return;
 
         ref var particle = ref context.RigidBodyParticlePool.Get(entity.Id);
-        particle.AppliedForce = pressureAcceleration * particleProperties.Mass;
+        particle.AppliedForce = -pressureAcceleration * particleProperties.Mass;
     }
 }

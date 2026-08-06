@@ -54,9 +54,8 @@ public class RigidBodyFactory(SimConfig config)
         world.Components.Add(
             e,
             new RigidBodyComponent(
-                model,
-                300f,
-                Matrix.Identity * (2 / 5f * 300 * 25),
+                500f,
+                Matrix.Identity * (2 / 5f * 500 * 25),
                 [.. surfaceEntities]
             )
         );

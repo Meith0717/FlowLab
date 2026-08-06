@@ -9,14 +9,8 @@ using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Ecs.Components;
 
-public struct RigidBodyComponent(
-    ObjModel model,
-    float mass,
-    Matrix localInertia,
-    Entity[] particles
-)
+public struct RigidBodyComponent(float mass, Matrix localInertia, Entity[] particles)
 {
-    public readonly ObjModel Model = model;
     public readonly float Mass = mass;
     public readonly Matrix LocalInertiaInverse = Matrix.Invert(localInertia);
     public readonly Entity[] Particles = particles;

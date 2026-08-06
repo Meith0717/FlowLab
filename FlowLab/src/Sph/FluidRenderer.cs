@@ -104,14 +104,22 @@ public class FluidRenderer : IDisposable
 
     public void Update(bool hideBoundary)
     {
-        var entities = hideBoundary
-            ? _world.TypeTracker.GetEntitiesWith<FluidTag>()
-            : _world.TypeTracker.GetEntitiesWith<ParticleProperties>();
+        var entities = _world.TypeTracker.GetEntitiesWith<ParticleProperties>();
 
         var shaderDataPool = _world.Components.GetOrCreatePool<ParticleShaderData>();
+        var boundaryPool = _world.Components.GetOrCreatePool<BoundaryTag>();
+        var rigidBodyParticlePool = _world.Components.GetOrCreatePool<RigidBodyParticle>();
+
         _particleCount = 0;
         foreach (var entity in entities)
         {
+            if (
+                hideBoundary
+                && boundaryPool.Has(entity.Id)
+                && !rigidBodyParticlePool.Has(entity.Id)
+            )
+                continue;
+
             ref var shaderData = ref shaderDataPool.Get(entity.Id);
             _instanceData[_particleCount++] = shaderData;
         }
