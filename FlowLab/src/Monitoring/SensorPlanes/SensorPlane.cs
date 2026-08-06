@@ -159,7 +159,7 @@ public class SensorPlane : IDisposable
         var start = _position - right * (_size.Width / 2f) - up * (_size.Height / 2f);
 
         _bounds[PropertyType.Pressure] = (float.MaxValue, float.MinValue);
-        _bounds[PropertyType.Velocity] = (0, _config.MaxCfl);
+        _bounds[PropertyType.Velocity] = (0, GlobalConfig.MaxCfl);
         _bounds[PropertyType.Density] = (float.MaxValue, float.MinValue);
 
         var lockObj = new object();

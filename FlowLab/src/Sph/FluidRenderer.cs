@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Ecs.Tags;
 using Microsoft.Xna.Framework;
@@ -48,7 +49,7 @@ public class FluidRenderer : IDisposable
         _world = world;
         _spatialHash = spatialHash;
         _cellSize = cellSize;
-        _instanceData = new ParticleShaderData[Config.SimConfig.MaxParticles];
+        _instanceData = new ParticleShaderData[GlobalConfig.MaxParticles];
 
         var quadVertices = new[]
         {
@@ -76,13 +77,13 @@ public class FluidRenderer : IDisposable
         _instanceBufferA = new DynamicVertexBuffer(
             graphics,
             ParticleShaderData.VertexDeclaration,
-            Config.SimConfig.MaxParticles,
+            GlobalConfig.MaxParticles,
             BufferUsage.WriteOnly
         );
         _instanceBufferB = new DynamicVertexBuffer(
             graphics,
             ParticleShaderData.VertexDeclaration,
-            Config.SimConfig.MaxParticles,
+            GlobalConfig.MaxParticles,
             BufferUsage.WriteOnly
         );
         _currentWriteBuffer = _instanceBufferA;

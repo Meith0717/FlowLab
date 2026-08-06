@@ -42,7 +42,9 @@ public static class IiPressurePass
 
                     if (float.Abs(solver.DiagonalElement) > float.Epsilon)
                         solver.Pressure = float.Max(
-                            SimConfig.Relaxation / solver.DiagonalElement * solver.SourceTherm,
+                            GlobalConfig.JacobiRelaxation
+                                / solver.DiagonalElement
+                                * solver.SourceTherm,
                             0
                         );
                     else
@@ -74,7 +76,7 @@ public static class IiPressurePass
 
                         if (float.Abs(solver.DiagonalElement) > float.Epsilon)
                             solver.Pressure +=
-                                SimConfig.Relaxation
+                                GlobalConfig.JacobiRelaxation
                                 / solver.DiagonalElement
                                 * (solver.SourceTherm - solver.Laplacian);
                         else
@@ -101,7 +103,7 @@ public static class IiPressurePass
 
             var avgDensityError = totalDensityError / particleCount;
             if (
-                (avgDensityError * 100 < config.MinVolumeError && iteration > 1)
+                (avgDensityError * 100 < config.MinDensityError && iteration > 1)
                 || particleCount <= 0
             )
                 break;

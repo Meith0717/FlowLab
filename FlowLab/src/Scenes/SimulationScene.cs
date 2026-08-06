@@ -49,7 +49,7 @@ public class SimulationScene : IDisposable
     {
         _graphicsDevice = graphicsDevice;
 
-        SimConfig = SimConfig.Default;
+        SimConfig = new SimConfig(1);
         _simRuntime = new GameRuntime3D(_graphicsDevice, SimConfig.SpatialHashQueryRadius);
 
         var spatialHashSystem = _simRuntime.Services.Get<EcsSpatialHash3D>();
