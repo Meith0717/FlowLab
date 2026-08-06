@@ -118,17 +118,15 @@ public static class DensityPass
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeVolume(Entity entity, SphPassContext context)
     {
-        var density = 0f;
+        var numberDensity = 0f;
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
-        {
-            var nEntity = neighbourList.Neighbours[i];
-            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
-            density += nParticleProperty.Mass * neighbourList.CachedKernels[i];
-        }
+            numberDensity += neighbourList.CachedKernels[i];
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         particleProperty.Density =
-            density > particleProperty.RestDensity ? density : particleProperty.RestDensity;
+            numberDensity > particleProperty.RestDensity
+                ? particleProperty.Mass * numberDensity
+                : particleProperty.RestDensity;
     }
 }
