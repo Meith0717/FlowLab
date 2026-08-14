@@ -27,8 +27,15 @@ public class BoundaryData(float density, Vector3[] particlePositions)
     public readonly Vector3[] ParticlePositions = particlePositions;
 }
 
-public class RigidBodyData(float mass, Matrix localInertia, float density, Vector3[] particles)
+public class RigidBodyData(
+    Vector3 position,
+    float mass,
+    Matrix localInertia,
+    float density,
+    Vector3[] particles
+)
 {
+    public readonly Vector3 Position = position;
     public readonly float Mass = mass;
     public readonly float Density = density;
     public readonly Matrix LocalInertia = localInertia;
@@ -107,15 +114,18 @@ public class Scene
         foreach (var entity in rigidbodiesCollection)
         {
             ref var rigidBody = ref rigidBodyPool.Get(entity.Id);
+            ref var transform = ref transformPool.Get(entity.Id);
+
             var positions = new List<Vector3>();
             foreach (var rigidBodyParticle in rigidBody.Particles)
             {
-                ref var transform = ref transformPool.Get(rigidBodyParticle.Id);
-                positions.Add(transform.Position);
+                ref var rTransform = ref transformPool.Get(rigidBodyParticle.Id);
+                positions.Add(rTransform.Position);
             }
 
             res.Add(
                 new RigidBodyData(
+                    transform.Position,
                     rigidBody.Mass,
                     Matrix.Invert(rigidBody.LocalInertiaInverse),
                     1,

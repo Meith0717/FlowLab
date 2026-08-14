@@ -115,15 +115,16 @@ public class SimulationScene : IDisposable
 
         AddFluidBlock(29, 29, 20, 1f, new Vector3(0, -4, 0), Color.DeepSkyBlue);
 
-        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        rigidBodyFactory.CreateDynamic(
-            world,
-            model,
-            new Vector3(0, 15, 0),
-            new Vector3(5),
-            Matrix.Identity,
-            1
-        );
+        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        // rigidBodyFactory.CreateDynamic(
+        //     world,
+        //     model,
+        //     1,
+        //     new Vector3(0, 15, 0),
+        //     new Vector3(5),
+        //     Matrix.Identity,
+        //     1
+        // );
     }
 
     public void LoadContent()

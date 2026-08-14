@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FlowLab.Config;
@@ -23,6 +24,7 @@ public class RigidBodyFactory(SimConfig config)
     public void CreateDynamic(
         World world,
         ObjModel model,
+        float density,
         Vector3 position,
         Vector3 scale,
         Matrix orientation,
@@ -31,12 +33,32 @@ public class RigidBodyFactory(SimConfig config)
     {
         var matrix = Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position);
         MeshSampler.SetModelAndInitializeSampler(model, particleSize, matrix);
-        var sampleSurface = MeshSampler.SampleSurface();
 
+        var sampleSurface = MeshSampler.SampleSurface();
+        var sampleVolume = MeshSampler.SampleVolume();
+
+        var volume = particleSize * particleSize * particleSize;
+        var mass = density * sampleVolume.Length * volume;
+
+        var sumOfVectors = sampleVolume.Aggregate(Vector3.Zero, (acc, vec) => acc + vec);
+        var centerOfMass = 1f / mass * sumOfVectors;
+
+        CreateDynamic(world, mass, sampleSurface, centerOfMass, orientation, particleSize);
+    }
+
+    public static void CreateDynamic(
+        World world,
+        float mass,
+        Vector3[] surfaceParticles,
+        Vector3 centerOfMass,
+        Matrix orientation,
+        float particleSize
+    )
+    {
         var surfaceEntities = new List<Entity>();
-        foreach (var surfacePoint in sampleSurface)
+        foreach (var surfacePoint in surfaceParticles)
         {
-            var relativePos = surfacePoint - position;
+            var relativePos = surfacePoint - centerOfMass;
             surfaceEntities.Add(
                 ParticleFactory.CreateRigidBodyParticle(
                     world,
@@ -49,13 +71,13 @@ public class RigidBodyFactory(SimConfig config)
         }
 
         var e = world.CreateEntity();
-        world.Components.Add(e, new Transform3D(position, orientation, scale));
+        world.Components.Add(e, new Transform3D(centerOfMass, orientation, Vector3.Zero));
         world.Components.Add(e, new Velocity3D(Vector3.Zero, Vector3.Zero));
         world.Components.Add(
             e,
             new RigidBodyComponent(
-                500f,
-                Matrix.Identity * (2 / 5f * 500 * 25),
+                mass,
+                Matrix.Identity * (2 / 5f * mass * 25),
                 [.. surfaceEntities]
             )
         );
@@ -75,7 +97,17 @@ public class RigidBodyFactory(SimConfig config)
         MeshSampler.SetModelAndInitializeSampler(model, particleSize, matrix);
         var sampleSurface = MeshSampler.SampleSurface();
 
-        var hashSet = sampleSurface.ToHashSet();
+        CreateStatic(world, sampleSurface, particleSize, restDensity);
+    }
+
+    public void CreateStatic(
+        World world,
+        Vector3[] surfaceParticles,
+        float particleSize,
+        float restDensity
+    )
+    {
+        var hashSet = surfaceParticles.ToHashSet();
         foreach (var surfacePoint in hashSet)
             ParticleFactory.CreateBoundaryParticle(world, surfacePoint, particleSize, restDensity);
     }

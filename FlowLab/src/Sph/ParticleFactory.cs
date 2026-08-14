@@ -66,19 +66,17 @@ public static class ParticleFactory
         var volume = size * size * size;
         var fluidComponent = new ParticleProperties(color, volume, restDensity);
         var transform = new Transform3D { Position = position };
-        var kinematics = new KinematicState();
-        var shaderData = new ParticleShaderData { Size = size };
 
         var entity = world.CreateEntity();
-        world.Components.Add(entity, kinematics);
         world.Components.Add(entity, transform);
         world.Components.Add(entity, fluidComponent);
-        world.Components.Add(entity, shaderData);
+        world.Components.Add(entity, new KinematicState());
+        world.Components.Add(entity, new ParticleShaderData { Size = size });
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new SolverState());
         world.Components.Add(entity, new DiagnosticComponent());
         world.Components.Add(entity, new Collider3D());
-        world.Components.Add(entity, new Lifetime() { CoolDown = float.PositiveInfinity });
+        world.Components.Add(entity, new Lifetime { CoolDown = float.PositiveInfinity });
         return entity;
     }
 }

@@ -11,25 +11,8 @@ using Microsoft.Xna.Framework;
 
 public static class VectorExtensions
 {
-    public static Matrix4x4 ToSkewSymmetricMatrix(this Vector3 v)
+    public static Matrix ToSkewSymmetricMatrix(this Vector3 v)
     {
-        return new Matrix4x4(
-            0f,
-            -v.Z,
-            v.Y,
-            0f,
-            v.Z,
-            0f,
-            -v.X,
-            0f,
-            -v.Y,
-            v.X,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            1f
-        );
+        return new Matrix(0f, -v.Z, v.Y, 0f, v.Z, 0f, -v.X, 0f, -v.Y, v.X, 0f, 0f, 0f, 0f, 0f, 1f);
     }
 }
