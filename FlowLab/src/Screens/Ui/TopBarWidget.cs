@@ -36,7 +36,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
                 Align = Align.CenterH,
                 Width = 60,
                 RelHeight = 1,
-                UiText = new UiText("defaultFont", "Exit")
+                UiText = new UiText(UiConfig.DefaultSpriteFont, "Exit")
                 {
                     Scale = 0.15f,
                     Align = Align.Center,
@@ -53,7 +53,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
                 Align = Align.CenterH,
                 Width = 120,
                 RelHeight = 1,
-                UiText = new UiText("defaultFont")
+                UiText = new UiText(UiConfig.DefaultSpriteFont)
                 {
                     Scale = 0.15f,
                     Align = Align.Center,
@@ -76,7 +76,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
         );
 
         _topBar.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 Align = Align.CenterH,
                 RelX = .51f,
@@ -87,7 +87,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
         );
 
         _topBar.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 Align = Align.CenterH,
                 RelX = .7f,
@@ -98,7 +98,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
         );
 
         _topBar.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 Align = Align.CenterH,
                 RelX = 0.9f,

@@ -48,7 +48,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "MONITORING")
+            new UiText(UiConfig.DefaultSpriteFont, "MONITORING")
             {
                 Align = Align.N,
                 HSpace = 5,
@@ -71,7 +71,7 @@ public class MonitoringWidget(
 
         var frameCounter = services.GetService<FrameCounter>();
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"FPS: {(int)frameCounter.CurrentFramesPerSecond}",
                 Align = Align.Left,
@@ -82,7 +82,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"Entities: #{watcher.EntityCount}",
                 Align = Align.Left,
@@ -104,7 +104,7 @@ public class MonitoringWidget(
     private void Stability(int y)
     {
         _simMonitoring.Add(
-            new UiText("defaultFont", "STABILITY")
+            new UiText(UiConfig.DefaultSpriteFont, "STABILITY")
             {
                 Align = Align.Right,
                 Y = y,
@@ -115,7 +115,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "CFL")
+            new UiText(UiConfig.DefaultSpriteFont, "CFL")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -135,7 +135,7 @@ public class MonitoringWidget(
         };
         _simMonitoring.Add(_cflBar);
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 Align = Align.Right,
                 HSpace = 150,
@@ -147,7 +147,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Time Step")
+            new UiText(UiConfig.DefaultSpriteFont, "Time Step")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -157,7 +157,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{config.TimeStep}",
                 Align = Align.Right,
@@ -169,7 +169,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Max. Vel.")
+            new UiText(UiConfig.DefaultSpriteFont, "Max. Vel.")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -179,7 +179,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{float.Round(watcher.MaxVelocity, 2)} m/s",
                 Align = Align.Right,
@@ -191,7 +191,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Avg. Vel.")
+            new UiText(UiConfig.DefaultSpriteFont, "Avg. Vel.")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -201,7 +201,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{float.Round(watcher.AvgVelocity, 2)} m/s",
                 Align = Align.Right,
@@ -216,7 +216,7 @@ public class MonitoringWidget(
     private void Solver(int y)
     {
         _simMonitoring.Add(
-            new UiText("defaultFont", "SOLVER")
+            new UiText(UiConfig.DefaultSpriteFont, "SOLVER")
             {
                 Align = Align.Right,
                 Y = y,
@@ -227,7 +227,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Iterations")
+            new UiText(UiConfig.DefaultSpriteFont, "Iterations")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -237,7 +237,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{watcher.IterationCount} / {config.MaxIterations}",
                 Align = Align.Right,
@@ -259,7 +259,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 Text = "2",
                 Align = Align.Left,
@@ -270,7 +270,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{config.MaxIterations}",
                 Align = Align.Right,
@@ -285,7 +285,7 @@ public class MonitoringWidget(
     private void Fluid(int y)
     {
         _simMonitoring.Add(
-            new UiText("defaultFont", "FLUID")
+            new UiText(UiConfig.DefaultSpriteFont, "FLUID")
             {
                 Align = Align.Right,
                 Y = y,
@@ -296,7 +296,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Mass")
+            new UiText(UiConfig.DefaultSpriteFont, "Mass")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -306,7 +306,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 Align = Align.Right,
                 HSpace = 10,
@@ -318,7 +318,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Init. Volume")
+            new UiText(UiConfig.DefaultSpriteFont, "Init. Volume")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -328,7 +328,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{watcher.FluidInitVolume} m\u00B3",
                 Align = Align.Right,
@@ -340,7 +340,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText("defaultFont", "Compression")
+            new UiText(UiConfig.DefaultSpriteFont, "Compression")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -350,7 +350,7 @@ public class MonitoringWidget(
             }
         );
         _simMonitoring.Add(
-            new UiText("defaultFont")
+            new UiText(UiConfig.DefaultSpriteFont)
             {
                 TextProvider = () => $"{float.Round(watcher.CompressionError * 100, 2)} %",
                 Align = Align.Right,
@@ -376,7 +376,7 @@ public class MonitoringWidget(
     private void Sensors(int y)
     {
         _simMonitoring.Add(
-            new UiText("defaultFont", "SENSORS")
+            new UiText(UiConfig.DefaultSpriteFont, "SENSORS")
             {
                 Align = Align.Right,
                 Y = y,
@@ -387,7 +387,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiButton.Sprite("edit")
+            new UiButton.Sprite(UiConfig.EditButtonTexture)
             {
                 Align = Align.Left,
                 Y = y,
@@ -404,7 +404,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiButton.Sprite("add")
+            new UiButton.Sprite(UiConfig.AddButtonTexture)
             {
                 Align = Align.Left,
                 Y = y,
@@ -421,9 +421,9 @@ public class MonitoringWidget(
 
         _simMonitoring.Add(
             _sensorSelector = new UiVariableSelector<string>(
-                "arrowL",
-                "arrowR",
-                "defaultFont",
+                UiConfig.DefaultSelectorLeftTexture,
+                UiConfig.DefaultSelectorRightTexture,
+                UiConfig.DefaultSpriteFont,
                 sensorPlaneManager.PlaneIds.ToArray()
             )
             {
@@ -449,7 +449,7 @@ public class MonitoringWidget(
             }
         );
         _sensorTextureFrame.Add(
-            _sensorTextureComment = new UiText("defaultFont")
+            _sensorTextureComment = new UiText(UiConfig.DefaultSpriteFont)
             {
                 Align = Align.Center,
                 Text = "No Sensor Plane SetRestVolume",
@@ -460,9 +460,9 @@ public class MonitoringWidget(
 
         _simMonitoring.Add(
             new UiVariableSelector<PropertyType>(
-                "arrowL",
-                "arrowR",
-                "defaultFont",
+                UiConfig.DefaultSelectorLeftTexture,
+                UiConfig.DefaultSelectorRightTexture,
+                UiConfig.DefaultSpriteFont,
                 Enum.GetValues<PropertyType>()
             )
             {
@@ -478,9 +478,9 @@ public class MonitoringWidget(
         );
         _simMonitoring.Add(
             new UiVariableSelector<ColorScheme>(
-                "arrowL",
-                "arrowR",
-                "defaultFont",
+                UiConfig.DefaultSelectorLeftTexture,
+                UiConfig.DefaultSelectorRightTexture,
+                UiConfig.DefaultSpriteFont,
                 Enum.GetValues<ColorScheme>()
             )
             {
@@ -538,7 +538,7 @@ public class MonitoringWidget(
         if (!sensorPlaneManager.GetCurrentTexture(out var texture))
             return;
 
-        _planeSprite.SpriteTexture = texture;
+        _planeSprite.Texture2D = texture;
     }
 
     private static Color IterationsColor(float normalizedIterations)

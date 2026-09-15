@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using FlowLab.Config;
 using FlowLab.Monitoring.SensorPlanes;
 using Microsoft.Xna.Framework;
 using MonoKit.Screens;
@@ -57,7 +58,7 @@ public class SensorPlaneForm : Screen
         );
 
         _rootFrame.Add(
-            new UiText("defaultFont", title)
+            new UiText(UiConfig.DefaultSpriteFont, title)
             {
                 Align = Align.N,
                 HSpace = 5,
@@ -180,13 +181,13 @@ public class SensorPlaneForm : Screen
             Width = 75,
             Height = 28,
             HSpace = 6,
+            UiText = new UiText(UiConfig.DefaultSpriteFont, "CANCEL")
+            {
+                Scale = 0.14f,
+                Color = Color.LightGray,
+            },
+            OnClickAction = () => ScreenManager.PopScreen(),
         };
-        cancelButton.UiText = new UiText("defaultFont", "CANCEL")
-        {
-            Scale = 0.14f,
-            Color = Color.LightGray,
-        };
-        cancelButton.OnClickAction = () => ScreenManager.PopScreen();
         buttonFrame.Add(cancelButton);
 
         var saveButton = new UiButton.Text
@@ -196,20 +197,20 @@ public class SensorPlaneForm : Screen
             Width = 75,
             Height = 28,
             HSpace = 6,
+            UiText = new UiText(UiConfig.DefaultSpriteFont, "SAVE")
+            {
+                Scale = 0.14f,
+                Color = Color.LightGray,
+            },
+            OnClickAction = Save,
         };
-        saveButton.UiText = new UiText("defaultFont", "SAVE")
-        {
-            Scale = 0.14f,
-            Color = Color.LightGray,
-        };
-        saveButton.OnClickAction = Save;
         buttonFrame.Add(saveButton);
     }
 
     private void AddSubtitle(string text, int y)
     {
         _rootFrame.Add(
-            new UiText("defaultFont", text)
+            new UiText(UiConfig.DefaultSpriteFont, text)
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -229,7 +230,7 @@ public class SensorPlaneForm : Screen
         float relWidth
     )
     {
-        var labelEntry = new UiText("defaultFont", label + ":")
+        var labelEntry = new UiText(UiConfig.DefaultSpriteFont, label + ":")
         {
             RelX = relX,
             Y = y,
@@ -240,7 +241,7 @@ public class SensorPlaneForm : Screen
         };
         _rootFrame.Add(labelEntry);
 
-        field = new UiTextEntry("defaultFont")
+        field = new UiTextEntry(UiConfig.DefaultSpriteFont)
         {
             RelX = relX + 0.20f,
             Y = y,

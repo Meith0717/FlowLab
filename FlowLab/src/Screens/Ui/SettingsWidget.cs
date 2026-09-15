@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using FlowLab.Config;
 using Microsoft.Xna.Framework;
 using MonoKit.Input;
 using MonoKit.Ui;
@@ -34,7 +35,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         );
 
         _settingsFrame.Add(
-            new UiText("defaultFont", "SETTINGS")
+            new UiText(UiConfig.DefaultSpriteFont, "SETTINGS")
             {
                 Align = Align.N,
                 HSpace = 5,
@@ -81,7 +82,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
     )
     {
         _settingsFrame.Add(
-            new UiText("defaultFont", label)
+            new UiText(UiConfig.DefaultSpriteFont, label)
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -91,7 +92,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
             }
         );
 
-        field = new UiTextEntry("defaultFont")
+        field = new UiTextEntry(UiConfig.DefaultSpriteFont)
         {
             Align = Align.Right,
             Y = y,
