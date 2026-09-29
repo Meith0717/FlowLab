@@ -19,16 +19,16 @@ public class SensorPlaneForm : Screen
     private readonly UiFrame _rootFrame;
     private readonly bool _override;
 
-    private UiTextEntry _idEntry;
-    private UiTextEntry _posXEntry,
+    private readonly UiTextEntry _idEntry;
+    private readonly UiTextEntry _posXEntry,
         _posYEntry,
         _posZEntry;
-    private UiTextEntry _normXEntry,
+    private readonly UiTextEntry _normXEntry,
         _normYEntry,
         _normZEntry;
-    private UiTextEntry _widthEntry,
+    private readonly UiTextEntry _widthEntry,
         _heightEntry;
-    private UiTextEntry _resolutionEntry;
+    private readonly UiTextEntry _resolutionEntry;
 
     public SensorPlaneForm(
         GameServiceContainer appServices,

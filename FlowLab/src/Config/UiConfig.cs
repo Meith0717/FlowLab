@@ -11,7 +11,6 @@ namespace FlowLab.Config;
 public class UiConfig(ContentProvider contentProvider)
 {
     public SpriteFont DefaultSpriteFont => contentProvider.Get<SpriteFont>("defaultFont");
-
     public Texture2D DefaultSelectorLeftTexture => contentProvider.Get<Texture2D>("arrowL");
     public Texture2D DefaultSelectorRightTexture => contentProvider.Get<Texture2D>("arrowR");
     public Texture2D EditButtonTexture => contentProvider.Get<Texture2D>("edit");

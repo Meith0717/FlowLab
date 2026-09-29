@@ -25,10 +25,9 @@ public class MainScreen : Screen
     public MainScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
-        var uiConfig = appServices.GetService<UiConfig>();
-
         _messageDisplayer = new MessageDisplayer(GraphicsDevice, 5000);
         _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer);
+
         new TopBarWidget(appServices, _simScene.SimConfig, _simScene.Watcher).Build(UiRoot);
         _monitoringWidget = new MonitoringWidget(
             appServices,
@@ -37,6 +36,8 @@ public class MainScreen : Screen
             _simScene.Watcher,
             _simScene.SensorManager
         ).Build(UiRoot);
+
+        var uiConfig = appServices.GetService<UiConfig>();
         _settingsWidget = new SettingsWidget(uiConfig, _simScene.SimConfig).Build(UiRoot);
     }
 
