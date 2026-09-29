@@ -58,7 +58,7 @@ public static class IiPressurePass
         {
             PressureExtrapolationPass.RunForEach(bChunk, context, config);
             PressureAccelerationPass.RunForEach(fChunk, context, config);
-            
+
             var totalDensityError = 0d;
             fChunk.ParallelForEach(
                 () => 0d,

@@ -65,7 +65,7 @@ public static class PressureAccelerationPass
                 continue;
 
             ref var particle = ref context.RigidBodyParticlePool.Get(nEntity.Id);
-            particle.AppliedForce += -particlePressureAcceleration * particleProperties.Mass;
+            particle.AppliedForce += particlePressureAcceleration * particleProperties.Mass;
         }
 
         kinematicState.PressureAcceleration = -pressureAcceleration;

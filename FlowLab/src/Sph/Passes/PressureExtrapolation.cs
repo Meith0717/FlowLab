@@ -60,8 +60,6 @@ public static class PressureExtrapolationPass
         var dotProduct = Vector3.Dot(new Vector3(0, -config.Gravity, 0), sum2);
 
         solver.Pressure = sum3 == 0 ? 0 : (sum1 + dotProduct) / sum3;
-
-        if (float.IsNaN(solver.Pressure))
-            Debugger.Break();
+        solver.Pressure = float.Max(solver.Pressure, 0);
     }
 }

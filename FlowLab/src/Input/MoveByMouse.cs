@@ -59,9 +59,9 @@ namespace FlowLab.Input
                 owner.Position -= owner.Right * movingSpeed;
             if (ks.IsKeyDown(Keys.D))
                 owner.Position += owner.Right * movingSpeed;
-            if (ks.IsKeyDown(Keys.PageUp))
+            if (ks.IsKeyDown(Keys.Q))
                 owner.Position += owner.Up * movingSpeed;
-            if (ks.IsKeyDown(Keys.PageDown))
+            if (ks.IsKeyDown(Keys.E))
                 owner.Position -= owner.Up * movingSpeed;
 
             _prevMouseState = Mouse.GetState();

@@ -124,9 +124,7 @@ public static class DensityPass
             numberDensity += neighbourList.CachedKernels[i];
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
-        particleProperty.Density =
-            numberDensity > particleProperty.RestDensity
-                ? particleProperty.Mass * numberDensity
-                : particleProperty.RestDensity;
+
+        particleProperty.Density = particleProperty.Mass * numberDensity;
     }
 }
