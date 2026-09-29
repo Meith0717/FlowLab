@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System;
+using FlowLab.Config;
 using FlowLab.Scenes;
 using FlowLab.Screens.Ui;
 using Microsoft.Xna.Framework;
@@ -24,6 +25,8 @@ public class MainScreen : Screen
     public MainScreen(GameServiceContainer appServices)
         : base(appServices, false, false)
     {
+        var uiConfig = appServices.GetService<UiConfig>();
+
         _messageDisplayer = new MessageDisplayer(GraphicsDevice, 5000);
         _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer);
         new TopBarWidget(appServices, _simScene.SimConfig, _simScene.Watcher).Build(UiRoot);
@@ -34,14 +37,15 @@ public class MainScreen : Screen
             _simScene.Watcher,
             _simScene.SensorManager
         ).Build(UiRoot);
-        _settingsWidget = new SettingsWidget(_simScene.SimConfig).Build(UiRoot);
+        _settingsWidget = new SettingsWidget(uiConfig, _simScene.SimConfig).Build(UiRoot);
     }
 
     public override void Initialize()
     {
-        _simScene.LoadContent();
+        var contentProvider = AppServices.GetService<ContentProvider>();
+        _simScene.LoadContent(contentProvider);
         base.Initialize();
-        _messageDisplayer.LoadContent(ContentProvider.Get<SpriteFont>("defaultFont"));
+        _messageDisplayer.LoadContent(contentProvider.Get<SpriteFont>("defaultFont"));
     }
 
     public override void Update(

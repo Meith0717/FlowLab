@@ -38,6 +38,8 @@ public class SensorPlaneForm : Screen
     )
         : base(appServices, false, true)
     {
+        var uiConfig = appServices.GetService<UiConfig>();
+
         _sensorPlaneSelector = sensorPlaneSelector;
         _sensorPlaneData = sensorData ?? SensorPlaneData.Default;
         _sensorPlaneManager = sensorPlaneManager;
@@ -58,7 +60,7 @@ public class SensorPlaneForm : Screen
         );
 
         _rootFrame.Add(
-            new UiText(UiConfig.DefaultSpriteFont, title)
+            new UiText(uiConfig.DefaultSpriteFont, title)
             {
                 Align = Align.N,
                 HSpace = 5,
@@ -82,13 +84,14 @@ public class SensorPlaneForm : Screen
         var y = 40;
 
         // ID
-        AddLabeledField("ID", ref _idEntry, _sensorPlaneData.Id, y, 0.0f, 0.8f);
+        AddLabeledField(uiConfig, "ID", ref _idEntry, _sensorPlaneData.Id, y, 0.0f, 0.8f);
 
         // Position row
         y += 30;
-        AddSubtitle("Position", y);
+        AddSubtitle(uiConfig, "Position", y);
         y += 30;
         AddLabeledField(
+            uiConfig,
             "X",
             ref _posXEntry,
             _sensorPlaneData.Position.X.ToString(),
@@ -97,6 +100,7 @@ public class SensorPlaneForm : Screen
             0.30f
         );
         AddLabeledField(
+            uiConfig,
             "Y",
             ref _posYEntry,
             _sensorPlaneData.Position.Y.ToString(),
@@ -105,6 +109,7 @@ public class SensorPlaneForm : Screen
             0.65f
         );
         AddLabeledField(
+            uiConfig,
             "Z",
             ref _posZEntry,
             _sensorPlaneData.Position.Z.ToString(),
@@ -115,10 +120,19 @@ public class SensorPlaneForm : Screen
         y += 30;
 
         // Normal row
-        AddSubtitle("Normal", y);
+        AddSubtitle(uiConfig, "Normal", y);
         y += 30;
-        AddLabeledField("X", ref _normXEntry, _sensorPlaneData.Normal.X.ToString(), y, 0.0f, 0.30f);
         AddLabeledField(
+            uiConfig,
+            "X",
+            ref _normXEntry,
+            _sensorPlaneData.Normal.X.ToString(),
+            y,
+            0.0f,
+            0.30f
+        );
+        AddLabeledField(
+            uiConfig,
             "Y",
             ref _normYEntry,
             _sensorPlaneData.Normal.Y.ToString(),
@@ -126,13 +140,22 @@ public class SensorPlaneForm : Screen
             0.35f,
             0.65f
         );
-        AddLabeledField("Z", ref _normZEntry, _sensorPlaneData.Normal.Z.ToString(), y, 0.70f, 1.0f);
+        AddLabeledField(
+            uiConfig,
+            "Z",
+            ref _normZEntry,
+            _sensorPlaneData.Normal.Z.ToString(),
+            y,
+            0.70f,
+            1.0f
+        );
         y += 30;
 
         // Size row
-        AddSubtitle("Size", y);
+        AddSubtitle(uiConfig, "Size", y);
         y += 30;
         AddLabeledField(
+            uiConfig,
             "Width",
             ref _widthEntry,
             _sensorPlaneData.Width.ToString(),
@@ -141,6 +164,7 @@ public class SensorPlaneForm : Screen
             0.45f
         );
         AddLabeledField(
+            uiConfig,
             "Height",
             ref _heightEntry,
             _sensorPlaneData.Height.ToString(),
@@ -151,9 +175,10 @@ public class SensorPlaneForm : Screen
         y += 30;
 
         // Resolution
-        AddSubtitle("Resolution", y);
+        AddSubtitle(uiConfig, "Resolution", y);
         y += 30;
         AddLabeledField(
+            uiConfig,
             "N",
             ref _resolutionEntry,
             _sensorPlaneData.Resolution.ToString(),
@@ -181,7 +206,7 @@ public class SensorPlaneForm : Screen
             Width = 75,
             Height = 28,
             HSpace = 6,
-            UiText = new UiText(UiConfig.DefaultSpriteFont, "CANCEL")
+            UiText = new UiText(uiConfig.DefaultSpriteFont, "CANCEL")
             {
                 Scale = 0.14f,
                 Color = Color.LightGray,
@@ -197,7 +222,7 @@ public class SensorPlaneForm : Screen
             Width = 75,
             Height = 28,
             HSpace = 6,
-            UiText = new UiText(UiConfig.DefaultSpriteFont, "SAVE")
+            UiText = new UiText(uiConfig.DefaultSpriteFont, "SAVE")
             {
                 Scale = 0.14f,
                 Color = Color.LightGray,
@@ -207,10 +232,10 @@ public class SensorPlaneForm : Screen
         buttonFrame.Add(saveButton);
     }
 
-    private void AddSubtitle(string text, int y)
+    private void AddSubtitle(UiConfig uiConfig, string text, int y)
     {
         _rootFrame.Add(
-            new UiText(UiConfig.DefaultSpriteFont, text)
+            new UiText(uiConfig.DefaultSpriteFont, text)
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -222,6 +247,7 @@ public class SensorPlaneForm : Screen
     }
 
     private void AddLabeledField(
+        UiConfig uiConfig,
         string label,
         ref UiTextEntry field,
         string value,
@@ -230,7 +256,7 @@ public class SensorPlaneForm : Screen
         float relWidth
     )
     {
-        var labelEntry = new UiText(UiConfig.DefaultSpriteFont, label + ":")
+        var labelEntry = new UiText(uiConfig.DefaultSpriteFont, label + ":")
         {
             RelX = relX,
             Y = y,
@@ -241,7 +267,7 @@ public class SensorPlaneForm : Screen
         };
         _rootFrame.Add(labelEntry);
 
-        field = new UiTextEntry(UiConfig.DefaultSpriteFont)
+        field = new UiTextEntry(uiConfig.DefaultSpriteFont)
         {
             RelX = relX + 0.20f,
             Y = y,

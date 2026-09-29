@@ -8,12 +8,12 @@ using MonoKit.Content;
 
 namespace FlowLab.Config;
 
-public static class UiConfig
+public class UiConfig(ContentProvider contentProvider)
 {
-    public static SpriteFont DefaultSpriteFont => ContentProvider.Get<SpriteFont>("defaultFont");
+    public SpriteFont DefaultSpriteFont => contentProvider.Get<SpriteFont>("defaultFont");
 
-    public static Texture2D DefaultSelectorLeftTexture => ContentProvider.Get<Texture2D>("arrowL");
-    public static Texture2D DefaultSelectorRightTexture => ContentProvider.Get<Texture2D>("arrowR");
-    public static Texture2D EditButtonTexture => ContentProvider.Get<Texture2D>("edit");
-    public static Texture2D AddButtonTexture => ContentProvider.Get<Texture2D>("add");
+    public Texture2D DefaultSelectorLeftTexture => contentProvider.Get<Texture2D>("arrowL");
+    public Texture2D DefaultSelectorRightTexture => contentProvider.Get<Texture2D>("arrowR");
+    public Texture2D EditButtonTexture => contentProvider.Get<Texture2D>("edit");
+    public Texture2D AddButtonTexture => contentProvider.Get<Texture2D>("add");
 }

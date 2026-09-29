@@ -33,7 +33,7 @@ public class FluidRenderer : IDisposable
     private DynamicVertexBuffer _currentWriteBuffer;
     private DynamicVertexBuffer _currentReadBuffer;
     private Effect _particleShader;
-    private BasicEffect _gridEffect;
+    private readonly BasicEffect _gridEffect;
     private int _particleCount;
 
     public bool ShowSpatialGrids { get; set; }
@@ -97,9 +97,9 @@ public class FluidRenderer : IDisposable
         };
     }
 
-    public void LoadContent()
+    public void LoadContent(ContentProvider contentProvider)
     {
-        _particleShader = ContentProvider.Get<Effect>("ParticleShader");
+        _particleShader = contentProvider.Get<Effect>("ParticleShader");
     }
 
     public void Update(bool hideBoundary)

@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System.Collections.Generic;
+using FlowLab.Config;
 using FlowLab.Input;
 using FlowLab.Screens;
 using Microsoft.Xna.Framework;
@@ -26,15 +27,13 @@ public class Simulation : Game
     private readonly InputHandler _inputHandler;
     private readonly ScreenManager _screenManager;
     private readonly GameServiceContainer _serviceContainer;
+    private readonly ContentProvider _contentProvider;
 
     public Simulation()
     {
         var graphics = new GraphicsDeviceManager(this);
-        _graphicsController = new GraphicsController(this, Window, graphics);
         _inputHandler = new InputHandler();
-        _screenManager = new ScreenManager(this);
         _serviceContainer = new GameServiceContainer();
-        _spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
 
         var keyBindings = new Dictionary<(Keys, InputEventType), byte>()
         {
@@ -57,12 +56,17 @@ public class Simulation : Game
             { (MouseButton.Left, InputEventType.Held), (byte)ActionType.DragParticle },
         };
 
+        _serviceContainer.AddService(_screenManager = new ScreenManager(this));
+        _serviceContainer.AddService(
+            _graphicsController = new GraphicsController(this, Window, graphics)
+        );
+        _serviceContainer.AddService(_contentProvider = new ContentProvider());
+        _serviceContainer.AddService(new UiConfig(_contentProvider));
+
         _graphicsController.ApplyMode(WindowMode.Windowed);
         _graphicsController.ApplyRefreshRate(250, false);
         _inputHandler.RegisterDevice(new KeyboardListener(keyBindings));
         _inputHandler.RegisterDevice(new MouseListener(mouseBindings));
-        _serviceContainer.AddService(_screenManager);
-        _serviceContainer.AddService(_graphicsController);
 
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -79,10 +83,13 @@ public class Simulation : Game
 
     protected override void LoadContent()
     {
-        ContentProvider.Container<Effect>().LoadContent(Content, "Shaders");
-        ContentProvider.Container<SpriteFont>().LoadContent(Content, "Fonts");
-        ContentProvider.Container<Texture2D>().LoadContent(Content, "Textures");
-        _frameCounter = new FrameCounter(ContentProvider.Get<SpriteFont>("defaultFont"));
+        new ContentLoader(Content)
+            .RegisterContentDirectory<Effect>("Shaders")
+            .RegisterContentDirectory<SpriteFont>("Fonts")
+            .RegisterContentDirectory<Texture2D>("Textures")
+            .LoadAll(_contentProvider);
+
+        _frameCounter = new FrameCounter(_contentProvider.Get<SpriteFont>("defaultFont"));
         _serviceContainer.AddService(_frameCounter);
         _screenManager.AddScreen(new MainScreen(_serviceContainer));
         base.LoadContent();

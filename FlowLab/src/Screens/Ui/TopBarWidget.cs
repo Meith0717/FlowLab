@@ -19,6 +19,8 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
 
     public void Build(UiFrame root)
     {
+        var uiConfig = serviceContainer.GetService<UiConfig>();
+
         root.Add(
             _topBar = new UiFrame
             {
@@ -36,7 +38,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
                 Align = Align.CenterH,
                 Width = 60,
                 RelHeight = 1,
-                UiText = new UiText(UiConfig.DefaultSpriteFont, "Exit")
+                UiText = new UiText(uiConfig.DefaultSpriteFont, "Exit")
                 {
                     Scale = 0.15f,
                     Align = Align.Center,
@@ -53,7 +55,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
                 Align = Align.CenterH,
                 Width = 120,
                 RelHeight = 1,
-                UiText = new UiText(UiConfig.DefaultSpriteFont)
+                UiText = new UiText(uiConfig.DefaultSpriteFont)
                 {
                     Scale = 0.15f,
                     Align = Align.Center,
@@ -76,7 +78,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
         );
 
         _topBar.Add(
-            new UiText(UiConfig.DefaultSpriteFont)
+            new UiText(uiConfig.DefaultSpriteFont)
             {
                 Align = Align.CenterH,
                 RelX = .51f,
@@ -87,7 +89,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
         );
 
         _topBar.Add(
-            new UiText(UiConfig.DefaultSpriteFont)
+            new UiText(uiConfig.DefaultSpriteFont)
             {
                 Align = Align.CenterH,
                 RelX = .7f,
@@ -98,7 +100,7 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
         );
 
         _topBar.Add(
-            new UiText(UiConfig.DefaultSpriteFont)
+            new UiText(uiConfig.DefaultSpriteFont)
             {
                 Align = Align.CenterH,
                 RelX = 0.9f,

@@ -10,7 +10,7 @@ using MonoKit.Ui;
 
 namespace FlowLab.Screens.Ui;
 
-public class SettingsWidget(Config.SimConfig simConfig)
+public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
 {
     private UiFrame _settingsFrame;
 
@@ -35,7 +35,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
         );
 
         _settingsFrame.Add(
-            new UiText(UiConfig.DefaultSpriteFont, "SETTINGS")
+            new UiText(uiConfig.DefaultSpriteFont, "SETTINGS")
             {
                 Align = Align.N,
                 HSpace = 5,
@@ -82,7 +82,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
     )
     {
         _settingsFrame.Add(
-            new UiText(UiConfig.DefaultSpriteFont, label)
+            new UiText(uiConfig.DefaultSpriteFont, label)
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -92,7 +92,7 @@ public class SettingsWidget(Config.SimConfig simConfig)
             }
         );
 
-        field = new UiTextEntry(UiConfig.DefaultSpriteFont)
+        field = new UiTextEntry(uiConfig.DefaultSpriteFont)
         {
             Align = Align.Right,
             Y = y,

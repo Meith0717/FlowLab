@@ -127,9 +127,9 @@ public class SimulationScene : IDisposable
         // );
     }
 
-    public void LoadContent()
+    public void LoadContent(ContentProvider contentProvider)
     {
-        _fluidRenderer.LoadContent();
+        _fluidRenderer.LoadContent(contentProvider);
     }
 
     public void Update(double elapsedMilliseconds, InputHandler inputHandler, float uiScale)
