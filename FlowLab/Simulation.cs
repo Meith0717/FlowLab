@@ -27,20 +27,21 @@ public class Simulation : Game
     public Simulation()
     {
         Content.RootDirectory = "Content";
-        IsMouseVisible = true;
-        IsFixedTimeStep = false;
 
         var graphics = new GraphicsDeviceManager(this);
-        Services.AddService(_graphicsController = new GraphicsController(this, Window, graphics));
         Services.AddService(_screenManager = new ScreenManager(this));
         Services.AddService(_contentProvider = new ContentProvider());
         Services.AddService(new UiConfig(_contentProvider));
+        Services.AddService(_graphicsController = new GraphicsController(this, Window, graphics));
 
         _graphicsController.ApplyMode(WindowMode.Windowed);
         _graphicsController.ApplyRefreshRate(250, false);
 
         _inputHandler.RegisterDevice(new KeyboardListener(InputBindings.KeyBindings));
         _inputHandler.RegisterDevice(new MouseListener(InputBindings.MouseBindings));
+
+        IsMouseVisible = true;
+        IsFixedTimeStep = false;
     }
 
     protected override void LoadContent()

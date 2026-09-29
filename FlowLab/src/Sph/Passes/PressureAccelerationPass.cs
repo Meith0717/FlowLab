@@ -5,6 +5,7 @@
 
 using System.Runtime.CompilerServices;
 using FlowLab.Config;
+using FlowLab.Ecs.Components;
 using FlowLab.Sph.Passes.Utilities;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs.Entities;
@@ -37,24 +38,57 @@ public static class PressureAccelerationPass
         ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
 
         var pressureAcceleration = Vector3.Zero;
-        for (var i = 0; i < neighbourList.NeighboursCount; i++)
+
+        for (var i = 0; i < neighbourList.FluidNeighbourCount; i++)
         {
+            pressureAcceleration += ComputePressureAcceleration(
+                i,
+                context,
+                ref neighbourList,
+                ref solver,
+                ref particleProperties
+            );
+        }
+        for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++)
+        {
+            var particlePressureAcceleration = ComputePressureAcceleration(
+                i,
+                context,
+                ref neighbourList,
+                ref solver,
+                ref particleProperties
+            );
+            pressureAcceleration += particlePressureAcceleration;
+
             var nEntity = neighbourList.Neighbours[i];
-            ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-            ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
-            var pSum =
-                solver.Pressure / float.Pow(particleProperties.Density, 2)
-                + nSolver.Pressure / float.Pow(nParticleProperties.Density, 2);
-            var kernelDerivative = neighbourList.CachedNablaKernels[i];
-            pressureAcceleration += nParticleProperties.Mass * pSum * kernelDerivative;
+            if (!context.RigidBodyParticlePool.Has(nEntity.Id))
+                continue;
+
+            ref var particle = ref context.RigidBodyParticlePool.Get(nEntity.Id);
+            particle.AppliedForce += -particlePressureAcceleration * particleProperties.Mass;
         }
 
         kinematicState.PressureAcceleration = -pressureAcceleration;
+    }
 
-        if (!context.RigidBodyParticlePool.Has(entity.Id))
-            return;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector3 ComputePressureAcceleration(
+        int i,
+        SphPassContext context,
+        ref NeighbourList neighbourList,
+        ref SolverState solver,
+        ref ParticleProperties particleProperties
+    )
+    {
+        var nEntity = neighbourList.Neighbours[i];
 
-        ref var particle = ref context.RigidBodyParticlePool.Get(entity.Id);
-        particle.AppliedForce = -pressureAcceleration * particleProperties.Mass;
+        ref var nSolver = ref context.SolverState.Get(nEntity.Id);
+        ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+
+        var pSum =
+            solver.Pressure / float.Pow(particleProperties.Density, 2)
+            + nSolver.Pressure / float.Pow(nParticleProperties.Density, 2);
+        var kernelDerivative = neighbourList.CachedNablaKernels[i];
+        return nParticleProperties.Mass * pSum * kernelDerivative;
     }
 }
