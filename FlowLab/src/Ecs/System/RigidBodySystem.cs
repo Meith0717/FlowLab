@@ -20,11 +20,15 @@ namespace FlowLab.Ecs.System;
 public class RigidBodySystem(SimConfig config, SimulationController simController) : ISystem
 {
     private readonly Entity[] _buffer = new Entity[2048];
+
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<Velocity3D> _velocityPool;
     private ComponentPool<KinematicState> _kinematicPool;
     private ComponentPool<RigidBodyComponent> _rigidBodyComponentPool;
     private ComponentPool<RigidBodyParticle> _rigidBodyParticlePool;
+    private ComponentPool<SolverState> _solverStatePool;
+    private ComponentPool<NeighbourList> _neighbourPool;
+    private ComponentPool<ParticleProperties> _particlePropertiesPool;
 
     public int Priority => 1;
 
@@ -36,6 +40,9 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
         _rigidBodyComponentPool = componentManager.GetOrCreatePool<RigidBodyComponent>();
         _rigidBodyParticlePool = componentManager.GetOrCreatePool<RigidBodyParticle>();
         _kinematicPool = componentManager.GetOrCreatePool<KinematicState>();
+        _solverStatePool = componentManager.GetOrCreatePool<SolverState>();
+        _neighbourPool = componentManager.GetOrCreatePool<NeighbourList>();
+        _particlePropertiesPool = componentManager.GetOrCreatePool<ParticleProperties>();
     }
 
     public void Update(
@@ -59,17 +66,37 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
             // External Forces
             var force = Vector3.Zero;
             var torque = Vector3.Zero;
-            foreach (var particles in bodyComponent.Particles)
+            foreach (var particle in bodyComponent.Particles)
             {
-                ref var rigidBodyParticle = ref _rigidBodyParticlePool.Get(particles.Id);
+                ref var solver = ref _solverStatePool.Get(particle.Id);
+                ref var neighbourList = ref _neighbourPool.Get(particle.Id);
+                ref var particleProperties = ref _particlePropertiesPool.Get(particle.Id);
+
+                var pressureForce = Vector3.Zero;
+                for (var i = 0; i < neighbourList.FluidNeighbourCount; i++)
+                {
+                    var nEntity = neighbourList.Neighbours[i];
+                    ref var nParticleProperties = ref _particlePropertiesPool.Get(nEntity.Id);
+
+                    var pSum =
+                        solver.Pressure / (particleProperties.Density * particleProperties.Density);
+
+                    var kernelDerivative = neighbourList.CachedNablaKernels[i];
+                    pressureForce -=
+                        nParticleProperties.Mass
+                        * particleProperties.Mass
+                        * pSum
+                        * kernelDerivative;
+                }
+
+                ref var rigidBodyParticle = ref _rigidBodyParticlePool.Get(particle.Id);
                 var worldRelativePosition = Vector3.Transform(
                     rigidBodyParticle.RelativePosition,
                     bodyTransform.Orientation
                 );
 
-                force += rigidBodyParticle.AppliedForce;
-                torque += Vector3.Cross(worldRelativePosition, rigidBodyParticle.AppliedForce);
-                rigidBodyParticle.AppliedForce = Vector3.Zero;
+                force += pressureForce;
+                torque += Vector3.Cross(worldRelativePosition, pressureForce);
             }
 
             // Translational Motion

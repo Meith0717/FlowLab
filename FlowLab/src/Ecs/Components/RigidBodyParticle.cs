@@ -10,5 +10,4 @@ namespace FlowLab.Ecs.Components;
 public struct RigidBodyParticle(Vector3 relativePosition)
 {
     public readonly Vector3 RelativePosition = relativePosition;
-    public Vector3 AppliedForce;
 }

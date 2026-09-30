@@ -39,56 +39,20 @@ public static class PressureAccelerationPass
 
         var pressureAcceleration = Vector3.Zero;
 
-        for (var i = 0; i < neighbourList.FluidNeighbourCount; i++)
+        for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
-            pressureAcceleration += ComputePressureAcceleration(
-                i,
-                context,
-                ref neighbourList,
-                ref solver,
-                ref particleProperties
-            );
-        }
-        for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++)
-        {
-            var particlePressureAcceleration = ComputePressureAcceleration(
-                i,
-                context,
-                ref neighbourList,
-                ref solver,
-                ref particleProperties
-            );
-            pressureAcceleration += particlePressureAcceleration;
-
             var nEntity = neighbourList.Neighbours[i];
-            if (!context.RigidBodyParticlePool.Has(nEntity.Id))
-                continue;
 
-            ref var particle = ref context.RigidBodyParticlePool.Get(nEntity.Id);
-            particle.AppliedForce += particlePressureAcceleration * particleProperties.Mass;
+            ref var nSolver = ref context.SolverState.Get(nEntity.Id);
+            ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+
+            var pSum =
+                solver.Pressure / (particleProperties.Density * particleProperties.Density)
+                + nSolver.Pressure / (nParticleProperties.Density * nParticleProperties.Density);
+            var kernelDerivative = neighbourList.CachedNablaKernels[i];
+            pressureAcceleration += nParticleProperties.Mass * pSum * kernelDerivative;
         }
 
         kinematicState.PressureAcceleration = -pressureAcceleration;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector3 ComputePressureAcceleration(
-        int i,
-        SphPassContext context,
-        ref NeighbourList neighbourList,
-        ref SolverState solver,
-        ref ParticleProperties particleProperties
-    )
-    {
-        var nEntity = neighbourList.Neighbours[i];
-
-        ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-        ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
-
-        var pSum =
-            solver.Pressure / (particleProperties.Density * particleProperties.Density)
-            + nSolver.Pressure / (nParticleProperties.Density * nParticleProperties.Density);
-        var kernelDerivative = neighbourList.CachedNablaKernels[i];
-        return nParticleProperties.Mass * pSum * kernelDerivative;
     }
 }

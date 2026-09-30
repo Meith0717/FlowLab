@@ -79,6 +79,7 @@ public class SimulationScene : IDisposable
             kernels,
             SimConfig
         );
+        SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
 
         var simDomain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
         world.Systems.Add(new OutOfBoundsCleanupSystem(simDomain));
@@ -119,7 +120,7 @@ public class SimulationScene : IDisposable
         rigidBodyFactory.CreateDynamic(
             world,
             model,
-            1f,
+            .7f,
             new Vector3(0, 19, 0),
             new Vector3(5),
             Matrix.Identity,
