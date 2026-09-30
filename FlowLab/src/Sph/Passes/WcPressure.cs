@@ -29,10 +29,8 @@ public static class WcPressurePass
         ref var solver = ref context.SolverState.Get(entity.Id);
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
 
-        solver.Pressure = 700 * ((particleProperty.Density / particleProperty.RestDensity) - 1);
+        solver.Pressure =
+            config.Stiffness * ((particleProperty.Density / particleProperty.RestDensity) - 1);
         solver.Pressure = float.Max(solver.Pressure, 0);
-
-        if (float.IsNaN(solver.Pressure))
-            Debugger.Break();
     }
 }

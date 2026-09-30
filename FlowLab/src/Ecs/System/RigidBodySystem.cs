@@ -62,19 +62,20 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
             foreach (var particles in bodyComponent.Particles)
             {
                 ref var rigidBodyParticle = ref _rigidBodyParticlePool.Get(particles.Id);
+                var worldRelativePosition = Vector3.Transform(
+                    rigidBodyParticle.RelativePosition,
+                    bodyTransform.Orientation
+                );
 
                 force += rigidBodyParticle.AppliedForce;
-                torque += Vector3.Cross(
-                    rigidBodyParticle.RelativePosition,
-                    rigidBodyParticle.AppliedForce
-                );
+                torque += Vector3.Cross(worldRelativePosition, rigidBodyParticle.AppliedForce);
                 rigidBodyParticle.AppliedForce = Vector3.Zero;
             }
 
             // Translational Motion
+            var acceleration = (force / bodyComponent.Mass) + new Vector3(0, -config.Gravity, 0);
+            bodyVelocity.LinearVelocity += config.TimeStep * acceleration;
             bodyTransform.Position += config.TimeStep * bodyVelocity.LinearVelocity;
-            bodyVelocity.LinearVelocity += config.TimeStep * (force / bodyComponent.Mass);
-            bodyVelocity.LinearVelocity += config.TimeStep * new Vector3(0, -config.Gravity, 0);
 
             // Rotational Motion
             bodyTransform.Orientation -=
@@ -102,15 +103,15 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
                 ref var particleTransform = ref _transformPool.Get(particles.Id);
                 ref var particleKinematic = ref _kinematicPool.Get(particles.Id);
 
-                var worldOffset = Vector3.Transform(
+                var worldRelativePosition = Vector3.Transform(
                     rigidBodyParticle.RelativePosition,
                     bodyTransform.Orientation
                 );
 
-                particleTransform.Position = bodyTransform.Position + worldOffset;
+                particleTransform.Position = bodyTransform.Position + worldRelativePosition;
                 particleKinematic.Velocity =
                     bodyVelocity.LinearVelocity
-                    + Vector3.Cross(bodyVelocity.AngularVelocity, worldOffset);
+                    + Vector3.Cross(bodyVelocity.AngularVelocity, worldRelativePosition);
             }
         }
     }

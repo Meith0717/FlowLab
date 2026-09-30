@@ -33,16 +33,25 @@ public class RigidBodyFactory(SimConfig config)
         var matrix = Matrix.CreateScale(scale) * orientation * Matrix.CreateTranslation(position);
         MeshSampler.SetModelAndInitializeSampler(model, particleSize, matrix);
 
-        var sampleSurface = MeshSampler.SampleSurface();
-        var sampleVolume = MeshSampler.SampleVolume();
+        var sampledVolume = MeshSampler.SampleVolume();
 
-        var volume = particleSize * particleSize * particleSize;
-        var mass = density * sampleVolume.Length * volume;
+        var particleVolume = particleSize * particleSize * particleSize;
+        var particleMass = density * particleVolume;
+        var objectMass = sampledVolume.Length * particleMass;
 
-        var sumOfVectors = sampleVolume.Aggregate(Vector3.Zero, (acc, vec) => acc + vec);
-        var centerOfMass = 1f / mass * sumOfVectors;
+        var sumOfVectors = sampledVolume.Aggregate(Vector3.Zero, (acc, vec) => acc + vec);
+        var centerOfMass = (1f / sampledVolume.Length) * sumOfVectors;
 
-        CreateDynamic(world, mass, sampleSurface, centerOfMass, orientation, particleSize);
+        var sampledSurface = MeshSampler.SampleSurface();
+        CreateDynamic(
+            world,
+            objectMass,
+            sampledSurface,
+            centerOfMass,
+            orientation,
+            particleSize,
+            1
+        );
     }
 
     public static void CreateDynamic(
@@ -51,20 +60,21 @@ public class RigidBodyFactory(SimConfig config)
         Vector3[] surfaceParticles,
         Vector3 centerOfMass,
         Matrix orientation,
-        float particleSize
+        float particleSize,
+        float density
     )
     {
         var surfaceEntities = new List<Entity>();
-        foreach (var surfacePoint in surfaceParticles)
+        foreach (var surfacePosition in surfaceParticles)
         {
-            var relativePos = surfacePoint - centerOfMass;
+            var relativePosition = surfacePosition - centerOfMass;
             surfaceEntities.Add(
                 ParticleFactory.CreateRigidBodyParticle(
                     world,
-                    surfacePoint,
-                    relativePos,
+                    surfacePosition,
+                    relativePosition,
                     particleSize,
-                    1
+                    density
                 )
             );
         }
@@ -76,7 +86,7 @@ public class RigidBodyFactory(SimConfig config)
             e,
             new RigidBodyComponent(
                 mass,
-                Matrix.Identity * (2 / 5f * mass * 25),
+                Matrix.Identity * ((2 / 5f) * mass * 25),
                 [.. surfaceEntities]
             )
         );

@@ -86,8 +86,8 @@ public static class PressureAccelerationPass
         ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
 
         var pSum =
-            solver.Pressure / float.Pow(particleProperties.Density, 2)
-            + nSolver.Pressure / float.Pow(nParticleProperties.Density, 2);
+            solver.Pressure / (particleProperties.Density * particleProperties.Density)
+            + nSolver.Pressure / (nParticleProperties.Density * nParticleProperties.Density);
         var kernelDerivative = neighbourList.CachedNablaKernels[i];
         return nParticleProperties.Mass * pSum * kernelDerivative;
     }
