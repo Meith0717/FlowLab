@@ -56,9 +56,8 @@ public class SensorPlane : IDisposable
     private readonly float[] _volumeErrorGrid;
     private readonly float[] _density;
     private readonly ComponentPool<Transform3D> _transformPool;
-    private readonly ComponentPool<ParticleProperties> _materialPool;
+    private readonly ComponentPool<ParticleProperties> _particleProperties;
     private readonly ComponentPool<KinematicState> _kinematicPool;
-    private readonly ComponentPool<SolverState> _solverPool;
 
     private float CellSizeX => _size.Width / (float)_resolution.X;
     private float CellSizeY => _size.Height / (float)_resolution.Y;
@@ -100,9 +99,8 @@ public class SensorPlane : IDisposable
         TextureData = new Color[gridSize];
 
         _transformPool = world.Components.GetOrCreatePool<Transform3D>();
-        _materialPool = world.Components.GetOrCreatePool<ParticleProperties>();
+        _particleProperties = world.Components.GetOrCreatePool<ParticleProperties>();
         _kinematicPool = world.Components.GetOrCreatePool<KinematicState>();
-        _solverPool = world.Components.GetOrCreatePool<SolverState>();
     }
 
     public void Update(PropertyType property, ColorScheme scheme)
@@ -243,14 +241,13 @@ public class SensorPlane : IDisposable
             if (distSq >= radius * radius)
                 continue;
 
-            ref var fluid = ref _materialPool.Get(entity.Id);
+            ref var fluid = ref _particleProperties.Get(entity.Id);
             ref var movement = ref _kinematicPool.Get(entity.Id);
-            ref var solver = ref _solverPool.Get(entity.Id);
 
             var weight =
                 fluid.Density * _kernels.CubicSpline(gridPosNum, transform.Position.ToNumerics());
 
-            pressureSum += solver.Pressure * weight;
+            pressureSum += fluid.Pressure * weight;
             volumeErrorSum += ((fluid.RestDensity - fluid.Density) / fluid.RestDensity) * weight;
             densitySum += fluid.Mass / fluid.Density * weight;
             sumWeight += weight;

@@ -24,9 +24,8 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
     private ComponentPool<Transform3D> _transformPool;
     private ComponentPool<Velocity3D> _velocityPool;
     private ComponentPool<KinematicState> _kinematicPool;
-    private ComponentPool<RigidBodyComponent> _rigidBodyComponentPool;
+    private ComponentPool<RigidObjectComponent> _rigidBodyComponentPool;
     private ComponentPool<RigidBodyParticle> _rigidBodyParticlePool;
-    private ComponentPool<SolverState> _solverStatePool;
     private ComponentPool<NeighbourList> _neighbourPool;
     private ComponentPool<ParticleProperties> _particlePropertiesPool;
 
@@ -37,10 +36,9 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
         var componentManager = world.Components;
         _transformPool = componentManager.GetOrCreatePool<Transform3D>();
         _velocityPool = componentManager.GetOrCreatePool<Velocity3D>();
-        _rigidBodyComponentPool = componentManager.GetOrCreatePool<RigidBodyComponent>();
+        _rigidBodyComponentPool = componentManager.GetOrCreatePool<RigidObjectComponent>();
         _rigidBodyParticlePool = componentManager.GetOrCreatePool<RigidBodyParticle>();
         _kinematicPool = componentManager.GetOrCreatePool<KinematicState>();
-        _solverStatePool = componentManager.GetOrCreatePool<SolverState>();
         _neighbourPool = componentManager.GetOrCreatePool<NeighbourList>();
         _particlePropertiesPool = componentManager.GetOrCreatePool<ParticleProperties>();
     }
@@ -55,7 +53,7 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
         if (simController.IsPaused)
             return;
 
-        var entitiesSpan = world.TypeTracker.GetEntitiesWith<RigidBodyComponent>(_buffer);
+        var entitiesSpan = world.TypeTracker.GetEntitiesWith<RigidObjectComponent>(_buffer);
 
         foreach (var rigidBodyEntity in entitiesSpan)
         {
@@ -68,7 +66,6 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
             var torque = Vector3.Zero;
             foreach (var particle in bodyComponent.Particles)
             {
-                ref var solver = ref _solverStatePool.Get(particle.Id);
                 ref var neighbourList = ref _neighbourPool.Get(particle.Id);
                 ref var particleProperties = ref _particlePropertiesPool.Get(particle.Id);
 
@@ -79,7 +76,8 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
                     ref var nParticleProperties = ref _particlePropertiesPool.Get(nEntity.Id);
 
                     var pSum =
-                        solver.Pressure / (particleProperties.Density * particleProperties.Density);
+                        particleProperties.Pressure
+                        / (particleProperties.Density * particleProperties.Density);
 
                     var kernelDerivative = neighbourList.CachedNablaKernels[i];
                     pressureForce -=

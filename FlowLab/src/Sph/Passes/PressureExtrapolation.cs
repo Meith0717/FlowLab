@@ -28,10 +28,10 @@ public static class PressureExtrapolationPass
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
-        ref var solver = ref context.SolverState.Get(entity.Id);
+        ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var transform = ref context.TransformPool.Get(entity.Id);
 
-        solver.Pressure = 0;
+        particleProperties.Pressure = 0;
         if (neighbours.FluidNeighbourCount == 0)
             return;
 
@@ -39,8 +39,8 @@ public static class PressureExtrapolationPass
         for (var i = 0; i < neighbours.FluidNeighbourCount; ++i) // Only Fluid
         {
             var nEntity = neighbours.Neighbours[i];
-            ref var nSolver = ref context.SolverState.Get(nEntity.Id);
-            sum1 += nSolver.Pressure * neighbours.CachedKernels[i];
+            ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            sum1 += nParticleProperties.Pressure * neighbours.CachedKernels[i];
         }
 
         var sum2 = Vector3.Zero;
@@ -59,7 +59,7 @@ public static class PressureExtrapolationPass
 
         var dotProduct = Vector3.Dot(new Vector3(0, -config.Gravity, 0), sum2);
 
-        solver.Pressure = sum3 == 0 ? 0 : (sum1 + dotProduct) / sum3;
-        solver.Pressure = float.Max(solver.Pressure, 0);
+        particleProperties.Pressure = sum3 == 0 ? 0 : (sum1 + dotProduct) / sum3;
+        particleProperties.Pressure = float.Max(particleProperties.Pressure, 0);
     }
 }

@@ -35,20 +35,20 @@ public static class IiPressurePass
                 for (var i = start; i < end; i++)
                 {
                     var entity = allEntities[i];
-                    ref var solver = ref context.SolverState.Get(entity.Id);
+                    ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
 
                     ISphUtil.ComputeSourceTerm(entity, context, config);
                     ISphUtil.ComputeDiagonalElement(entity, context, config);
 
-                    if (float.Abs(solver.DiagonalElement) > float.Epsilon)
-                        solver.Pressure = float.Max(
+                    if (float.Abs(particleProperty.DiagonalElement) > float.Epsilon)
+                        particleProperty.Pressure = float.Max(
                             GlobalConfig.JacobiRelaxation
-                                / solver.DiagonalElement
-                                * solver.SourceTherm,
+                                / particleProperty.DiagonalElement
+                                * particleProperty.SourceTherm,
                             0
                         );
                     else
-                        solver.Pressure = 0;
+                        particleProperty.Pressure = 0;
                 }
             }
         );
@@ -67,29 +67,28 @@ public static class IiPressurePass
                     for (var j = start; j < end; j++)
                     {
                         var entity = allEntities[j];
-                        ref var solver = ref context.SolverState.Get(entity.Id);
                         ref var particleProperties = ref context.ParticlePropertiesPool.Get(
                             entity.Id
                         );
 
                         ISphUtil.ComputeLaplacian(entity, context, config);
 
-                        if (float.Abs(solver.DiagonalElement) > float.Epsilon)
-                            solver.Pressure +=
+                        if (float.Abs(particleProperties.DiagonalElement) > float.Epsilon)
+                            particleProperties.Pressure +=
                                 GlobalConfig.JacobiRelaxation
-                                / solver.DiagonalElement
-                                * (solver.SourceTherm - solver.Laplacian);
+                                / particleProperties.DiagonalElement
+                                * (particleProperties.SourceTherm - particleProperties.Laplacian);
                         else
-                            solver.Pressure = 0;
-                        solver.Pressure = float.Max(0, solver.Pressure);
+                            particleProperties.Pressure = 0;
+                        particleProperties.Pressure = float.Max(0, particleProperties.Pressure);
 
                         var densityError =
-                            (solver.Laplacian - solver.SourceTherm)
+                            (particleProperties.Laplacian - particleProperties.SourceTherm)
                             * config.TimeStep
                             / particleProperties.RestDensity;
                         densityErrorSum += double.Max(densityError, 0);
 
-                        if (float.IsNaN(solver.Pressure))
+                        if (float.IsNaN(particleProperties.Pressure))
                             Debugger.Break();
                     }
                     return densityErrorSum;
@@ -139,9 +138,8 @@ file static class ISphUtil
         }
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
-        ref var solver = ref context.SolverState.Get(entity.Id);
         var dii = Vector3.Dot(diiSum, diiSum);
-        solver.DiagonalElement =
+        particleProperty.DiagonalElement =
             -(simConfig.TimeStep / float.Pow(particleProperty.Density, 2)) * (dij + dii);
     }
 
@@ -168,17 +166,16 @@ file static class ISphUtil
                 Debugger.Break();
         }
         var intermediateDensity = particleProperty.Density + config.TimeStep * sum;
-
-        ref var solver = ref context.SolverState.Get(entity.Id);
-        solver.SourceTherm = (particleProperty.RestDensity - intermediateDensity) / config.TimeStep;
+        particleProperty.SourceTherm =
+            (particleProperty.RestDensity - intermediateDensity) / config.TimeStep;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ComputeLaplacian(Entity entity, SphPassContext context, SimConfig config)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
-        ref var solver = ref context.SolverState.Get(entity.Id);
         ref var movement = ref context.KinematicPool.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         var sum = 0f;
         for (var i = 0; i < neighbours.Neighbours.Count; i++)
         {
@@ -188,6 +185,6 @@ file static class ISphUtil
             var accDif = movement.PressureAcceleration - nMovement.PressureAcceleration;
             sum += nParticleProperty.Mass * Vector3.Dot(accDif, neighbours.CachedNablaKernels[i]);
         }
-        solver.Laplacian = config.TimeStep * sum;
+        particleProperty.Laplacian = config.TimeStep * sum;
     }
 }

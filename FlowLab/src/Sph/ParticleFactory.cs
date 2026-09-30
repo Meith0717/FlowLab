@@ -73,7 +73,6 @@ public static class ParticleFactory
         world.Components.Add(entity, new KinematicState());
         world.Components.Add(entity, new ParticleShaderData { Size = size });
         world.Components.Add(entity, new NeighbourList());
-        world.Components.Add(entity, new SolverState());
         world.Components.Add(entity, new DiagnosticComponent());
         world.Components.Add(entity, new Collider3D());
         world.Components.Add(entity, new Lifetime { CoolDown = float.PositiveInfinity });

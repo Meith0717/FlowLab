@@ -84,7 +84,7 @@ public class RigidBodyFactory(SimConfig config)
         world.Components.Add(e, new Velocity3D(Vector3.Zero, Vector3.Zero));
         world.Components.Add(
             e,
-            new RigidBodyComponent(
+            new RigidObjectComponent(
                 mass,
                 Matrix.Identity * ((2 / 5f) * mass * 25),
                 [.. surfaceEntities]

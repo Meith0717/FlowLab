@@ -26,7 +26,6 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
 {
     public int Priority => 101;
     private ComponentPool<ParticleShaderData> _shaderDataPool;
-    private ComponentPool<SolverState> _solverPool;
     private ComponentPool<ParticleProperties> _materialPool;
     private ComponentPool<NeighbourList> _neighboursPool;
     private ComponentPool<DiagnosticComponent> _diagnosticPool;
@@ -60,7 +59,6 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
         _tracker = world.TypeTracker;
 
         _shaderDataPool = world.Components.GetOrCreatePool<ParticleShaderData>();
-        _solverPool = world.Components.GetOrCreatePool<SolverState>();
         _materialPool = world.Components.GetOrCreatePool<ParticleProperties>();
         _neighboursPool = world.Components.GetOrCreatePool<NeighbourList>();
         _diagnosticPool = world.Components.GetOrCreatePool<DiagnosticComponent>();
@@ -111,17 +109,15 @@ public class DebugSystem(GraphicsDevice graphicsDevice, ParticleRayChecker parti
                 ref var neighbourList = ref _neighboursPool.Get(e.Id);
                 ref var diagnosticComponent = ref _diagnosticPool.Get(e.Id);
 
-                ref var solver = ref _solverPool.Get(e.Id);
-
                 var value = colorCode switch
                 {
                     ColorCode.DensityError => particleProperties.DensityError,
                     ColorCode.Velocity => diagnosticComponent.Cfl,
-                    ColorCode.DiagonalElement => solver.DiagonalElement,
+                    ColorCode.DiagonalElement => particleProperties.DiagonalElement,
                     ColorCode.RestDensity => particleProperties.RestDensity,
                     ColorCode.Density => particleProperties.Density,
                     ColorCode.Mass => particleProperties.Mass,
-                    ColorCode.Pressure => solver.Pressure,
+                    ColorCode.Pressure => particleProperties.Pressure,
                     ColorCode.NeighbourCount => neighbourList.NeighboursCount,
                     _ => throw new ArgumentOutOfRangeException(),
                 };

@@ -1,4 +1,4 @@
-// RigidBodyComponent.cs
+// RigidObjectComponent.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -9,7 +9,7 @@ using MonoKit.Ecs.Entities;
 
 namespace FlowLab.Ecs.Components;
 
-public struct RigidBodyComponent(float mass, Matrix localInertia, Entity[] particles)
+public struct RigidObjectComponent(float mass, Matrix localInertia, Entity[] particles)
 {
     public readonly float Mass = mass;
     public readonly Matrix LocalInertiaInverse = Matrix.Invert(localInertia);

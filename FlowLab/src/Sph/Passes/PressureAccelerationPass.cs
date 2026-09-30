@@ -32,7 +32,6 @@ public static class PressureAccelerationPass
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var solver = ref context.SolverState.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
         ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
@@ -43,12 +42,13 @@ public static class PressureAccelerationPass
         {
             var nEntity = neighbourList.Neighbours[i];
 
-            ref var nSolver = ref context.SolverState.Get(nEntity.Id);
             ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
 
             var pSum =
-                solver.Pressure / (particleProperties.Density * particleProperties.Density)
-                + nSolver.Pressure / (nParticleProperties.Density * nParticleProperties.Density);
+                particleProperties.Pressure
+                    / (particleProperties.Density * particleProperties.Density)
+                + nParticleProperties.Pressure
+                    / (nParticleProperties.Density * nParticleProperties.Density);
             var kernelDerivative = neighbourList.CachedNablaKernels[i];
             pressureAcceleration += nParticleProperties.Mass * pSum * kernelDerivative;
         }

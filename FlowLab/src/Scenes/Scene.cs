@@ -66,7 +66,7 @@ public class Scene
     {
         var propertiesPool = world.Components.GetOrCreatePool<ParticleProperties>();
         var transformPool = world.Components.GetOrCreatePool<Transform3D>();
-        var rigidBodyPool = world.Components.GetOrCreatePool<RigidBodyComponent>();
+        var rigidBodyPool = world.Components.GetOrCreatePool<RigidObjectComponent>();
 
         var particles = new Dictionary<float, List<Vector3>>();
         var fEntityCollection = world.TypeTracker.GetEntitiesWith<FluidTag>();
@@ -109,7 +109,7 @@ public class Scene
             .Select(pair => new BoundaryData(pair.Key, [.. pair.Value]))
             .ToArray();
 
-        var rigidbodiesCollection = world.TypeTracker.GetEntitiesWith<RigidBodyComponent>();
+        var rigidbodiesCollection = world.TypeTracker.GetEntitiesWith<RigidObjectComponent>();
         var res = new List<RigidBodyData>();
         foreach (var entity in rigidbodiesCollection)
         {

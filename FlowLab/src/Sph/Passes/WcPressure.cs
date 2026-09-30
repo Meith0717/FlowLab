@@ -26,11 +26,10 @@ public static class WcPressurePass
 
     private static void ComputeEntity(Entity entity, SphPassContext context, SimConfig config)
     {
-        ref var solver = ref context.SolverState.Get(entity.Id);
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
 
-        solver.Pressure =
+        particleProperty.Pressure =
             config.Stiffness * ((particleProperty.Density / particleProperty.RestDensity) - 1);
-        solver.Pressure = float.Max(solver.Pressure, 0);
+        particleProperty.Pressure = float.Max(particleProperty.Pressure, 0);
     }
 }
