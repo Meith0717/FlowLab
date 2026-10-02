@@ -1,4 +1,4 @@
-// VolumePass.cs
+// DensityPass.cs
 // Copyright (c) 2023-2026 Thierry Meiers
 // All rights reserved.
 // Portions generated or assisted by AI.
@@ -42,7 +42,7 @@ public static class DensityPass
                 {
                     var entity = entities[i];
                     if (!context.BoundaryPool.Has(entity.Id))
-                        ComputeVolume(entities[i], context);
+                        ComputeVolumeAdapted(entities[i], context);
                 }
             }
         );
@@ -121,10 +121,27 @@ public static class DensityPass
         var numberDensity = 0f;
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
-            numberDensity += neighbourList.CachedKernels[i];
+        {
+            var nEntity = neighbourList.Neighbours[i];
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            numberDensity += nParticleProperty.Mass * neighbourList.CachedKernels[i];
+        }
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
+        particleProperty.Density = numberDensity;
+    }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ComputeVolumeAdapted(Entity entity, SphPassContext context)
+    {
+        var numberDensity = 0f;
+        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
+        for (var i = 0; i < neighbourList.NeighboursCount; i++)
+        {
+            numberDensity += neighbourList.CachedKernels[i];
+        }
+
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         particleProperty.Density = particleProperty.Mass * numberDensity;
     }
 }
