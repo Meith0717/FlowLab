@@ -111,11 +111,12 @@ public class SimulationScene : IDisposable
             new Vector3(12, 30, 12),
             Matrix.Identity,
             1,
-            2f
+            1f
         );
 
-        AddFluidBlock(10, 10, 40, 1f, new Vector3(-5, 0, -5), Color.DeepSkyBlue);
-        AddFluidBlock(10, 10, 40, 2f, new Vector3(5, 0, 5), Color.Purple);
+        AddFluidBlock(10, 10, 25, .1f, new Vector3(-5, 0, -5), Color.DeepSkyBlue);
+        AddFluidBlock(10, 10, 25, 3f, new Vector3(5, 0, 5), Color.Purple);
+        AddFluidBlock(10, 10, 25, 6f, new Vector3(-5, 0, 5), Color.Orange);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
         // rigidBodyFactory.CreateDynamic(

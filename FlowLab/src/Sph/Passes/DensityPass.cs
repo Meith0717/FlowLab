@@ -112,23 +112,8 @@ public static class DensityPass
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
             numberDensity += neighbourList.CachedKernels[i];
 
+        particleProperty.NumberDensity = numberDensity;
         particleProperty.SetNewVolume(numberDensity > 1e-6f ? .7f / numberDensity : 0f);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeVolume(Entity entity, SphPassContext context)
-    {
-        var numberDensity = 0f;
-        ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
-        for (var i = 0; i < neighbourList.NeighboursCount; i++)
-        {
-            var nEntity = neighbourList.Neighbours[i];
-            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
-            numberDensity += nParticleProperty.Mass * neighbourList.CachedKernels[i];
-        }
-
-        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
-        particleProperty.Density = numberDensity;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -142,6 +127,8 @@ public static class DensityPass
         }
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
+
+        particleProperty.NumberDensity = numberDensity;
         particleProperty.Density = particleProperty.Mass * numberDensity;
     }
 }

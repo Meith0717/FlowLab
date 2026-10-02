@@ -20,6 +20,7 @@ public struct ParticleProperties
     public float Size { get; private set; }
     public float RestDensity { get; }
     public float Density { get; set; }
+    public float NumberDensity { get; set; }
     public float Mass { get; private set; }
     public float DensityError => (Density - RestDensity) / RestDensity;
 

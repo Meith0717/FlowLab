@@ -36,7 +36,7 @@ public static class PressureAccelerationPass
         ref var kinematicState = ref context.KinematicPool.Get(entity.Id);
         ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
 
-        var pressureAcceleration = Vector3.Zero;
+        var pressureForce = Vector3.Zero;
 
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
@@ -46,13 +46,13 @@ public static class PressureAccelerationPass
 
             var pSum =
                 particleProperties.Pressure
-                    / (particleProperties.Density * particleProperties.Density)
+                    / (particleProperties.NumberDensity * particleProperties.NumberDensity)
                 + nParticleProperties.Pressure
-                    / (nParticleProperties.Density * nParticleProperties.Density);
+                    / (nParticleProperties.NumberDensity * nParticleProperties.NumberDensity);
             var kernelDerivative = neighbourList.CachedNablaKernels[i];
-            pressureAcceleration += nParticleProperties.Mass * pSum * kernelDerivative;
+            pressureForce += pSum * kernelDerivative;
         }
 
-        kinematicState.PressureAcceleration = -pressureAcceleration;
+        kinematicState.PressureAcceleration = -(1 / particleProperties.Mass) * pressureForce;
     }
 }
