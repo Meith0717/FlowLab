@@ -15,51 +15,104 @@ internal static class MeshSurfaceSampler
 {
     private static readonly Vector3[] BoxAxes = [Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ];
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Vector3[] SampleInParallel(
-        BoundingBox latticeBox,
+        BoundingBox meshBounds,
         TriangleHash triangleHash,
-        float samplingSize
+        float samplingSize,
+        bool shrink
     )
     {
-        var boxHalfSize = new Vector3(samplingSize / 2f);
-        var surfaceParticles = new ConcurrentBag<Vector3>();
+        var normals = new List<Vector3>();
+
+        var half = samplingSize * 0.5f;
+        var boxHalfSize = new Vector3(half * 1.001f);
+        var min = meshBounds.Min;
+        var size = meshBounds.Max - min;
+        var nx = (int)MathF.Ceiling(size.X / samplingSize);
+        var ny = (int)MathF.Ceiling(size.Y / samplingSize);
+        var nz = (int)MathF.Ceiling(size.Z / samplingSize);
+
         var hashSet = new HashSet<Triangle>();
+        var particles = new List<Vector3>();
 
-        latticeBox.Deconstruct(out var minBounds, out var maxBounds);
-
-        for (var x = minBounds.X; x <= maxBounds.X; x += samplingSize)
-        for (var y = minBounds.Y; y <= maxBounds.Y; y += samplingSize)
-        for (var z = minBounds.Z; z <= maxBounds.Z; z += samplingSize)
+        for (var i = 0; i < nx; i++)
+        for (var j = 0; j < ny; j++)
+        for (var k = 0; k < nz; k++)
         {
+            var samplePoint = min + new Vector3(i + 0.5f, j + 0.5f, k + 0.5f) * samplingSize;
             hashSet.Clear();
-            var samplePoint = new Vector3(x, y, z);
             if (
                 TryFindClosestSurfacePoint(
                     samplePoint,
                     boxHalfSize,
                     triangleHash,
                     hashSet,
-                    out var surfacePoint
+                    normals,
+                    out var sp
                 )
             )
-                surfaceParticles.Add(surfacePoint);
+            {
+                var inset = Vector3.Zero;
+                foreach (var n in normals)
+                    inset += n;
+                particles.Add(shrink ? sp - inset * half : sp);
+            }
         }
 
-        return surfaceParticles.ToArray();
+        return RemoveOverlaps(particles, samplingSize * 0.5f);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector3[] RemoveOverlaps(List<Vector3> points, float minDist)
+    {
+        var grid = new Dictionary<(int, int, int), List<Vector3>>();
+        var result = new List<Vector3>(points.Count);
+        var minDistSq = minDist * minDist;
+
+        foreach (var p in points)
+        {
+            var c = (
+                (int)MathF.Floor(p.X / minDist),
+                (int)MathF.Floor(p.Y / minDist),
+                (int)MathF.Floor(p.Z / minDist)
+            );
+            var tooClose = false;
+            for (var dx = -1; dx <= 1 && !tooClose; dx++)
+            for (var dy = -1; dy <= 1 && !tooClose; dy++)
+            for (var dz = -1; dz <= 1 && !tooClose; dz++)
+            {
+                if (!grid.TryGetValue((c.Item1 + dx, c.Item2 + dy, c.Item3 + dz), out var list))
+                    continue;
+                foreach (var q in list)
+                    if (Vector3.DistanceSquared(p, q) < minDistSq)
+                    {
+                        tooClose = true;
+                        break;
+                    }
+            }
+            if (tooClose)
+                continue;
+
+            if (!grid.TryGetValue(c, out var cellList))
+                grid[c] = cellList = [];
+            cellList.Add(p);
+            result.Add(p);
+        }
+        return result.ToArray();
+    }
+
     private static bool TryFindClosestSurfacePoint(
         Vector3 samplePoint,
         Vector3 boxHalfSize,
         TriangleHash triangleHash,
         HashSet<Triangle> localList,
+        List<Vector3> normals,
         out Vector3 closestSurfacePoint
     )
     {
         closestSurfacePoint = Vector3.Zero;
+        normals.Clear();
         var minDistanceSq = float.MaxValue;
+        const float tieEps = 1e-8f;
 
         triangleHash.GetTriangles(samplePoint, localList);
 
@@ -68,17 +121,30 @@ internal static class MeshSurfaceSampler
             if (!TriangleIntersectingLatticeBox(samplePoint, boxHalfSize, triangle))
                 continue;
 
-            var closestPoint = ClosestPointOnTriangle(samplePoint, triangle);
-            var distanceSq = Vector3.DistanceSquared(closestPoint, samplePoint);
+            var closest = ClosestPointOnTriangle(samplePoint, triangle);
+            var distSq = Vector3.DistanceSquared(closest, samplePoint);
 
-            if (distanceSq >= minDistanceSq)
-                continue;
-
-            closestSurfacePoint = closestPoint;
-            minDistanceSq = distanceSq;
+            if (distSq < minDistanceSq - tieEps)
+            {
+                minDistanceSq = distSq;
+                closestSurfacePoint = closest;
+                normals.Clear();
+                normals.Add(triangle.Normal);
+            }
+            else if (MathF.Abs(distSq - minDistanceSq) <= tieEps)
+            {
+                var isNew = true;
+                foreach (var n in normals)
+                    if (Vector3.Dot(n, triangle.Normal) > 0.999f)
+                    {
+                        isNew = false;
+                        break;
+                    }
+                if (isNew)
+                    normals.Add(triangle.Normal);
+            }
         }
-
-        return minDistanceSq < float.MaxValue - 1f;
+        return normals.Count > 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

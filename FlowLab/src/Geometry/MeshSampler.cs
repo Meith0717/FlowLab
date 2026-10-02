@@ -32,12 +32,21 @@ public class MeshSampler(SimConfig config)
 
         var (minBounds, maxBounds) = GetBounds(model, transform);
         _latticeBox = new BoundingBox(minBounds, maxBounds);
+        _latticeBox = new BoundingBox(
+            _latticeBox.Min - new Vector3(samplingSize),
+            _latticeBox.Max + new Vector3(samplingSize)
+        );
         return this;
     }
 
-    public Vector3[] SampleSurface()
+    public Vector3[] SampleSurface(bool shrink = false)
     {
-        return MeshSurfaceSampler.SampleInParallel(_latticeBox, _triangleHash, _samplingSize);
+        return MeshSurfaceSampler.SampleInParallel(
+            _latticeBox,
+            _triangleHash,
+            _samplingSize,
+            shrink
+        );
     }
 
     public Vector3[] SampleVolume()

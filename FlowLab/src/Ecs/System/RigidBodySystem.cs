@@ -77,7 +77,9 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
 
                     var pSum =
                         particleProperties.Pressure
-                        / (particleProperties.Density * particleProperties.Density);
+                            / (particleProperties.Density * particleProperties.Density)
+                        + nParticleProperties.Pressure
+                            / (nParticleProperties.Density * nParticleProperties.Density);
 
                     var kernelDerivative = neighbourList.CachedNablaKernels[i];
                     pressureForce -=
