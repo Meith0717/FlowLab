@@ -79,7 +79,7 @@ public class SimulationScene : IDisposable
             kernels,
             SimConfig
         );
-        SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
+        // SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
 
         var simDomain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
         world.Systems.Add(new OutOfBoundsCleanupSystem(simDomain));
@@ -108,26 +108,25 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(12, 30, 12),
+            new Vector3(12, 13, 12),
             Matrix.Identity,
             1,
             1f
         );
 
-        AddFluidBlock(10, 10, 25, .1f, new Vector3(-5, 0, -5), Color.DeepSkyBlue);
-        AddFluidBlock(10, 10, 25, 3f, new Vector3(5, 0, 5), Color.Purple);
-        AddFluidBlock(10, 10, 25, 6f, new Vector3(-5, 0, 5), Color.Orange);
+        AddFluidBlock(23, 23, 8, 1f, new Vector3(0, 0, 0), Color.Orange);
+        AddFluidBlock(23, 23, 8, 2f, new Vector3(0, -8, 0), Color.CornflowerBlue);
 
-        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
-        // rigidBodyFactory.CreateDynamic(
-        //     world,
-        //     model,
-        //     1f,
-        //     new Vector3(0, 19, 0),
-        //     new Vector3(5f),
-        //     Matrix.Identity,
-        //     1
-        // );
+        /*model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        rigidBodyFactory.CreateDynamic(
+            world,
+            model,
+            1f,
+            new Vector3(0, 10, 0),
+            new Vector3(5f),
+            Matrix.Identity,
+            1
+        );*/
     }
 
     public void LoadContent(ContentProvider contentProvider)

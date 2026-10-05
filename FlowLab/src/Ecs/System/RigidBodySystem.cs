@@ -74,19 +74,41 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
                 {
                     var nEntity = neighbourList.Neighbours[i];
                     ref var nParticleProperties = ref _particlePropertiesPool.Get(nEntity.Id);
-
                     var pSum =
                         particleProperties.Pressure
-                            / (particleProperties.Density * particleProperties.Density)
+                            / (particleProperties.NumberDensity * particleProperties.NumberDensity)
                         + nParticleProperties.Pressure
-                            / (nParticleProperties.Density * nParticleProperties.Density);
+                            / (
+                                nParticleProperties.NumberDensity
+                                * nParticleProperties.NumberDensity
+                            );
+                    var kernelDerivative = neighbourList.CachedNablaKernels[i];
+                    pressureForce -= pSum * kernelDerivative;
+                }
+
+                ref var kinematic = ref _kinematicPool.Get(particle.Id);
+                ref var transform = ref _transformPool.Get(particle.Id);
+                for (var i = 0; i < neighbourList.FluidNeighbourCount; i++)
+                {
+                    var nEntity = neighbourList.Neighbours[i];
+
+                    ref var nTransform = ref _transformPool.Get(nEntity.Id);
+                    ref var nParticleProperties = ref _particlePropertiesPool.Get(nEntity.Id);
+                    ref var nKinematic = ref _kinematicPool.Get(nEntity.Id);
+
+                    var xIj = transform.Position - nTransform.Position;
+                    var dotPositionPosition =
+                        Vector3.Dot(xIj, xIj) + config.ScaledParticleDiameter2;
+
+                    var vIj = kinematic.Velocity - nKinematic.Velocity;
+                    var dotVelocityPosition = Vector3.Dot(vIj, xIj);
 
                     var kernelDerivative = neighbourList.CachedNablaKernels[i];
-                    pressureForce -=
-                        nParticleProperties.Mass
-                        * particleProperties.Mass
-                        * pSum
-                        * kernelDerivative;
+                    var volume = 1 / nParticleProperties.NumberDensity;
+                    var res =
+                        volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
+
+                    pressureForce += 2f * config.BViscosity * res * particleProperties.Mass;
                 }
 
                 ref var rigidBodyParticle = ref _rigidBodyParticlePool.Get(particle.Id);

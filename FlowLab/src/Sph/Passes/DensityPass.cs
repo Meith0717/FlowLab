@@ -30,7 +30,7 @@ public static class DensityPass
                     var entity = entities[i];
                     GetNeighboursAndKernels(entity, spatialHash3D, context, kernels, config);
                     if (context.BoundaryPool.Has(entity.Id))
-                        ComputeBoundaryVolume(entity, context);
+                        ComputeBoundaryDensity(entity, context);
                 }
             }
         );
@@ -42,7 +42,7 @@ public static class DensityPass
                 {
                     var entity = entities[i];
                     if (!context.BoundaryPool.Has(entity.Id))
-                        ComputeVolumeAdapted(entities[i], context);
+                        ComputeDensity(entities[i], context);
                 }
             }
         );
@@ -103,7 +103,7 @@ public static class DensityPass
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeBoundaryVolume(Entity entity, SphPassContext context)
+    private static void ComputeBoundaryDensity(Entity entity, SphPassContext context)
     {
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
@@ -117,7 +117,7 @@ public static class DensityPass
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeVolumeAdapted(Entity entity, SphPassContext context)
+    private static void ComputeDensity(Entity entity, SphPassContext context)
     {
         var numberDensity = 0f;
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);

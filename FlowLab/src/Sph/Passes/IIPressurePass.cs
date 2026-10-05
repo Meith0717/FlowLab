@@ -160,12 +160,9 @@ file static class ISphUtil
         for (var i = 0; i < neighbourList.Neighbours.Count; i++)
         {
             var nEntity = neighbourList.Neighbours[i];
-
             ref var nMovement = ref context.KinematicPool.Get(nEntity.Id);
-
             var velDif = movement.IntermediateVelocity - nMovement.IntermediateVelocity;
             sum += Vector3.Dot(velDif, neighbourList.CachedNablaKernels[i]);
-
             if (float.IsNaN(sum))
                 Debugger.Break();
         }
