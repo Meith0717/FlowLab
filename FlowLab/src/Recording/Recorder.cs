@@ -5,15 +5,19 @@
 
 using System;
 using System.IO;
+using FlowLab.Config;
+using FlowLab.Monitoring;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Core.IO;
 
 namespace FlowLab.Recording;
 
-public class Recorder(PathService<AppPaths> pathService)
+public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Watcher watcher)
 {
     private readonly VideoRecorder _videoRecorder = new();
     private readonly DataRecorder _dataRecorder = new();
+    private readonly SimConfig _simConfig = simConfig;
+    private readonly Watcher _watcher = watcher;
 
     private int _timeStepsPerFrame = 10; // default = 10
     private float _nextTimeStep;
@@ -46,7 +50,7 @@ public class Recorder(PathService<AppPaths> pathService)
         FileUtils.CreateDirectory(framesDir);
 
         _videoRecorder.Begin(framesDir);
-        _dataRecorder.Begin(recordingDir);
+        _dataRecorder.Begin(recordingDir, _simConfig, _watcher);
     }
 
     public void StopRecording()
@@ -59,7 +63,7 @@ public class Recorder(PathService<AppPaths> pathService)
         FrameCount = 0;
 
         _videoRecorder.End();
-        _dataRecorder.End();
+        _dataRecorder.End(_watcher);
     }
 
     public void ToggleRecording(float actualTimeStep)
@@ -77,7 +81,19 @@ public class Recorder(PathService<AppPaths> pathService)
 
         FrameCount++;
         _nextTimeStep += _timeStepsPerFrame;
+
+        // Record metrics AND capture frame together - 1:1 correspondence guaranteed
         _videoRecorder.SaveFrame(renderTarget2D, FrameCount);
+        _dataRecorder.RecordMetrics(_watcher, FrameCount);
+        _dataRecorder.FlushMetrics();
+    }
+
+    public void FlushMetrics()
+    {
+        if (_isActive)
+        {
+            _dataRecorder.FlushMetrics();
+        }
     }
 
     private bool NextTimeStepReached(float actualTimeStep) =>

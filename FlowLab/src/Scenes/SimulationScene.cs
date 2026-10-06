@@ -99,7 +99,7 @@ public class SimulationScene : IDisposable
         _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world, SimConfig);
 
         // Initialize recorder and render target
-        _recorder = new Recorder(pathService);
+        _recorder = new Recorder(pathService, SimConfig, Watcher);
         CreateRenderTarget();
 
         world.Systems.Add(new StabilityChecker(SimConfig, SimController));
@@ -151,14 +151,14 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(30, 20, 10),
+            new Vector3(10, 20, 10),
             Matrix.Identity,
             1,
             1f
         );
 
-        //AddFluidBlock(59, 19, 16, 4f, new Vector3(0, 5, 0), Color.SkyBlue);
-        AddFluidBlock(59, 19, 16, 1f, new Vector3(0, -11, 0), Color.Yellow);
+        AddFluidBlock(19, 19, 16, 4f, new Vector3(0, 5, 0), Color.SkyBlue);
+        AddFluidBlock(19, 19, 16, 1f, new Vector3(0, -11, 0), Color.Yellow);
 
         /*model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         rigidBodyFactory.CreateDynamic(
