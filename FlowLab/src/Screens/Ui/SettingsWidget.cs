@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Globalization;
 using FlowLab.Config;
 using Microsoft.Xna.Framework;
 using MonoKit.Input;
@@ -19,6 +20,8 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
     private UiTextEntry _bViscosityEntry;
     private UiTextEntry _timeStepEntry;
     private UiTextEntry _gravityEntry;
+    private UiTextEntry _iterationEntry;
+    private UiTextEntry _densityErrorEntry;
 
     public SettingsWidget Build(UiFrame root)
     {
@@ -49,7 +52,7 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
             new UiFrame
             {
                 Align = Align.CenterV,
-                Y = 30,
+                Y = 35,
                 RelWidth = .95f,
                 Height = 4,
                 Color = Color.DimGray,
@@ -58,18 +61,35 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
 
         AddTextEntrySetting(
             "Fluid Vis.",
-            60,
+            40,
             ref _fViscosityEntry,
             simConfig.FViscosity.ToString()
         );
         AddTextEntrySetting(
             "Boundary Vis.",
-            90,
+            70,
             ref _bViscosityEntry,
             simConfig.BViscosity.ToString()
         );
-        AddTextEntrySetting("Time Step", 120, ref _timeStepEntry, simConfig.TimeStep.ToString());
-        AddTextEntrySetting("Gravity", 180, ref _gravityEntry, simConfig.Gravity.ToString());
+        AddTextEntrySetting(
+            "Time FluidStep",
+            100,
+            ref _timeStepEntry,
+            simConfig.TimeStep.ToString()
+        );
+        AddTextEntrySetting("Gravity", 130, ref _gravityEntry, simConfig.Gravity.ToString());
+        AddTextEntrySetting(
+            "Max Iterations",
+            160,
+            ref _iterationEntry,
+            simConfig.MaxIterations.ToString()
+        );
+        AddTextEntrySetting(
+            "Min Error",
+            190,
+            ref _densityErrorEntry,
+            simConfig.MinDensityError.ToString("0.000", CultureInfo.InvariantCulture)
+        );
 
         return this;
     }
@@ -114,16 +134,22 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
     public void Update(InputHandler inputHandler)
     {
         // Sync text entry values to simConfig
-        if (_fViscosityEntry != null && float.TryParse(_fViscosityEntry.Text, out var bViscosity))
+        if (float.TryParse(_fViscosityEntry.Text, out var bViscosity))
             simConfig.FViscosity = MathHelper.Clamp(bViscosity, 0, 5);
 
-        if (_bViscosityEntry != null && float.TryParse(_bViscosityEntry.Text, out var fViscosity))
+        if (float.TryParse(_bViscosityEntry.Text, out var fViscosity))
             simConfig.BViscosity = MathHelper.Clamp(fViscosity, 0, 5);
 
-        if (_timeStepEntry != null && float.TryParse(_timeStepEntry.Text, out var timeStep))
+        if (float.TryParse(_timeStepEntry.Text, out var timeStep))
             simConfig.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);
 
-        if (_gravityEntry != null && float.TryParse(_gravityEntry.Text, out var gravity))
+        if (float.TryParse(_gravityEntry.Text, out var gravity))
             simConfig.Gravity = MathHelper.Clamp(gravity, 0, 1);
+
+        if (int.TryParse(_iterationEntry.Text, out var iteration))
+            simConfig.MaxIterations = int.Max(2, iteration);
+
+        if (float.TryParse(_densityErrorEntry.Text, out var densityError))
+            simConfig.MinDensityError = MathHelper.Clamp(densityError, 0, 1);
     }
 }

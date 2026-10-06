@@ -3,9 +3,11 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System.Diagnostics;
 using FlowLab.Config;
 using FlowLab.Ecs.Components;
 using FlowLab.Extensions;
+using FlowLab.Monitoring;
 using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using MonoKit.Ecs;
@@ -17,7 +19,8 @@ using MonoKit.Input;
 
 namespace FlowLab.Ecs.System;
 
-public class RigidBodySystem(SimConfig config, SimulationController simController) : ISystem
+public class RigidBodySystem(SimConfig config, SimulationController simController, Watcher watcher)
+    : ISystem
 {
     private readonly Entity[] _buffer = new Entity[2048];
 
@@ -28,6 +31,7 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
     private ComponentPool<RigidBodyParticle> _rigidBodyParticlePool;
     private ComponentPool<NeighbourList> _neighbourPool;
     private ComponentPool<ParticleProperties> _particlePropertiesPool;
+    private readonly Stopwatch _simulationStepStopwatch = new();
 
     public int Priority => 1;
 
@@ -53,6 +57,7 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
         if (simController.IsPaused)
             return;
 
+        _simulationStepStopwatch.Restart();
         var entitiesSpan = world.TypeTracker.GetEntitiesWith<RigidObjectComponent>(_buffer);
 
         foreach (var rigidBodyEntity in entitiesSpan)
@@ -163,6 +168,9 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
                     + Vector3.Cross(bodyVelocity.AngularVelocity, worldRelativePosition);
             }
         }
+        _simulationStepStopwatch.Stop();
+        var elapsedStepTime = _simulationStepStopwatch.Elapsed.TotalMilliseconds;
+        watcher.RigidStep(elapsedStepTime);
     }
 
     private static Matrix OrthoNormalize(Matrix m)

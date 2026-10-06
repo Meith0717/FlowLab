@@ -6,12 +6,12 @@
 using System;
 using System.IO;
 using FlowLab.Config;
-using FlowLab.Core;
 using FlowLab.Ecs.System;
 using FlowLab.Geometry;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
+using FlowLab.Recording;
 using FlowLab.Rigid_Bodies;
 using FlowLab.Screens.Ui;
 using FlowLab.Sph;
@@ -103,7 +103,7 @@ public class SimulationScene : IDisposable
         CreateRenderTarget();
 
         world.Systems.Add(new StabilityChecker(SimConfig, SimController));
-        world.Systems.Add(new RigidBodySystem(SimConfig, SimController));
+        world.Systems.Add(new RigidBodySystem(SimConfig, SimController, Watcher));
         world.Systems.Add(new ParticleTransformSyncSystem());
         world.Systems.Add(
             new DebugSystem(graphicsDevice, new ParticleRayChecker(world, spatialHashSystem))
@@ -157,7 +157,7 @@ public class SimulationScene : IDisposable
             1f
         );
 
-        AddFluidBlock(59, 19, 16, 4f, new Vector3(0, 5, 0), Color.SkyBlue);
+        //AddFluidBlock(59, 19, 16, 4f, new Vector3(0, 5, 0), Color.SkyBlue);
         AddFluidBlock(59, 19, 16, 1f, new Vector3(0, -11, 0), Color.Yellow);
 
         /*model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
@@ -193,36 +193,20 @@ public class SimulationScene : IDisposable
         _fluidRenderer.Update(SimController.HideBoundary);
         _fluidRenderer.ShowSpatialGrids = SimController.ShowSpatialGrids;
 
-        // Handle recording toggle
         if (inputHandler.HasAction((byte)ActionType.ToggleRecording))
-        {
-            if (_renderTarget != null)
-            {
-                _recorder.Toggle((float)Watcher.SimulationSteps, null);
-                _isRecording = _recorder.IsActive;
-                if (_isRecording)
-                    Console.WriteLine("Recording started");
-                else
-                    Console.WriteLine("Recording stopped");
-            }
-        }
+            _recorder.ToggleRecording(Watcher.SimulationSteps);
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
         var camera3D = _simRuntime.Services.Get<Camera3D>();
 
-        // Draw to render target first
         _graphicsDevice.SetRenderTarget(_renderTarget);
         _graphicsDevice.Clear(Color.Transparent);
-
         _fluidRenderer.Draw(camera3D);
-
-        // Reset render target to screen
         _graphicsDevice.SetRenderTarget(null);
 
-        // Take frame for recording if active
-        _recorder.TakeFrame(_renderTarget, (float)Watcher.SimulationSteps);
+        _recorder.Update(_renderTarget, Watcher.SimulationSteps);
 
         // Draw render target to screen
         _boundingBoxRenderer.Draw(camera3D);

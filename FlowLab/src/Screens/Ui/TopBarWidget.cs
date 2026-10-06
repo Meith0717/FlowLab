@@ -76,39 +76,6 @@ public class TopBarWidget(GameServiceContainer serviceContainer, SimConfig confi
                 Color = Color.DimGray,
             }
         );
-
-        _topBar.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                Align = Align.CenterH,
-                RelX = .51f,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-                TextProvider = () => $"Time {FormatTime(watcher.RealTimeSeconds)}",
-            }
-        );
-
-        _topBar.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                Align = Align.CenterH,
-                RelX = .7f,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-                TextProvider = () => $"Simulation Time {FormatTime(watcher.SimulationTime)}",
-            }
-        );
-
-        _topBar.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                Align = Align.CenterH,
-                RelX = 0.9f,
-                Scale = 0.15f,
-                Color = Color.White,
-                TextProvider = () => $"Time Step: {config.TimeStep}",
-            }
-        );
     }
 
     private static string FormatTime(double seconds)

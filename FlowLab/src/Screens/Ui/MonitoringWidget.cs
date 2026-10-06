@@ -4,6 +4,7 @@
 // Portions generated or assisted by AI.
 
 using System;
+using System.Globalization;
 using System.Linq;
 using FlowLab.Config;
 using FlowLab.Monitoring;
@@ -40,11 +41,11 @@ public class MonitoringWidget(
         root.Add(
             _simMonitoring = new UiFrame
             {
-                Align = Align.SW,
+                Align = Align.NW,
                 Width = 375,
-                RelHeight = 0.955f,
+                Height = 810,
                 HSpace = 7,
-                VSpace = 10,
+                VSpace = 42,
                 Color = new Color(30, 30, 30, 200),
             }
         );
@@ -80,25 +81,257 @@ public class MonitoringWidget(
                 HSpace = 10,
                 Y = 40,
                 Scale = 0.15f,
-                Color = Color.White,
+                Color = Color.LightGray,
             }
         );
         _simMonitoring.Add(
             new UiText(uiConfig.DefaultSpriteFont)
             {
-                TextProvider = () => $"Entities: #{watcher.EntityCount}",
-                Align = Align.Left,
+                TextProvider = () =>
+                    $"#Entities: {watcher.EntityCount.ToString("N0", new CultureInfo("de-DE"))}",
+                Align = Align.Right,
                 HSpace = 10,
-                Y = 70,
+                Y = 40,
                 Scale = 0.15f,
-                Color = Color.White,
+                Color = Color.LightGray,
             }
         );
 
-        Stability(uiConfig, 100);
-        Fluid(uiConfig, 250);
-        Solver(uiConfig, 470);
-        Sensors(uiConfig, 580);
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Sim. Time")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 70,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () => FormatTime(watcher.RealTimeSeconds),
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 70,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Simulation Steps")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 100,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () =>
+                    $"{watcher.SimulationSteps.ToString("N0", new CultureInfo("de-DE"))}",
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 100,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Time Steps")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 130,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () =>
+                    $"{float.Floor(watcher.TimeSteps).ToString("N0", new CultureInfo("de-DE"))}",
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 130,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Step Time")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 160,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () =>
+                    $"{watcher.SimStepTime.ToString("0.000", CultureInfo.InvariantCulture)} ms",
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 160,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Solver Time")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 190,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () =>
+                    $"{watcher.PressureSolverTime.ToString("0.000", CultureInfo.InvariantCulture)} ms",
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 190,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "CFL")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 220,
+                Scale = 0.15f,
+                Color = Color.LightGray,
+            }
+        );
+        _cflBar = new UiSlider(false)
+        {
+            Align = Align.Right,
+            Y = 222,
+            HSpace = 10,
+            Width = 130,
+            Height = 15,
+            BgColor = Color.Gray,
+        };
+        _simMonitoring.Add(_cflBar);
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                Align = Align.Right,
+                HSpace = 150,
+                Y = 220,
+                Scale = 0.15f,
+                Color = Color.White,
+                TextProvider = () => $"{float.Round(watcher.Cfl, 2)}",
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Compression")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 250,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () => $"{float.Round(watcher.CompressionError * 100, 2)} %",
+                Align = Align.Right,
+                HSpace = 150,
+                Y = 250,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            _errorBar = new UiSlider(false)
+            {
+                Align = Align.Right,
+                Y = 252,
+                HSpace = 10,
+                Width = 130,
+                Height = 15,
+                BgColor = Color.Gray,
+            }
+        );
+
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont, "Iterations")
+            {
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 280,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () => $"{watcher.IterationCount} / {config.MaxIterations}",
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 280,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            _iterationsBar = new UiSlider(false)
+            {
+                Align = Align.Left,
+                Y = 313,
+                HSpace = 10,
+                RelWidth = 1,
+                Height = 15,
+                BgColor = Color.Gray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                Text = "2",
+                Align = Align.Left,
+                HSpace = 10,
+                Y = 330,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+        _simMonitoring.Add(
+            new UiText(uiConfig.DefaultSpriteFont)
+            {
+                TextProvider = () => $"{config.MaxIterations}",
+                Align = Align.Right,
+                HSpace = 10,
+                Y = 330,
+                Scale = 0.16f,
+                Color = Color.LightGray,
+            }
+        );
+
+        Sensors(uiConfig, 360);
 
         return this;
     }
@@ -149,7 +382,7 @@ public class MonitoringWidget(
         );
 
         _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont, "Time Step")
+            new UiText(uiConfig.DefaultSpriteFont, "Time FluidStep")
             {
                 Align = Align.Left,
                 HSpace = 10,
@@ -180,39 +413,6 @@ public class MonitoringWidget(
                 Color = Color.LightGray,
             }
         );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                TextProvider = () => $"{float.Round(watcher.MaxVelocity, 2)} m/s",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 90,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont, "Avg. Vel.")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 120,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                TextProvider = () => $"{float.Round(watcher.AvgVelocity, 2)} m/s",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 120,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-            }
-        );
     }
 
     private void Solver(UiConfig uiConfig, int y)
@@ -227,61 +427,6 @@ public class MonitoringWidget(
                 Color = Color.Red,
             }
         );
-
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont, "Iterations")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 30,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                TextProvider = () => $"{watcher.IterationCount} / {config.MaxIterations}",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 30,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            _iterationsBar = new UiSlider(false)
-            {
-                Align = Align.Left,
-                Y = y + 63,
-                HSpace = 10,
-                RelWidth = 1,
-                Height = 15,
-                BgColor = Color.Gray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                Text = "2",
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 80,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                TextProvider = () => $"{config.MaxIterations}",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 80,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
     }
 
     private void Fluid(UiConfig uiConfig, int y)
@@ -294,83 +439,6 @@ public class MonitoringWidget(
                 HSpace = 10,
                 Scale = 0.175f,
                 Color = Color.Red,
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont, "Mass")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 30,
-                Scale = 0.15f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 30,
-                Scale = 0.16f,
-                Color = Color.White,
-                TextProvider = () => $"{watcher.FluidMass} kg",
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont, "Init. Volume")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 60,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                TextProvider = () => $"{watcher.FluidInitVolume} m\u00B3",
-                Align = Align.Right,
-                HSpace = 10,
-                Y = y + 60,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont, "Compression")
-            {
-                Align = Align.Left,
-                HSpace = 10,
-                Y = y + 180,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            new UiText(uiConfig.DefaultSpriteFont)
-            {
-                TextProvider = () => $"{float.Round(watcher.CompressionError * 100, 2)} %",
-                Align = Align.Right,
-                HSpace = 150,
-                Y = y + 180,
-                Scale = 0.16f,
-                Color = Color.LightGray,
-            }
-        );
-        _simMonitoring.Add(
-            _errorBar = new UiSlider(false)
-            {
-                Align = Align.Right,
-                Y = y + 182,
-                HSpace = 10,
-                Width = 130,
-                Height = 15,
-                BgColor = Color.Gray,
             }
         );
     }
@@ -571,5 +639,11 @@ public class MonitoringWidget(
             < 0.03f => Color.Lerp(Color.Yellow, Color.Red, (error - 0.01f) / 0.02f),
             _ => Color.Red,
         };
+    }
+
+    private static string FormatTime(double seconds)
+    {
+        var ts = TimeSpan.FromSeconds(seconds);
+        return $"{ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}:{ts.Milliseconds:D3}";
     }
 }
