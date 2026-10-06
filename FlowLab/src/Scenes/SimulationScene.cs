@@ -151,25 +151,25 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(10, 20, 10),
+            new Vector3(10, 30, 10),
             Matrix.Identity,
             1,
             1f
         );
 
-        AddFluidBlock(19, 19, 16, 4f, new Vector3(0, 5, 0), Color.SkyBlue);
-        AddFluidBlock(19, 19, 16, 1f, new Vector3(0, -11, 0), Color.Yellow);
+        // AddFluidBlock(49, 49, 16, 4f, new Vector3(0, 0, 0), Color.SkyBlue);
+        AddFluidBlock(19, 19, 40, 1f, new Vector3(0, -9, 0), Color.Yellow);
 
-        /*model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
         rigidBodyFactory.CreateDynamic(
             world,
             model,
-            1f,
-            new Vector3(0, 10, 0),
-            new Vector3(5f),
+            .5f,
+            new Vector3(0, 35, 0),
+            new Vector3(2, 20, 2),
             Matrix.Identity,
             1
-        );*/
+        );
     }
 
     public void LoadContent(ContentProvider contentProvider)

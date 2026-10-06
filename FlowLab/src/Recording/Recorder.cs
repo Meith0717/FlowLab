@@ -16,8 +16,6 @@ public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Wa
 {
     private readonly VideoRecorder _videoRecorder = new();
     private readonly DataRecorder _dataRecorder = new();
-    private readonly SimConfig _simConfig = simConfig;
-    private readonly Watcher _watcher = watcher;
 
     private int _timeStepsPerFrame = 10; // default = 10
     private float _nextTimeStep;
@@ -50,7 +48,7 @@ public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Wa
         FileUtils.CreateDirectory(framesDir);
 
         _videoRecorder.Begin(framesDir);
-        _dataRecorder.Begin(recordingDir, _simConfig, _watcher);
+        _dataRecorder.Begin(recordingDir, simConfig, watcher);
     }
 
     public void StopRecording()
@@ -63,7 +61,7 @@ public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Wa
         FrameCount = 0;
 
         _videoRecorder.End();
-        _dataRecorder.End(_watcher);
+        _dataRecorder.End(watcher);
     }
 
     public void ToggleRecording(float actualTimeStep)
@@ -84,16 +82,7 @@ public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Wa
 
         // Record metrics AND capture frame together - 1:1 correspondence guaranteed
         _videoRecorder.SaveFrame(renderTarget2D, FrameCount);
-        _dataRecorder.RecordMetrics(_watcher, FrameCount);
-        _dataRecorder.FlushMetrics();
-    }
-
-    public void FlushMetrics()
-    {
-        if (_isActive)
-        {
-            _dataRecorder.FlushMetrics();
-        }
+        _dataRecorder.RecordMetrics(watcher, FrameCount);
     }
 
     private bool NextTimeStepReached(float actualTimeStep) =>
