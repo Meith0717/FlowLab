@@ -10,6 +10,7 @@ using FlowLab.Screens.Ui;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
+using MonoKit.Core.IO;
 using MonoKit.Input;
 using MonoKit.Screens;
 
@@ -26,7 +27,8 @@ public class MainScreen : Screen
         : base(appServices, false, false)
     {
         _messageDisplayer = new MessageDisplayer(GraphicsDevice, 5000);
-        _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer);
+        var pathService = appServices.GetService<PathService<AppPaths>>();
+        _simScene = new SimulationScene(GraphicsDevice, _messageDisplayer, pathService);
 
         new TopBarWidget(appServices, _simScene.SimConfig, _simScene.Watcher).Build(UiRoot);
         _monitoringWidget = new MonitoringWidget(
@@ -39,6 +41,12 @@ public class MainScreen : Screen
 
         var uiConfig = appServices.GetService<UiConfig>();
         _settingsWidget = new SettingsWidget(uiConfig, _simScene.SimConfig).Build(UiRoot);
+    }
+
+    public override void ApplyResolution(double elapsedMilliseconds, float uiScale)
+    {
+        _simScene.ApplyResolution();
+        base.ApplyResolution(elapsedMilliseconds, uiScale);
     }
 
     public override void Initialize()

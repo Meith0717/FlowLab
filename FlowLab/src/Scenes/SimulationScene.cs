@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using FlowLab.Config;
+using FlowLab.Core;
 using FlowLab.Ecs.System;
 using FlowLab.Geometry;
 using FlowLab.Input;
@@ -17,8 +18,10 @@ using FlowLab.Sph;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
+using MonoKit.Core.IO;
 using MonoKit.Ecs;
 using MonoKit.Gameplay;
+using MonoKit.Graphics;
 using MonoKit.Graphics.Camera;
 using MonoKit.Input;
 using MonoKit.Spatial;
@@ -44,7 +47,16 @@ public class SimulationScene : IDisposable
     private readonly BoundingBoxRenderer _boundingBoxRenderer;
     private readonly InstabilityRenderer _instabilityRenderer;
 
-    public SimulationScene(GraphicsDevice graphicsDevice, MessageDisplayer messageDisplayer)
+    // Recording
+    private readonly Recorder _recorder;
+    private RenderTarget2D _renderTarget;
+    private bool _isRecording = false;
+
+    public SimulationScene(
+        GraphicsDevice graphicsDevice,
+        MessageDisplayer messageDisplayer,
+        PathService<AppPaths> pathService
+    )
     {
         _graphicsDevice = graphicsDevice;
 
@@ -86,6 +98,10 @@ public class SimulationScene : IDisposable
         _boundingBoxRenderer = new BoundingBoxRenderer(_graphicsDevice, simDomain);
         _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world, SimConfig);
 
+        // Initialize recorder and render target
+        _recorder = new Recorder(pathService);
+        CreateRenderTarget();
+
         world.Systems.Add(new StabilityChecker(SimConfig, SimController));
         world.Systems.Add(new RigidBodySystem(SimConfig, SimController));
         world.Systems.Add(new ParticleTransformSyncSystem());
@@ -100,6 +116,33 @@ public class SimulationScene : IDisposable
         Build(world);
     }
 
+    private void CreateRenderTarget()
+    {
+        var width = _graphicsDevice.Viewport.Width;
+        var height = _graphicsDevice.Viewport.Height;
+
+        // Make sure dimensions are even (required for video encoding)
+        if (width % 2 != 0)
+            width--;
+        if (height % 2 != 0)
+            height--;
+
+        _renderTarget?.Dispose();
+        _renderTarget = new RenderTarget2D(
+            _graphicsDevice,
+            width,
+            height,
+            false,
+            SurfaceFormat.Color,
+            DepthFormat.Depth24
+        );
+    }
+
+    public void ApplyResolution()
+    {
+        CreateRenderTarget();
+    }
+
     private void Build(World world)
     {
         var rigidBodyFactory = _simRuntime.Services.Get<RigidBodyFactory>();
@@ -108,14 +151,14 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(12, 13, 12),
+            new Vector3(30, 20, 10),
             Matrix.Identity,
             1,
             1f
         );
 
-        AddFluidBlock(23, 23, 8, 1f, new Vector3(0, 0, 0), Color.Orange);
-        AddFluidBlock(23, 23, 8, 2f, new Vector3(0, -8, 0), Color.CornflowerBlue);
+        AddFluidBlock(59, 19, 16, 4f, new Vector3(0, 5, 0), Color.SkyBlue);
+        AddFluidBlock(59, 19, 16, 1f, new Vector3(0, -11, 0), Color.Yellow);
 
         /*model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         rigidBodyFactory.CreateDynamic(
@@ -149,15 +192,44 @@ public class SimulationScene : IDisposable
         SensorManager.Update(elapsedMilliseconds);
         _fluidRenderer.Update(SimController.HideBoundary);
         _fluidRenderer.ShowSpatialGrids = SimController.ShowSpatialGrids;
+
+        // Handle recording toggle
+        if (inputHandler.HasAction((byte)ActionType.ToggleRecording))
+        {
+            if (_renderTarget != null)
+            {
+                _recorder.Toggle((float)Watcher.SimulationSteps, null);
+                _isRecording = _recorder.IsActive;
+                if (_isRecording)
+                    Console.WriteLine("Recording started");
+                else
+                    Console.WriteLine("Recording stopped");
+            }
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
         var camera3D = _simRuntime.Services.Get<Camera3D>();
 
+        // Draw to render target first
+        _graphicsDevice.SetRenderTarget(_renderTarget);
+        _graphicsDevice.Clear(Color.Transparent);
+
         _fluidRenderer.Draw(camera3D);
+
+        // Reset render target to screen
+        _graphicsDevice.SetRenderTarget(null);
+
+        // Take frame for recording if active
+        _recorder.TakeFrame(_renderTarget, (float)Watcher.SimulationSteps);
+
+        // Draw render target to screen
         _boundingBoxRenderer.Draw(camera3D);
         _axisRenderer.Draw(camera3D);
+        spriteBatch.Begin();
+        spriteBatch.Draw(_renderTarget, Vector2.Zero, Color.White);
+        spriteBatch.End();
         _instabilityRenderer.Draw(camera3D);
         SensorManager.Draw(camera3D);
     }
@@ -201,6 +273,7 @@ public class SimulationScene : IDisposable
         _fluidRenderer.Dispose();
         SensorManager.Dispose();
         _axisRenderer.Dispose();
+        _renderTarget?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

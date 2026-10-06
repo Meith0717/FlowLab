@@ -25,5 +25,8 @@ namespace FlowLab.Input
 
         // Test
         Test,
+        
+        // Recording
+        ToggleRecording,
     }
 }
