@@ -37,18 +37,11 @@ public static class NonPressureAccelerationPass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
-                    ComputeInterfaceCurvature(entities[i], context);
-            }
-        );
-
-        chunking.ParallelForEach(
-            (start, end) =>
-            {
-                for (var i = start; i < end; i++)
                 {
                     var entity = entities[i];
                     SetGravityAcceleration(entity, context, config);
                     ComputeViscosity(entity, context, config);
+                    ComputeInterfaceCurvature(entities[i], context);
                     ComputeInterfaceTensionAcceleration(entity, context);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
@@ -104,6 +97,7 @@ public static class NonPressureAccelerationPass
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeInterfaceTensionAcceleration(Entity entity, SphPassContext context)
     {
         ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
@@ -121,6 +115,7 @@ public static class NonPressureAccelerationPass
         kinematic.NonPressureAccelerations += tensionForce / particleProperty.Mass;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeInterfaceSmoothedColor(Entity entity, SphPassContext context)
     {
         ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
@@ -148,6 +143,7 @@ public static class NonPressureAccelerationPass
         interfaceState.SmoothedColor = sum1 / sum2;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeInterfaceNormal(Entity entity, SphPassContext context)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
@@ -168,6 +164,7 @@ public static class NonPressureAccelerationPass
         interfaceState.Normal = lenSq < 1e-12f ? Vector3.Zero : Vector3.Normalize(normal);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeInterfaceCurvature(Entity entity, SphPassContext context)
     {
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);

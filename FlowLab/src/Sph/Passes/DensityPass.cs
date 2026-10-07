@@ -31,18 +31,8 @@ public static class DensityPass
                     GetNeighboursAndKernels(entity, spatialHash3D, context, kernels, config);
                     if (context.BoundaryPool.Has(entity.Id))
                         ComputeBoundaryDensity(entity, context);
-                }
-            }
-        );
-
-        chunking.ParallelForEach(
-            (start, end) =>
-            {
-                for (var i = start; i < end; i++)
-                {
-                    var entity = entities[i];
-                    if (!context.BoundaryPool.Has(entity.Id))
-                        ComputeDensity(entities[i], context);
+                    else
+                        ComputeFluidDensity(entity, context);
                 }
             }
         );
@@ -105,30 +95,27 @@ public static class DensityPass
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ComputeBoundaryDensity(Entity entity, SphPassContext context)
     {
-        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
+        ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
 
-        var numberDensity = 0f;
+        var particleDensity = 0f;
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
-            numberDensity += neighbourList.CachedKernels[i];
+            particleDensity += neighbourList.CachedKernels[i];
 
-        particleProperty.ParticleDensity = numberDensity;
-        particleProperty.SetNewVolume(numberDensity > 1e-6f ? .7f / numberDensity : 0f);
+        particleProperties.ParticleDensity = particleDensity;
+        particleProperties.SetNewVolume(particleDensity > 1e-6f ? .7f / particleDensity : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ComputeDensity(Entity entity, SphPassContext context)
+    private static void ComputeFluidDensity(Entity entity, SphPassContext context)
     {
-        var numberDensity = 0f;
+        var particleDensity = 0f;
         ref var neighbourList = ref context.NeighbourPool.Get(entity.Id);
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
-        {
-            numberDensity += neighbourList.CachedKernels[i];
-        }
+            particleDensity += neighbourList.CachedKernels[i];
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
-
-        particleProperty.ParticleDensity = numberDensity;
-        particleProperty.Density = particleProperty.Mass * numberDensity;
+        particleProperty.ParticleDensity = particleDensity;
+        particleProperty.Density = particleProperty.Mass * particleDensity;
     }
 }

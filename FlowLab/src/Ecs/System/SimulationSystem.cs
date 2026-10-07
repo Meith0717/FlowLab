@@ -42,9 +42,6 @@ public class SimulationSystem(
     {
         _entityTypeTracker = world.TypeTracker;
         _context.Initialize(world.Components);
-        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleProperties>().ToArray();
-        var allChunking = new EntityChunking(allSet);
-        DensityPass.RunForEach(allChunking, spatialHash3D, _context, kernels, config);
     }
 
     public void Update(
@@ -72,7 +69,6 @@ public class SimulationSystem(
 
         _pressureSolverStopwatch.Restart();
         IiPressurePass.RunForEach(fChunk, bChunk, _context, config);
-        // WcPressurePass.RunForEach(fChunk, _context, config);
         _pressureSolverStopwatch.Stop();
 
         PressureExtrapolationPass.RunForEach(bChunk, _context, config);
