@@ -21,10 +21,35 @@ public static class NonPressureAccelerationPass
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
+                    ComputeInterfaceSmoothedColor(entities[i], context);
+            }
+        );
+
+        chunking.ParallelForEach(
+            (start, end) =>
+            {
+                for (var i = start; i < end; i++)
+                    ComputeInterfaceNormal(entities[i], context);
+            }
+        );
+
+        chunking.ParallelForEach(
+            (start, end) =>
+            {
+                for (var i = start; i < end; i++)
+                    ComputeInterfaceCurvature(entities[i], context);
+            }
+        );
+
+        chunking.ParallelForEach(
+            (start, end) =>
+            {
+                for (var i = start; i < end; i++)
                 {
                     var entity = entities[i];
                     SetGravityAcceleration(entity, context, config);
                     ComputeViscosity(entity, context, config);
+                    ComputeInterfaceTensionAcceleration(entity, context);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
                     ref var movement = ref context.KinematicPool.Get(entity.Id);
@@ -54,7 +79,7 @@ public static class NonPressureAccelerationPass
         ref var kinematic = ref context.KinematicPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i)
         {
             var nEntity = neighbours.Neighbours[i];
 
@@ -69,7 +94,7 @@ public static class NonPressureAccelerationPass
             var dotVelocityPosition = Vector3.Dot(vIj, xIj);
 
             var kernelDerivative = neighbours.CachedNablaKernels[i];
-            var volume = 1 / nMaterial.NumberDensity;
+            var volume = 1 / nMaterial.ParticleDensity;
             var res = volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
             var viscosity = context.BoundaryPool.Has(nEntity.Id)
@@ -77,5 +102,97 @@ public static class NonPressureAccelerationPass
                 : config.FViscosity;
             kinematic.NonPressureAccelerations += 2f * viscosity * res;
         }
+    }
+
+    private static void ComputeInterfaceTensionAcceleration(Entity entity, SphPassContext context)
+    {
+        ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
+        ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
+        ref var kinematic = ref context.KinematicPool.Get(entity.Id);
+
+        var oneOverParticleDensity = 1f / particleProperty.ParticleDensity;
+
+        var tensionForce =
+            oneOverParticleDensity
+            * interfaceState.Tension
+            * interfaceState.Curvature
+            * interfaceState.Normal;
+
+        kinematic.NonPressureAccelerations += tensionForce / particleProperty.Mass;
+    }
+
+    private static void ComputeInterfaceSmoothedColor(Entity entity, SphPassContext context)
+    {
+        ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
+
+        var sum1 = 0f;
+        var sum2 = 0f;
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i)
+        {
+            var nEntity = neighbours.Neighbours[i];
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+
+            var volume = 1f / nParticleProperty.ParticleDensity;
+            var kernel = neighbours.CachedKernels[i];
+
+            sum1 += volume * nParticleProperty.ColorId * kernel;
+            sum2 += volume * kernel;
+        }
+
+        if (sum2 < 10e-10)
+        {
+            interfaceState.SmoothedColor = 0;
+            return;
+        }
+        interfaceState.SmoothedColor = sum1 / sum2;
+    }
+
+    private static void ComputeInterfaceNormal(Entity entity, SphPassContext context)
+    {
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
+        ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
+
+        var normal = Vector3.Zero;
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i)
+        {
+            var nEntity = neighbours.Neighbours[i];
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            ref var nInterface = ref context.InterfaceState.Get(nEntity.Id);
+            var volume = 1f / nParticleProperty.ParticleDensity;
+            var nablaKernel = neighbours.CachedNablaKernels[i];
+            var colorDiff = (nInterface.SmoothedColor - interfaceState.SmoothedColor);
+            normal += volume * colorDiff * nablaKernel;
+        }
+        var lenSq = normal.LengthSquared();
+        interfaceState.Normal = lenSq < 1e-12f ? Vector3.Zero : Vector3.Normalize(normal);
+    }
+
+    private static void ComputeInterfaceCurvature(Entity entity, SphPassContext context)
+    {
+        ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
+        ref var interfaceState = ref context.InterfaceState.Get(entity.Id);
+
+        var sum1 = 0f;
+        var sum2 = 0f;
+
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i)
+        {
+            var nEntity = neighbours.Neighbours[i];
+            ref var nParticleProperty = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            ref var nInterface = ref context.InterfaceState.Get(nEntity.Id);
+            var volume = 1f / nParticleProperty.ParticleDensity;
+            var kernel = neighbours.CachedKernels[i];
+            var nablaKernel = neighbours.CachedNablaKernels[i];
+            var normalDiff = nInterface.Normal - interfaceState.Normal;
+            sum1 -= volume * Vector3.Dot(normalDiff, nablaKernel);
+            sum2 += volume * kernel;
+        }
+        if (sum2 < 10e-10)
+        {
+            interfaceState.Curvature = 0;
+            return;
+        }
+        interfaceState.Curvature = sum1 / sum2;
     }
 }

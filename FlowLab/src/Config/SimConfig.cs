@@ -16,7 +16,7 @@ public class SimConfig(float maxParticleSize)
 
     public float FViscosity { get; set; } = 1f;
     public float BViscosity { get; set; } = 1f;
-    public float TimeStep { get; set; } = 0.03f;
+    public float TimeStep { get; set; } = 0.015f;
     public float Gravity { get; set; } = 9.81f;
     public int MaxIterations { get; set; } = 100;
     public double MinDensityError { get; set; } = 0.1f;

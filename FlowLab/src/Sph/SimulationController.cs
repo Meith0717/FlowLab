@@ -3,6 +3,7 @@
 // All rights reserved.
 // Portions generated or assisted by AI.
 
+using System;
 using System.Threading.Tasks;
 using FlowLab.Input;
 using FlowLab.Screens.Ui;
@@ -20,6 +21,8 @@ public class SimulationController(World world, MessageDisplayer messageDisplayer
     public bool HideBoundary { get; private set; }
     public bool ShowSpatialGrids { get; private set; }
 
+    public Action OnPause { get; set; }
+
     public void TogglePause() => IsPaused = !IsPaused;
 
     public void Pause()
@@ -33,6 +36,7 @@ public class SimulationController(World world, MessageDisplayer messageDisplayer
         if (inputHandler.HasAction((byte)ActionType.PauseSimulation))
         {
             IsPaused = !IsPaused;
+            OnPause?.Invoke();
             messageDisplayer.AddMessage(IsPaused ? "Simulation Paused" : "Simulation Resumed");
         }
 

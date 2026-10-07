@@ -81,11 +81,14 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
                     ref var nParticleProperties = ref _particlePropertiesPool.Get(nEntity.Id);
                     var pSum =
                         particleProperties.Pressure
-                            / (particleProperties.NumberDensity * particleProperties.NumberDensity)
+                            / (
+                                particleProperties.ParticleDensity
+                                * particleProperties.ParticleDensity
+                            )
                         + nParticleProperties.Pressure
                             / (
-                                nParticleProperties.NumberDensity
-                                * nParticleProperties.NumberDensity
+                                nParticleProperties.ParticleDensity
+                                * nParticleProperties.ParticleDensity
                             );
                     var kernelDerivative = neighbourList.CachedNablaKernels[i];
                     pressureForce -= pSum * kernelDerivative;
@@ -109,7 +112,7 @@ public class RigidBodySystem(SimConfig config, SimulationController simControlle
                     var dotVelocityPosition = Vector3.Dot(vIj, xIj);
 
                     var kernelDerivative = neighbourList.CachedNablaKernels[i];
-                    var volume = 1 / nParticleProperties.NumberDensity;
+                    var volume = 1 / nParticleProperties.ParticleDensity;
                     var res =
                         volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 

@@ -16,16 +16,18 @@ public struct ParticleProperties
     public float DiagonalElement;
     public float SourceTherm;
     public float Laplacian;
+    public float ColorId;
 
     public float Size { get; private set; }
     public float RestDensity { get; }
     public float Density { get; set; }
-    public float NumberDensity { get; set; }
+    public float ParticleDensity { get; set; }
     public float Mass { get; private set; }
     public float DensityError => (Density - RestDensity) / RestDensity;
 
-    public ParticleProperties(Color particleColor, float volume, float restDensity)
+    public ParticleProperties(Color particleColor, float volume, float restDensity, float colorId)
     {
+        ColorId = colorId;
         ParticleColor = particleColor;
         RestDensity = Density = restDensity;
         SetNewVolume(volume);

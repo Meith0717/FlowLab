@@ -90,9 +90,9 @@ public class SimulationScene : IDisposable
             kernels,
             SimConfig
         );
-        SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
+        // SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
 
-        var simDomain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
+        var simDomain = new BoundingBox(new Vector3(-70, -100, -70), new Vector3(70, 100, 70));
         world.Systems.Add(new OutOfBoundsCleanupSystem(simDomain));
         _boundingBoxRenderer = new BoundingBoxRenderer(_graphicsDevice, simDomain);
         _instabilityRenderer = new InstabilityRenderer(_graphicsDevice, world, SimConfig);
@@ -112,6 +112,7 @@ public class SimulationScene : IDisposable
         );
 
         // Test
+        SimController.OnPause = () => _recorder.StartRecording(Watcher.SimulationSteps);
         Build(world);
     }
 
@@ -150,25 +151,25 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(20, 25, 20),
+            new Vector3(60, 50, 15),
             Matrix.Identity,
             1,
             1f
         );
 
-        //AddFluidBlock(39, 19, 16, 4f, new Vector3(0, 0, 0), Color.SkyBlue);
-        AddFluidBlock(39, 39, 24, 1f, new Vector3(0, -12, 0), Color.DeepSkyBlue);
+        AddFluidBlock(119, 29, 30, 4f, new Vector3(0, -4, 0), Color.DodgerBlue, 1);
+        AddFluidBlock(119, 29, 30, 1f, new Vector3(0, -34, 0), Color.Orange, 0);
 
-        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        rigidBodyFactory.CreateDynamic(
-            world,
-            model,
-            .4f,
-            new Vector3(0, 30, 0),
-            new Vector3(5, 10, 5),
-            Matrix.Identity,
-            1
-        );
+        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        // rigidBodyFactory.CreateDynamic(
+        //     world,
+        //     model,
+        //     .4f,
+        //     new Vector3(0, 30, 0),
+        //     new Vector3(5, 10, 5),
+        //     Matrix.Identity,
+        //     1
+        // );
     }
 
     public void LoadContent(ContentProvider contentProvider)
@@ -231,7 +232,8 @@ public class SimulationScene : IDisposable
         float height,
         float restDensity,
         Vector3 position,
-        Color color
+        Color color,
+        float colorId
     )
     {
         var world = _simRuntime.Services.Get<World>();
@@ -255,7 +257,8 @@ public class SimulationScene : IDisposable
                 position + new Vector3(x, y, z),
                 particleSize,
                 restDensity,
-                color
+                color,
+                colorId
             );
     }
 

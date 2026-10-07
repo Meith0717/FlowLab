@@ -46,9 +46,9 @@ public static class PressureAccelerationPass
 
             var pSum =
                 particleProperties.Pressure
-                    / (particleProperties.NumberDensity * particleProperties.NumberDensity)
+                    / (particleProperties.ParticleDensity * particleProperties.ParticleDensity)
                 + nParticleProperties.Pressure
-                    / (nParticleProperties.NumberDensity * nParticleProperties.NumberDensity);
+                    / (nParticleProperties.ParticleDensity * nParticleProperties.ParticleDensity);
             var kernelDerivative = neighbourList.CachedNablaKernels[i];
             pressureForce += pSum * kernelDerivative;
         }

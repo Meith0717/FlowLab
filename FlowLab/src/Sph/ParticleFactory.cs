@@ -37,7 +37,7 @@ public static class ParticleFactory
     )
     {
         var color = new Color(25, 25, 25);
-        var entity = CreateParticle(world, position, color, size, restDensity);
+        var entity = CreateParticle(world, position, color, size, restDensity, 0);
         world.Components.Add(entity, new BoundaryTag());
         return entity;
     }
@@ -47,11 +47,13 @@ public static class ParticleFactory
         Vector3 position,
         float size,
         float restDensity,
-        Color color
+        Color color,
+        float colorId
     )
     {
-        var entity = CreateParticle(world, position, color, size, restDensity);
+        var entity = CreateParticle(world, position, color, size, restDensity, colorId);
         world.Components.Add(entity, new FluidTag());
+        world.Components.Add(entity, new InterfaceState(5));
         return entity;
     }
 
@@ -61,11 +63,12 @@ public static class ParticleFactory
         Color color,
         float size,
         float restDensity,
+        float colorId,
         float ignorePlane = 0
     )
     {
         var volume = size * size * size;
-        var fluidComponent = new ParticleProperties(color, volume, restDensity);
+        var fluidComponent = new ParticleProperties(color, volume, restDensity, colorId);
         var transform = new Transform3D { Position = position };
 
         var entity = world.CreateEntity();

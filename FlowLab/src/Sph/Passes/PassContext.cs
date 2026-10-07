@@ -17,6 +17,7 @@ public class SphPassContext()
     public ComponentPool<NeighbourList> NeighbourPool { get; private set; }
     public ComponentPool<BoundaryTag> BoundaryPool { get; private set; }
     public ComponentPool<RigidBodyParticle> RigidBodyParticlePool { get; private set; }
+    public ComponentPool<InterfaceState> InterfaceState { get; private set; }
 
     public void Initialize(ComponentManager components)
     {
@@ -26,5 +27,6 @@ public class SphPassContext()
         NeighbourPool = components.GetOrCreatePool<NeighbourList>();
         BoundaryPool = components.GetOrCreatePool<BoundaryTag>();
         RigidBodyParticlePool = components.GetOrCreatePool<RigidBodyParticle>();
+        InterfaceState = components.GetOrCreatePool<InterfaceState>();
     }
 }

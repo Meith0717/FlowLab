@@ -145,7 +145,7 @@ file static class ISphUtil
         var dii = Vector3.Dot(diiSum, diiSum);
         particleProperty.DiagonalElement =
             -simConfig.TimeStep
-            / (particleProperty.NumberDensity * particleProperty.NumberDensity)
+            / (particleProperty.ParticleDensity * particleProperty.ParticleDensity)
             * (dij + dii);
     }
 
