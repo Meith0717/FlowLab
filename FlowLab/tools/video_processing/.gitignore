@@ -1,0 +1,23 @@
+# Python virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+temp_graph.png
+temp_graph_*.png
+*.pyc
+
+# Output videos (optional - uncomment if you don't want to track videos)
+# *.mp4
+# *.avi
+# *.mov
