@@ -23,7 +23,7 @@ public static class ParticleFactory
     )
     {
         var color = new Color(90, 90, 90);
-        var entity = CreateParticle(world, position, color, size, restDensity);
+        var entity = CreateParticle(world, position, color, size, restDensity, 1);
         world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new RigidBodyParticle(relativePosition));
         return entity;
@@ -60,7 +60,8 @@ public static class ParticleFactory
         Vector3 position,
         Color color,
         float size,
-        float restDensity
+        float restDensity,
+        float ignorePlane = 0
     )
     {
         var volume = size * size * size;
@@ -71,7 +72,10 @@ public static class ParticleFactory
         world.Components.Add(entity, transform);
         world.Components.Add(entity, fluidComponent);
         world.Components.Add(entity, new KinematicState());
-        world.Components.Add(entity, new ParticleShaderData { Size = size });
+        world.Components.Add(
+            entity,
+            new ParticleShaderData { Size = size, IgnorePlane = ignorePlane }
+        );
         world.Components.Add(entity, new NeighbourList());
         world.Components.Add(entity, new DiagnosticComponent());
         world.Components.Add(entity, new Collider3D());

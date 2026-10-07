@@ -26,6 +26,7 @@ struct InstanceInput
     float4 InstancePosition : POSITION1; 
     float4 InstanceColor : COLOR1;       
     float InstanceSize : TEXCOORD1;         
+    float InstanceIgnorePlane : TEXCOORD2;  // 0 = clip normally, 1 = ignore plane
 };
 
 struct VertexShaderOutput
@@ -34,6 +35,7 @@ struct VertexShaderOutput
     float4 Color : COLOR0;
     float2 UV : TEXCOORD0;
     float DistanceToPlane : TEXCOORD1; // Signed distance to cross-section plane
+    float IgnorePlane : TEXCOORD2; // Flag to skip plane clipping
 };
 
 VertexShaderOutput MainVS(VertexShaderInput input, InstanceInput instance)
@@ -59,6 +61,7 @@ VertexShaderOutput MainVS(VertexShaderInput input, InstanceInput instance)
     output.UV = input.UV;
     output.Color = instance.InstanceColor;
     output.DistanceToPlane = distanceToPlane;
+    output.IgnorePlane = instance.InstanceIgnorePlane;
 
     return output;
 }
@@ -73,7 +76,8 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     // Cutting plane: hide particles behind the plane
     // Positive distance = in front of plane (visible)
     // Negative distance = behind plane (hidden)
-    if (input.DistanceToPlane < 0) 
+    // Skip clipping if IgnorePlane flag is set (>= 0.5)
+    if (input.IgnorePlane < 0.5 && input.DistanceToPlane < 0) 
         discard;
     
     float3 color = input.Color.rgb * (1 - smoothstep(0.9, 1.0, distSq));
