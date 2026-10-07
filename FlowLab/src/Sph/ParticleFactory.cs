@@ -22,7 +22,7 @@ public static class ParticleFactory
         float restDensity
     )
     {
-        var color = new Color(25, 25, 25);
+        var color = new Color(90, 90, 90);
         var entity = CreateParticle(world, position, color, size, restDensity);
         world.Components.Add(entity, new BoundaryTag());
         world.Components.Add(entity, new RigidBodyParticle(relativePosition));

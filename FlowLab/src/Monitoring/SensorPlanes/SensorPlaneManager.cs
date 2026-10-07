@@ -126,9 +126,9 @@ public class SensorPlaneManager : IDisposable
         return true;
     }
 
-    public bool TryGetCurrentSensorPlaneData(out SensorPlaneData? data)
+    public bool TryGetCurrentSensorPlaneData(out SensorPlaneData data)
     {
-        data = null;
+        data = default;
         if (_currentPlaneId == null)
             return false;
         if (!_dictionary.TryGetValue(_currentPlaneId, out var entry))

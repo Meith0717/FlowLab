@@ -19,8 +19,8 @@ namespace FlowLab.Sph;
 
 public class FluidRenderer : IDisposable
 {
-    private static readonly Vector3 CrossSectionNormal = Vector3.UnitX;
-    private const float CrossSectionDistance = -100;
+    private Vector3 _crossSectionNormal = Vector3.UnitX;
+    private Vector3 _crossSectionPosition = new Vector3(0, 0, 0);
     private readonly GraphicsDevice _graphics;
     private readonly VertexBuffer _quadBuffer;
     private readonly IndexBuffer _quadIndexBuffer;
@@ -37,6 +37,19 @@ public class FluidRenderer : IDisposable
     private int _particleCount;
 
     public bool ShowSpatialGrids { get; set; }
+    public bool HideRigidBodyParticles { get; set; }
+
+    public Vector3 CrossSectionNormal
+    {
+        get => _crossSectionNormal;
+        set => _crossSectionNormal = value;
+    }
+
+    public Vector3 CrossSectionPosition
+    {
+        get => _crossSectionPosition;
+        set => _crossSectionPosition = value;
+    }
 
     public FluidRenderer(
         GraphicsDevice graphics,
@@ -113,6 +126,9 @@ public class FluidRenderer : IDisposable
         _particleCount = 0;
         foreach (var entity in entities)
         {
+            if (HideRigidBodyParticles && rigidBodyParticlePool.Has(entity.Id))
+                continue;
+
             if (
                 hideBoundary
                 && boundaryPool.Has(entity.Id)
@@ -170,7 +186,6 @@ public class FluidRenderer : IDisposable
         var cellMinZ = (int)Math.Floor(cameraPosition.Z / _cellSize) - range;
         var cellMaxZ = (int)Math.Floor(cameraPosition.Z / _cellSize) + range;
 
-        var halfSize = _cellSize / 2f;
         var activeColor = Color.Red;
 
         // Draw each active cell as a cube/wireframe
@@ -294,26 +309,17 @@ public class FluidRenderer : IDisposable
         vb.Dispose();
     }
 
-    private Color GetCellColor(int x, int y, int z, HashSet<long> activeHashes)
-    {
-        unchecked
-        {
-            var hash = ((long)x * 73856093L) ^ ((long)y * 19349663L) ^ ((long)z * 83492791L);
-            return activeHashes.Contains(hash)
-                ? new Color(100, 150, 255, 120)
-                : new Color(50, 75, 100, 60);
-        }
-    }
-
     public void Draw(Camera3D camera)
     {
         if (_particleCount == 0 && !ShowSpatialGrids)
             return;
 
+        var normalizedNormal = Vector3.Normalize(_crossSectionNormal);
+        var planeDistance = -Vector3.Dot(normalizedNormal, _crossSectionPosition);
+        _particleShader.Parameters["CrossSectionNormal"].SetValue(normalizedNormal);
+        _particleShader.Parameters["CrossSectionDistance"].SetValue(planeDistance);
         _particleShader.Parameters["View"].SetValue(camera.View);
         _particleShader.Parameters["Projection"].SetValue(camera.Projection);
-        _particleShader.Parameters["CrossSectionNormal"].SetValue(CrossSectionNormal);
-        _particleShader.Parameters["CrossSectionDistance"].SetValue(CrossSectionDistance);
 
         _graphics.SetVertexBuffers(
             new VertexBufferBinding(_quadBuffer, 0, 0),

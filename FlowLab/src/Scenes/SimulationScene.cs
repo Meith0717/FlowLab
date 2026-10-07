@@ -50,7 +50,6 @@ public class SimulationScene : IDisposable
     // Recording
     private readonly Recorder _recorder;
     private RenderTarget2D _renderTarget;
-    private bool _isRecording = false;
 
     public SimulationScene(
         GraphicsDevice graphicsDevice,
@@ -91,7 +90,7 @@ public class SimulationScene : IDisposable
             kernels,
             SimConfig
         );
-        // SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
+        SensorManager.TryAdd(new SensorPlaneData("Plane 1", new(0, 0, 0), new(0, 0, 1), 30, 60, 3));
 
         var simDomain = new BoundingBox(new Vector3(-50, -100, -50), new Vector3(50, 100, 50));
         world.Systems.Add(new OutOfBoundsCleanupSystem(simDomain));
@@ -151,22 +150,22 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(10, 30, 10),
+            new Vector3(20, 25, 20),
             Matrix.Identity,
             1,
             1f
         );
 
-        // AddFluidBlock(49, 49, 16, 4f, new Vector3(0, 0, 0), Color.SkyBlue);
-        AddFluidBlock(19, 19, 40, 1f, new Vector3(0, -9, 0), Color.Yellow);
+        //AddFluidBlock(39, 19, 16, 4f, new Vector3(0, 0, 0), Color.SkyBlue);
+        AddFluidBlock(39, 39, 24, 1f, new Vector3(0, -12, 0), Color.DeepSkyBlue);
 
-        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
+        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         rigidBodyFactory.CreateDynamic(
             world,
             model,
-            .5f,
-            new Vector3(0, 35, 0),
-            new Vector3(2, 20, 2),
+            .4f,
+            new Vector3(0, 30, 0),
+            new Vector3(5, 10, 5),
             Matrix.Identity,
             1
         );
@@ -195,6 +194,14 @@ public class SimulationScene : IDisposable
 
         if (inputHandler.HasAction((byte)ActionType.ToggleRecording))
             _recorder.ToggleRecording(Watcher.SimulationSteps);
+
+        _fluidRenderer.CrossSectionNormal = Vector3.UnitX;
+        _fluidRenderer.CrossSectionPosition = Vector3.UnitX * 100;
+        if (SensorManager.TryGetCurrentSensorPlaneData(out var data))
+        {
+            _fluidRenderer.CrossSectionNormal = data.Normal;
+            _fluidRenderer.CrossSectionPosition = data.Position;
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)
