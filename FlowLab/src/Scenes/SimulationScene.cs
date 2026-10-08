@@ -112,7 +112,7 @@ public class SimulationScene : IDisposable
         );
 
         // Test
-        SimController.OnPause = () => _recorder.StartRecording(Watcher.SimulationSteps);
+        SimController.OnPause = () => _recorder.StartRecording(Watcher.TimeSteps);
         Build(world);
     }
 
@@ -151,25 +151,25 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(60, 50, 15),
+            new Vector3(15, 50, 15),
             Matrix.Identity,
             1,
             1f
         );
 
-        AddFluidBlock(119, 29, 30, 4f, new Vector3(0, -4, 0), Color.DodgerBlue, 1);
-        AddFluidBlock(119, 29, 30, 1f, new Vector3(0, -34, 0), Color.Orange, 0);
+        //AddFluidBlock(19, 19, 30, 4f, new Vector3(0, -4, 0), Color.DodgerBlue, 1);
+        AddFluidBlock(29, 29, 30, 1f, new Vector3(0, -34, 0), Color.Orange, 0);
 
-        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        // rigidBodyFactory.CreateDynamic(
-        //     world,
-        //     model,
-        //     .4f,
-        //     new Vector3(0, 30, 0),
-        //     new Vector3(5, 10, 5),
-        //     Matrix.Identity,
-        //     1
-        // );
+        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        rigidBodyFactory.CreateDynamic(
+            world,
+            model,
+            1f,
+            new Vector3(0, 0, 0),
+            new Vector3(5, 10, 5),
+            Matrix.Identity,
+            1
+        );
     }
 
     public void LoadContent(ContentProvider contentProvider)
@@ -194,7 +194,7 @@ public class SimulationScene : IDisposable
         _fluidRenderer.ShowSpatialGrids = SimController.ShowSpatialGrids;
 
         if (inputHandler.HasAction((byte)ActionType.ToggleRecording))
-            _recorder.ToggleRecording(Watcher.SimulationSteps);
+            _recorder.ToggleRecording(Watcher.TimeSteps);
 
         _fluidRenderer.CrossSectionNormal = Vector3.UnitX;
         _fluidRenderer.CrossSectionPosition = Vector3.UnitX * 100;
@@ -214,7 +214,7 @@ public class SimulationScene : IDisposable
         _fluidRenderer.Draw(camera3D);
         _graphicsDevice.SetRenderTarget(null);
 
-        _recorder.Update(_renderTarget, Watcher.SimulationSteps);
+        _recorder.Update(_renderTarget, Watcher.TimeSteps);
 
         // Draw render target to screen
         _boundingBoxRenderer.Draw(camera3D);

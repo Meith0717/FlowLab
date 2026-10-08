@@ -17,7 +17,7 @@ public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Wa
     private readonly VideoRecorder _videoRecorder = new();
     private readonly DataRecorder _dataRecorder = new();
 
-    private int _timeStepsPerFrame = 10; // default = 10
+    private int _timeStepsPerFrame = 1; // default = 10
     private float _nextTimeStep;
     private float _startTimeStep;
     private bool _isActive;
