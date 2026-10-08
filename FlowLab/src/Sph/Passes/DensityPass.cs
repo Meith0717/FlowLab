@@ -103,7 +103,7 @@ public static class DensityPass
             particleDensity += neighbourList.CachedKernels[i];
 
         particleProperties.ParticleDensity = particleDensity;
-        particleProperties.SetNewVolume(particleDensity > 1e-6f ? .7f / particleDensity : 0f);
+        particleProperties.SetNewVolume(particleDensity > 1e-6f ? .9f / particleDensity : 0f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
