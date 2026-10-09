@@ -37,6 +37,9 @@ public static class PressureAccelerationPass
         ref var particleProperties = ref context.ParticlePropertiesPool.Get(entity.Id);
 
         var pressureForce = Vector3.Zero;
+        var p =
+            particleProperties.Pressure
+            / (particleProperties.ParticleDensity * particleProperties.ParticleDensity);
 
         for (var i = 0; i < neighbourList.NeighboursCount; i++)
         {
@@ -45,8 +48,7 @@ public static class PressureAccelerationPass
             ref var nParticleProperties = ref context.ParticlePropertiesPool.Get(nEntity.Id);
 
             var pSum =
-                particleProperties.Pressure
-                    / (particleProperties.ParticleDensity * particleProperties.ParticleDensity)
+                p
                 + nParticleProperties.Pressure
                     / (nParticleProperties.ParticleDensity * nParticleProperties.ParticleDensity);
             var kernelDerivative = neighbourList.CachedNablaKernels[i];

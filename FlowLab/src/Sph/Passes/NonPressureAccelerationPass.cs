@@ -72,7 +72,7 @@ public static class NonPressureAccelerationPass
         ref var kinematic = ref context.KinematicPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i)
+        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
         {
             var nEntity = neighbours.Neighbours[i];
 

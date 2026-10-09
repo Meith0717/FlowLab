@@ -11,10 +11,10 @@ using FlowLab.Geometry;
 using FlowLab.Input;
 using FlowLab.Monitoring;
 using FlowLab.Monitoring.SensorPlanes;
-using FlowLab.Recording;
 using FlowLab.Rigid_Bodies;
 using FlowLab.Screens.Ui;
 using FlowLab.Sph;
+using FlowLab.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Content;
@@ -49,6 +49,7 @@ public class SimulationScene : IDisposable
 
     // Recording
     private readonly Recorder _recorder;
+    private readonly Screenshot _screenshot;
     private RenderTarget2D _renderTarget;
 
     public SimulationScene(
@@ -99,6 +100,7 @@ public class SimulationScene : IDisposable
 
         // Initialize recorder and render target
         _recorder = new Recorder(pathService, SimConfig, Watcher);
+        _screenshot = new Screenshot(pathService);
         CreateRenderTarget();
 
         world.Systems.Add(new StabilityChecker(SimConfig, SimController));
@@ -151,25 +153,26 @@ public class SimulationScene : IDisposable
             world,
             model,
             Vector3.Zero,
-            new Vector3(15, 50, 15),
+            new Vector3(5, 50, 5),
             Matrix.Identity,
             1,
             1f
         );
 
-        //AddFluidBlock(19, 19, 30, 4f, new Vector3(0, -4, 0), Color.DodgerBlue, 1);
-        AddFluidBlock(29, 29, 30, 1f, new Vector3(0, -34, 0), Color.Orange, 0);
+        AddFluidBlock(9, 9, 16, .5f, new Vector3(0, -9, 0), Color.Orange, 1f);
+        AddFluidBlock(9, 9, 16, 1f, new Vector3(0, -25, 0), Color.DodgerBlue, 0.5f);
+        AddFluidBlock(9, 9, 16, 2f, new Vector3(0, -41, 0), Color.Brown, 0f);
 
-        model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
-        rigidBodyFactory.CreateDynamic(
-            world,
-            model,
-            1f,
-            new Vector3(0, 0, 0),
-            new Vector3(5, 10, 5),
-            Matrix.Identity,
-            1
-        );
+        // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
+        // rigidBodyFactory.CreateDynamic(
+        //     world,
+        //     model,
+        //     .66f,
+        //     new Vector3(0, 35, 0),
+        //     new Vector3(5, 10, 5),
+        //     Matrix.Identity,
+        //     1
+        // );
     }
 
     public void LoadContent(ContentProvider contentProvider)
@@ -196,6 +199,9 @@ public class SimulationScene : IDisposable
         if (inputHandler.HasAction((byte)ActionType.ToggleRecording))
             _recorder.ToggleRecording(Watcher.TimeSteps);
 
+        if (inputHandler.HasAction((byte)ActionType.Screenshot))
+            _screenshot.TakeScreenshot();
+
         _fluidRenderer.CrossSectionNormal = Vector3.UnitX;
         _fluidRenderer.CrossSectionPosition = Vector3.UnitX * 100;
         if (SensorManager.TryGetCurrentSensorPlaneData(out var data))
@@ -215,6 +221,7 @@ public class SimulationScene : IDisposable
         _graphicsDevice.SetRenderTarget(null);
 
         _recorder.Update(_renderTarget, Watcher.TimeSteps);
+        _screenshot.Update(_renderTarget);
 
         // Draw render target to screen
         _boundingBoxRenderer.Draw(camera3D);

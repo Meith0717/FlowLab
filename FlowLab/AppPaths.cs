@@ -8,4 +8,5 @@ namespace FlowLab;
 public enum AppPaths
 {
     Recordings,
+    Screenshots,
 }

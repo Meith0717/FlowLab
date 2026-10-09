@@ -27,6 +27,7 @@ public static class InputBindings
         { (Keys.F11, InputEventType.Released), (byte)ActionType.ToggleDebug },
         { (Keys.F12, InputEventType.Released), (byte)ActionType.ToggleSpatialGrids },
         { (Keys.R, InputEventType.Released), (byte)ActionType.ToggleRecording },
+        { (Keys.F5, InputEventType.Released), (byte)ActionType.Screenshot },
     };
 
     public static Dictionary<(MouseButton, InputEventType), byte> MouseBindings = new()

@@ -10,7 +10,7 @@ using FlowLab.Monitoring;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Core.IO;
 
-namespace FlowLab.Recording;
+namespace FlowLab.Tools;
 
 public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Watcher watcher)
 {

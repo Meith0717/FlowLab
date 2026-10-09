@@ -24,10 +24,10 @@ public class Simulation : Game
     private readonly GraphicsController _graphicsController;
     private ScreenManager _screenManager;
     private readonly ContentProvider _contentProvider;
-    private readonly PathService<AppPaths> _pathService;
 
     public Simulation()
     {
+        PathService<AppPaths> pathService;
         Content.RootDirectory = "Content";
 
         var graphics = new GraphicsDeviceManager(this);
@@ -35,7 +35,7 @@ public class Simulation : Game
         Services.AddService(new UiConfig(_contentProvider));
         Services.AddService(_graphicsController = new GraphicsController(this, Window, graphics));
         Services.AddService(
-            _pathService = new PathService<AppPaths>(
+            pathService = new PathService<AppPaths>(
                 "FlowLab3D",
                 System.Environment.SpecialFolder.MyDocuments
             )
@@ -47,7 +47,8 @@ public class Simulation : Game
         _inputHandler.RegisterDevice(new KeyboardListener(InputBindings.KeyBindings));
         _inputHandler.RegisterDevice(new MouseListener(InputBindings.MouseBindings));
 
-        _pathService.RegisterPath(AppPaths.Recordings, "Recordings");
+        pathService.RegisterPath(AppPaths.Recordings, "Recordings");
+        pathService.RegisterPath(AppPaths.Screenshots, "Screenshots");
 
         IsMouseVisible = true;
         IsFixedTimeStep = false;

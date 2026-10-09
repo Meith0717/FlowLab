@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace FlowLab.Recording
+namespace FlowLab.Tools
 {
     internal class VideoRecorder
     {

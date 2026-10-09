@@ -53,7 +53,7 @@ public static class ParticleFactory
     {
         var entity = CreateParticle(world, position, color, size, restDensity, colorId);
         world.Components.Add(entity, new FluidTag());
-        world.Components.Add(entity, new InterfaceState(5));
+        world.Components.Add(entity, new InterfaceState(2));
         return entity;
     }
 

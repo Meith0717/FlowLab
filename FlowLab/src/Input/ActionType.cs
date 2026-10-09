@@ -16,6 +16,7 @@ namespace FlowLab.Input
         CycleColorsCodes,
         CycleColorsSchemes,
         ResetMinMax,
+        Screenshot,
 
         // Controller
         PauseSimulation,
@@ -25,7 +26,7 @@ namespace FlowLab.Input
 
         // Test
         Test,
-        
+
         // Recording
         ToggleRecording,
     }

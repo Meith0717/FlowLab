@@ -3,14 +3,13 @@
 // All rights reserved.
 
 using System;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using FlowLab.Config;
 using FlowLab.Monitoring;
 
-namespace FlowLab.Recording;
+namespace FlowLab.Tools;
 
 public class DataRecorder
 {
