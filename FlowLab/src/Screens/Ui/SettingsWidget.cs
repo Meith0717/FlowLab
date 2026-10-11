@@ -20,7 +20,8 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
     private UiTextEntry _bViscosityEntry;
     private UiTextEntry _timeStepEntry;
     private UiTextEntry _gravityEntry;
-    private UiTextEntry _iterationEntry;
+    private UiTextEntry _maxIterationEntry;
+    private UiTextEntry _minIterationEntry;
     private UiTextEntry _densityErrorEntry;
 
     public SettingsWidget Build(UiFrame root)
@@ -81,12 +82,18 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
         AddTextEntrySetting(
             "Max Iterations",
             160,
-            ref _iterationEntry,
+            ref _maxIterationEntry,
             simConfig.MaxIterations.ToString()
         );
         AddTextEntrySetting(
-            "Min Error",
+            "Min Iterations",
             190,
+            ref _minIterationEntry,
+            simConfig.MinIterations.ToString()
+        );
+        AddTextEntrySetting(
+            "Min Error",
+            220,
             ref _densityErrorEntry,
             simConfig.MinDensityError.ToString("0.000", CultureInfo.InvariantCulture)
         );
@@ -144,10 +151,13 @@ public class SettingsWidget(UiConfig uiConfig, SimConfig simConfig)
             simConfig.TimeStep = MathHelper.Clamp(timeStep, 0.001f, 0.5f);
 
         if (float.TryParse(_gravityEntry.Text, out var gravity))
-            simConfig.Gravity = MathHelper.Clamp(gravity, 0, 1);
+            simConfig.Gravity = gravity;
 
-        if (int.TryParse(_iterationEntry.Text, out var iteration))
-            simConfig.MaxIterations = int.Max(2, iteration);
+        // if (int.TryParse(_maxIterationEntry.Text, out var maxIter))
+        //     simConfig.MaxIterations = int.Max(2, maxIter);
+        //
+        // if (int.TryParse(_minIterationEntry.Text, out var minIter))
+        //     simConfig.MinIterations = int.Max(2, minIter);
 
         if (float.TryParse(_densityErrorEntry.Text, out var densityError))
             simConfig.MinDensityError = MathHelper.Clamp(densityError, 0, 1);

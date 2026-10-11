@@ -36,7 +36,7 @@ public class DataRecorder
         var metricsPath = Path.Combine(_currentRecordingDir, "metrics.csv");
         _metricsWriter = new StreamWriter(metricsPath, append: false, Encoding.UTF8);
         _metricsWriter.WriteLine(
-            "frameNumber,timestamp,entityCount,compressionError,cfl,iteration,pressureSolverTime,simStepTime"
+            "frameNumber,timestamp,entityCount,compressionError,cfl,iteration,timeStep,maxError,pressureSolverTime,simStepTime"
         );
         _metricsWriter.Flush();
     }
@@ -79,14 +79,14 @@ public class DataRecorder
         File.WriteAllText(settingsPath, JsonSerializer.Serialize(settings, _options));
     }
 
-    public void RecordMetrics(Watcher watcher, int frameNumber)
+    public void RecordMetrics(SimConfig simConfig, Watcher watcher, int frameNumber)
     {
         if (!_active)
             return;
 
         var timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
         var line =
-            $"{frameNumber},{timestamp},{watcher.EntityCount},{watcher.CompressionError * 100},{watcher.Cfl},{watcher.IterationCount},{watcher.PressureSolverTime},{watcher.SimStepTime}";
+            $"{frameNumber},{timestamp},{watcher.EntityCount},{watcher.CompressionError * 100},{watcher.Cfl},{watcher.IterationCount},{simConfig.TimeStep},{simConfig.MinDensityError},{watcher.PressureSolverTime},{watcher.SimStepTime}";
 
         _metricsWriter.WriteLine(line);
         _metricsWriter.Flush();

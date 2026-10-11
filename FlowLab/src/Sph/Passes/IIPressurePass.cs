@@ -102,7 +102,10 @@ public static class IiPressurePass
 
             var avgDensityError = totalDensityError / particleCount;
             if (
-                (avgDensityError * 100 < config.MinDensityError && iteration > 1)
+                (
+                    avgDensityError * 100 < config.MinDensityError
+                    && iteration > config.MinIterations - 1
+                )
                 || particleCount <= 0
             )
                 break;

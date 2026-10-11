@@ -102,8 +102,10 @@ public static class DensityPass
         for (var i = neighbourList.FluidNeighbourCount; i < neighbourList.NeighboursCount; i++) // Only Boundary
             particleDensity += neighbourList.CachedKernels[i];
 
+        var volume = 0.7f / particleDensity;
+        particleDensity = 1f / volume;
+
         particleProperties.ParticleDensity = particleDensity;
-        particleProperties.SetNewVolume(.7f / particleDensity);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

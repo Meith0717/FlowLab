@@ -25,17 +25,17 @@ public struct ParticleProperties
     public float Mass { get; private set; }
     public float DensityError => (Density - RestDensity) / RestDensity;
 
-    public ParticleProperties(Color particleColor, float volume, float restDensity, float colorId)
+    public ParticleProperties(
+        Color particleColor,
+        float particleSize,
+        float restDensity,
+        float colorId
+    )
     {
+        Size = particleSize;
         ColorId = colorId;
         ParticleColor = particleColor;
         RestDensity = Density = restDensity;
-        SetNewVolume(volume);
-    }
-
-    public void SetNewVolume(float volume)
-    {
-        Size = float.RootN(volume, 3);
-        Mass = volume * RestDensity;
+        Mass = (particleSize * particleSize * particleSize) * RestDensity;
     }
 }

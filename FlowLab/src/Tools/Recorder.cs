@@ -82,7 +82,7 @@ public class Recorder(PathService<AppPaths> pathService, SimConfig simConfig, Wa
 
         // Record metrics AND capture frame together - 1:1 correspondence guaranteed
         _videoRecorder.SaveFrame(renderTarget2D, FrameCount);
-        _dataRecorder.RecordMetrics(watcher, FrameCount);
+        _dataRecorder.RecordMetrics(simConfig, watcher, FrameCount);
     }
 
     private bool NextTimeStepReached(float actualTimeStep) =>

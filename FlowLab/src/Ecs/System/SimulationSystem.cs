@@ -42,6 +42,10 @@ public class SimulationSystem(
     {
         _entityTypeTracker = world.TypeTracker;
         _context.Initialize(world.Components);
+
+        var allSet = _entityTypeTracker.GetEntitiesWith<ParticleProperties>().ToArray();
+        var allChunk = new EntityChunking(allSet);
+        DensityPass.RunForEach(allChunk, spatialHash3D, _context, kernels, config);
     }
 
     public void Update(

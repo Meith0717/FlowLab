@@ -311,7 +311,7 @@ public class MonitoringWidget(
         _simMonitoring.Add(
             new UiText(uiConfig.DefaultSpriteFont)
             {
-                Text = "2",
+                Text = $"{config.MinIterations}",
                 Align = Align.Left,
                 HSpace = 10,
                 Y = 330,

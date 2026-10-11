@@ -67,8 +67,7 @@ public static class ParticleFactory
         float ignorePlane = 0
     )
     {
-        var volume = size * size * size;
-        var fluidComponent = new ParticleProperties(color, volume, restDensity, colorId);
+        var fluidComponent = new ParticleProperties(color, size, restDensity, colorId);
         var transform = new Transform3D { Position = position };
 
         var entity = world.CreateEntity();

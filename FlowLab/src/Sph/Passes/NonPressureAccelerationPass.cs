@@ -17,7 +17,7 @@ public static class NonPressureAccelerationPass
     {
         var entities = chunking.Entities;
 
-        chunking.ParallelForEach(
+        /*chunking.ParallelForEach(
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
@@ -31,7 +31,7 @@ public static class NonPressureAccelerationPass
                 for (var i = start; i < end; i++)
                     ComputeInterfaceNormal(entities[i], context);
             }
-        );
+        );*/
 
         chunking.ParallelForEach(
             (start, end) =>
@@ -41,8 +41,8 @@ public static class NonPressureAccelerationPass
                     var entity = entities[i];
                     SetGravityAcceleration(entity, context, config);
                     ComputeViscosity(entity, context, config);
-                    ComputeInterfaceCurvature(entities[i], context);
-                    ComputeInterfaceTensionAcceleration(entity, context);
+                    // ComputeInterfaceCurvature(entities[i], context);
+                    //ComputeInterfaceTensionAcceleration(entity, context);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
                     ref var movement = ref context.KinematicPool.Get(entity.Id);
@@ -72,7 +72,7 @@ public static class NonPressureAccelerationPass
         ref var kinematic = ref context.KinematicPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        for (var i = 0; i < neighbours.Neighbours.Count; ++i)
+        for (var i = 0; i < neighbours.NeighboursCount; ++i)
         {
             var nEntity = neighbours.Neighbours[i];
 

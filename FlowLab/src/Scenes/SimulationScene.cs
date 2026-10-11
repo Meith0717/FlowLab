@@ -49,6 +49,7 @@ public class SimulationScene : IDisposable
 
     // Recording
     private readonly Recorder _recorder;
+    private readonly EventManager _eventManager;
     private readonly Screenshot _screenshot;
     private RenderTarget2D _renderTarget;
 
@@ -100,6 +101,7 @@ public class SimulationScene : IDisposable
 
         // Initialize recorder and render target
         _recorder = new Recorder(pathService, SimConfig, Watcher);
+        _eventManager = new EventManager();
         _screenshot = new Screenshot(pathService);
         CreateRenderTarget();
 
@@ -114,7 +116,10 @@ public class SimulationScene : IDisposable
         );
 
         // Test
-        SimController.OnPause = () => _recorder.StartRecording(Watcher.TimeSteps);
+        _eventManager.Action = () =>
+        {
+            SimConfig.MinIterations++;
+        };
         Build(world);
     }
 
@@ -149,19 +154,18 @@ public class SimulationScene : IDisposable
     {
         var rigidBodyFactory = _simRuntime.Services.Get<RigidBodyFactory>();
         var model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Cube.obj"));
+
         rigidBodyFactory.CreateStatic(
             world,
             model,
-            Vector3.Zero,
-            new Vector3(5, 50, 5),
+            new Vector3(0, 0, 0),
+            new Vector3(3, 40, 3),
             Matrix.Identity,
-            1,
+            1f,
             1f
         );
 
-        AddFluidBlock(9, 9, 16, .5f, new Vector3(0, -9, 0), Color.Orange, 1f);
-        AddFluidBlock(9, 9, 16, 1f, new Vector3(0, -25, 0), Color.DodgerBlue, 0.5f);
-        AddFluidBlock(9, 9, 16, 2f, new Vector3(0, -41, 0), Color.Brown, 0f);
+        AddFluidBlock(5, 5, 60, 1f, new Vector3(0, -9, 0), Color.Orange, 1f);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // rigidBodyFactory.CreateDynamic(
@@ -197,11 +201,15 @@ public class SimulationScene : IDisposable
         _fluidRenderer.ShowSpatialGrids = SimController.ShowSpatialGrids;
 
         if (inputHandler.HasAction((byte)ActionType.ToggleRecording))
+        {
             _recorder.ToggleRecording(Watcher.TimeSteps);
+            _eventManager.Toggle(Watcher.TimeSteps);
+        }
 
         if (inputHandler.HasAction((byte)ActionType.Screenshot))
             _screenshot.TakeScreenshot();
 
+        _eventManager.Update(Watcher.TimeSteps);
         _fluidRenderer.CrossSectionNormal = Vector3.UnitX;
         _fluidRenderer.CrossSectionPosition = Vector3.UnitX * 100;
         if (SensorManager.TryGetCurrentSensorPlaneData(out var data))
