@@ -116,10 +116,6 @@ public class SimulationScene : IDisposable
         );
 
         // Test
-        _eventManager.Action = () =>
-        {
-            SimConfig.MinIterations++;
-        };
         Build(world);
     }
 
@@ -159,13 +155,15 @@ public class SimulationScene : IDisposable
             world,
             model,
             new Vector3(0, 0, 0),
-            new Vector3(3, 40, 3),
+            new Vector3(50, 50, 50),
             Matrix.Identity,
-            1f,
+            1,
             1f
         );
 
-        AddFluidBlock(5, 5, 60, 1f, new Vector3(0, -9, 0), Color.Orange, 1f);
+        AddFluidBlock(99, 99, 16, 3f, new Vector3(0, -9, 0), Color.Brown, 0f);
+        AddFluidBlock(99, 99, 16, 2f, new Vector3(0, -25, 0), Color.DodgerBlue, 0.5f);
+        AddFluidBlock(99, 99, 16, 1f, new Vector3(0, -41, 0), Color.Orange, 1f);
 
         // model = ObjLoader.Load(_graphicsDevice, Path.Combine("Content", "Models", "Sphere.obj"));
         // rigidBodyFactory.CreateDynamic(

@@ -118,6 +118,5 @@ public static class DensityPass
 
         ref var particleProperty = ref context.ParticlePropertiesPool.Get(entity.Id);
         particleProperty.ParticleDensity = particleDensity;
-        particleProperty.Density = particleProperty.Mass * particleDensity;
     }
 }

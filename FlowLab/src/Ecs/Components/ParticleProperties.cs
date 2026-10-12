@@ -20,7 +20,7 @@ public struct ParticleProperties
 
     public float Size { get; private set; }
     public float RestDensity { get; }
-    public float Density { get; set; }
+    public float Density => Mass * ParticleDensity;
     public float ParticleDensity { get; set; }
     public float Mass { get; private set; }
     public float DensityError => (Density - RestDensity) / RestDensity;
@@ -35,7 +35,7 @@ public struct ParticleProperties
         Size = particleSize;
         ColorId = colorId;
         ParticleColor = particleColor;
-        RestDensity = Density = restDensity;
+        RestDensity = restDensity;
         Mass = (particleSize * particleSize * particleSize) * RestDensity;
     }
 }

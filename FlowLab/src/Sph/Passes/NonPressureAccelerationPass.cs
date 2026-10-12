@@ -17,7 +17,7 @@ public static class NonPressureAccelerationPass
     {
         var entities = chunking.Entities;
 
-        /*chunking.ParallelForEach(
+        chunking.ParallelForEach(
             (start, end) =>
             {
                 for (var i = start; i < end; i++)
@@ -31,7 +31,7 @@ public static class NonPressureAccelerationPass
                 for (var i = start; i < end; i++)
                     ComputeInterfaceNormal(entities[i], context);
             }
-        );*/
+        );
 
         chunking.ParallelForEach(
             (start, end) =>
@@ -41,8 +41,8 @@ public static class NonPressureAccelerationPass
                     var entity = entities[i];
                     SetGravityAcceleration(entity, context, config);
                     ComputeViscosity(entity, context, config);
-                    // ComputeInterfaceCurvature(entities[i], context);
-                    //ComputeInterfaceTensionAcceleration(entity, context);
+                    ComputeInterfaceCurvature(entities[i], context);
+                    ComputeInterfaceTensionAcceleration(entity, context);
 
                     ref var kinematic = ref context.KinematicPool.Get(entity.Id);
                     ref var movement = ref context.KinematicPool.Get(entity.Id);
@@ -72,7 +72,7 @@ public static class NonPressureAccelerationPass
         ref var kinematic = ref context.KinematicPool.Get(entity.Id);
         ref var neighbours = ref context.NeighbourPool.Get(entity.Id);
 
-        for (var i = 0; i < neighbours.NeighboursCount; ++i)
+        for (var i = 0; i < neighbours.FluidNeighbourCount; ++i)
         {
             var nEntity = neighbours.Neighbours[i];
 
@@ -90,10 +90,27 @@ public static class NonPressureAccelerationPass
             var volume = 1 / nMaterial.ParticleDensity;
             var res = volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
 
-            var viscosity = context.BoundaryPool.Has(nEntity.Id)
-                ? config.BViscosity
-                : config.FViscosity;
-            kinematic.NonPressureAccelerations += 2f * viscosity * res;
+            kinematic.NonPressureAccelerations += 2f * config.FViscosity * res;
+        }
+
+        for (var i = neighbours.FluidNeighbourCount; i < neighbours.NeighboursCount; ++i)
+        {
+            var nEntity = neighbours.Neighbours[i];
+
+            ref var nTransform = ref context.TransformPool.Get(nEntity.Id);
+            ref var nMaterial = ref context.ParticlePropertiesPool.Get(nEntity.Id);
+            ref var nKinematic = ref context.KinematicPool.Get(nEntity.Id);
+
+            var xIj = transform.Position - nTransform.Position;
+            var dotPositionPosition = Vector3.Dot(xIj, xIj) + config.ScaledParticleDiameter2;
+
+            var vIj = kinematic.Velocity - nKinematic.Velocity;
+            var dotVelocityPosition = Vector3.Dot(vIj, xIj);
+
+            var kernelDerivative = neighbours.CachedNablaKernels[i];
+            var volume = 1 / nMaterial.ParticleDensity;
+            var res = volume * (dotVelocityPosition / dotPositionPosition) * kernelDerivative;
+            kinematic.NonPressureAccelerations += 2f * config.BViscosity * res;
         }
     }
 
