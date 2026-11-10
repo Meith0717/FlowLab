@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowLab.Sim", "FlowLab.Sim\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowLab.Core", "FlowLab.Core\FlowLab.Core.csproj", "{56CB337D-EEF2-4F3A-9E0D-0BED35C923D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoKit", "..\externals\MonoKit\MonoKit\MonoKit.csproj", "{206DF784-64E5-42A7-A2B6-F658636C7BB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{56CB337D-EEF2-4F3A-9E0D-0BED35C923D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56CB337D-EEF2-4F3A-9E0D-0BED35C923D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56CB337D-EEF2-4F3A-9E0D-0BED35C923D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206DF784-64E5-42A7-A2B6-F658636C7BB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206DF784-64E5-42A7-A2B6-F658636C7BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206DF784-64E5-42A7-A2B6-F658636C7BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206DF784-64E5-42A7-A2B6-F658636C7BB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -26,4 +26,7 @@
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6.1"/>
         <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.6.1"/>
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\FlowLab.Core\FlowLab.Core.csproj" />
+    </ItemGroup>
 </Project>
