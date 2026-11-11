@@ -13,3 +13,19 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin effects/ParticleShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/processorParam:Defines=
+/processorParam:Version=3.8.6.1
+/build:effects/ParticleShader.fx
+
+#begin fonts/defaultFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/processorParam:Version=3.8.6.1
+/build:fonts/defaultFont.spritefont
+
