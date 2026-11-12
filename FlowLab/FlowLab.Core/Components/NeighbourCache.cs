@@ -8,7 +8,7 @@ using System.Numerics;
 
 namespace FlowLab.Core.Components;
 
-public struct KernelCach()
+public struct NeighbourCache()
 {
     public readonly List<float> CachedKernels = [];
     public readonly List<Vector3> CachedNablaKernels = [];
