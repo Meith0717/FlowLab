@@ -5,6 +5,7 @@
 // all output reviewed and adapted by the author.
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace FlowLab.Core.Kernels;
 
@@ -14,6 +15,7 @@ public class CubicSpline(float particleDiameter) : ISphKernel
     private readonly float _cubicSplineAlpha =
         1f / (4f * float.Pi * (particleDiameter * particleDiameter * particleDiameter));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public float Value(Vector3 p1, Vector3 p2)
     {
         var dx = p1.X - p2.X;
@@ -27,6 +29,7 @@ public class CubicSpline(float particleDiameter) : ISphKernel
         return _cubicSplineAlpha * t3;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public Vector3 Gradient(Vector3 p1, Vector3 p2)
     {
         var dx = p1.X - p2.X;

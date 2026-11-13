@@ -11,12 +11,12 @@ using Microsoft.Xna.Framework.Graphics;
 namespace FlowLab.Components;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct ParticleShaderData
+public struct ParticleShaderData(float size, float ignorePlane)
 {
     public Vector3 Position; // 12 bytes
     public Color Color; // 4 bytes
-    public float Size; // 4 bytes
-    public float IgnorePlane; // 4 bytes (0 = clip normally, 1 = ignore cross-section plane)
+    public readonly float Size = size; // 4 bytes
+    public readonly float IgnorePlane = ignorePlane; // 4 bytes (0 = clip normally, 1 = ignore cross-section plane)
 
     public static readonly VertexDeclaration VertexDeclaration = new(
         new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 1),

@@ -46,6 +46,8 @@ public class FlowLab : Game
 
         _appHost.Initialize(GraphicsDevice);
         _appHost.ScreenManager.AddScreen(new SimulationScreen(Services));
+
+        _appHost.DisplayController.ApplyRefreshRate(0, false);
     }
 
     protected override void LoadContent()

@@ -5,7 +5,6 @@
 // all output reviewed and adapted by the author.
 
 using FlowLab.Components;
-using FlowLab.Core.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Game.ArchetypeEcs;
@@ -96,11 +95,19 @@ public class ParticleRenderingSystem : IDrawSystem, IUpdateSystem
     public void Update(double elapsedMs, World world)
     {
         _particleCount = 0;
+
+        var boundaryColumn = world.GetComponentColumn<Core.Tags.BoundaryTag>();
+
         world.ForEach(
-            (Entity _, ref KinematicState kinematicState, ref ParticleShaderData shaderData) =>
+            (
+                Entity e,
+                ref Core.Components.Kinematics eKinematics,
+                ref ParticleShaderData eShaderData
+            ) =>
             {
-                shaderData.Position = kinematicState.Position;
-                _instanceData[_particleCount] = shaderData;
+                eShaderData.Position = eKinematics.Position;
+                eShaderData.Color = boundaryColumn.Has(e) ? Color.Gray : Color.DodgerBlue;
+                _instanceData[_particleCount] = eShaderData;
                 _particleCount++;
             }
         );
