@@ -60,6 +60,7 @@ public class FlowLab : Game
             .Create(Content)
             .RegisterContentDirectory<Effect>(ContentLayout.Effects)
             .RegisterContentDirectory<SpriteFont>(ContentLayout.Fonts)
+            .RegisterContentDirectory<Texture2D>(ContentLayout.Textures)
             .LoadAll(_appHost.ContentProvider);
     }
 

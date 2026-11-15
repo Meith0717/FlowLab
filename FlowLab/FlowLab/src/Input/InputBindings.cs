@@ -13,27 +13,33 @@ namespace FlowLab.Input;
 
 public static class InputBindings
 {
-    public static Dictionary<(Keys, InputEventType), byte> KeyBindings = new()
+    public static readonly Dictionary<(Keys, InputEventType), byte> KeyBindings = new()
     {
-        { (Keys.Escape, InputEventType.Released), ActionTypes.Escape },
-        { (Keys.Space, InputEventType.Released), ActionTypes.PauseSimulation },
-        { (Keys.Tab, InputEventType.Released), ActionTypes.SpawnBlock },
-        { (Keys.H, InputEventType.Released), ActionTypes.HideBoundary },
-        { (Keys.Delete, InputEventType.Released), ActionTypes.ClearFluid },
-        { (Keys.P, InputEventType.Released), ActionTypes.ToggleSensorPlane },
-        { (Keys.O, InputEventType.Released), ActionTypes.CycleSensorProperty },
-        { (Keys.F1, InputEventType.Released), ActionTypes.CycleColorsCodes },
-        { (Keys.F2, InputEventType.Released), ActionTypes.CycleColorsSchemes },
-        { (Keys.F3, InputEventType.Released), ActionTypes.ResetMinMax },
-        { (Keys.F11, InputEventType.Released), ActionTypes.ToggleDebug },
-        { (Keys.F12, InputEventType.Released), ActionTypes.ToggleSpatialGrids },
-        { (Keys.R, InputEventType.Released), ActionTypes.ToggleRecording },
-        { (Keys.F5, InputEventType.Released), ActionTypes.Screenshot },
+        { (Keys.Escape, InputEventType.Released), (byte)ActionTypes.Escape },
+        { (Keys.Space, InputEventType.Released), (byte)ActionTypes.PauseSimulation },
+        { (Keys.Tab, InputEventType.Released), (byte)ActionTypes.SpawnBlock },
+        { (Keys.H, InputEventType.Released), (byte)ActionTypes.HideBoundary },
+        { (Keys.Delete, InputEventType.Released), (byte)ActionTypes.ClearFluid },
+        { (Keys.P, InputEventType.Released), (byte)ActionTypes.ToggleSensorPlane },
+        { (Keys.O, InputEventType.Released), (byte)ActionTypes.CycleSensorProperty },
+        { (Keys.F1, InputEventType.Released), (byte)ActionTypes.CycleColorsCodes },
+        { (Keys.F2, InputEventType.Released), (byte)ActionTypes.CycleColorsSchemes },
+        { (Keys.F3, InputEventType.Released), (byte)ActionTypes.ResetMinMax },
+        { (Keys.F11, InputEventType.Released), (byte)ActionTypes.ToggleDebug },
+        { (Keys.F12, InputEventType.Released), (byte)ActionTypes.ToggleSpatialGrids },
+        { (Keys.R, InputEventType.Released), (byte)ActionTypes.ToggleRecording },
+        { (Keys.F5, InputEventType.Released), (byte)ActionTypes.Screenshot },
+        { (Keys.W, InputEventType.Released), (byte)ActionTypes.MoveAlongPositiveY },
+        { (Keys.S, InputEventType.Released), (byte)ActionTypes.MoveAlongNegativeY },
+        { (Keys.A, InputEventType.Released), (byte)ActionTypes.MoveAlongPositiveX },
+        { (Keys.D, InputEventType.Released), (byte)ActionTypes.MoveAlongNegativeX },
+        { (Keys.Q, InputEventType.Released), (byte)ActionTypes.MoveAlongPositiveZ },
+        { (Keys.E, InputEventType.Released), (byte)ActionTypes.MoveAlongNegativeZ },
     };
 
-    public static Dictionary<(MouseButton, InputEventType), byte> MouseBindings = new()
+    public static readonly Dictionary<(MouseButton, InputEventType), byte> MouseBindings = new()
     {
-        { (MouseButton.Right, InputEventType.Held), ActionTypes.MoveCameraByMouse },
-        { (MouseButton.Left, InputEventType.Held), ActionTypes.DragParticle },
+        { (MouseButton.Right, InputEventType.Held), (byte)ActionTypes.MoveCameraByMouse },
+        { (MouseButton.Left, InputEventType.Held), (byte)ActionTypes.DragParticle },
     };
 }

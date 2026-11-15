@@ -12,7 +12,7 @@ using FlowLab.Geometry.Meshes;
 namespace FlowLab.Geometry.Shapes;
 
 /// <summary>Factory for simple procedural meshes that need no file.</summary>
-public static class Shapes
+internal static class Shapes
 {
     private const int DefaultSphereSegments = 32;
     private const int DefaultSphereRings = 16;

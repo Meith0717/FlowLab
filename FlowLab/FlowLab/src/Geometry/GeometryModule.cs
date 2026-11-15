@@ -9,22 +9,59 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Numerics;
 using FlowLab.Core.Configs;
 using FlowLab.Geometry.Meshes;
 using FlowLab.Geometry.Sampling;
+using MonoKit.App.Core.IO;
 
 namespace FlowLab.Geometry;
 
-public sealed class GeometryModule(SimConfig config)
+public static class PreloadedShapes
 {
-    private readonly Dictionary<string, Mesh> _meshes = new();
+    public const string Cube = "cube";
+    public const string Sphere = "sphere";
+    public const string OpenCylinder = "cylinder";
+    public const string OpenCube = "box";
+}
+
+public sealed class GeometryModule
+{
+    private readonly Dictionary<string, Mesh> _meshes = new()
+    {
+        { "cube", Shapes.Shapes.Cube() },
+        { "box", Shapes.Shapes.OpenTopCube() },
+        { "sphere", Shapes.Shapes.Sphere() },
+        { "cylinder", Shapes.Shapes.OpenTopCylinder() },
+    };
+
+    private readonly SimConfig _config;
+
+    public GeometryModule(SimConfig config, string modelDirectoryPath)
+    {
+        _config = config;
+
+        var files = FileUtils.GetAllFilesInDirectory(
+            modelDirectoryPath,
+            SearchOption.TopDirectoryOnly
+        );
+
+        foreach (var file in files)
+        {
+            var id = Path.GetFileNameWithoutExtension(file);
+            var extension = Path.GetExtension(file);
+            if (string.Equals(extension, ".obj", StringComparison.OrdinalIgnoreCase))
+                Import(id, file);
+        }
+    }
 
     public ImmutableArray<string> LoadedMeshes => [.. _meshes.Keys];
 
     public GeometryModule Import(string id, string objFilePath)
     {
-        return Add(id, MeshLoader.LoadObj(objFilePath));
+        var mesh = MeshLoader.LoadObj(objFilePath);
+        return Add(id, mesh);
     }
 
     public GeometryModule Add(string id, Mesh mesh)
@@ -36,7 +73,7 @@ public sealed class GeometryModule(SimConfig config)
 
     public MeshSampler Prepare(string id, float samplingSize, Matrix4x4 transform)
     {
-        return new MeshSampler(config).SetModelAndInitializeSampler(
+        return new MeshSampler(_config).SetModelAndInitializeSampler(
             GetMesh(id),
             samplingSize,
             transform

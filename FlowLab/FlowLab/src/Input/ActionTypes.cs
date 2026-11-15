@@ -6,22 +6,30 @@
 
 namespace FlowLab.Input;
 
-public static class ActionTypes
+public enum ActionTypes : byte
 {
-    public const byte MoveCameraByMouse = 0,
-        DragParticle = 1,
-        PauseSimulation = 3,
-        SpawnBlock = 4,
-        HideBoundary = 5,
-        ClearFluid = 6,
-        ToggleSensorPlane = 7,
-        CycleSensorProperty = 8,
-        CycleColorsCodes = 9,
-        CycleColorsSchemes = 10,
-        ResetMinMax = 11,
-        ToggleDebug = 12,
-        ToggleSpatialGrids = 13,
-        ToggleRecording = 14,
-        Screenshot = 15,
-        Escape = 16;
+    MoveCameraByMouse,
+    DragParticle,
+    PauseSimulation,
+    SpawnBlock,
+    HideBoundary,
+    ClearFluid,
+    ToggleSensorPlane,
+    CycleSensorProperty,
+    CycleColorsCodes,
+    CycleColorsSchemes,
+    ResetMinMax,
+    ToggleDebug,
+    ToggleSpatialGrids,
+    ToggleRecording,
+    Screenshot,
+    Escape,
+
+    // Mesh placement
+    MoveAlongPositiveX,
+    MoveAlongNegativeX,
+    MoveAlongPositiveY,
+    MoveAlongNegativeY,
+    MoveAlongPositiveZ,
+    MoveAlongNegativeZ,
 }

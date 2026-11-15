@@ -5,11 +5,13 @@
 // all output reviewed and adapted by the author.
 
 using System.Numerics;
+using FlowLab.Authoring;
 using FlowLab.Components;
 using FlowLab.Core;
 using FlowLab.Core.Configs;
 using FlowLab.Core.Systems;
 using FlowLab.Geometry;
+using FlowLab.Geometry.Meshes;
 using FlowLab.Geometry.Shapes;
 using FlowLab.Input;
 using FlowLab.Systems;
@@ -18,6 +20,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input.InputListeners;
 using MonoKit.App.Content;
 using MonoKit.App.Core.Diagnostics;
+using MonoKit.App.Core.IO;
 using MonoKit.App.Input;
 using MonoKit.App.Screens;
 using MonoKit.Game;
@@ -33,6 +36,7 @@ public class TestScreen : GameScreen
     private readonly ScreenManager _screenManager;
     private readonly SpriteFont _font;
     private readonly FrameCounter _frameCounter;
+    private readonly DrawableMesh _boundary;
 
     public TestScreen(GameServiceContainer services)
         : base(services, RuntimeDimension.ThreeD, false, false)
@@ -57,14 +61,19 @@ public class TestScreen : GameScreen
         _font = contentProvider.Get<SpriteFont>("defaultFont");
         _frameCounter = services.GetService<FrameCounter>();
 
-        var meshManager = new GeometryModule(Config);
+        var pathService = services.GetService<PathService>();
+        var meshManager = new GeometryModule(Config, pathService.GetPath(AppPaths.Models));
         var factory = new ParticleFactory(world);
 
-        meshManager.Add("cube", Shapes.Cube()).Add("open cube", Shapes.OpenTopCube());
+        _boundary = new DrawableMesh(
+            graphics,
+            meshManager.GetMesh(PreloadedShapes.Cube),
+            Color.White
+        );
 
         foreach (
             var position in meshManager
-                .Prepare("open cube", 1, Matrix4x4.CreateScale(40))
+                .Prepare(PreloadedShapes.Cube, 1, Matrix4x4.CreateScale(40))
                 .SampleSurface()
         )
         {
@@ -73,7 +82,9 @@ public class TestScreen : GameScreen
         }
 
         foreach (
-            var position in meshManager.Prepare("cube", 1, Matrix4x4.CreateScale(35)).SampleVolume()
+            var position in meshManager
+                .Prepare(PreloadedShapes.Cube, 1, Matrix4x4.CreateScale(35))
+                .SampleVolume()
         )
         {
             var e = factory.Spawn(ParticleType.Fluid, position, 1, 1);
@@ -83,7 +94,7 @@ public class TestScreen : GameScreen
 
     public override void Update(double elapsedMs, InputHandler inputHandler, float uiScale)
     {
-        if (inputHandler.HasAction(ActionTypes.Escape))
+        if (inputHandler.HasAction((byte)ActionTypes.Escape))
             _screenManager.PopScreen();
 
         base.Update(elapsedMs, inputHandler, uiScale);
@@ -93,6 +104,10 @@ public class TestScreen : GameScreen
     {
         var camera3D = Host.Camera3D!;
         base.Draw(spriteBatch, graphicsDevice);
+
+        graphicsDevice.DepthStencilState = DepthStencilState.Default;
+        graphicsDevice.RasterizerState = RasterizerState.CullNone;
+        _boundary.Draw(camera3D, Microsoft.Xna.Framework.Matrix.CreateScale(40));
         spriteBatch.Begin();
         spriteBatch.DrawString(
             _font,
@@ -106,5 +121,11 @@ public class TestScreen : GameScreen
             0
         );
         spriteBatch.End();
+    }
+
+    public override void Dispose()
+    {
+        _boundary.Dispose();
+        base.Dispose();
     }
 }

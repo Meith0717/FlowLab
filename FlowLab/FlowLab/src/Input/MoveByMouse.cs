@@ -33,7 +33,7 @@ namespace FlowLab.Input
             var mouseState = Mouse.GetState();
             const float sensitivity = 0.002f;
 
-            if (inputHandler.HasAction(ActionTypes.MoveCameraByMouse))
+            if (inputHandler.HasAction((byte)ActionTypes.MoveCameraByMouse))
             {
                 var deltaX = mouseState.X - _prevMouseState.X;
                 var deltaY = mouseState.Y - _prevMouseState.Y;
