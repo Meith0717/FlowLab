@@ -1,4 +1,4 @@
-// FlowLab.Core - Mesh.cs
+// FlowLab - Mesh.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -15,14 +15,10 @@ namespace FlowLab.Geometry.Meshes;
 
 public sealed class Mesh
 {
-    private readonly float[] _positions;
-    private readonly float[] _normals;
-    private readonly float[] _uVs;
     private readonly int[] _indices;
-    private readonly ImmutableArray<float> _vertexPositions;
-    private readonly ImmutableArray<float> _normalsView;
-    private readonly ImmutableArray<float> _uVsView;
-    private readonly ImmutableArray<int> _indicesView;
+    private readonly float[] _normals;
+    private readonly float[] _positions;
+    private readonly float[] _uVs;
 
     internal Mesh(float[] positions, float[] normals, float[] uvs, int[] indices)
     {
@@ -32,10 +28,10 @@ public sealed class Mesh
         _indices = indices;
 
         // Immutable views are built once: property access must not copy.
-        _vertexPositions = [.. positions];
-        _normalsView = [.. normals];
-        _uVsView = [.. uvs];
-        _indicesView = [.. indices];
+        VertexPositions = [.. positions];
+        Normals = [.. normals];
+        UVs = [.. uvs];
+        Indices = [.. indices];
     }
 
     public int VertexCount => _positions.Length / 3;
@@ -44,10 +40,13 @@ public sealed class Mesh
 
     public bool HasUVs => _uVs.Length > 0;
 
-    public ImmutableArray<float> VertexPositions => _vertexPositions;
-    public ImmutableArray<float> Normals => _normalsView;
-    public ImmutableArray<float> UVs => _uVsView;
-    public ImmutableArray<int> Indices => _indicesView;
+    public ImmutableArray<float> VertexPositions { get; }
+
+    public ImmutableArray<float> Normals { get; }
+
+    public ImmutableArray<float> UVs { get; }
+
+    public ImmutableArray<int> Indices { get; }
 
     public void GetTransformedTriangles(
         Matrix4x4 transform,
@@ -70,6 +69,12 @@ public sealed class Mesh
         }
     }
 
-    private Vector3 ReadVertex(int index) =>
-        new(_positions[index * 3], _positions[index * 3 + 1], _positions[index * 3 + 2]);
+    private Vector3 ReadVertex(int index)
+    {
+        return new Vector3(
+            _positions[index * 3],
+            _positions[index * 3 + 1],
+            _positions[index * 3 + 2]
+        );
+    }
 }

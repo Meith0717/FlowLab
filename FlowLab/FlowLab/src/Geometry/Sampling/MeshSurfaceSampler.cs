@@ -1,4 +1,4 @@
-// FlowLab.Core - MeshSurfaceSampler.cs
+// FlowLab - MeshSurfaceSampler.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -49,9 +49,7 @@ internal static class MeshSurfaceSampler
             )
             {
                 if (shrink)
-                {
                     surfacePoint -= normal * (samplingSize * 0.5f);
-                }
                 surfaceParticles.Add(surfacePoint);
             }
         }
@@ -150,9 +148,7 @@ internal static class MeshSurfaceSampler
 
         var vc = d1 * d4 - d3 * d2;
         if (vc <= 0 && d1 >= 0 && d3 <= 0)
-        {
-            return triangle.V0 + (d1 / (d1 - d3)) * ab;
-        }
+            return triangle.V0 + d1 / (d1 - d3) * ab;
 
         var cp = p - triangle.V2;
         var d5 = Vector3.Dot(ab, cp);
@@ -162,14 +158,12 @@ internal static class MeshSurfaceSampler
 
         var vb = d5 * d2 - d1 * d6;
         if (vb <= 0 && d2 >= 0 && d6 <= 0)
-        {
-            return triangle.V0 + (d2 / (d2 - d6)) * ac;
-        }
+            return triangle.V0 + d2 / (d2 - d6) * ac;
 
         var va = d3 * d6 - d5 * d4;
-        if (va <= 0 && (d4 - d3) >= 0 && (d5 - d6) >= 0)
+        if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0)
         {
-            var w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+            var w = (d4 - d3) / (d4 - d3 + (d5 - d6));
             return triangle.V1 + w * (triangle.V2 - triangle.V1);
         }
 

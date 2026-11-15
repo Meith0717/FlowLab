@@ -20,10 +20,10 @@ public enum WorldModelType
 
 public class WorldModel(GraphicsDevice graphicsDevice, Mesh mesh, WorldModelType type)
 {
-    public readonly Mesh Mesh = mesh;
     public readonly DrawableMesh DrawableMesh = new(graphicsDevice, mesh, Color.White);
+    public readonly Mesh Mesh = mesh;
     public readonly WorldModelType Type = type;
-    public Vector3 Translation;
     public Vector3 Rotation;
     public Vector3 Scale;
+    public Vector3 Translation;
 }

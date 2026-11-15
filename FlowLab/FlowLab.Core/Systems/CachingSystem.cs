@@ -1,10 +1,9 @@
-// FlowLab.Core - CachingAndDensitySystem.cs
+// FlowLab.Core - CachingSystem.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
-using System.Numerics;
 using FlowLab.Core.Configs;
 using FlowLab.Core.Kernels;
 using MonoKit.Game.ArchetypeEcs;
@@ -15,13 +14,13 @@ using MonoKit.Game.Spatial;
 namespace FlowLab.Core.Systems;
 
 /// <summary>
-/// Does precomputation like caching neighbors and kernel results
+///     Does precomputation like caching neighbors and kernel results
 /// </summary>
 /// <param name="config"></param>
 public class CachingAndDensitySystem(SimConfig config) : IUpdateSystem
 {
-    private readonly SpatialHash _spatialHash = new(config.SpatialHashQueryRadius);
     private readonly CubicSpline _kernel = new(config.MaxParticleSize);
+    private readonly SpatialHash _spatialHash = new(config.SpatialHashQueryRadius);
 
     public void Initialize(World world) { }
 
@@ -59,6 +58,7 @@ public class CachingAndDensitySystem(SimConfig config) : IUpdateSystem
                     );
                     fluidNeighbourCout++;
                 }
+
                 cache.FluidNeighbourCount = fluidNeighbourCout;
 
                 properties.ParticleDensity = 0;

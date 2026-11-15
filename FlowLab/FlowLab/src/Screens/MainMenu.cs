@@ -32,7 +32,7 @@ public class MainMenu(GameServiceContainer appServices) : UiScreen(appServices)
         };
         UiRoot.Add(title);
 
-        var createNewSceneButton = new UiButton.Text()
+        var createNewSceneButton = new UiButton.Text
         {
             Align = Align.Center,
             HSpace = 20,
@@ -46,7 +46,7 @@ public class MainMenu(GameServiceContainer appServices) : UiScreen(appServices)
         };
         UiRoot.Add(createNewSceneButton);
 
-        var testButton = new UiButton.Text()
+        var testButton = new UiButton.Text
         {
             Align = Align.SE,
             HSpace = 20,

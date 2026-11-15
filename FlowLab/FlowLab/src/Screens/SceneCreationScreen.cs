@@ -7,8 +7,6 @@
 using FlowLab.Authoring;
 using FlowLab.Core.Configs;
 using FlowLab.Geometry;
-using FlowLab.Geometry.Meshes;
-using FlowLab.Geometry.Shapes;
 using FlowLab.Input;
 using FlowLab.Rendering;
 using FlowLab.Systems;
@@ -27,10 +25,10 @@ namespace FlowLab.Screens;
 public class SceneCreationScreen : GameScreen
 {
     private static readonly SimConfig Config = new(1);
-
-    private readonly ScreenManager _screenManager;
     private readonly AxisRenderer _axisRenderer;
     private readonly MeshPlacerAndRenderer _meshPlacerAndRenderer;
+
+    private readonly ScreenManager _screenManager;
 
     public SceneCreationScreen(GameServiceContainer services)
         : base(services, RuntimeDimension.ThreeD)

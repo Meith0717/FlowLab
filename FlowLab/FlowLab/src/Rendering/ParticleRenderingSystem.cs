@@ -5,6 +5,7 @@
 // all output reviewed and adapted by the author.
 
 using FlowLab.Components;
+using FlowLab.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Game.ArchetypeEcs;
@@ -17,16 +18,16 @@ namespace FlowLab.Systems;
 public class ParticleRenderingSystem : IDrawSystem, IUpdateSystem
 {
     private const int MaxParticles = 1_000_000;
+    private readonly Camera3D _camera3D;
     private readonly GraphicsDevice _graphics;
+    private readonly BasicEffect _gridEffect;
+    private readonly ParticleShaderData[] _instanceData;
+    private readonly Effect _particleShader;
     private readonly VertexBuffer _quadBuffer;
     private readonly IndexBuffer _quadIndexBuffer;
-    private readonly ParticleShaderData[] _instanceData;
-    private DynamicVertexBuffer _currentWriteBuffer;
     private DynamicVertexBuffer _currentReadBuffer;
-    private readonly Effect _particleShader;
-    private readonly BasicEffect _gridEffect;
+    private DynamicVertexBuffer _currentWriteBuffer;
     private int _particleCount;
-    private readonly Camera3D _camera3D;
 
     public ParticleRenderingSystem(
         Camera3D camera3D,
@@ -92,38 +93,6 @@ public class ParticleRenderingSystem : IDrawSystem, IUpdateSystem
 
     public void Initialize(World world) { }
 
-    public void Update(double elapsedMs, World world)
-    {
-        _particleCount = 0;
-
-        var boundaryColumn = world.GetComponentColumn<Core.Tags.BoundaryTag>();
-
-        world.ForEach(
-            (
-                Entity e,
-                ref Core.Components.Kinematics eKinematics,
-                ref ParticleShaderData eShaderData
-            ) =>
-            {
-                eShaderData.Position = eKinematics.Position;
-                eShaderData.Color = boundaryColumn.Has(e) ? Color.Gray : Color.DodgerBlue;
-                _instanceData[_particleCount] = eShaderData;
-                _particleCount++;
-            }
-        );
-
-        if (_particleCount > 0)
-        {
-            _currentWriteBuffer.SetData(
-                _instanceData,
-                0,
-                _particleCount,
-                SetDataOptions.NoOverwrite
-            );
-        }
-        SwapBuffers();
-    }
-
     public void Draw(
         double elapsedMs,
         World world,
@@ -155,14 +124,38 @@ public class ParticleRenderingSystem : IDrawSystem, IUpdateSystem
         foreach (var pass in _particleShader.CurrentTechnique.Passes)
         {
             pass.Apply();
-            _graphics.DrawInstancedPrimitives(
-                primitiveType: PrimitiveType.TriangleList,
-                baseVertex: 0,
-                startIndex: 0,
-                primitiveCount: 2,
-                instanceCount: _particleCount
-            );
+            _graphics.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0, 2, _particleCount);
         }
+    }
+
+    public void Update(double elapsedMs, World world)
+    {
+        _particleCount = 0;
+
+        var boundaryColumn = world.GetComponentColumn<Tags.BoundaryTag>();
+
+        world.ForEach(
+            (
+                Entity e,
+                ref Core.Components.Kinematics eKinematics,
+                ref ParticleShaderData eShaderData
+            ) =>
+            {
+                eShaderData.Position = eKinematics.Position;
+                eShaderData.Color = boundaryColumn.Has(e) ? Color.Gray : Color.DodgerBlue;
+                _instanceData[_particleCount] = eShaderData;
+                _particleCount++;
+            }
+        );
+
+        if (_particleCount > 0)
+            _currentWriteBuffer.SetData(
+                _instanceData,
+                0,
+                _particleCount,
+                SetDataOptions.NoOverwrite
+            );
+        SwapBuffers();
     }
 
     private void SwapBuffers()

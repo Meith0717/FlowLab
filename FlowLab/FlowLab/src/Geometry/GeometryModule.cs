@@ -1,4 +1,4 @@
-// FlowLab.Core - GeometryModule.cs
+// FlowLab - GeometryModule.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -28,6 +28,8 @@ public static class PreloadedShapes
 
 public sealed class GeometryModule
 {
+    private readonly SimConfig _config;
+
     private readonly Dictionary<string, Mesh> _meshes = new()
     {
         { "cube", Shapes.Shapes.Cube() },
@@ -35,8 +37,6 @@ public sealed class GeometryModule
         { "sphere", Shapes.Shapes.Sphere() },
         { "cylinder", Shapes.Shapes.OpenTopCylinder() },
     };
-
-    private readonly SimConfig _config;
 
     public GeometryModule(SimConfig config, string modelDirectoryPath)
     {
@@ -80,8 +80,10 @@ public sealed class GeometryModule
         );
     }
 
-    public Mesh GetMesh(string id) =>
-        _meshes.TryGetValue(id, out var mesh)
+    public Mesh GetMesh(string id)
+    {
+        return _meshes.TryGetValue(id, out var mesh)
             ? mesh
             : throw new ArgumentException($"Mesh with id:{id} does not exist");
+    }
 }

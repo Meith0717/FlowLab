@@ -1,7 +1,8 @@
-// AxisRenderer.cs
-// Copyright (c) 2023-2026 Thierry Meiers
+// FlowLab - AxisRenderer.cs
+// Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
-// Portions generated or assisted by AI.
+// AI-assisted development using Mistral Vibe Code;
+// all output reviewed and adapted by the author.
 
 using System;
 using Microsoft.Xna.Framework;
@@ -12,11 +13,9 @@ namespace FlowLab.Rendering;
 
 public class AxisRenderer : IDisposable
 {
+    private readonly BasicEffect _effect;
     private readonly GraphicsDevice _graphics;
     private VertexBuffer _vertexBuffer;
-    private readonly BasicEffect _effect;
-
-    public float AxisLength { get; init; } = 1f;
 
     public AxisRenderer(GraphicsDevice graphics)
     {
@@ -30,6 +29,15 @@ public class AxisRenderer : IDisposable
         };
 
         BuildBuffers();
+    }
+
+    public float AxisLength { get; init; } = 1f;
+
+    public void Dispose()
+    {
+        _vertexBuffer?.Dispose();
+        _effect?.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     private void BuildBuffers()
@@ -73,12 +81,5 @@ public class AxisRenderer : IDisposable
             pass.Apply();
             _graphics.DrawPrimitives(PrimitiveType.LineList, 0, 3);
         }
-    }
-
-    public void Dispose()
-    {
-        _vertexBuffer?.Dispose();
-        _effect?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

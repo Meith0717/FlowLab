@@ -21,7 +21,7 @@ public class WcPressureSystem(SimConfig config) : IUpdateSystem
             (Entity _, ref Components.Properties properties) =>
             {
                 properties.Pressure =
-                    config.Stiffness * ((properties.Density / properties.RestDensity) - 1);
+                    config.Stiffness * (properties.Density / properties.RestDensity - 1);
                 properties.Pressure = float.Max(properties.Pressure, 0);
             }
         );

@@ -1,4 +1,4 @@
-// FlowLab.Core - MeshVolumeSampler.cs
+// FlowLab - MeshVolumeSampler.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -34,7 +34,7 @@ internal static class MeshVolumeSampler
         var xHits = new float[yCount * zCount][];
         var yHits = new float[xCount * zCount][];
 
-        var threadLocal = new ThreadLocal<HashSet<Triangle>>(() => [], trackAllValues: false);
+        var threadLocal = new ThreadLocal<HashSet<Triangle>>(() => [], false);
 
         Parallel.Invoke(
             () =>
@@ -145,7 +145,6 @@ internal static class MeshVolumeSampler
         for (var i = 0; i <= count; i++)
         {
             if (hash.Grids.TryGetValue(hash.GetHash(samplePoint), out var set))
-            {
                 foreach (var triangle in set)
                 {
                     if (!testedTriangles.Add(triangle))
@@ -156,7 +155,6 @@ internal static class MeshVolumeSampler
 
                     hits.Add(t);
                 }
-            }
 
             samplePoint += direction * samplingSize;
         }

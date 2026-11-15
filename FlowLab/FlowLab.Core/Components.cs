@@ -46,7 +46,7 @@ public static class Components
         public float Size => particleSize;
         public float RestDensity => restDensity;
         public float Density => Mass * ParticleDensity;
-        public float Mass => (particleSize * particleSize * particleSize) * RestDensity;
+        public float Mass => particleSize * particleSize * particleSize * RestDensity;
         public float DensityError => (Density - RestDensity) / RestDensity;
     }
 

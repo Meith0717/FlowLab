@@ -21,11 +21,11 @@ namespace FlowLab.Geometry.Meshes;
 /// </summary>
 public sealed class DrawableMesh : IDisposable
 {
+    private readonly BasicEffect _effect;
     private readonly GraphicsDevice _graphics;
+    private readonly IndexBuffer _indexBuffer;
     private readonly int _lineCount;
     private readonly VertexBuffer _vertexBuffer;
-    private readonly IndexBuffer _indexBuffer;
-    private readonly BasicEffect _effect;
 
     public DrawableMesh(GraphicsDevice graphics, Mesh mesh, Color color)
     {
@@ -35,6 +35,13 @@ public sealed class DrawableMesh : IDisposable
         _vertexBuffer = CreateVertexBuffer(graphics, mesh, color);
         _indexBuffer = CreateIndexBuffer(graphics, lineIndices);
         _effect = new BasicEffect(graphics) { VertexColorEnabled = true, LightingEnabled = false };
+    }
+
+    public void Dispose()
+    {
+        _vertexBuffer.Dispose();
+        _indexBuffer.Dispose();
+        _effect.Dispose();
     }
 
     public void Draw(Camera3D camera, Matrix world)
@@ -52,13 +59,6 @@ public sealed class DrawableMesh : IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _vertexBuffer.Dispose();
-        _indexBuffer.Dispose();
-        _effect.Dispose();
-    }
-
     private static int[] CreateLineIndices(Mesh mesh)
     {
         var indices = mesh.Indices;
@@ -73,6 +73,7 @@ public sealed class DrawableMesh : IDisposable
         }
 
         return [.. edges];
+
         void AddEdge(int a, int b)
         {
             if (a == b || !seen.Add(a < b ? (a, b) : (b, a)))
@@ -89,7 +90,7 @@ public sealed class DrawableMesh : IDisposable
         var vertices = new VertexPositionColor[mesh.VertexCount];
 
         for (var i = 0; i < vertices.Length; i++)
-            vertices[i] = new(
+            vertices[i] = new VertexPositionColor(
                 new Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
                 color
             );

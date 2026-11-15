@@ -5,19 +5,16 @@
 // all output reviewed and adapted by the author.
 
 using System.Numerics;
-using FlowLab.Authoring;
 using FlowLab.Components;
 using FlowLab.Core;
 using FlowLab.Core.Configs;
 using FlowLab.Core.Systems;
 using FlowLab.Geometry;
 using FlowLab.Geometry.Meshes;
-using FlowLab.Geometry.Shapes;
 using FlowLab.Input;
 using FlowLab.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Input.InputListeners;
 using MonoKit.App.Content;
 using MonoKit.App.Core.Diagnostics;
 using MonoKit.App.Core.IO;
@@ -32,11 +29,11 @@ namespace FlowLab.Screens;
 public class TestScreen : GameScreen
 {
     private static readonly SimConfig Config = new(1);
-
-    private readonly ScreenManager _screenManager;
+    private readonly DrawableMesh _boundary;
     private readonly SpriteFont _font;
     private readonly FrameCounter _frameCounter;
-    private readonly DrawableMesh _boundary;
+
+    private readonly ScreenManager _screenManager;
 
     public TestScreen(GameServiceContainer services)
         : base(services, RuntimeDimension.ThreeD, false, false)
@@ -107,7 +104,7 @@ public class TestScreen : GameScreen
 
         graphicsDevice.DepthStencilState = DepthStencilState.Default;
         graphicsDevice.RasterizerState = RasterizerState.CullNone;
-        _boundary.Draw(camera3D, Microsoft.Xna.Framework.Matrix.CreateScale(40));
+        _boundary.Draw(camera3D, Matrix.CreateScale(40));
         spriteBatch.Begin();
         spriteBatch.DrawString(
             _font,

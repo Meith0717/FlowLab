@@ -10,8 +10,8 @@ namespace FlowLab.Core.Configs;
 public class SimConfig(float maxParticleSize)
 {
     public readonly float MaxParticleSize = maxParticleSize;
-    public readonly float SpatialHashQueryRadius = maxParticleSize * 2f;
     public readonly float ScaledParticleDiameter2 = 0.01f * (maxParticleSize * maxParticleSize);
+    public readonly float SpatialHashQueryRadius = maxParticleSize * 2f;
 
     public float FViscosity { get; set; } = 1f;
     public float BViscosity { get; set; } = 1f;

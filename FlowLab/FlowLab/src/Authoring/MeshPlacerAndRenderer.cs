@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using FlowLab.Geometry.Meshes;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Game.Camera;
 using Vector3 = System.Numerics.Vector3;

@@ -1,4 +1,4 @@
-// FlowLab.Core - TriangleHash.cs
+// FlowLab - TriangleHash.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -13,8 +13,8 @@ namespace FlowLab.Geometry.Sampling;
 
 public class TriangleHash(float cellSize)
 {
-    public readonly ConcurrentDictionary<(int X, int Y, int Z), HashSet<Triangle>> Grids = new();
     public readonly float CellSize = cellSize;
+    public readonly ConcurrentDictionary<(int X, int Y, int Z), HashSet<Triangle>> Grids = new();
 
     public void ClearAndPopulate(List<Triangle> triangles)
     {
@@ -108,9 +108,7 @@ public class TriangleHash(float cellSize)
         for (var x = minCell.X; x <= maxCell.X; x++)
         for (var y = minCell.Y; y <= maxCell.Y; y++)
         for (var z = minCell.Z; z <= maxCell.Z; z++)
-        {
             AddToCell((x, y, z), triangle);
-        }
     }
 
     public void GetTriangles(Vector3 position, HashSet<Triangle> result)

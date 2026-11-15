@@ -1,4 +1,4 @@
-// FlowLab.Core - Shapes.cs
+// FlowLab - Shapes.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -17,9 +17,15 @@ internal static class Shapes
     private const int DefaultSphereSegments = 32;
     private const int DefaultSphereRings = 16;
 
-    public static Mesh Cube(float halfExtent = 0.5f) => Box(halfExtent, includeTop: true);
+    public static Mesh Cube(float halfExtent = 0.5f)
+    {
+        return Box(halfExtent, true);
+    }
 
-    public static Mesh OpenTopCube(float halfExtent = 0.5f) => Box(halfExtent, includeTop: false);
+    public static Mesh OpenTopCube(float halfExtent = 0.5f)
+    {
+        return Box(halfExtent, false);
+    }
 
     private static Mesh Box(float halfExtent, bool includeTop)
     {

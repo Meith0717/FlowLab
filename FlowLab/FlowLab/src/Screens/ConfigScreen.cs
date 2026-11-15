@@ -14,15 +14,15 @@ namespace FlowLab.Screens;
 
 public class ConfigScreen(GameServiceContainer appServices) : UiScreen(appServices, false, true)
 {
-    private readonly ScreenManager _screenManager = appServices.GetService<ScreenManager>();
-    private readonly ContentProvider _contentProvider = appServices.GetService<ContentProvider>();
     private readonly GameServiceContainer _appServices = appServices;
+    private readonly ContentProvider _contentProvider = appServices.GetService<ContentProvider>();
+    private readonly ScreenManager _screenManager = appServices.GetService<ScreenManager>();
 
     public override void Initialize()
     {
         UiRoot.Color = new Color(0, 0, 0, 100);
 
-        var layer = new UiContainer()
+        var layer = new UiContainer
         {
             Height = 800,
             Width = 500,

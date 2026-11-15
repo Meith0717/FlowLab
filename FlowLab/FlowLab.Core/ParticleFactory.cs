@@ -53,10 +53,13 @@ public class ParticleFactory(World world)
         Vector3 position,
         float particleSize,
         float restDensity
-    ) =>
+    )
+    {
+        return
         [
             new Components.Kinematics(position),
             new Components.ComputationCache(),
             new Components.Properties(particleSize, restDensity),
         ];
+    }
 }

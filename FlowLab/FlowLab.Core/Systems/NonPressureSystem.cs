@@ -4,15 +4,11 @@
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
-using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using FlowLab.Core.Configs;
-using FlowLab.Core.Kernels;
 using MonoKit.Game.ArchetypeEcs;
 using MonoKit.Game.ArchetypeEcs.Entities;
 using MonoKit.Game.ArchetypeEcs.Systems;
-using MonoKit.Game.Spatial;
 
 namespace FlowLab.Core.Systems;
 

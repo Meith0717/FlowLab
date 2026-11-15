@@ -1,4 +1,4 @@
-// FlowLab.Core - BoundingBox.cs
+// FlowLab - BoundingBox.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -14,17 +14,17 @@ namespace FlowLab.Geometry.Primitives;
 public enum ContainmentType
 {
     /// <summary>
-    /// Indicates that there is no overlap between two bounding volumes.
+    ///     Indicates that there is no overlap between two bounding volumes.
     /// </summary>
     Disjoint,
 
     /// <summary>
-    /// Indicates that one bounding volume completely contains another volume.
+    ///     Indicates that one bounding volume completely contains another volume.
     /// </summary>
     Contains,
 
     /// <summary>
-    /// Indicates that bounding volumes partially overlap one another.
+    ///     Indicates that bounding volumes partially overlap one another.
     /// </summary>
     Intersects,
 }
@@ -113,6 +113,7 @@ public struct BoundingBox(Vector3 min, Vector3 max) : IEquatable<BoundingBox>
             minVector3.Z =
                 minVector3.Z > (double)points[index1].Z ? minVector3.Z : points[index1].Z;
         }
+
         return new BoundingBox(maxVector3, minVector3);
     }
 
@@ -139,6 +140,7 @@ public struct BoundingBox(Vector3 min, Vector3 max) : IEquatable<BoundingBox>
             minVector3.Z =
                 minVector3.Z > (double)points[index1].Z ? minVector3.Z : points[index1].Z;
         }
+
         return new BoundingBox(maxVector3, minVector3);
     }
 
@@ -158,6 +160,7 @@ public struct BoundingBox(Vector3 min, Vector3 max) : IEquatable<BoundingBox>
             minVector3.Z = minVector3.Z > (double)point.Z ? minVector3.Z : point.Z;
             flag = false;
         }
+
         return flag ? throw new ArgumentException() : new BoundingBox(maxVector3, minVector3);
     }
 
@@ -181,9 +184,15 @@ public struct BoundingBox(Vector3 min, Vector3 max) : IEquatable<BoundingBox>
         result.Max.Z = Math.Max(original.Max.Z, additional.Max.Z);
     }
 
-    public bool Equals(BoundingBox other) => Min == other.Min && Max == other.Max;
+    public bool Equals(BoundingBox other)
+    {
+        return Min == other.Min && Max == other.Max;
+    }
 
-    public override bool Equals(object? obj) => obj is BoundingBox other && Equals(other);
+    public override bool Equals(object? obj)
+    {
+        return obj is BoundingBox other && Equals(other);
+    }
 
     public Vector3[] GetCorners()
     {
@@ -231,7 +240,10 @@ public struct BoundingBox(Vector3 min, Vector3 max) : IEquatable<BoundingBox>
         corners[7].Z = Min.Z;
     }
 
-    public override int GetHashCode() => Min.GetHashCode() + Max.GetHashCode();
+    public override int GetHashCode()
+    {
+        return Min.GetHashCode() + Max.GetHashCode();
+    }
 
     public bool Intersects(BoundingBox box)
     {
@@ -249,12 +261,20 @@ public struct BoundingBox(Vector3 min, Vector3 max) : IEquatable<BoundingBox>
                 result = Max.Z >= (double)box.Min.Z && Min.Z <= (double)box.Max.Z;
         }
         else
+        {
             result = false;
+        }
     }
 
-    public static bool operator ==(BoundingBox a, BoundingBox b) => a.Equals(b);
+    public static bool operator ==(BoundingBox a, BoundingBox b)
+    {
+        return a.Equals(b);
+    }
 
-    public static bool operator !=(BoundingBox a, BoundingBox b) => !a.Equals(b);
+    public static bool operator !=(BoundingBox a, BoundingBox b)
+    {
+        return !a.Equals(b);
+    }
 
     public override string ToString()
     {

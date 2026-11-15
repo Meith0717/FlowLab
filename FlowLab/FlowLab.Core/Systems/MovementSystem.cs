@@ -4,7 +4,6 @@
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
-using System.Runtime.InteropServices.ComTypes;
 using FlowLab.Core.Configs;
 using MonoKit.Game.ArchetypeEcs;
 using MonoKit.Game.ArchetypeEcs.Entities;

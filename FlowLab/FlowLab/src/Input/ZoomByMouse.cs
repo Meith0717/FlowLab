@@ -10,41 +10,40 @@ using Microsoft.Xna.Framework.Input;
 using MonoKit.App.Input;
 using MonoKit.Game.Camera;
 
-namespace FlowLab.Input
+namespace FlowLab.Input;
+
+/// <summary>
+///     Smoothly zooms a 3D camera using the mouse scroll wheel by adjusting the field of view (FOV).
+/// </summary>
+public class ZoomByMouse(float smooth) : ICamera3DBehavior
 {
-    /// <summary>
-    /// Smoothly zooms a 3D camera using the mouse scroll wheel by adjusting the field of view (FOV).
-    /// </summary>
-    public class ZoomByMouse(float smooth) : ICamera3DBehavior
+    private int _lastScrollValue;
+    private float _zoomTarget;
+
+    public void Initialize(Camera3D owner)
     {
-        private float _zoomTarget;
-        private int _lastScrollValue;
+        _zoomTarget = owner.Fov;
+        _lastScrollValue = Mouse.GetState().ScrollWheelValue;
+    }
 
-        public void Initialize(Camera3D owner)
+    public void Update(Camera3D owner, InputHandler inputHandler, double elapsedGameTime)
+    {
+        var mouse = Mouse.GetState();
+        var delta = mouse.ScrollWheelValue - _lastScrollValue;
+        _lastScrollValue = mouse.ScrollWheelValue;
+
+        if (delta != 0)
         {
-            _zoomTarget = owner.Fov;
-            _lastScrollValue = Mouse.GetState().ScrollWheelValue;
+            var zoomDelta = delta / 120f;
+            _zoomTarget *= 1f + zoomDelta * 0.2f;
+            _zoomTarget = MathHelper.Clamp(
+                _zoomTarget,
+                MathHelper.ToRadians(10f),
+                MathHelper.ToRadians(120f)
+            );
         }
 
-        public void Update(Camera3D owner, InputHandler inputHandler, double elapsedGameTime)
-        {
-            var mouse = Mouse.GetState();
-            var delta = mouse.ScrollWheelValue - _lastScrollValue;
-            _lastScrollValue = mouse.ScrollWheelValue;
-
-            if (delta != 0)
-            {
-                var zoomDelta = delta / 120f;
-                _zoomTarget *= 1f + zoomDelta * 0.2f;
-                _zoomTarget = MathHelper.Clamp(
-                    _zoomTarget,
-                    MathHelper.ToRadians(10f),
-                    MathHelper.ToRadians(120f)
-                );
-            }
-
-            var t = 1f - (float)Math.Exp(-smooth * elapsedGameTime);
-            owner.Fov = MathHelper.Lerp(owner.Fov, _zoomTarget, t);
-        }
+        var t = 1f - (float)Math.Exp(-smooth * elapsedGameTime);
+        owner.Fov = MathHelper.Lerp(owner.Fov, _zoomTarget, t);
     }
 }

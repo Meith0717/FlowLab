@@ -1,4 +1,4 @@
-// FlowLab.Core - MeshLoader.cs
+// FlowLab - MeshLoader.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -77,10 +77,6 @@ internal static class MeshLoader
 
                 case "f":
                     faces.Add(tokens[1..]);
-                    break;
-
-                default:
-                    // mtllib, usemtl, g, o, s, ... — not needed here
                     break;
             }
         }

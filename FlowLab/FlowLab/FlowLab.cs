@@ -18,8 +18,8 @@ namespace FlowLab;
 
 public class FlowLab : Game
 {
-    private SpriteBatch _spriteBatch;
     private readonly AppHost _appHost;
+    private SpriteBatch _spriteBatch;
 
     public FlowLab()
     {
