@@ -7,20 +7,16 @@
 using FlowLab.Authoring;
 using FlowLab.Core.Configs;
 using FlowLab.Geometry;
-using FlowLab.Geometry.Meshes;
 using FlowLab.Input;
 using FlowLab.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.App.Content;
-using MonoKit.App.Core.Diagnostics;
 using MonoKit.App.Core.IO;
 using MonoKit.App.Input;
 using MonoKit.App.Screens;
-using MonoKit.App.Ui;
 using MonoKit.Game;
 using MonoKit.Game.Screens;
-using Vector3 = System.Numerics.Vector3;
 
 namespace FlowLab.Screens.Authoring;
 
