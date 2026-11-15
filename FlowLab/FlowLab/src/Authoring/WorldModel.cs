@@ -4,6 +4,7 @@
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
+using System;
 using FlowLab.Geometry.Meshes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,12 +19,26 @@ public enum WorldModelType
     RigidBody,
 }
 
-public class WorldModel(GraphicsDevice graphicsDevice, Mesh mesh, WorldModelType type)
+public class WorldModel
 {
-    public readonly DrawableMesh DrawableMesh = new(graphicsDevice, mesh, Color.White);
-    public readonly Mesh Mesh = mesh;
-    public readonly WorldModelType Type = type;
+    public readonly DrawableMesh DrawableMesh;
+    public readonly Mesh Mesh;
+    public readonly WorldModelType Type;
     public Vector3 Rotation;
     public Vector3 Scale;
     public Vector3 Translation;
+
+    public WorldModel(GraphicsDevice graphicsDevice, Mesh mesh, WorldModelType type)
+    {
+        var color = type switch
+        {
+            WorldModelType.Fluid => Color.Blue,
+            WorldModelType.Boundary => Color.Black,
+            WorldModelType.RigidBody => Color.DarkViolet,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+        };
+        DrawableMesh = new DrawableMesh(graphicsDevice, mesh, color);
+        Mesh = mesh;
+        Type = type;
+    }
 }

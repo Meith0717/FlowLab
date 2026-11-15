@@ -10,7 +10,7 @@ using MonoKit.App.Content;
 using MonoKit.App.Screens;
 using MonoKit.App.Ui;
 
-namespace FlowLab.Screens;
+namespace FlowLab.Screens.Authoring;
 
 public class ConfigScreen(GameServiceContainer appServices) : UiScreen(appServices, false, true)
 {

@@ -5,6 +5,7 @@
 // all output reviewed and adapted by the author.
 
 using System;
+using FlowLab.Effects;
 using FlowLab.Input;
 using FlowLab.Screens;
 using Microsoft.Xna.Framework;

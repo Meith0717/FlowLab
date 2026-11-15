@@ -4,6 +4,7 @@
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
+using FlowLab.Screens.Authoring;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.App.Content;

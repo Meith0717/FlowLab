@@ -8,7 +8,7 @@ using System.Numerics;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.App.Rendering;
 
-namespace FlowLab;
+namespace FlowLab.Effects;
 
 public class BlurEffect(Effect blurShader) : IPostProcessingEffect
 {

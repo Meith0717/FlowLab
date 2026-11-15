@@ -4,6 +4,51 @@
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
+using System;
+using System.Linq;
+using FlowLab.Authoring;
+using FlowLab.Geometry;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoKit.App.Content;
+using MonoKit.App.Screens;
+using MonoKit.App.Ui;
+using MonoKit.Game.Gameplay;
+
 namespace FlowLab.Screens.Authoring;
 
-public class Hud { }
+public class Hud(GameServiceContainer appServices, RuntimeContainer gameServices)
+    : UiScreen(appServices, true, true)
+{
+    private readonly ScreenManager _screenManager = appServices.GetService<ScreenManager>();
+    private readonly GameServiceContainer _appServices = appServices;
+    private readonly MeshPlacerAndRenderer _meshPlacerAndRenderer =
+        gameServices.Get<MeshPlacerAndRenderer>();
+
+    public override void Initialize()
+    {
+        _screenManager.EffectEnabled = false;
+
+        var contentProvider = _appServices.GetService<ContentProvider>();
+        var defaultFont = contentProvider.Get<SpriteFont>("defaultFont");
+        var buttonTexture = contentProvider.Get<Texture2D>("button");
+
+        var newMeshButton = new UiButton.Sprite(buttonTexture)
+        {
+            UiText = new UiText(defaultFont, "Add new Mesh") { Scale = .15f, Align = Align.Center },
+            Scale = .66f,
+            Align = Align.SW,
+            HSpace = 20,
+            VSpace = 20,
+            OnClickAction = () =>
+                _screenManager.AddScreen(new AddNewMeshScreen(appServices, gameServices)),
+        };
+        UiRoot.Add(newMeshButton);
+    }
+
+    public override void Dispose()
+    {
+        _screenManager.EffectEnabled = true;
+        base.Dispose();
+    }
+}

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace FlowLab;
+namespace FlowLab.Effects;
 
 internal class GaussianKernel
 {

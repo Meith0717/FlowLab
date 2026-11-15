@@ -32,12 +32,12 @@ public class MeshPlacerAndRenderer(GraphicsDevice graphicsDevice)
         _currentMeshIndex = _worldModels.Count - 1;
     }
 
-    public void UpdateCurrentMesh(Vector3 translation, Vector3 rotation, Vector3 scale)
+    public WorldModel GetCurrentMesh()
     {
-        var mesh = _worldModels[_currentMeshIndex];
-        mesh.Translation = translation;
-        mesh.Rotation = rotation;
-        mesh.Scale = scale;
+        if (_currentMeshIndex < 0 || _currentMeshIndex >= _worldModels.Count)
+            throw new ArgumentOutOfRangeException();
+
+        return _worldModels[_currentMeshIndex];
     }
 
     public void RemoveCurrentMesh()

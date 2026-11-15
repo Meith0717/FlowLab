@@ -13,7 +13,7 @@ using MonoKit.Game.ArchetypeEcs.Entities;
 using MonoKit.Game.ArchetypeEcs.Systems;
 using MonoKit.Game.Camera;
 
-namespace FlowLab.Systems;
+namespace FlowLab.Rendering;
 
 public class ParticleRenderingSystem : IDrawSystem, IUpdateSystem
 {
