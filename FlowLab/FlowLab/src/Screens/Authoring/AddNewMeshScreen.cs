@@ -6,6 +6,7 @@
 
 using System;
 using FlowLab.Authoring;
+using FlowLab.Core;
 using FlowLab.Geometry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,11 +54,11 @@ public class AddNewMeshScreen(GameServiceContainer appServices, RuntimeContainer
         };
         layer.Add(title1);
 
-        var meshTypeSelector = new UiVariableSelector<WorldModelType>(
+        var meshTypeSelector = new UiVariableSelector<ParticleType>(
             leftArrow,
             rightArrow,
             defaultFont,
-            Enum.GetValues<WorldModelType>()
+            Enum.GetValues<ParticleType>()
         )
         {
             Y = 75,

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using FlowLab.Core;
 using FlowLab.Geometry.Meshes;
 using Microsoft.Xna.Framework.Graphics;
 using MonoKit.Game.Camera;
@@ -19,7 +20,7 @@ public class MeshPlacerAndRenderer(GraphicsDevice graphicsDevice)
     private readonly List<WorldModel> _worldModels = [];
     private int _currentMeshIndex;
 
-    public void AddMesh(Mesh mesh, WorldModelType type)
+    public void AddMesh(Mesh mesh, ParticleType type)
     {
         _worldModels.Add(
             new WorldModel(graphicsDevice, mesh, type)
