@@ -30,6 +30,7 @@
     <ProjectReference Include="..\FlowLab.Core\FlowLab.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Content\effects\GaussianBlur.fx" />
     <ClCompile Include="Content\effects\ParticleShader.fx" />
   </ItemGroup>
 </Project>

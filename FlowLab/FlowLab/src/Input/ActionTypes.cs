@@ -22,5 +22,6 @@ public static class ActionTypes
         ToggleDebug = 12,
         ToggleSpatialGrids = 13,
         ToggleRecording = 14,
-        Screenshot = 15;
+        Screenshot = 15,
+        Escape = 16;
 }

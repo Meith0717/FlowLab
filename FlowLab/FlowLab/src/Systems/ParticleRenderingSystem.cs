@@ -131,6 +131,8 @@ public class ParticleRenderingSystem : IDrawSystem, IUpdateSystem
         GraphicsDevice graphicsDevice
     )
     {
+        graphicsDevice.Clear(Color.SlateGray);
+
         if (_particleCount == 0)
             return;
 

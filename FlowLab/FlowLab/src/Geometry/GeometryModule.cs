@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Numerics;
 using FlowLab.Core.Configs;
 using FlowLab.Geometry.Meshes;
@@ -17,21 +18,23 @@ namespace FlowLab.Geometry;
 
 public sealed class GeometryModule(SimConfig config)
 {
-    private readonly Dictionary<byte, Mesh> _meshes = new();
+    private readonly Dictionary<string, Mesh> _meshes = new();
 
-    public GeometryModule Import(byte id, string objFilePath)
+    public ImmutableArray<string> LoadedMeshes => [.. _meshes.Keys];
+
+    public GeometryModule Import(string id, string objFilePath)
     {
         return Add(id, MeshLoader.LoadObj(objFilePath));
     }
 
-    public GeometryModule Add(byte id, Mesh mesh)
+    public GeometryModule Add(string id, Mesh mesh)
     {
         return !_meshes.TryAdd(id, mesh)
             ? throw new ArgumentException($"Mesh with id:{id} already exists")
             : this;
     }
 
-    public MeshSampler Prepare(byte id, float samplingSize, Matrix4x4 transform)
+    public MeshSampler Prepare(string id, float samplingSize, Matrix4x4 transform)
     {
         return new MeshSampler(config).SetModelAndInitializeSampler(
             GetMesh(id),
@@ -40,7 +43,7 @@ public sealed class GeometryModule(SimConfig config)
         );
     }
 
-    public Mesh GetMesh(byte id) =>
+    public Mesh GetMesh(string id) =>
         _meshes.TryGetValue(id, out var mesh)
             ? mesh
             : throw new ArgumentException($"Mesh with id:{id} does not exist");

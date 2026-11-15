@@ -8,5 +8,5 @@ namespace FlowLab;
 
 public static class AppPaths
 {
-    public const byte Test = 0;
+    public const byte Models = 0;
 }

@@ -15,6 +15,7 @@ public static class InputBindings
 {
     public static Dictionary<(Keys, InputEventType), byte> KeyBindings = new()
     {
+        { (Keys.Escape, InputEventType.Released), ActionTypes.Escape },
         { (Keys.Space, InputEventType.Released), ActionTypes.PauseSimulation },
         { (Keys.Tab, InputEventType.Released), ActionTypes.SpawnBlock },
         { (Keys.H, InputEventType.Released), ActionTypes.HideBoundary },

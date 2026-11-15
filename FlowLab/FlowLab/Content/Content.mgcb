@@ -13,6 +13,14 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin effects/GaussianBlur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/processorParam:Defines=
+/processorParam:Version=3.8.6.1
+/build:effects/GaussianBlur.fx
+
 #begin effects/ParticleShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor

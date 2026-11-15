@@ -35,7 +35,7 @@ public class FlowLab : Game
     protected override void Initialize()
     {
         var pathService = _appHost.PathService;
-        pathService.RegisterPath(AppPaths.Test, "Test"); // TODO add paths
+        pathService.RegisterPath(AppPaths.Models, "Models");
 
         var inputHandler = _appHost.InputHandler;
         inputHandler
@@ -45,7 +45,10 @@ public class FlowLab : Game
         base.Initialize();
 
         _appHost.Initialize(GraphicsDevice);
-        _appHost.ScreenManager.AddScreen(new SimulationScreen(Services));
+
+        var gaussianBlurShader = _appHost.ContentProvider.Get<Effect>("GaussianBlur");
+        _appHost.ScreenManager.PostProcessingEffect = new BlurEffect(gaussianBlurShader);
+        _appHost.ScreenManager.AddScreen(new MainMenu(Services));
 
         _appHost.DisplayController.ApplyRefreshRate(0, false);
     }
@@ -68,7 +71,7 @@ public class FlowLab : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        //GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.LightSlateGray);
         _appHost.Draw(gameTime, GraphicsDevice, _spriteBatch);
         base.Draw(gameTime);
     }
