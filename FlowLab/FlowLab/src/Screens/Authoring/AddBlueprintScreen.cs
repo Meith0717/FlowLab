@@ -1,4 +1,4 @@
-// FlowLab - AddNewMeshScreen.cs
+// FlowLab - AddBlueprintScreen.cs
 // Copyright (c) 2026 Thierry Meiers
 // All rights reserved.
 // AI-assisted development using Mistral Vibe Code;
@@ -17,13 +17,12 @@ using MonoKit.Game.Gameplay;
 
 namespace FlowLab.Screens.Authoring;
 
-public class AddNewMeshScreen(GameServiceContainer appServices, RuntimeContainer gameServices)
+public class AddBlueprintScreen(GameServiceContainer appServices, RuntimeContainer gameServices)
     : UiScreen(appServices, false, true)
 {
     private readonly ScreenManager _screenManager = appServices.GetService<ScreenManager>();
     private readonly GeometryModule _geometryModule = gameServices.Get<GeometryModule>();
-    private readonly MeshPlacerAndRenderer _meshPlacerAndRenderer =
-        gameServices.Get<MeshPlacerAndRenderer>();
+    private readonly BlueprintPlacer _blueprintPlacer = gameServices.Get<BlueprintPlacer>();
 
     public override void Initialize()
     {
@@ -44,7 +43,8 @@ public class AddNewMeshScreen(GameServiceContainer appServices, RuntimeContainer
         };
         UiRoot.Add(layer);
 
-        var title1 = new UiText(defaultFont, "Add new Mesh")
+        //---------------------------------------------------------------------------------------------------------Title
+        var title1 = new UiText(defaultFont, "Add Blueprint")
         {
             Scale = .3f,
             Color = Color.White,
@@ -54,6 +54,18 @@ public class AddNewMeshScreen(GameServiceContainer appServices, RuntimeContainer
         };
         layer.Add(title1);
 
+        //----------------------------------------------------------------------------------------------------------ParticleType
+        var y = 75;
+        var typeText = new UiText(defaultFont, "ParticleType:")
+        {
+            Y = y,
+            RelX = 0,
+            Scale = .15f,
+            HSpace = 10,
+            Color = Color.White,
+        };
+        layer.Add(typeText);
+
         var meshTypeSelector = new UiVariableSelector<ParticleType>(
             leftArrow,
             rightArrow,
@@ -62,8 +74,8 @@ public class AddNewMeshScreen(GameServiceContainer appServices, RuntimeContainer
         )
         {
             Y = 75,
-            Align = Align.CenterH,
-            RelWidth = 1,
+            RelX = .3f,
+            RelWidth = .7f,
             HSpace = 10,
             TextScale = .15f,
             TextColor = Color.White,
@@ -96,7 +108,7 @@ public class AddNewMeshScreen(GameServiceContainer appServices, RuntimeContainer
                 {
                     OnClickAction = () =>
                     {
-                        _meshPlacerAndRenderer.AddMesh(
+                        _blueprintPlacer.CreateBlueprint(
                             _geometryModule.GetMesh(meshId),
                             meshTypeSelector.Value
                         );

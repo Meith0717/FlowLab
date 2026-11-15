@@ -12,13 +12,6 @@ using MonoKit.Game.Camera;
 
 namespace FlowLab.Geometry.Meshes;
 
-/// <summary>
-///     Uploads the edge structure of a <see cref="Mesh" /> to the GPU once and
-///     draws it as a line list. Edges shared between triangles are emitted once,
-///     so the line list traces the surface skeleton without triangle diagonals or
-///     double-drawn segments. Mesh geometry uses System.Numerics types; conversion
-///     to the MonoGame vertex format happens once at construction, not per frame.
-/// </summary>
 public sealed class DrawableMesh : IDisposable
 {
     private readonly BasicEffect _effect;
@@ -27,14 +20,14 @@ public sealed class DrawableMesh : IDisposable
     private readonly int _lineCount;
     private readonly VertexBuffer _vertexBuffer;
 
-    public DrawableMesh(GraphicsDevice graphics, Mesh mesh, Color color)
+    public DrawableMesh(GraphicsDevice graphics, Mesh mesh)
     {
         _graphics = graphics;
         var lineIndices = CreateLineIndices(mesh);
         _lineCount = lineIndices.Length / 2;
-        _vertexBuffer = CreateVertexBuffer(graphics, mesh, color);
+        _vertexBuffer = CreateVertexBuffer(graphics, mesh);
         _indexBuffer = CreateIndexBuffer(graphics, lineIndices);
-        _effect = new BasicEffect(graphics) { VertexColorEnabled = true, LightingEnabled = false };
+        _effect = new BasicEffect(graphics) { LightingEnabled = false };
     }
 
     public void Dispose()
@@ -44,11 +37,12 @@ public sealed class DrawableMesh : IDisposable
         _effect.Dispose();
     }
 
-    public void Draw(Camera3D camera, Matrix world)
+    public void Draw(Camera3D camera, Matrix world, Color color)
     {
         _effect.World = world;
         _effect.View = camera.View;
         _effect.Projection = camera.Projection;
+        _effect.DiffuseColor = color.ToVector3();
 
         _graphics.SetVertexBuffer(_vertexBuffer);
         _graphics.Indices = _indexBuffer;
@@ -84,20 +78,19 @@ public sealed class DrawableMesh : IDisposable
         }
     }
 
-    private static VertexBuffer CreateVertexBuffer(GraphicsDevice graphics, Mesh mesh, Color color)
+    private static VertexBuffer CreateVertexBuffer(GraphicsDevice graphics, Mesh mesh)
     {
         var positions = mesh.VertexPositions;
-        var vertices = new VertexPositionColor[mesh.VertexCount];
+        var vertices = new VertexPosition[mesh.VertexCount];
 
         for (var i = 0; i < vertices.Length; i++)
-            vertices[i] = new VertexPositionColor(
-                new Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
-                color
+            vertices[i] = new VertexPosition(
+                new Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2])
             );
 
         var buffer = new VertexBuffer(
             graphics,
-            typeof(VertexPositionColor),
+            typeof(VertexPosition),
             vertices.Length,
             BufferUsage.WriteOnly
         );

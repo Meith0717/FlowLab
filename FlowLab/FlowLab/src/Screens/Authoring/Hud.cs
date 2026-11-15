@@ -19,8 +19,7 @@ public class Hud(GameServiceContainer appServices, RuntimeContainer gameServices
 {
     private readonly ScreenManager _screenManager = appServices.GetService<ScreenManager>();
     private readonly GameServiceContainer _appServices = appServices;
-    private readonly MeshPlacerAndRenderer _meshPlacerAndRenderer =
-        gameServices.Get<MeshPlacerAndRenderer>();
+    private readonly BlueprintPlacer _blueprintPlacer = gameServices.Get<BlueprintPlacer>();
 
     public override void Initialize()
     {
@@ -32,15 +31,30 @@ public class Hud(GameServiceContainer appServices, RuntimeContainer gameServices
 
         var newMeshButton = new UiButton.Sprite(buttonTexture)
         {
-            UiText = new UiText(defaultFont, "Add new Mesh") { Scale = .15f, Align = Align.Center },
+            UiText = new UiText(defaultFont, "Add Blueprint")
+            {
+                Scale = .15f,
+                Align = Align.Center,
+            },
             Scale = .66f,
             Align = Align.SW,
             HSpace = 20,
             VSpace = 20,
             OnClickAction = () =>
-                _screenManager.AddScreen(new AddNewMeshScreen(appServices, gameServices)),
+                _screenManager.AddScreen(new AddBlueprintScreen(appServices, gameServices)),
         };
         UiRoot.Add(newMeshButton);
+
+        var selectNextButton = new UiButton.Sprite(buttonTexture)
+        {
+            UiText = new UiText(defaultFont, "Select next") { Scale = .15f, Align = Align.Center },
+            Scale = .66f,
+            Align = Align.S,
+            HSpace = 20,
+            VSpace = 20,
+            OnClickAction = _blueprintPlacer.NextBlueprint,
+        };
+        UiRoot.Add(selectNextButton);
     }
 
     public override void Dispose()

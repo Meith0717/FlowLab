@@ -4,6 +4,7 @@
 // AI-assisted development using Mistral Vibe Code;
 // all output reviewed and adapted by the author.
 
+using System;
 using FlowLab.Authoring;
 using FlowLab.Core.Configs;
 using FlowLab.Geometry;
@@ -26,8 +27,7 @@ public class SceneCreationScreen : GameScreen
 
     private readonly GameServiceContainer _services;
     private readonly AxisRenderer _axisRenderer;
-    private readonly ScreenManager _screenManager;
-    private readonly MeshPlacerAndRenderer _meshPlacerAndRenderer;
+    private readonly BlueprintPlacer _blueprintPlacer;
 
     public SceneCreationScreen(GameServiceContainer services)
         : base(services, RuntimeDimension.ThreeD)
@@ -38,8 +38,7 @@ public class SceneCreationScreen : GameScreen
 
         _services = services;
         _axisRenderer = new AxisRenderer(graphics) { AxisLength = 1 };
-        _screenManager = services.GetService<ScreenManager>();
-        _meshPlacerAndRenderer = new MeshPlacerAndRenderer(graphics);
+        _blueprintPlacer = new BlueprintPlacer(graphics);
 
         var world = Host.World;
         var camera3D = Host.Camera3D!;
@@ -50,19 +49,20 @@ public class SceneCreationScreen : GameScreen
 
         var geometryModule = new GeometryModule(Config, pathService.GetPath(AppPaths.Models));
         Host.Services.AddService(geometryModule);
-        Host.Services.AddService(_meshPlacerAndRenderer);
+        Host.Services.AddService(_blueprintPlacer);
     }
 
     public override void Initialize()
     {
         base.Initialize();
-        _screenManager.AddScreen(new Hud(_services, Host.Services));
+        var screenManager = _services.GetService<ScreenManager>();
+        screenManager.AddScreen(new Hud(_services, Host.Services));
     }
 
     public override void Update(double elapsedMs, InputHandler inputHandler, float uiScale)
     {
         if (inputHandler.HasAction((byte)ActionTypes.Escape))
-            _screenManager.PopScreenAndAbove(this);
+            _services.GetService<ScreenManager>().PopScreenAndAbove(this);
 
         base.Update(elapsedMs, inputHandler, uiScale);
     }
@@ -73,6 +73,14 @@ public class SceneCreationScreen : GameScreen
 
         var camera3D = Host.Camera3D!;
         _axisRenderer.Draw(camera3D);
-        _meshPlacerAndRenderer.Draw(camera3D);
+        _blueprintPlacer.Draw(camera3D);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        _axisRenderer.Dispose();
+        _blueprintPlacer.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

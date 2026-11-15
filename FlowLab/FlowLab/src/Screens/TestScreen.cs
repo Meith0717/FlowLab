@@ -62,11 +62,7 @@ public class TestScreen : GameScreen
         var meshManager = new GeometryModule(Config, pathService.GetPath(AppPaths.Models));
         var factory = new ParticleFactory(world);
 
-        _boundary = new DrawableMesh(
-            graphics,
-            meshManager.GetMesh(PreloadedShapes.Cube),
-            Color.White
-        );
+        _boundary = new DrawableMesh(graphics, meshManager.GetMesh(PreloadedShapes.Cube));
 
         foreach (
             var position in meshManager
@@ -104,7 +100,7 @@ public class TestScreen : GameScreen
 
         graphicsDevice.DepthStencilState = DepthStencilState.Default;
         graphicsDevice.RasterizerState = RasterizerState.CullNone;
-        _boundary.Draw(camera3D, Matrix.CreateScale(40));
+        _boundary.Draw(camera3D, Matrix.CreateScale(40), Color.White);
         spriteBatch.Begin();
         spriteBatch.DrawString(
             _font,
