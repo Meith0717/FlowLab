@@ -24,12 +24,13 @@ public enum ActionTypes : byte
     ToggleRecording,
     Screenshot,
     Escape,
-
-    // Mesh placement
-    MoveAlongPositiveX,
-    MoveAlongNegativeX,
-    MoveAlongPositiveY,
-    MoveAlongNegativeY,
-    MoveAlongPositiveZ,
-    MoveAlongNegativeZ,
+    IncreaseX,
+    DecreaseX,
+    IncreaseY,
+    DecreaseY,
+    IncreaseZ,
+    DecreaseZ,
+    SwitchTransformationState,
+    IncreaseScale,
+    DecreaseScale,
 }

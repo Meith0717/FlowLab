@@ -11,6 +11,7 @@ using FlowLab.Core.Configs;
 using FlowLab.Core.Systems;
 using FlowLab.Geometry;
 using FlowLab.Geometry.Meshes;
+using FlowLab.Geometry.Shapes;
 using FlowLab.Input;
 using FlowLab.Rendering;
 using Microsoft.Xna.Framework;

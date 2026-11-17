@@ -36,11 +36,11 @@ public class SceneCreationScreen : GameScreen
         var pathService = services.GetService<PathService>();
         var contentProvider = services.GetService<ContentProvider>();
 
+        var world = Host.World;
         _services = services;
         _axisRenderer = new AxisRenderer(graphics) { AxisLength = 1 };
-        _blueprintPlacer = new BlueprintPlacer(graphics);
+        _blueprintPlacer = new BlueprintPlacer(world, graphics);
 
-        var world = Host.World;
         var camera3D = Host.Camera3D!;
         var particleShader = contentProvider.Get<Effect>("ParticleShader");
         world.AddSystem(new ParticleRenderingSystem(camera3D, graphics, particleShader));

@@ -18,14 +18,6 @@ using MonoKit.App.Core.IO;
 
 namespace FlowLab.Geometry;
 
-public static class PreloadedShapes
-{
-    public const string Cube = "cube";
-    public const string Sphere = "sphere";
-    public const string OpenCylinder = "cylinder";
-    public const string OpenCube = "box";
-}
-
 public sealed class GeometryModule
 {
     private readonly SimConfig _config;

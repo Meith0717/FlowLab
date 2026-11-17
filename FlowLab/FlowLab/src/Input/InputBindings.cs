@@ -29,12 +29,18 @@ public static class InputBindings
         { (Keys.F12, InputEventType.Released), (byte)ActionTypes.ToggleSpatialGrids },
         { (Keys.R, InputEventType.Released), (byte)ActionTypes.ToggleRecording },
         { (Keys.F5, InputEventType.Released), (byte)ActionTypes.Screenshot },
-        { (Keys.W, InputEventType.Released), (byte)ActionTypes.MoveAlongPositiveY },
-        { (Keys.S, InputEventType.Released), (byte)ActionTypes.MoveAlongNegativeY },
-        { (Keys.A, InputEventType.Released), (byte)ActionTypes.MoveAlongPositiveX },
-        { (Keys.D, InputEventType.Released), (byte)ActionTypes.MoveAlongNegativeX },
-        { (Keys.Q, InputEventType.Released), (byte)ActionTypes.MoveAlongPositiveZ },
-        { (Keys.E, InputEventType.Released), (byte)ActionTypes.MoveAlongNegativeZ },
+        { (Keys.Right, InputEventType.Released), (byte)ActionTypes.DecreaseX },
+        { (Keys.Left, InputEventType.Released), (byte)ActionTypes.IncreaseX },
+        { (Keys.PageUp, InputEventType.Released), (byte)ActionTypes.IncreaseY },
+        { (Keys.PageDown, InputEventType.Released), (byte)ActionTypes.DecreaseY },
+        { (Keys.Up, InputEventType.Released), (byte)ActionTypes.IncreaseZ },
+        { (Keys.I, InputEventType.Released), (byte)ActionTypes.IncreaseScale },
+        { (Keys.K, InputEventType.Released), (byte)ActionTypes.DecreaseScale },
+        { (Keys.Down, InputEventType.Released), (byte)ActionTypes.DecreaseZ },
+        {
+            (Keys.RightControl, InputEventType.Released),
+            (byte)ActionTypes.SwitchTransformationState
+        },
     };
 
     public static readonly Dictionary<(MouseButton, InputEventType), byte> MouseBindings = new()

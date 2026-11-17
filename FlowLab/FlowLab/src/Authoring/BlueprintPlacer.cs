@@ -9,13 +9,15 @@ using System.Collections.Generic;
 using System.Numerics;
 using FlowLab.Core;
 using FlowLab.Geometry.Meshes;
+using FlowLab.Geometry.Sampling;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoKit.Game.ArchetypeEcs;
 using MonoKit.Game.Camera;
 
 namespace FlowLab.Authoring;
 
-public class BlueprintPlacer(GraphicsDevice graphicsDevice) : IDisposable
+public class BlueprintPlacer(World world, GraphicsDevice graphicsDevice) : IDisposable
 {
     private readonly BlueprintRenderer _blueprintRenderer = new(graphicsDevice);
     private readonly List<Blueprint> _blueprints = [];
@@ -30,7 +32,7 @@ public class BlueprintPlacer(GraphicsDevice graphicsDevice) : IDisposable
         return blueprint;
     }
 
-    public bool TryGetCurrentMesh(out Blueprint blueprint)
+    public bool TryGetCurrentBlueprint(out Blueprint blueprint)
     {
         blueprint = null;
         if (_currentMeshIndex < 0 || _currentMeshIndex >= _blueprints.Count)

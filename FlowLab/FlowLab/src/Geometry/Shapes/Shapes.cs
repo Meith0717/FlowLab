@@ -11,7 +11,14 @@ using FlowLab.Geometry.Meshes;
 
 namespace FlowLab.Geometry.Shapes;
 
-/// <summary>Factory for simple procedural meshes that need no file.</summary>
+public static class PreloadedShapes
+{
+    public const string Cube = "cube";
+    public const string Sphere = "sphere";
+    public const string OpenCylinder = "cylinder";
+    public const string OpenCube = "box";
+}
+
 internal static class Shapes
 {
     private const int DefaultSphereSegments = 32;

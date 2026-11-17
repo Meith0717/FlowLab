@@ -5,6 +5,7 @@
 // all output reviewed and adapted by the author.
 
 using System;
+using System.Linq;
 using FlowLab.Authoring;
 using FlowLab.Core;
 using FlowLab.Geometry;
@@ -49,24 +50,23 @@ public class AddBlueprintScreen(GameServiceContainer appServices, RuntimeContain
             Scale = .3f,
             Color = Color.White,
             Align = Align.NW,
-            HSpace = 10,
-            VSpace = 10,
+            HSpace = 15,
+            VSpace = 15,
         };
         layer.Add(title1);
 
         //----------------------------------------------------------------------------------------------------------ParticleType
-        var y = 75;
-        var typeText = new UiText(defaultFont, "ParticleType:")
+        var typeText = new UiText(defaultFont, "Particle Type:")
         {
-            Y = y,
+            Y = 75,
             RelX = 0,
             Scale = .15f,
-            HSpace = 10,
+            HSpace = 15,
             Color = Color.White,
         };
         layer.Add(typeText);
 
-        var meshTypeSelector = new UiVariableSelector<ParticleType>(
+        var particleTypeSelector = new UiVariableSelector<ParticleType>(
             leftArrow,
             rightArrow,
             defaultFont,
@@ -74,79 +74,67 @@ public class AddBlueprintScreen(GameServiceContainer appServices, RuntimeContain
         )
         {
             Y = 75,
-            RelX = .3f,
-            RelWidth = .7f,
-            HSpace = 10,
+            RelX = .4f,
+            RelWidth = .6f,
+            HSpace = 15,
             TextScale = .15f,
             TextColor = Color.White,
         };
-        layer.Add(meshTypeSelector);
+        layer.Add(particleTypeSelector);
 
-        var loadedMeshesArea = new UiScrollArea()
+        var meshText = new UiText(defaultFont, "Particle Type:")
         {
             Y = 120,
-            Align = Align.CenterH,
-            RelWidth = 1,
-            HSpace = 10,
-            Height = 200,
-            Color = new Color(30, 30, 55),
+            RelX = 0,
+            Scale = .15f,
+            HSpace = 15,
+            Color = Color.White,
         };
-        layer.Add(loadedMeshesArea);
-        var loadedMeshes = _geometryModule.LoadedMeshes;
-        var loadedMeshBox = new UiVBox
-        {
-            Gap = 0.06f,
-            RelWidth = 1,
-            HSpace = 10,
-            VSpace = 4,
-            Height = loadedMeshes.Length * 30,
-        };
-        foreach (var meshId in loadedMeshes)
-        {
-            loadedMeshBox.Add(
-                new UiButton.Text()
-                {
-                    OnClickAction = () =>
-                    {
-                        _blueprintPlacer.CreateBlueprint(
-                            _geometryModule.GetMesh(meshId),
-                            meshTypeSelector.Value
-                        );
-                        _screenManager.PopScreen();
-                    },
-                    UiText = new UiText(defaultFont, $"{meshId}")
-                    {
-                        Color = Color.White,
-                        RelWidth = 1,
-                        Scale = 0.15f,
-                    },
-                }
-            );
-        }
-        loadedMeshesArea.Add(loadedMeshBox);
+        layer.Add(meshText);
 
-        var description = new UiText(
+        var meshSelector = new UiVariableSelector<string>(
+            leftArrow,
+            rightArrow,
             defaultFont,
-            $"* Select a type and click on the mesh\nyou wanna load."
+            [.. _geometryModule.LoadedMeshes]
         )
         {
-            Y = 330,
-            Align = Align.CenterH,
-            Scale = 0.12f,
-            Color = new Color(255, 255, 255, 50),
+            Y = 120,
+            RelX = .4f,
+            RelWidth = .6f,
+            HSpace = 15,
+            TextScale = .15f,
+            TextColor = Color.White,
         };
-        layer.Add(description);
+        layer.Add(meshSelector);
 
-        var cancelButton = new UiButton.Sprite(buttonTexture)
+        var cancelButton = new UiButton.Text()
         {
             UiText = new UiText(defaultFont, "Cancel") { Scale = .15f, Align = Align.Center },
-            Scale = .66f,
-            Align = Align.S,
-            HSpace = 10,
-            VSpace = 10,
+            Align = Align.SW,
+            HSpace = 15,
+            VSpace = 15,
             OnClickAction = _screenManager.PopScreen,
         };
         layer.Add(cancelButton);
+
+        var addButton = new UiButton.Text()
+        {
+            UiText = new UiText(defaultFont, "Add") { Scale = .15f, Align = Align.Center },
+            Align = Align.SE,
+            HSpace = 15,
+            VSpace = 15,
+            OnClickAction = () =>
+            {
+                var meshId = meshSelector.Value;
+                _blueprintPlacer.CreateBlueprint(
+                    _geometryModule.GetMesh(meshId),
+                    particleTypeSelector.Value
+                );
+                _screenManager.PopScreen();
+            },
+        };
+        layer.Add(addButton);
     }
 
     public override void Dispose()
